@@ -5,30 +5,67 @@ const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 export default function ProductCard({ product, onAdd, viewMode }) {
     const isGrid = viewMode === "grid";
 
+    // Grid View - 200px height per user request
+    if (isGrid) {
+        return (
+            <div
+                onClick={() => onAdd(product)}
+                className="group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-300 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden cursor-pointer flex flex-col gap-2 relative"
+            >
+                <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-full h-28 relative">
+                    {product.images?.[0] ? (
+                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    ) : (
+                        <span className="text-3xl opacity-50">📦</span>
+                    )}
+                    {/* Price Badge Overlay */}
+                    <div className="absolute bottom-1 right-1 bg-[rgb(var(--color-primary))] text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                        {fmt(product.pricing?.sellingPrice)}
+                    </div>
+                </div>
+                <div className="min-w-0 w-full px-1 flex-1 flex flex-col justify-between pb-1">
+                    <div>
+                        <p className="text-[11px] font-bold text-[rgb(var(--color-text-primary))] leading-[1.2] line-clamp-2 mb-0.5">{product.name}</p>
+                        <p className="text-[9px] text-[rgb(var(--color-text-secondary))] font-medium truncate uppercase tracking-wider">{product.sku || "NO SKU"}</p>
+                    </div>
+                    <div className="flex items-center justify-between mt-auto">
+                        <span className="text-xs font-black text-[rgb(var(--color-primary))]">{fmt(product.pricing?.sellingPrice)}</span>
+                        <div className="w-5 h-5 rounded-full bg-[rgb(var(--color-primary))]/10 flex items-center justify-center text-[rgb(var(--color-primary))] group-hover:bg-[rgb(var(--color-primary))] group-hover:text-white transition-colors duration-200">
+                            <Plus className="w-3 h-3" strokeWidth={3} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // List View
     return (
-        <button
+        <div
             onClick={() => onAdd(product)}
-            className={`group w-full relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden shrink-0 ${isGrid ? "p-3 flex flex-col gap-2 h-[150px]" : "p-3 flex items-center gap-4 h-auto"}`}
+            className="group w-full relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 cursor-pointer"
         >
-            <div className={`bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 ${isGrid ? "w-full flex-1 text-3xl min-h-0" : "w-12 h-12 text-2xl"}`}>
-                📦
+            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-14 h-14 border border-[rgb(var(--color-border-primary))]">
+                {product.images?.[0] ? (
+                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                ) : (
+                    <span className="text-2xl opacity-40">📦</span>
+                )}
             </div>
-            <div className={`min-w-0 ${isGrid ? "w-full" : "flex-1"}`}>
-                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate leading-tight">{product.name}</p>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5">SKU: {product.sku}</p>
-                <div className="flex items-center justify-between mt-1">
-                    <span className="text-sm font-bold text-[rgb(var(--color-primary))]">{fmt(product.pricing?.sellingPrice)}</span>
-                    {/* <span className={`text-xs px-1.5 py-0.5 rounded-full ${product.status === "OUT_OF_STOCK" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>
-                        {product.status === "OUT_OF_STOCK" ? "Out of Stock" : "In Stock"}
-                    </span> */}
+            <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] truncate">{product.name}</p>
+                    <span className="text-sm font-black text-[rgb(var(--color-primary))] whitespace-nowrap">{fmt(product.pricing?.sellingPrice)}</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] font-mono">{product.sku || "N/A"}</span>
                 </div>
             </div>
-            {/* Add overlay */}
-            <div className="absolute inset-0 bg-[rgb(var(--color-primary))]/0 group-hover:bg-[rgb(var(--color-primary))]/5 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div className="bg-[rgb(var(--color-primary))] text-white rounded-full p-1 shadow-lg">
-                    <Plus className="w-4 h-4" />
+            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="w-8 h-8 rounded-full bg-[rgb(var(--color-primary))] text-white flex items-center justify-center">
+                    <Plus className="w-5 h-5" strokeWidth={2.5} />
                 </div>
             </div>
-        </button>
+        </div>
     );
 }

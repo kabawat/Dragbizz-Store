@@ -153,7 +153,6 @@ const ProductCard = ({
         break;
     }
   };
-
   // Grid view - Modern Card Design
   return (
     <div

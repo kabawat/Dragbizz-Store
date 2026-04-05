@@ -151,9 +151,9 @@ const ProductPanel = ({ addToCart, searchRef }) => {
             </div>
 
             {/* Products grid/list */}
-            <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar ${viewMode === "grid"
-                ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 content-start"
-                : "flex flex-col gap-2"
+            <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar p-2 ${viewMode === "grid"
+                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-[200px]"
+                : "flex flex-col gap-3"
                 }`}>
                 {isLoading && !products.length ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-16 text-[rgb(var(--color-text-secondary))]">
