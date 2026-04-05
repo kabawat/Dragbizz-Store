@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { FileUpload } from "../ui";
 import Image from "next/image";
-import { uploadService, productService } from "@/service";
+import { uploadService, productService, utilityService } from "@/service";
 
 const MediaSection = ({
   formData,
@@ -17,7 +17,7 @@ const MediaSection = ({
   const { t } = useTranslation();
   const [uploadStatus, setUploadStatus] = useState({}); // { [fileIdentifier]: 'uploading' | 'completed' | 'error' }
 
-  // Use file name + size as a simple identifier for tracking upload status of local files
+  // Track upload status of local files
   const getFileId = (file) => (file instanceof File ? `${file.name}-${file.size}` : file);
 
   const getImageDimensions = (file) => {
@@ -44,40 +44,36 @@ const MediaSection = ({
       // Get dimensions before upload
       const dimensions = await getImageDimensions(file);
 
-      const result = await uploadService.uploadFileAndWait(file, "products");
+      // Prepare data for the utility service
+      // The utility service will handle both storage upload AND syncing to the retailer service via gRPC
+      const uploadData = {
+        folder: "products",
+      };
 
-      if (result?.url) {
-        // If we have a productId, call the image save API
-        if (productId) {
-          try {
-            await productService.saveProductImage({
-              entityId: productId,
-              entityType: "Product",
-              url: result.url,
-              isPrimary: images.length === 0,
-              altText: file.name || "Product Image",
-              metadata: {
-                width: dimensions.width,
-                height: dimensions.height
-              }
-            }, { store: storeId });
-          } catch (apiError) {
-            console.error("Error saving product image mapping:", apiError);
-            // We still mark the upload as completed because the file is in storage
-            // but we might want to log this or notify the user
-          }
-        }
+      // Auto-sync image to retailer if productId exists
+      if (productId) {
+        uploadData.entityId = productId;
+        uploadData.entityType = "Product";
+        uploadData.storeId = storeId || "";
+        uploadData.isPrimary = images.length === 0;
+        uploadData.altText = file.name || "Product Image";
+        uploadData.metadata = {
+          width: dimensions.width,
+          height: dimensions.height
+        };
+      }
 
+      const result = await utilityService.uploadRetailerImage(file, uploadData);
+
+      if (result?.success) {
         setUploadStatus(prev => ({ ...prev, [fileId]: 'completed' }));
 
-        // Update the global state using a functional update to safely handle concurrent uploads
+        // Update state with uploaded URL
         onChange("images", (prevImages) => {
           const currentImages = Array.isArray(prevImages) ? prevImages : images;
           return currentImages.map(img => {
             if (img === file || getFileId(img) === fileId) {
-              // Attach the uploaded URL to the file object 
-              // We keep it as a File for local preview
-              img.uploadedUrl = result.url;
+              img.uploadedUrl = result.data.url;
               return img;
             }
             return img;
@@ -90,7 +86,7 @@ const MediaSection = ({
     }
   }, [onChange, images, productId, storeId]);
 
-  // When images change, check for any NEW File objects that need uploading
+  // Handle new uploads
   const handleImagesChange = (allImages) => {
     // Determine which ones are newly added files
     const newFiles = (allImages || []).filter(img =>

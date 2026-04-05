@@ -62,6 +62,7 @@ const API_CONFIG = {
     BASE_URL: "/utility",
     SOCKET: "/utility/socket.io",
     PROFILE_UPLOAD: "/utility/v1/storage/file/profile",
+    RETAILER_UPLOAD: "/utility/v1/storage/file/retailer",
   },
 
   // Voice AI Service Endpoints
