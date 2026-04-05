@@ -58,10 +58,10 @@ const API_CONFIG = {
     SUBSCRIPTION: "/retailer/subscription",
   },
 
-  // Utility Service Endpoints
   UTILITY: {
     BASE_URL: "/utility",
     SOCKET: "/utility/socket.io",
+    PROFILE_UPLOAD: "/utility/v1/storage/file/profile",
   },
 
   // Voice AI Service Endpoints

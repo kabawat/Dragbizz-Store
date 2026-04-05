@@ -97,6 +97,9 @@ const AddProductPage = () => {
     setFormData((prevData) => {
       const newData = { ...prevData };
 
+      // Helper function to resolve the new value if it's a function
+      const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
+
       // Handle nested fields (e.g., 'content.specifications', 'gstInfo.gstRate')
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
@@ -105,11 +108,11 @@ const AddProductPage = () => {
         }
         newData[parent] = {
           ...newData[parent],
-          [child]: value,
+          [child]: getNewValue(newData[parent][child]),
         };
       } else {
         // Handle top-level fields
-        newData[fieldName] = value;
+        newData[fieldName] = getNewValue(newData[fieldName]);
       }
 
       return newData;
@@ -120,8 +123,20 @@ const AddProductPage = () => {
   const handleSaveAndPublish = async () => {
     clearFieldErrors();
 
-    // Calculate discount percentage based on MRP and sellingPrice
-    const payload = { ...formData };
+    // Sanitize images array: extract uploadedUrl from File objects or use string URLs
+    const sanitizedImages = (formData.images || [])
+      .map(img => {
+        if (typeof img === "string") return img;
+        if (img instanceof File) return img.uploadedUrl;
+        return null;
+      })
+      .filter(Boolean);
+
+    const payload = { 
+      ...formData,
+      images: sanitizedImages
+    };
+    
     const mrp = parseFloat(payload.mrp) || 0;
     const sellingPrice = parseFloat(payload.sellingPrice) || 0;
 
@@ -320,6 +335,7 @@ const AddProductPage = () => {
                     onChange={handleFormDataChange}
                     fieldErrors={fieldErrors}
                     storeId={storeId}
+                    productId={null}
                   />
                 </div>
 

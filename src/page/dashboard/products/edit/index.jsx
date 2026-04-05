@@ -177,6 +177,9 @@ const UpdateProductPage = ({ productId }) => {
     setFormData((prevData) => {
       const newData = { ...prevData };
 
+      // Helper function to resolve the new value if it's a function
+      const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
+
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
         if (!newData[parent]) {
@@ -184,11 +187,11 @@ const UpdateProductPage = ({ productId }) => {
         }
         newData[parent] = {
           ...newData[parent],
-          [child]: value,
+          [child]: getNewValue(newData[parent][child]),
         };
       } else {
         // Handle top-level fields
-        newData[fieldName] = value;
+        newData[fieldName] = getNewValue(newData[fieldName]);
       }
 
       return newData;
@@ -210,8 +213,18 @@ const UpdateProductPage = ({ productId }) => {
       );
     }
 
+    // Sanitize images array: extract uploadedUrl from File objects or use string URLs
+    const sanitizedImages = (formData.images || [])
+      .map(img => {
+        if (typeof img === "string") return img;
+        if (img instanceof File) return img.uploadedUrl;
+        return null;
+      })
+      .filter(Boolean);
+
     const updateData = {
       ...formData,
+      images: sanitizedImages,
       pricing: {
         basePrice: formData.basePrice,
         mrp: formData.mrp,
@@ -343,6 +356,7 @@ const UpdateProductPage = ({ productId }) => {
                   onChange={handleFormDataChange}
                   fieldErrors={fieldErrors}
                   storeId={storeId}
+                  productId={productId}
                 />
               </div>
 

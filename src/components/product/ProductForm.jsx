@@ -37,6 +37,7 @@ const ProductForm = ({
   onChange = () => { },
   fieldErrors = {},
   storeId = null,
+  productId = null,
   className = "",
 }) => {
   const { t } = useTranslation();
@@ -227,12 +228,16 @@ const ProductForm = ({
                       onAddCategoryClick={() => setShowAddCategoryDrawer(true)}
                       apiCategories={apiCategories}
                       categoriesLoading={categoriesLoading}
+                      storeId={storeId}
+                      productId={productId}
                     />
                   ) : (
                     <SectionComponent
                       formData={formData}
                       onChange={onChange}
                       errors={fieldErrors}
+                      storeId={storeId}
+                      productId={productId}
                     />
                   )}
                 </SortableSection>
