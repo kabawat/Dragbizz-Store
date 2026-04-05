@@ -11,6 +11,7 @@
   "retailManager": "RetailManager",
   "enabled": "Enabled",
   "updating": "Updating...",
+  "uploading": "Uploading...",
   "deleting": "Deleting...",
   "delete": "Delete",
   "edit": "Edit",
