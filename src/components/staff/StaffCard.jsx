@@ -28,10 +28,11 @@ const STATUS_CONFIG = {
     REMOVED: { label: "Removed", icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" },
 };
 
-const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onEditStaff, onRefresh }) => {
+const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditStaff, onRefresh }) => {
     const [showPermissions, setShowPermissions] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isResending, setIsResending] = useState(false);
     const [isRemoving, setIsRemoving] = useState(false);
 
     const isTempStaff = staff.type === "TEMP_STAFF";
@@ -58,6 +59,17 @@ const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onEditStaff, onRefresh 
         }
     };
 
+    const handleResendInviteLocal = async () => {
+        if (!onResendInvite) return;
+        setIsResending(true);
+        setShowMenu(false);
+        try {
+            await onResendInvite(staff._id);
+        } finally {
+            setIsResending(false);
+        }
+    };
+
     const handleRemoveStaff = async () => {
         if (!onRemoveStaff) return;
         setIsRemoving(true);
@@ -69,7 +81,7 @@ const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onEditStaff, onRefresh 
         }
     };
 
-    const isBusy = isDeleting || isRemoving;
+    const isBusy = isDeleting || isRemoving || isResending;
 
     return (
         <div className={`bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary)/0.3)] rounded-xl transition-all ${isBusy ? "opacity-50 pointer-events-none" : "border-[rgb(var(--color-border-primary))]"}`}>
@@ -139,13 +151,23 @@ const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onEditStaff, onRefresh 
 
                                     {/* TEMP_STAFF actions */}
                                     {isTempStaff && (
-                                        <button
-                                            onClick={handleCancelInvite}
-                                            className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-red-500 hover:bg-red-500/5 transition-colors"
-                                        >
-                                            <Trash2 size={13} />
-                                            Cancel Invitation
-                                        </button>
+                                        <>
+                                            <button
+                                                onClick={handleResendInviteLocal}
+                                                disabled={isResending}
+                                                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors disabled:opacity-50"
+                                            >
+                                                {isResending ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
+                                                Resend Invitation
+                                            </button>
+                                            <button
+                                                onClick={handleCancelInvite}
+                                                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-red-500 hover:bg-red-500/5 transition-colors"
+                                            >
+                                                <Trash2 size={13} />
+                                                Cancel Invitation
+                                            </button>
+                                        </>
                                     )}
 
                                     {/* Active STAFF actions */}
