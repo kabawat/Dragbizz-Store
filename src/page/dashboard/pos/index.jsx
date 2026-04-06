@@ -1,16 +1,13 @@
 "use client";
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
-import POSSuccessScreen from "@/components/pos/POSSuccessScreen";
 import ProductPanel from "@/components/pos/ProductPanel";
 import CartPanel from "@/components/pos/CartPanel";
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 
 const POSPage = () => {
     const [cart, setCart] = useState([]);
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [lastBill, setLastBill] = useState(null);
 
     // Refs exposed to shortcuts
     const searchRef = useRef(null);
@@ -24,18 +21,6 @@ const POSPage = () => {
             if (exists) return prev.map((i) => (i.id || i._id) === prodId ? { ...i, qty: i.qty + 1 } : i);
             return [...prev, { ...product, id: prodId, qty: 1, discount: 0 }];
         });
-    };
-
-    // ── Checkout ─────────────────────────
-    const handleCheckoutSuccess = (bill) => {
-        setLastBill(bill);
-        setShowSuccess(true);
-    };
-
-    const handleNewSale = () => {
-        setCart([]);
-        setShowSuccess(false);
-        setLastBill(null);
     };
 
     // ── POS Keyboard Shortcuts ────────────
@@ -59,16 +44,7 @@ const POSPage = () => {
             e.preventDefault();
             checkoutRef.current?.click();
         },
-        // New sale (after success screen)
-        "ctrl+shift+n": (e) => {
-            e.preventDefault();
-            if (showSuccess) handleNewSale();
-        },
     });
-
-    if (showSuccess && lastBill) {
-        return <POSSuccessScreen lastBill={lastBill} handleNewSale={handleNewSale} />;
-    }
 
     return (
         <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -83,7 +59,6 @@ const POSPage = () => {
                     <CartPanel
                         cart={cart}
                         setCart={setCart}
-                        onCheckout={handleCheckoutSuccess}
                         checkoutRef={checkoutRef}
                     />
                 </div>
