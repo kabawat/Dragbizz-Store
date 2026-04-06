@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Script from "next/script";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
 import { updateSubdomain } from "@/utils/helper/domain";
