@@ -1,9 +1,11 @@
 "use client";
+
 import { MessageCircle, BookOpen, ExternalLink, HelpCircle, ChevronDown, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useMemo } from "react";
 import { getFaqs, getQuickStartSteps } from "@/data/constants/supportData";
+import { getMainDomainUrl } from "@/utils/helper/domain";
 
 const HelpTab = () => {
     const { t } = useTranslation();
@@ -20,32 +22,40 @@ const HelpTab = () => {
         <div className="space-y-8 max-h-full overflow-y-auto pr-2 pb-6">
             {/* Action Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <a href="#" className="group bg-[rgb(var(--color-bg-primary))] p-6 rounded-2xl border border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/30 transition-all">
+                <a
+                    href={getMainDomainUrl("/help")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group bg-[rgb(var(--color-bg-primary))] p-6 rounded-2xl border border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/30 transition-all font-sans"
+                >
                     <div className="flex items-start justify-between">
                         <div className="w-12 h-12 bg-[rgb(var(--color-primary))]/10 rounded-xl flex items-center justify-center text-[rgb(var(--color-primary))] mb-4 group-hover:scale-110 transition-transform">
                             <BookOpen className="w-6 h-6" />
                         </div>
                         <ExternalLink className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
                     </div>
-                    <h3 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h3 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2 font-sans">
                         {t("suggestions.help.ui.docsTitle") || "Detailed Documentation"}
                     </h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm font-sans">
                         {t("suggestions.help.ui.docsDesc") || "Step-by-step guides on how to use every feature of DragBizz Pro."}
                     </p>
                 </a>
 
-                <a href="#" className="group bg-[rgb(var(--color-bg-primary))] p-6 rounded-2xl border border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/30 transition-all">
+                <a
+                    href="mailto:support@dragbizz.com?subject=DragBizz%20Dashboard%20Support%20Request"
+                    className="group bg-[rgb(var(--color-bg-primary))] p-6 rounded-2xl border border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/30 transition-all font-sans"
+                >
                     <div className="flex items-start justify-between">
                         <div className="w-12 h-12 bg-[rgb(var(--color-primary))]/10 rounded-xl flex items-center justify-center text-[rgb(var(--color-primary))] mb-4 group-hover:scale-110 transition-transform">
                             <MessageCircle className="w-6 h-6" />
                         </div>
                         <ExternalLink className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
                     </div>
-                    <h3 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h3 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2 font-sans">
                         {t("suggestions.help.ui.contactTitle") || "Contact Support"}
                     </h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm font-sans">
                         {t("suggestions.help.ui.contactDesc") || "Need direct help? Our support team is available via chat and email 24/7."}
                     </p>
                 </a>
