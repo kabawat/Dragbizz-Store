@@ -24,8 +24,6 @@ const API_CONFIG = {
     RESEND_VERIFICATION: "/auth/resend-verification",
     PROFILE: "/auth/profile",
     NOTIFICATION_SETTINGS: "/auth/settings/notification",
-    UPLOAD_INIT: "/auth/upload/init",
-    UPLOAD_STATUS: "/auth/upload/status",
   },
   RETAILER: {
     INVENTORY: "/retailer/inventory",
@@ -61,8 +59,7 @@ const API_CONFIG = {
   UTILITY: {
     BASE_URL: "/utility",
     SOCKET: "/utility/socket.io",
-    PROFILE_UPLOAD: "/utility/v1/storage/file/profile",
-    RETAILER_UPLOAD: "/utility/v1/storage/file/retailer",
+    UPLOAD_URL: "/utility/v1/storage/upload-url",
   },
 
   // Voice AI Service Endpoints
