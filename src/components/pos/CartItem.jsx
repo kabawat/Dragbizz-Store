@@ -7,12 +7,22 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDis
     const name = item.name || "Unknown Product";
     const emoji = item.emoji || item.icon || "📦";
 
+    const getImageUrl = (images) => {
+        const first = images?.[0];
+        if (!first) return null;
+        if (typeof first === "string") return first;
+        if (typeof first === "object" && first.url) return first.url;
+        return null;
+    };
+
+    const imageUrl = getImageUrl(item.images);
+
     const lineTotal = price * item.qty * (1 - item.discount / 100);
     return (
         <div className="flex items-start gap-2 py-2.5 border-b border-[rgb(var(--color-border-primary))] last:border-0">
             <div className="w-8 h-8 bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center text-base flex-shrink-0 overflow-hidden">
-                {item.images?.[0] ? (
-                    <img src={item.images[0]} alt={name} className="w-full h-full object-cover" />
+                {imageUrl ? (
+                    <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
                 ) : (
                     emoji
                 )}

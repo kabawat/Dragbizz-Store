@@ -66,19 +66,14 @@ const ProductCard = ({
 
   const discount = calculateDiscount(product.sellingPrice, product.mrp);
 
-  const getCategoryBadgeStyle = (color) => {
-    if (currentVariant === "dark") {
-      return {
-        backgroundColor: `${color}20`,
-        color: `${color}CC`,
-        border: `1px solid ${color}50`,
-      };
-    } else {
-      return {
-        backgroundColor: `${color}20`,
-        color: `${color}CC`,
-      };
-    }
+  const getCategoryBadgeClass = (color) => {
+    // We use a mapping for common colors or fallback to arbitrary values
+    const colorMap = {
+      "#6b7280": "bg-gray-500/20 text-gray-500/80 border-gray-500/20",
+      "#8b5cf6": "bg-violet-500/20 text-violet-500/80 border-violet-500/20",
+      "#3b82f6": "bg-blue-500/20 text-blue-500/80 border-blue-500/20",
+    };
+    return `${colorMap[color] || ""} inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border dark:border-opacity-50`;
   };
 
   const _actionMenuItems = useMemo(() => {
@@ -161,23 +156,20 @@ const ProductCard = ({
     >
       {/* Product Image with Gradient Overlay */}
       <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
-        <div className="w-full h-full overflow-hidden rounded-t-xl">
-          {product.image && !imageError ? (
+        <div className="w-full h-full overflow-hidden rounded-t-xl relative">
+          {product.image && typeof product.image === "string" && product.image.trim() && !imageError ? (
             <Image
               src={product.image}
               alt={product.name}
               fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className="object-cover transition-transform duration-300"
               onError={() => setImageError(true)}
             />
           ) : (
-            <div
-              className="w-full h-full flex items-center justify-center"
-              style={{ color: themeConfig.textSecondary }}
-            >
+            <div className="w-full h-full flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
               <Package
-                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
-                style={{ color: themeConfig.textSecondary }}
+                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[rgb(var(--color-text-secondary))]"
               />
             </div>
           )}
@@ -225,16 +217,10 @@ const ProductCard = ({
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Product Name */}
         <div>
-          <h3
-            className="font-bold text-md sm:text-xl mb-1"
-            style={{ color: themeConfig.text }}
-          >
+          <h3 className="font-bold text-md sm:text-xl mb-1 text-[rgb(var(--color-text-primary))]">
             {product.name}
           </h3>
-          <p
-            className="text-xs sm:text-sm font-medium"
-            style={{ color: themeConfig.textSecondary }}
-          >
+          <p className="text-xs sm:text-sm font-medium text-[rgb(var(--color-text-secondary))]">
             {product.brand}
           </p>
         </div>
@@ -262,28 +248,18 @@ const ProductCard = ({
 
             if (categoryParts.length === 0) {
               return (
-                <span
-                  className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-                  style={getCategoryBadgeStyle("#6b7280")}
-                >
+                <span className={getCategoryBadgeClass("#6b7280")}>
                   {t("products.uncategorized")}
                 </span>
               );
             }
-
             return (
               <>
-                <span
-                  className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-                  style={getCategoryBadgeStyle("#8b5cf6")}
-                >
+                <span className={getCategoryBadgeClass("#8b5cf6")}>
                   {categoryParts[0]}
                 </span>
                 {categoryParts[1] && (
-                  <span
-                    className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-                    style={getCategoryBadgeStyle("#3b82f6")}
-                  >
+                  <span className={getCategoryBadgeClass("#3b82f6")}>
                     {categoryParts[1]}
                   </span>
                 )}
@@ -294,17 +270,11 @@ const ProductCard = ({
 
         {/* Stock Info */}
         <div className="flex items-center justify-between">
-          <div
-            className="text-xs sm:text-sm"
-            style={{ color: themeConfig.textSecondary }}
-          >
+          <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <span className="font-medium">{t("products.stock")}:</span>{" "}
             {product.stock} {t("products.units")}
           </div>
-          <div
-            className="text-xs sm:text-sm"
-            style={{ color: themeConfig.textSecondary }}
-          >
+          <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <span className="font-medium">{t("products.sku")}:</span>{" "}
             {product.sku}
           </div>
@@ -313,31 +283,19 @@ const ProductCard = ({
         {/* Pricing Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span
-              className="text-xs sm:text-sm"
-              style={{ color: themeConfig.textSecondary }}
-            >
+            <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               {t("products.sellingPrice")}
             </span>
-            <span
-              className="text-sm sm:text-base md:text-lg font-bold"
-              style={{ color: themeConfig.text }}
-            >
+            <span className="text-sm sm:text-base md:text-lg font-bold text-[rgb(var(--color-text-primary))]">
               ₹{product.sellingPrice.toLocaleString()}
             </span>
           </div>
           {product.mrp > product.sellingPrice && (
             <div className="flex items-center justify-between">
-              <span
-                className="text-xs sm:text-sm"
-                style={{ color: themeConfig.textSecondary }}
-              >
+              <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
                 {t("products.mrp")}
               </span>
-              <span
-                className="text-xs sm:text-sm line-through"
-                style={{ color: themeConfig.textSecondary }}
-              >
+              <span className="text-xs sm:text-sm line-through text-[rgb(var(--color-text-secondary))]">
                 ₹{product.mrp.toLocaleString()}
               </span>
             </div>
@@ -355,13 +313,7 @@ const ProductCard = ({
         </div>
 
         {/* Last Updated */}
-        <div
-          className="text-xs text-center pt-1.5 border-t"
-          style={{
-            color: themeConfig.textSecondary,
-            borderColor: themeConfig.border,
-          }}
-        >
+        <div className="text-xs text-center pt-1.5 border-t text-[rgb(var(--color-text-secondary))] border-[rgb(var(--color-border-primary))]">
           {t("common.lastUpdated")}: {product.lastUpdated}
         </div>
       </div>

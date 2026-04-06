@@ -41,7 +41,6 @@ const UpdateProductPage = ({ productId }) => {
     setFieldErrors,
   } = useApiResponse();
 
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [updatedProductName, setUpdatedProductName] = useState("");
   const [productNotFound, setProductNotFound] = useState(false);
@@ -213,11 +212,12 @@ const UpdateProductPage = ({ productId }) => {
       );
     }
 
-    // Sanitize images array: extract uploadedUrl from File objects or use string URLs
+    // Sanitize images array: extract uploadedUrl from File objects, use string URLs, or extract from objects
     const sanitizedImages = (formData.images || [])
       .map(img => {
         if (typeof img === "string") return img;
         if (img instanceof File) return img.uploadedUrl;
+        if (img && typeof img === "object" && img.url) return img.url;
         return null;
       })
       .filter(Boolean);
@@ -241,8 +241,7 @@ const UpdateProductPage = ({ productId }) => {
     );
 
     if (result?.success) {
-      setUpdatedProductName(formData.name || "Product");
-      setShowSuccessModal(true);
+      router.push("/dashboard/products");
     }
   };
 
@@ -386,16 +385,6 @@ const UpdateProductPage = ({ productId }) => {
           </div>
         </div>
       </div>
-
-      {/* Success Modal */}
-      <ProductAddSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onContinue={handleContinue}
-        productName={updatedProductName}
-        title={t("products.updateSuccess")}
-        continueText={t("products.backToProducts")}
-      />
 
       {/* Info Modal */}
       <ProductInfoModal
