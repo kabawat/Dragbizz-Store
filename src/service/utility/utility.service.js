@@ -21,18 +21,25 @@ class UtilityService {
 
     const { uploadUrl, publicFileUrl, key } = data;
 
-    // Direct PUT to storage provider
     await axios.put(uploadUrl, file, {
       headers: { "Content-Type": file.type }
     });
 
-    return {
-      publicFileUrl,
-      key,
-      fileType: file.type,
-      fileName: file.name,
-      size: file.size
-    };
+    return { publicFileUrl, key };
+  }
+
+  async deleteFile(fileUrl) {
+    if (!fileUrl) return;
+    try {
+      const urlParts = fileUrl.split("/");
+      const key = urlParts.slice(3).join("/");
+
+      return await authAxios.delete(API_CONFIG.UTILITY.DELETE_URL, {
+        params: { key: key || fileUrl }
+      });
+    } catch (error) {
+      console.error("Delete from storage failed:", error);
+    }
   }
 }
 

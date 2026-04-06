@@ -60,6 +60,7 @@ const API_CONFIG = {
     BASE_URL: "/utility",
     SOCKET: "/utility/socket.io",
     UPLOAD_URL: "/utility/v1/storage/upload-url",
+    DELETE_URL: "/utility/v1/storage/file"
   },
 
   // Voice AI Service Endpoints
