@@ -5,6 +5,16 @@ const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 export default function ProductCard({ product, onAdd, viewMode }) {
     const isGrid = viewMode === "grid";
 
+    const getImageUrl = (images) => {
+        const first = images?.[0];
+        if (!first) return null;
+        if (typeof first === "string") return first;
+        if (typeof first === "object" && first.url) return first.url;
+        return null;
+    };
+
+    const imageUrl = getImageUrl(product.images);
+
     // Grid View - 200px height per user request
     if (isGrid) {
         return (
@@ -13,8 +23,8 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                 className="group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-300 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden cursor-pointer flex flex-col gap-2 relative"
             >
                 <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-full h-28 relative">
-                    {product.images?.[0] ? (
-                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    {imageUrl ? (
+                        <img src={imageUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     ) : (
                         <span className="text-3xl opacity-50">📦</span>
                     )}
@@ -46,8 +56,8 @@ export default function ProductCard({ product, onAdd, viewMode }) {
             className="group w-full relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 cursor-pointer"
         >
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-14 h-14 border border-[rgb(var(--color-border-primary))]">
-                {product.images?.[0] ? (
-                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                {imageUrl ? (
+                    <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
                     <span className="text-2xl opacity-40">📦</span>
                 )}

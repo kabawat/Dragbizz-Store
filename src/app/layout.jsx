@@ -1,7 +1,6 @@
 import "@/app/globals.css";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
-import ToastInitializer from "@/components/ToastInitializer";
 import { SettingsDrawer } from "@/components/ui";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
 import NetworkError from "@/components/ui/NetworkError";
@@ -33,7 +32,6 @@ export default function RootLayout({ children }) {
                 <SocketProvider>
                   <SocketNotificationProvider>
                     <ErrorBoundary>
-                      <ToastInitializer />
                       <GlobalProfileLoader />
                       <LocationProvider>
                         <GlobalHotkeys />

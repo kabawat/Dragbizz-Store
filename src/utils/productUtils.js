@@ -41,7 +41,7 @@ const transformProductData = (apiProduct) => {
 
     slug: apiProduct.slug || "",
     // Use first image URL from array or fallback
-    image: apiProduct.images?.[0] || "/api/placeholder/300/300",
+    image: (typeof apiProduct.images?.[0] === 'object' ? apiProduct.images[0].url : apiProduct.images?.[0]) || "https://placehold.co/600x600?text=No+Image",
 
     // Stock information (if available)
     stock: apiProduct.stock || 0,

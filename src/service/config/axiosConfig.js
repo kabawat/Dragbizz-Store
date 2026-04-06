@@ -13,11 +13,6 @@ import {
   setPendingRequest,
 } from "@/utils/requestDeduplication";
 
-let globalToastShowError = null;
-export const setGlobalToast = (showErrorFn) => {
-  globalToastShowError = showErrorFn;
-};
-
 // Base configuration
 const BASE_URL = API_CONFIG.BASE.URL;
 
@@ -218,10 +213,7 @@ unauthAxios.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default {
