@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { UpdatePaymentStatusModal } from "@/components/invoice";
@@ -25,6 +25,8 @@ import {
 const ViewInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const autoPrint = searchParams.get("autoPrint") === "true";
   const { showSuccess, showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -45,6 +47,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const hasFetched = useRef(false);
+  const hasAutoPrinted = useRef(false);
 
   const isMiniTemplate = selectedTemplate?.startsWith("thermal");
 
@@ -74,6 +77,28 @@ const ViewInvoicePage = ({ invoiceId }) => {
   }, [invoiceId, storeId, execute, showError, t]);
 
   useEffect(() => { fetchInvoiceData(); }, [fetchInvoiceData]);
+  // ── Redirect & Print Orchestration ─────────────────
+  const setupRedirectAfterPrint = useCallback(() => {
+    const redirectPath = searchParams.get("redirect") === "pos" ? "/dashboard/pos" : null;
+    window.location.replace(redirectPath);
+  }, [searchParams]);
+
+  const handlePrintWithRedirect = useCallback(() => {
+    handlePrint();
+    setTimeout(() => {
+      setupRedirectAfterPrint();
+    }, 1000)
+  }, [handlePrint, setupRedirectAfterPrint]);
+
+  // Handle Auto-Print
+  useEffect(() => {
+    const shouldAutoPrint = searchParams.get("autoPrint") === "true";
+
+    if (shouldAutoPrint && invoiceData && !fetching && !hasAutoPrinted.current) {
+      hasAutoPrinted.current = true;
+      setTimeout(handlePrintWithRedirect, 1200);
+    }
+  }, [invoiceData, fetching, handlePrintWithRedirect, searchParams]);
 
   useEffect(() => {
     const savedTemplate = localStorage.getItem("invoice-template");
@@ -82,12 +107,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   // Global actions for this page
   useCommonHotkeys({
-    onPrint: canRead ? handlePrint : undefined,
+    onPrint: canRead ? handlePrintWithRedirect : undefined,
     onDownload: canRead ? () => handleDownloadPDF(invoiceData, invoiceId) : undefined,
     onEdit: canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined,
     onNew: canCreate ? () => router.push("/dashboard/invoices/create") : undefined,
     onClose: () => { if (showPaymentStatusModal) setShowPaymentStatusModal(false); },
-    onBack: () => router.push("/dashboard/invoices"),
+    onBack: () => router.push(searchParams.get("redirect") === "pos" ? "/dashboard/pos" : "/dashboard/invoices"),
   });
 
   if (fetching || permissionLoading) return <InvoiceLoadingState t={t} />;
@@ -119,7 +144,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
               calculatedGstAmount={calculatedGstAmount}
               onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
               onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
-              onPrint={canRead ? handlePrint : undefined}
+              onPrint={canRead ? handlePrintWithRedirect : undefined}
             />
           </div>
         </div>

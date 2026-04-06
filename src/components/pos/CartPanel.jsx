@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, Trash2, User, Tag, Receipt, ArrowRight, Loader2 } from "lucide-react";
 import CartItem from "./CartItem";
 import DiscountModal from "./DiscountModal";
@@ -123,11 +124,10 @@ const CartPanel = ({ cart, setCart, checkoutRef }) => {
     const handlePaymentConfirm = async ({ paidAmount, paymentMode }) => {
         if (!tempBill?.invoiceId) return;
 
-        // Map frontend IDs to backend Enums
         const modeMapping = {
             cash: "CASH",
             upi: "UPI",
-            card: "CREDIT_CARD" // backend expects CREDIT_CARD for general cards
+            card: "CREDIT_CARD"
         };
 
         setIsReleasing(true);
@@ -141,17 +141,17 @@ const CartPanel = ({ cart, setCart, checkoutRef }) => {
                     paidAmount,
                     modeMapping[paymentMode] || "CASH"
                 ),
-                { message: "Payment recorded and invoice released!" }
+                { message: "Payment Recorded Successfully!" }
             );
 
             if (res?.success) {
+                const invId = res?.data?.id || res?.data?._id || tempBill.invoiceId;
                 setShowPaymentModal(false);
-                setCart([]); // Clear cart
-                setCustomerName("");
-                setGlobalDiscount("");
-                setCashReceived("");
-                setTempBill(null);
-                showSuccess("Sale completed successfully!");
+
+                // Navigate directly to avoid unmounting issues
+                if (invId) {
+                    window.location.assign(`/dashboard/invoices/${invId}?autoPrint=true&redirect=pos`);
+                }
             }
         } finally {
             setIsReleasing(false);
