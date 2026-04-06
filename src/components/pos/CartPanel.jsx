@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { ShoppingCart, Trash2, User, Tag, Receipt, ArrowRight, Loader2 } from "lucide-react";
 import CartItem from "./CartItem";
 import DiscountModal from "./DiscountModal";
+import PaymentConfirmModal from "./PaymentConfirmModal";
 import { PAYMENT_METHODS } from "@/page/dashboard/pos/data/mockData";
 import { calculateInvoiceGST } from "@/utils/gstCalculator";
 import { invoiceService } from "@/service";
@@ -14,7 +15,7 @@ const quickAmounts = [50, 100, 200, 500, 1000, 2000];
 
 const generateBillNo = () => `POS-${Date.now().toString().slice(-6)}`;
 
-const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
+const CartPanel = ({ cart, setCart, checkoutRef }) => {
     const [customerName, setCustomerName] = useState("");
     const [globalDiscount, setGlobalDiscount] = useState(""); // flat ₹ amount same as invoice
     const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -22,10 +23,13 @@ const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
     const [showDiscountModal, setShowDiscountModal] = useState(null); // item id
     const [discountInput, setDiscountInput] = useState("");
     const [invoiceLoading, setInvoiceLoading] = useState(false);
+    const [isReleasing, setIsReleasing] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [tempBill, setTempBill] = useState(null);
 
     // ─── Same hooks as CreateInvoicePage ───
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const { showError } = useGlobalToast();
+    const { showError, showSuccess } = useGlobalToast();
     const { execute } = useApiResponse();
 
     // Cart operations
@@ -71,7 +75,7 @@ const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
 
     const handleCheckout = async () => {
         if (cart.length === 0) return;
-        const storeId = selectedStore?.storeId;
+        const storeId = selectedStore?.storeId || selectedStore?._id;
         if (!storeId) {
             showError("Store not found. Please select a store.");
             return;
@@ -94,12 +98,12 @@ const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
         setInvoiceLoading(true);
         const result = await execute(
             invoiceService.createDraftInvoice(invoiceData),
-            { message: "Invoice created successfully" }
+            { showToast: false }
         );
         setInvoiceLoading(false);
 
         if (result?.success) {
-            const createdId = result?.data?.id || null;
+            const createdId = result?.data?.id || result?.data?._id || null;
             const bill = {
                 billNo: createdId || generateBillNo(),
                 invoiceId: createdId,
@@ -109,9 +113,48 @@ const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
                 paymentMethod, cashReceived: parseFloat(cashReceived) || 0,
                 changeDue, date: new Date(),
             };
-            onCheckout(bill);
+            setTempBill(bill);
+            setShowPaymentModal(true);
         } else {
-            showError(result?.message || "Failed to create invoice. Please try again.");
+            showError(result?.message || "Failed to create draft invoice.");
+        }
+    };
+
+    const handlePaymentConfirm = async ({ paidAmount, paymentMode }) => {
+        if (!tempBill?.invoiceId) return;
+
+        // Map frontend IDs to backend Enums
+        const modeMapping = {
+            cash: "CASH",
+            upi: "UPI",
+            card: "CREDIT_CARD" // backend expects CREDIT_CARD for general cards
+        };
+
+        setIsReleasing(true);
+        try {
+            const storeId = selectedStore?.storeId || selectedStore?._id;
+            const res = await execute(
+                invoiceService.releaseInvoice(
+                    tempBill.invoiceId,
+                    "PAID",
+                    storeId,
+                    paidAmount,
+                    modeMapping[paymentMode] || "CASH"
+                ),
+                { message: "Payment recorded and invoice released!" }
+            );
+
+            if (res?.success) {
+                setShowPaymentModal(false);
+                setCart([]); // Clear cart
+                setCustomerName("");
+                setGlobalDiscount("");
+                setCashReceived("");
+                setTempBill(null);
+                showSuccess("Sale completed successfully!");
+            }
+        } finally {
+            setIsReleasing(false);
         }
     };
 
@@ -125,6 +168,15 @@ const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
                 setDiscountInput={setDiscountInput}
                 onClose={() => { setShowDiscountModal(null); setDiscountInput(""); }}
                 onApply={applyItemDiscount}
+            />
+
+            <PaymentConfirmModal
+                isOpen={showPaymentModal}
+                onClose={() => setShowPaymentModal(false)}
+                onConfirm={handlePaymentConfirm}
+                grandTotal={grandTotal}
+                initialPaymentMethod={paymentMethod}
+                loading={isReleasing}
             />
 
             <div className="w-80 xl:w-96 flex flex-col bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] overflow-hidden">

@@ -52,12 +52,17 @@ class InvoiceService extends BaseService {
     invoiceId,
     paymentStatus = "PAID",
     storeId = null,
-    paidAmount = null
+    paidAmount = null,
+    paymentMode = null
   ) {
     const payload = {
       id: invoiceId,
       paymentStatus,
     };
+
+    if (paymentMode) {
+      payload.paymentMode = paymentMode;
+    }
 
     if (paidAmount !== null && paidAmount !== undefined) {
       payload.paidAmount = paidAmount;
