@@ -86,6 +86,16 @@ const MediaSection = ({
     newImages.splice(index, 1);
     onChange("images", newImages); // Update UI
 
+    // Delete from Storage & DB
+    const imageUrl = typeof imageToDelete === "string" ? imageToDelete : imageToDelete?.url;
+    if (imageUrl && (imageUrl.includes("bucket") || imageUrl.includes("r2.dev") || imageUrl.includes("local"))) {
+      try {
+        await utilityService.deleteFile(imageUrl);
+      } catch (err) {
+        console.warn("Failed to delete product image from storage:", err);
+      }
+    }
+
     if (imageToDelete?.id) {
       await execute(
         productService.deleteProductImage(imageToDelete.id, storeId),
