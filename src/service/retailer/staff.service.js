@@ -1,3 +1,4 @@
+"use client";
 import { BaseService } from "@/service/base/BaseService";
 import { API_CONFIG } from "@/config";
 
@@ -25,6 +26,11 @@ class StaffService extends BaseService {
     // Cancel a pending staff invitation (TempStaff)
     async deleteTempStaff(staffId) {
         return this.delete(`${this.endpoint}/temp/${staffId}`);
+    }
+
+    // Resend a pending staff invitation
+    async resendStaffInvite(staffId) {
+        return this.post(`${this.endpoint}/resend/${staffId}`);
     }
 
     // Remove an active staff member (marks as REMOVED)

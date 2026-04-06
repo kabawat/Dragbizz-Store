@@ -33,6 +33,7 @@ const StaffPage = () => {
     const [staffList, setStaffList] = useState([]);
     const { execute: executeFetch, loading: isLoading } = useApiResponse();
     const { execute: executeDelete } = useApiResponse();
+    const { execute: executeResend } = useApiResponse();
     const { execute: executeRemove } = useApiResponse();
 
     const fetchStaff = useCallback(async () => {
@@ -57,6 +58,21 @@ const StaffPage = () => {
         );
         if (result?.success) {
             setStaffList((prev) => prev.filter((s) => s._id !== staffId));
+        }
+    };
+
+    const handleResendInvite = async (staffId) => {
+        const result = await executeResend(
+            staffService.resendStaffInvite(staffId),
+            { message: "Staff invitation resent successfully" }
+        );
+        if (result?.success) {
+            // Update the expiresAt in the local list
+            setStaffList((prev) =>
+                prev.map((s) =>
+                    s._id === staffId ? { ...s, expiresAt: result.data?.data?.expiresAt || result.data?.expiresAt } : s
+                )
+            );
         }
     };
 
@@ -153,6 +169,7 @@ const StaffPage = () => {
                                                 key={staff._id}
                                                 staff={staff}
                                                 onDeleteTemp={handleDeleteTempStaff}
+                                                onResendInvite={handleResendInvite}
                                                 onRemoveStaff={handleRemoveStaff}
                                                 onEditStaff={(s) => setEditingStaff(s)}
                                                 onRefresh={fetchStaff}
