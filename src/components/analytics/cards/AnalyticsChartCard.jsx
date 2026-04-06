@@ -11,13 +11,9 @@ const AnalyticsChartCard = ({ title, children, height = "h-64", emptyMessage = "
                     {title}
                 </h3>
                 <div
-                    className={`${height} bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30 overflow-hidden relative`}
+                    className={`${height} bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-[rgb(var(--color-border-primary))]/30 overflow-hidden relative`}
                 >
-                    {children ? (
-                        children
-                    ) : (
-                        <ComingSoonChart />
-                    )}
+                    {children ? (children) : (<ComingSoonChart />)}
                 </div>
             </div>
         </Card>
