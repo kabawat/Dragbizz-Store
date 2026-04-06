@@ -5,7 +5,6 @@ import { FileSignature, ShieldCheck, Upload as UploadIcon, Type as TypeIcon, Fin
 import { Tabs, TabPanel, Button, FileUpload, Input, SideDrawer, Card } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { signatureService } from "@/service/retailer";
-import uploadService from "@/service/auth/upload.service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
 import useApiResponse from "@/hooks/useApiResponse";
@@ -114,95 +113,9 @@ const SignatureDrawer = ({
     const handleFinalSign = async () => {
         setIsSigning(true);
         try {
-            let signatureContent = "";
-            let signatureConfig = {};
-
-            if (activeTab === "type") {
-                // Convert typed signature to image for consistency and better rendering on invoices
-                const canvas = document.createElement("canvas");
-                canvas.width = 600;
-                canvas.height = 200;
-                const ctx = canvas.getContext("2d");
-
-                // Set background as transparent
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Set text styles
-                ctx.fillStyle = "#000000";
-                ctx.font = `${selectedStyle.italic ? 'italic ' : ''}${selectedStyle.bold ? 'bold ' : ''}60px ${selectedFont.family.split(',')[0].replace(/'/g, "")}`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-
-                // Draw text
-                ctx.fillText(typedName, canvas.width / 2, canvas.height / 2);
-
-                const dataUrl = canvas.toDataURL("image/png");
-                const blob = await (await fetch(dataUrl)).blob();
-                const file = new File([blob], `signature_${Date.now()}.png`, { type: "image/png" });
-
-                const uploadRes = await uploadService.uploadFileAndWait(file, "signatures");
-                signatureContent = uploadRes.url;
-                signatureConfig = {
-                    fontFamily: selectedFont.family,
-                    bold: selectedStyle.bold,
-                    italic: selectedStyle.italic,
-                    name: typedName
-                };
-            } else if (activeTab === "draw") {
-                // Optimize drawn signature using the live canvas directly
-                const sourceCanvas = canvasRef.current;
-                if (!sourceCanvas) {
-                    throw new Error("Canvas not found");
-                }
-
-                const canvas = document.createElement("canvas");
-                canvas.width = 600;
-                canvas.height = 200;
-                const ctx = canvas.getContext("2d");
-
-                // Set transparent background
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                const scale = Math.min(canvas.width / sourceCanvas.width, canvas.height / sourceCanvas.height);
-                const x = (canvas.width - sourceCanvas.width * scale) / 2;
-                const y = (canvas.height - sourceCanvas.height * scale) / 2;
-
-                ctx.drawImage(sourceCanvas, x, y, sourceCanvas.width * scale, sourceCanvas.height * scale);
-
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                const file = new File([blob], `signature_${Date.now()}.png`, { type: "image/png" });
-
-                const uploadRes = await uploadService.uploadFileAndWait(file, "signatures");
-                signatureContent = uploadRes.url;
-            } else if (activeTab === "upload") {
-                const file = uploadedFiles[0];
-                const uploadRes = await uploadService.uploadFileAndWait(file, "signatures");
-                signatureContent = uploadRes.url;
-            } else if (activeTab === "identity") {
-                // Identity verification logic (mocked for now as per UI)
-                signatureContent = idNumber;
-                signatureConfig = { idVerified: true };
-            }
-
-            const result = await executeCreate(
-                signatureService.createSignature({
-                    method: activeTab,
-                    content: signatureContent,
-                    config: signatureConfig,
-                    agencyId: agencyId
-                }),
-                { showToast: false }
-            );
-
-            if (result?.success) {
-                showToast("Signature saved successfully!", "success");
-                onSuccess && onSuccess(result.data);
-                onClose();
-            } else {
-                showToast(result?.message || "Failed to save signature", "error");
-            }
+            console.warn("Signature upload logic is stripped for now.");
+            showToast("Signature save feature is temporarily disabled.", "error");
         } catch (error) {
-            
             showToast("An error occurred while saving your signature.", "error");
         } finally {
             setIsSigning(false);
