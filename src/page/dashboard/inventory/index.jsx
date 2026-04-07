@@ -1,16 +1,17 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { Package, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
+import { EmptyState } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setViewMode } from "@/store/slices/inventory/inventorySlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import {
     InventoryListHeader,
-    InventoryListContent,
-    InventoryEmptyState
+    InventoryListContent
 } from "@/components/inventory";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
@@ -20,6 +21,8 @@ const InventoryPage = () => {
     const dispatch = useAppDispatch();
 
     const [showInventoryDrawer, setShowInventoryDrawer] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+
     const { inventories, isLoading: inventoryLoading, error } = useAppSelector((state) => state.inventory);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
@@ -67,6 +70,8 @@ const InventoryPage = () => {
                             showInventoryDrawer={showInventoryDrawer}
                             setShowInventoryDrawer={setShowInventoryDrawer}
                             canCreate={canCreate}
+                            searchValue={searchValue}
+                            setSearchValue={setSearchValue}
                         />
 
                         {/* State 1: Initial loading */}
@@ -81,7 +86,15 @@ const InventoryPage = () => {
 
                         {/* State 2: Empty state */}
                         {!(inventoryLoading || permissionsLoading) && inventories.length === 0 && (
-                            <InventoryEmptyState onAddStock={canCreate ? () => setShowInventoryDrawer(true) : null} />
+                            <EmptyState
+                                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                                icon={Package}
+                                title={t("inventory.noInventory")}
+                                description={searchValue ? t("inventory.noResultsDescription") : t("inventory.emptyDescription")}
+                                actionLabel={!searchValue && canCreate ? t("inventory.addStock") : null}
+                                onAction={() => setShowInventoryDrawer(true)}
+                                actionIcon={Plus}
+                            />
                         )}
 
                         {/* State 3: Inventory list + modals + drawers */}
