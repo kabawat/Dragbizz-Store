@@ -11,7 +11,18 @@ import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer
 import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const SupplierListHeader = () => {
+const SupplierListHeader = ({
+    searchValue,
+    setSearchValue,
+    accountStatus,
+    setAccountStatus,
+    riskLevel,
+    setRiskLevel,
+    isActive,
+    setIsActive,
+    showAddSupplierDrawer,
+    setShowAddSupplierDrawer
+}) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
 
@@ -20,13 +31,7 @@ const SupplierListHeader = () => {
     const storeId = useMemo(() => selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "",
         [selectedStore]);
 
-    const [searchValue, setSearchValue] = useState("");
-    const [accountStatus, setAccountStatus] = useState("");
-    const [riskLevel, setRiskLevel] = useState("");
-    const [isActive, setIsActive] = useState("");
-
-    // Drawers
-    const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
+    // Internal Drawers
     const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
