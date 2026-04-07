@@ -105,9 +105,11 @@ const ProductsPage = () => {
                   icon={Package}
                   title={t("products.noProducts")}
                   description={isFiltered ? t("products.noResultsDescription") : t("products.emptyDescription")}
-                  actionLabel={!isFiltered && canCreate ? t("products.addProduct") : null}
-                  onAction={() => router.push("/dashboard/products/create")}
-                  actionIcon={Plus}
+                  actionButton={!isFiltered && canCreate ? {
+                    label: t("products.addProduct"),
+                    onClick: () => router.push("/dashboard/products/create"),
+                    icon: Plus
+                  } : null}
                 />
               )}
 

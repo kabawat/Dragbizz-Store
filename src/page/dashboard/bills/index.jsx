@@ -67,9 +67,11 @@ const Bills = () => {
                 icon={FileText}
                 title={t("bills.noBills")}
                 description={searchValue ? t("bills.noResultsDescription") : t("bills.emptyDescription")}
-                actionLabel={!searchValue && canCreate ? t("bills.createBill") : null}
-                onAction={() => router.push("/dashboard/bills/create")}
-                actionIcon={Plus}
+                actionButton={!searchValue && canCreate ? {
+                  label: t("bills.createBill"),
+                  onClick: () => router.push("/dashboard/bills/create"),
+                  icon: Plus
+                } : null}
               />
             )}
 

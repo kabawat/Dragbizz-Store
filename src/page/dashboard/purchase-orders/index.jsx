@@ -73,9 +73,11 @@ const PurchaseOrders = () => {
                 icon={FileText}
                 title={t("purchaseOrders.noPurchaseOrders")}
                 description={searchValue ? t("purchaseOrders.noResultsDescription") : t("purchaseOrders.emptyDescription")}
-                actionLabel={!searchValue && canCreate ? t("purchaseOrders.createPO") : null}
-                onAction={() => router.push("/dashboard/purchase-orders/create")}
-                actionIcon={Plus}
+                actionButton={!searchValue && canCreate ? {
+                  label: t("purchaseOrders.createPO"),
+                  onClick: () => router.push("/dashboard/purchase-orders/create"),
+                  icon: Plus
+                } : null}
               />
             )}
 

@@ -91,9 +91,11 @@ const InventoryPage = () => {
                                 icon={Package}
                                 title={t("inventory.noInventory")}
                                 description={searchValue ? t("inventory.noResultsDescription") : t("inventory.emptyDescription")}
-                                actionLabel={!searchValue && canCreate ? t("inventory.addStock") : null}
-                                onAction={() => setShowInventoryDrawer(true)}
-                                actionIcon={Plus}
+                                actionButton={!searchValue && canCreate ? {
+                                    label: t("inventory.addStock"),
+                                    onClick: () => setShowInventoryDrawer(true),
+                                    icon: Plus
+                                } : null}
                             />
                         )}
 
