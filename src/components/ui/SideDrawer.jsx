@@ -13,11 +13,12 @@ const SideDrawer = ({
   width = "w-2/3",
   showDownloadButton = false,
   onDownload = null,
+  closeOnOutsideClick = true,
 }) => {
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && closeOnOutsideClick) {
         onClose();
       }
     };
@@ -31,7 +32,7 @@ const SideDrawer = ({
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, closeOnOutsideClick]);
 
   if (!isOpen) return null;
 
@@ -39,7 +40,7 @@ const SideDrawer = ({
     <div className="fixed inset-0 z-[9998] overflow-hidden">
       {/* Glass Effect Backdrop */}
       <div
-        onClick={onClose}
+        onClick={() => closeOnOutsideClick && onClose()}
         className="absolute inset-0 bg-black/20 backdrop-blur-[1px] transition-opacity duration-300"
       />
 

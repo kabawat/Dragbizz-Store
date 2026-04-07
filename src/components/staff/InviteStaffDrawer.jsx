@@ -5,6 +5,8 @@ import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui";
 import staffService from "@/service/retailer/staff.service";
 import useApiResponse from "@/hooks/useApiResponse";
+import { useAppSelector } from "@/store/hooks";
+import MultiSelect from "@/components/ui/MultiSelect";
 
 const MODULES = [
     { key: "billing", label: "Billing", description: "Create & manage bills" },
@@ -64,10 +66,18 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
     const [email, setEmail] = useState("");
     const [roleName, setRoleName] = useState("");
     const [permissions, setPermissions] = useState([]);
+    const [managedStoreIds, setManagedStoreIds] = useState(storeId ? [storeId] : []);
     const [expandedModules, setExpandedModules] = useState({});
     const [error, setError] = useState(null);
     const [selectedPreset, setSelectedPreset] = useState(null);
     const { execute, loading: isLoading } = useApiResponse();
+
+    const { stores: allStores } = useAppSelector((state) => state.profile);
+
+    const storeOptions = allStores?.filter(s => s).map(s => ({
+        label: s.storeName || s.name || s.storeId || "Unnamed Store",
+        value: s.storeId || s._id || s.id
+    })) || [];
 
     const toggleModule = (moduleKey) => {
         const existing = permissions.find((p) => p.module === moduleKey);
@@ -100,8 +110,8 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!storeId) {
-            setError("Store ID is missing. Please select a store first.");
+        if (!managedStoreIds || managedStoreIds.length === 0) {
+            setError("At least one store must be selected.");
             return;
         }
 
@@ -112,7 +122,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
 
         setError(null);
 
-        const data = { stores: [storeId], name, email, roleName, permissions };
+        const data = { stores: managedStoreIds, name, email, roleName, permissions };
 
         const result = await execute(
             staffService.inviteStaff(data),
@@ -164,7 +174,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                     {/* Role Name */}
                     <div>
                         <Input
-                            label="Role"
+                            label="Role Title"
                             type="text"
                             value={roleName}
                             onChange={(val) => { setRoleName(val); setSelectedPreset(null); }}
@@ -174,6 +184,23 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                         />
                     </div>
 
+                </div>
+
+                {/* Store Selection */}
+                <div className="bg-[rgb(var(--color-bg-secondary))]/50 p-4 rounded-xl border border-[rgb(var(--color-border-primary))]">
+                    <label className="block text-xs font-semibold text-[rgb(var(--color-text-secondary))] mb-2 uppercase tracking-wide">
+                        Store Access Assignment
+                    </label>
+                    <MultiSelect
+                        options={storeOptions}
+                        value={managedStoreIds}
+                        onChange={(vals) => setManagedStoreIds(vals)}
+                        placeholder="Select stores the staff can manage..."
+                        required
+                    />
+                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-2 italic">
+                        * Staff will be able to switch between these stores after login.
+                    </p>
                 </div>
 
                 {/* Quick Presets */}
