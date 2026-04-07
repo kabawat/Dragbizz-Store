@@ -7,6 +7,16 @@ const ActivityHistory = ({ order }) => {
     const { t } = useTranslation();
     const history = order.shipping?.tracking?.history || [];
 
+    const getDisplayStatus = (s) => {
+        if (!s) return '';
+        const key = s.toUpperCase();
+        if (order.orderSource === 'IN_STORE') {
+            if (key === "SHIPPED" || key === "IN_TRANSIT" || key === "OUT_FOR_DELIVERY") return t("salesOrder.status.ready", { defaultValue: "ORDER READY" });
+            if (key === "DELIVERED") return t("salesOrder.status.served", { defaultValue: "SERVED" });
+        }
+        return s.replace(/_/g, ' ');
+    };
+
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] p-5">
             <h4 className="text-xs font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-6">{t("salesOrder.activityHistory")}</h4>
@@ -27,7 +37,7 @@ const ActivityHistory = ({ order }) => {
                             <div className="space-y-1">
                                 <div className="flex justify-between items-start">
                                     <p className={`text-sm font-semibold ${idx === 0 ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-secondary))]'} transition-colors`}>
-                                        {activity.status}
+                                        {getDisplayStatus(activity.status)}
                                     </p>
                                     {activity.location && (
                                         <span className="text-[10px] bg-[rgb(var(--color-bg-secondary))] px-2 py-0.5 rounded text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-wider border border-[rgb(var(--color-border-primary)/0.5)]">
