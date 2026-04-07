@@ -43,11 +43,6 @@ class StaffService extends BaseService {
         return this.put(`${this.endpoint}/${staffId}`, data);
     }
 
-
-    // Verify staff account using token from email
-    async verifyStaff(token) {
-        return this.unauthPost(`${this.endpoint}/verify`, { token });
-    }
 }
 
 const staffService = new StaffService();
