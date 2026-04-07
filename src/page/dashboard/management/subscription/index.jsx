@@ -48,27 +48,27 @@ const SubscriptionManagementPage = () => {
                                                     <ShieldCheck className="w-8 h-8 text-[rgb(var(--color-primary))]" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-2xl font-black text-[rgb(var(--color-text-primary))] tracking-tight">Active Plan</h3>
-                                                    <p className="text-sm font-bold text-[rgb(var(--color-text-secondary))] mt-0.5">
-                                                        Next billing: <span className="text-[rgb(var(--color-text-primary))]">{subscription?.nextBillingDate || "March 20, 2026"}</span>
+                                                    <h3 className="text-xl font-bold text-[rgb(var(--color-text-primary))] tracking-tight">Active Plan</h3>
+                                                    <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] mt-1">
+                                                        Next billing: <span className="text-[rgb(var(--color-text-primary))] font-bold">{subscription?.nextBillingDate || "March 20, 2026"}</span>
                                                     </p>
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-2 md:flex md:items-center gap-8 md:gap-12">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[rgb(var(--color-text-tertiary))] mb-1 flex items-center gap-1.5">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--color-text-tertiary))] mb-1.5 flex items-center gap-1.5">
                                                         <CreditCard className="w-3 h-3" />
                                                         Plan Rate
                                                     </span>
-                                                    <span className="text-lg font-black text-[rgb(var(--color-text-primary))]">₹{subscription?.plan?.price || "0"}/month</span>
+                                                    <span className="text-lg font-bold text-[rgb(var(--color-text-primary))]">₹{subscription?.plan?.price || "0"}/month</span>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-[rgb(var(--color-text-tertiary))] mb-1 flex items-center gap-1.5">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--color-text-tertiary))] mb-1.5 flex items-center gap-1.5">
                                                         <Calendar className="w-3 h-3" />
                                                         Cycle
                                                     </span>
-                                                    <span className="text-lg font-black text-[rgb(var(--color-text-primary))] uppercase">{subscription?.billingCycle || "Monthly"}</span>
+                                                    <span className="text-lg font-bold text-[rgb(var(--color-text-primary))] uppercase">{subscription?.billingCycle || "Monthly"}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -78,8 +78,8 @@ const SubscriptionManagementPage = () => {
                                         {/* Included Services Section */}
                                         <div className="space-y-6">
                                             <div className="flex items-center gap-2.5">
-                                                <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
-                                                <h3 className="text-lg font-black text-[rgb(var(--color-text-primary))] tracking-tight uppercase">Included Services</h3>
+                                                <Zap className="w-5 h-5 text-[rgb(var(--color-warning))] fill-[rgb(var(--color-warning))]/20" />
+                                                <h3 className="text-base font-bold text-[rgb(var(--color-text-primary))] tracking-tight uppercase">Included Services</h3>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
@@ -87,12 +87,12 @@ const SubscriptionManagementPage = () => {
                                                     { module: 'billing' }, { module: 'invoice' }, { module: 'inventory' }, { module: 'customer' }, { module: 'expense' },
                                                     { module: 'staff' }, { module: 'product' }, { module: 'reports' }, { module: 'ai' }
                                                 ]).map((feature) => (
-                                                    <div key={feature.module} className="flex flex-col gap-1.5 border-l-2 border-[rgb(var(--color-primary))]/20 pl-5 hover:border-[rgb(var(--color-primary))] transition-all group">
-                                                        <h4 className="text-[15px] font-black text-[rgb(var(--color-text-primary))] capitalize flex items-center gap-2 tracking-tight">
-                                                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                    <div key={feature.module} className="flex flex-col gap-1 border-l-2 border-[rgb(var(--color-primary))]/20 pl-4 hover:border-[rgb(var(--color-primary))] transition-all group">
+                                                        <h4 className="text-sm font-bold text-[rgb(var(--color-text-primary))] capitalize flex items-center gap-2 tracking-tight">
+                                                            <CheckCircle2 className="w-3.5 h-3.5 text-[rgb(var(--color-success))]" />
                                                             {feature.module.replace('_', ' ')}
                                                         </h4>
-                                                        <p className="text-[13px] text-[rgb(var(--color-text-secondary))] leading-relaxed font-medium">
+                                                        <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed font-medium">
                                                             {featureDetails[feature.module] || "Full enterprise-level module access enabled."}
                                                         </p>
                                                     </div>
@@ -108,9 +108,9 @@ const SubscriptionManagementPage = () => {
                                         <Info className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-[15px] font-bold text-[rgb(var(--color-text-secondary))] leading-snug">
-                                            <span className="font-black text-[rgb(var(--color-text-primary))] text-lg block mb-0.5 uppercase tracking-tighter">Need Billing Help?</span>
-                                            Our support team is ready for any payment queries at <span className="text-[rgb(var(--color-primary))] font-black cursor-pointer hover:underline">support@dragbizz.com</span>
+                                        <p className="text-sm font-semibold text-[rgb(var(--color-text-secondary))] leading-snug">
+                                            <span className="font-bold text-[rgb(var(--color-text-primary))] text-base block mb-1 uppercase tracking-tight">Need Billing Help?</span>
+                                            Our support team is ready for any payment queries at <span className="text-[rgb(var(--color-primary))] font-bold cursor-pointer hover:underline">support@dragbizz.com</span>
                                         </p>
                                     </div>
                                 </div>
