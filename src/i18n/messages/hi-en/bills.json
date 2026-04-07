@@ -1,6 +1,8 @@
 {
   "title": "Bills",
-  "description": "Apne bills ko manage karo",
+  "description": "Apne supplier bills aur invoices track aur manage karein",
+  "emptyDescription": "Purchase invoices track karne aur supplier payments manage karne ke liye apna pehla bill add karein.",
+  "noResultsDescription": "Humein aapki search ya filters se match hone wala koi bill nahi mila. Unhe adjust karke try karein.",
   "backToBills": "Bills par wapas jao",
   "viewBill": "Bill dekhein",
   "viewBillDescription": "Bill information aur details",

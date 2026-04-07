@@ -12,7 +12,7 @@ import {
 } from "@/store/slices/billsSlice";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const BillListHeader = () => {
+const BillListHeader = ({ searchValue, setSearchValue }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -20,13 +20,10 @@ const BillListHeader = () => {
   const { viewMode } = useAppSelector((state) => state.bills);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = useMemo(() => selectedStore?.storeId || "", [selectedStore?.storeId]);
-
   const { can, loading } = useModulePermissions("billing");
   const canCreate = can("create");
 
-  const [searchValue, setSearchValue] = useState("");
   const searchInputRef = useRef(null);
-
   const lastFetchRef = useRef(null);
   const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null });
 
@@ -91,7 +88,7 @@ const BillListHeader = () => {
             ref={searchInputRef}
             placeholder={`${t("common.search")} ${t("bills.title").toLowerCase()}...`}
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target?.value ?? e)}
+            onChange={setSearchValue}
             leftIcon={Search}
             className="w-100"
           />
@@ -101,22 +98,20 @@ const BillListHeader = () => {
           <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
             <button
               onClick={() => handleViewModeChange("table")}
-              className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                viewMode === "table"
-                  ? "bg-[rgb(var(--color-primary))] text-white"
-                  : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-              }`}
+              className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
+                ? "bg-[rgb(var(--color-primary))] text-white"
+                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                }`}
             >
               <List className="w-4 h-4" />
               {t("common.tableView")}
             </button>
             <button
               onClick={() => handleViewModeChange("card")}
-              className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                viewMode === "card"
-                  ? "bg-[rgb(var(--color-primary))] text-white"
-                  : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-              }`}
+              className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
+                ? "bg-[rgb(var(--color-primary))] text-white"
+                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                }`}
             >
               <Grid3X3 className="w-4 h-4" />
               {t("common.cardView")}
