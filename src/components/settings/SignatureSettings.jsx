@@ -94,10 +94,7 @@ const SignatureSettings = () => {
                         {signatures.map((sig) => {
                             const id = sig.id || sig._id;
                             return (
-                                <div
-                                    key={id}
-                                    className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/70 p-4 relative group flex flex-col h-full"
-                                >
+                                <div key={id} className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/70 p-4 relative group flex flex-col h-full">
                                     <div className="flex items-center justify-between mb-3 border-b border-[rgb(var(--color-border-primary))]/20 pb-3">
                                         <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
                                             <span className="w-2 h-2 rounded-full bg-green-500"></span>
@@ -113,13 +110,30 @@ const SignatureSettings = () => {
                                     </div>
 
                                     <div className="flex-1 flex items-center justify-center min-h-[100px] bg-[rgb(var(--color-bg-secondary))]/30 rounded-lg p-4 mb-2">
-                                        <div className="relative w-full h-24">
-                                            <Image
-                                                src={sig.content}
-                                                alt="Signature"
-                                                fill
-                                                className={`object-contain ${themeVariant === 'dark' ? 'invert' : ''}`}
-                                            />
+                                        <div className="relative w-full h-24 flex items-center justify-center">
+                                            {(sig.method === "upload" || sig.method === "draw") ? (
+                                                <Image
+                                                    src={sig.content}
+                                                    alt="Signature"
+                                                    fill
+                                                    className={`object-contain ${themeVariant === 'dark' ? 'invert' : ''}`}
+                                                />
+                                            ) : sig.method === "type" ? (
+                                                <span
+                                                    style={{ fontFamily: sig.config?.fontFamily || "'Dancing Script', cursive" }}
+                                                    className={`text-4xl text-[rgb(var(--color-text-primary))] select-none ${sig.config?.bold ? 'font-bold' : ''} ${sig.config?.italic ? 'italic' : ''}`}
+                                                >
+                                                    {sig.content}
+                                                </span>
+                                            ) : sig.method === "identity" ? (
+                                                <div className="text-center text-[rgb(var(--color-primary))]">
+                                                    <Fingerprint className="w-6 h-6 mx-auto mb-1 opacity-70" />
+                                                    <p className="font-bold tracking-widest text-lg">{sig.content}</p>
+                                                    <p className="text-[10px] uppercase font-black opacity-50">
+                                                        {sig.verificationDetails?.idType || "Verified ID"}
+                                                    </p>
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </div>
 
