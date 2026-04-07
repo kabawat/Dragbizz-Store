@@ -1,6 +1,8 @@
 {
   "title": "Products",
   "description": "Manage your store inventory and products",
+  "emptyDescription": "Add your first product to start selling. You can also bulk upload using a CSV or XLSX file.",
+  "noResultsDescription": "We couldn't find any products matching your search or filters. Try adjusting them or clearing filters.",
   "addProduct": "Add Product",
   "editProduct": "Edit Product",
   "deleteProduct": "Delete Product",

@@ -1,8 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Package, Plus } from "lucide-react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
+import { EmptyState } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -10,12 +11,17 @@ import { getProducts, setViewMode } from "@/store/slices/products/productSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import ProductListHeader from "./components/ProductListHeader";
 import ProductListContent from "./components/ProductListContent";
-import ProductEmptyState from "./components/ProductEmptyState";
+import { useEffect, useState } from "react";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
+
+  const [searchValue, setSearchValue] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [showInCatalog, setShowInCatalog] = useState("");
+  const [category, setCategory] = useState("");
 
   const { products, isLoading, error } = useAppSelector((state) => state.products);
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -45,7 +51,10 @@ const ProductsPage = () => {
 
   useCommonHotkeys({
     onBack: () => router.push("/dashboard"),
+    onNew: canCreate ? () => router.push("/dashboard/products/create") : undefined,
   });
+
+  const isFiltered = searchValue || sortBy || showInCatalog || category;
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -67,7 +76,17 @@ const ProductsPage = () => {
             <div className="max-w-8xl mx-auto">
 
               {/* Search, filters, view toggle, add button */}
-              <ProductListHeader canCreate={canCreate} />
+              <ProductListHeader
+                canCreate={canCreate}
+                searchValue={searchValue}
+                setSearchValue={setSearchValue}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                showInCatalog={showInCatalog}
+                setShowInCatalog={setShowInCatalog}
+                category={category}
+                setCategory={setCategory}
+              />
 
               {/* State 1: Initial loading */}
               {isLoading && products.length === 0 && !error && (
@@ -80,7 +99,17 @@ const ProductsPage = () => {
               )}
 
               {/* State 2: Empty state */}
-              {!isLoading && products.length === 0 && <ProductEmptyState />}
+              {!isLoading && products.length === 0 && (
+                <EmptyState
+                  className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                  icon={Package}
+                  title={t("products.noProducts")}
+                  description={isFiltered ? t("products.noResultsDescription") : t("products.emptyDescription")}
+                  actionLabel={!isFiltered && canCreate ? t("products.addProduct") : null}
+                  onAction={() => router.push("/dashboard/products/create")}
+                  actionIcon={Plus}
+                />
+              )}
 
               {/* State 3: Product list + modals + drawers */}
               {products.length > 0 && <ProductListContent canEdit={canEdit} canDelete={canDelete} />}
