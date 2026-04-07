@@ -74,12 +74,12 @@ const UsageLimitsPage = () => {
                                     <div className="p-6 pb-2">
                                         <div className="flex items-center justify-between gap-4 flex-wrap">
                                             <div>
-                                                <h2 className="text-xl font-black text-[rgb(var(--color-text-primary))] tracking-tighter uppercase italic">Resource Monitor</h2>
-                                                <p className="text-xs font-bold text-[rgb(var(--color-text-secondary))] opacity-60">System-wide feature quota status</p>
+                                                <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] tracking-tight uppercase">Resource Monitor</h2>
+                                                <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] opacity-80">System-wide feature quota status</p>
                                             </div>
-                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-sm">
+                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-md">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                                <span className="text-[10px] font-black uppercase tracking-wider text-green-600">Active Monitoring</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-green-600">Active Monitoring</span>
                                             </div>
                                         </div>
                                     </div>
@@ -97,17 +97,17 @@ const UsageLimitsPage = () => {
                                                 const isAtRisk = percentage > 80;
 
                                                 return (
-                                                    <div key={idx} className="group relative overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--color-bg-secondary))] rounded-sm p-4 flex flex-col md:flex-row md:items-center gap-6 border-b border-[rgb(var(--color-border-primary))]/30 last:border-0 shadow-none">
+                                                    <div key={idx} className="group relative overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-6 border-b border-[rgb(var(--color-border-primary))]/30 last:border-0 shadow-none">
 
                                                         <div className="flex items-center gap-4 w-full md:w-[220px] flex-shrink-0">
-                                                            <span className="text-[10px] font-black text-[rgb(var(--color-text-tertiary))] opacity-40 w-4">
+                                                            <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] opacity-40 w-4">
                                                                 {String(idx + 1).padStart(2, '0')}
                                                             </span>
-                                                            <div className="w-10 h-10 rounded-sm flex items-center justify-center shadow-none" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+                                                            <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-none" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
                                                                 <Icon size={20} className="stroke-[2]" />
                                                             </div>
                                                             <div className="flex flex-col">
-                                                                <h3 className="text-sm font-black text-[rgb(var(--color-text-primary))] truncate tracking-tight">{stat.name}</h3>
+                                                                <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate tracking-tight">{stat.name}</h3>
                                                                 <span className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--color-text-tertiary))] opacity-80">
                                                                     {stat.usageType?.replace('_', ' ')}
                                                                 </span>
@@ -118,7 +118,7 @@ const UsageLimitsPage = () => {
                                                             <div className="flex justify-between items-end">
                                                                 <div className="flex flex-col">
                                                                     <div className="flex items-center gap-2">
-                                                                        <span className="text-lg font-black text-[rgb(var(--color-text-primary))]">
+                                                                        <span className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                                                             {stat.used.toLocaleString()}
                                                                         </span>
                                                                         {!isUnlimited && (
@@ -126,15 +126,15 @@ const UsageLimitsPage = () => {
                                                                                 / {stat.limit.toLocaleString()}
                                                                             </span>
                                                                         )}
-                                                                        <span className="text-[9px] font-black text-[rgb(var(--color-primary))] uppercase tracking-widest mb-0.5">Consumed</span>
+                                                                        <span className="text-[10px] font-bold text-[rgb(var(--color-primary))] uppercase tracking-widest mb-0.5">Consumed</span>
                                                                     </div>
                                                                 </div>
-                                                                <span className={`text-[10px] font-black uppercase tracking-widest ${isAtRisk ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`}>
+                                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${isAtRisk ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`}>
                                                                     {isUnlimited ? '∞ Lifetime Access' : `${percentage.toFixed(0)}% Utilized`}
                                                                 </span>
                                                             </div>
                                                             {!isUnlimited ? (
-                                                                <div className="h-2 w-full bg-[rgb(var(--color-bg-secondary))] rounded-sm overflow-hidden p-0 border border-[rgb(var(--color-border-primary))]/30 shadow-none">
+                                                                <div className="h-2 w-full bg-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden p-0 border border-[rgb(var(--color-border-primary))]/30 shadow-none">
                                                                     <div
                                                                         className="h-full transition-all duration-1000 ease-out relative"
                                                                         style={{
@@ -146,7 +146,7 @@ const UsageLimitsPage = () => {
                                                             ) : (
                                                                 <div className="flex items-center gap-2">
                                                                     <div className="h-[1px] flex-1 bg-gradient-to-r from-[rgb(var(--color-border-primary))]/30 to-transparent" />
-                                                                    <span className="text-[9px] font-black text-green-500 uppercase tracking-tighter">Unlimited Plan</span>
+                                                                    <span className="text-[10px] font-bold text-green-500 uppercase tracking-tight">Unlimited Plan</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -155,7 +155,7 @@ const UsageLimitsPage = () => {
                                                             {isAtRisk && (
                                                                 <AlertCircle size={16} className="text-red-500" />
                                                             )}
-                                                            <Button variant="ghost" size="xs" className="rounded-sm bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white transition-all px-3 py-1.5 border border-[rgb(var(--color-border-primary))]/50 shadow-none">
+                                                            <Button variant="ghost" size="xs" className="rounded-lg bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white transition-all px-3 py-1.5 border border-[rgb(var(--color-border-primary))]/50 shadow-none">
                                                                 Details
                                                             </Button>
                                                         </div>
@@ -168,17 +168,17 @@ const UsageLimitsPage = () => {
                                     <div className="bg-[rgb(var(--color-bg-secondary))]/30 border-t border-[rgb(var(--color-border-primary))] p-4 px-6 md:px-10 shadow-none">
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-sm bg-amber-500/10 flex items-center justify-center text-amber-500">
+                                                <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
                                                     <Zap size={16} className="fill-current" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-[11px] font-black text-[rgb(var(--color-text-primary))] uppercase tracking-tight">Auto-Reset Quotas</h4>
-                                                    <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))]">All monthly limits reset every 30 days automatically.</p>
+                                                    <h4 className="text-[10px] font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-tight">Auto-Reset Quotas</h4>
+                                                    <p className="text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] opacity-70">All monthly limits reset every 30 days automatically.</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-[10px] font-black uppercase text-[rgb(var(--color-text-tertiary))]">Next Reset</span>
-                                                <Badge variant="secondary" className="font-black px-3 rounded-sm shadow-none">April 01, 2026</Badge>
+                                                <span className="text-[9px] font-bold uppercase text-[rgb(var(--color-text-tertiary))]">Next Reset</span>
+                                                <Badge variant="secondary" className="font-bold px-3 rounded-lg shadow-none">April 01, 2026</Badge>
                                             </div>
                                         </div>
                                     </div>
@@ -186,19 +186,19 @@ const UsageLimitsPage = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="p-6 rounded-lg bg-[rgb(var(--color-primary)/0.1)] relative shadow-none min-h-[160px] flex flex-col justify-center">
-                                        <h3 className="text-lg mb-2 italic uppercase tracking-tighter">Upgrade Intelligence</h3>
+                                        <h3 className="text-lg mb-2 uppercase tracking-tight">Upgrade Intelligence</h3>
                                         <p className="text-xs opacity-90 mb-6 font-bold leading-relaxed max-w-[80%]">Need custom quotas for your enterprise scale? Talk to our sales team for bespoke limits.</p>
-                                        <Button size="sm" className="rounded-sm text-[10px] uppercase px-4  border-none w-fit shadow-none">Custom Inquiry</Button>
+                                        <Button size="sm" className="rounded-lg text-[10px] uppercase px-4 border-none w-fit shadow-none">Custom Inquiry</Button>
                                     </div>
 
                                     <div className="p-6 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] relative flex flex-col justify-center shadow-none">
                                         <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-8 h-8 rounded-sm bg-purple-500/10 flex items-center justify-center text-purple-600 shadow-none">
+                                            <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600 shadow-none">
                                                 <BarChart3 size={18} />
                                             </div>
-                                            <h3 className="font-black text-[rgb(var(--color-text-primary))] uppercase tracking-tight text-sm">Usage Insights</h3>
+                                            <h3 className="font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-tight text-sm">Usage Insights</h3>
                                         </div>
-                                        <p className="text-xs text-[rgb(var(--color-text-secondary))] font-bold leading-relaxed">
+                                        <p className="text-xs text-[rgb(var(--color-text-secondary))] font-semibold leading-relaxed">
                                             Historical usage tracking is currently under development. You'll soon see trends for each service.
                                         </p>
                                     </div>

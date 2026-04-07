@@ -124,13 +124,12 @@ const StaffPage = () => {
                                             />
                                         </div>
 
-                                        {/* Status Tabs */}
-                                        <div className="flex items-center gap-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg p-1">
+                                        <div className="flex items-center gap-1 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg p-1">
                                             {STATUS_TABS.map((tab) => (
                                                 <button
                                                     key={tab.value}
                                                     onClick={() => setActiveTab(tab.value)}
-                                                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === tab.value
+                                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === tab.value
                                                         ? "bg-[rgb(var(--color-primary))] text-white shadow-sm"
                                                         : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                                         }`}
@@ -183,8 +182,8 @@ const StaffPage = () => {
                             <div className="lg:col-span-1 space-y-4">
                                 <ManagementShortcuts />
                                 <div className="p-5 bg-[rgb(var(--color-primary))]/5 border border-dashed border-[rgb(var(--color-primary))]/20 rounded-xl">
-                                    <h4 className="text-sm font-bold text-[rgb(var(--color-text-primary))] mb-1">Staff Note</h4>
-                                    <p className="text-[11px] text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                                    <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1.5">Staff Note</h4>
+                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
                                         Users with the role 'store_staff' have limited access to management features.
                                     </p>
                                 </div>
