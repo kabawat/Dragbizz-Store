@@ -23,7 +23,6 @@ import notificationsSlice from "./slices/notificationsSlice";
 import uiSlice from "./slices/uiSlice";
 import inventorySlice from "./slices/inventory/inventorySlice";
 
-import publicCartSlice from "./slices/publicCartSlice";
 import notificationSettingsSlice from "./slices/notificationSettingsSlice";
 
 export const store = configureStore({
@@ -47,7 +46,6 @@ export const store = configureStore({
     expenses: expensesSlice,
     gst: gstSlice,
     analytics: analyticsSlice,
-    publicCart: publicCartSlice,
     signatures: signaturesSlice,
     theme: themeSlice,
     suggestions: suggestionsSlice,
