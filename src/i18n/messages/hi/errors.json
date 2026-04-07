@@ -26,5 +26,8 @@
   "addNewSupplier": "+ नया आपूर्तिकर्ता जोड़ें",
   "addNewPurchaseOrder": "+ नया खरीद आदेश जोड़ें",
   "loading": "लोड हो रहा है...",
-  "notesCannotExceed500Chars": "नोट्स 500 वर्णों से अधिक नहीं हो सकते"
+  "notesCannotExceed500Chars": "नोट्स 500 वर्णों से अधिक नहीं हो सकते",
+  "pageNotFound": "404 - पेज नहीं मिला",
+  "pageNotFoundDescription": "जिस लिंक का आपने अनुसरण किया है वह टूट गया हो सकता है, या पेज को हटा दिया गया हो सकता है।",
+  "backToDashboard": "डैशबोर्ड पर वापस जाएं"
 }
