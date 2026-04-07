@@ -12,12 +12,6 @@ import {
 } from "@/store/slices/profileSlice";
 import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
 
-const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
-
-function isAuthPath(pathname) {
-  if (!pathname) return true;
-  return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
 
 export default function GlobalProfileLoader() {
   const pathname = usePathname();
@@ -33,11 +27,9 @@ export default function GlobalProfileLoader() {
   const hasFetchedStaffRef = useRef(false);
 
   useEffect(() => {
-    const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
 
     // If no session cookie, we know we're not logged in.
-    // Set initialized to true and stop. AuthGuard will handle redirection for protected routes.
     if (!hasSessionCookie) {
       dispatch(setInitialized(true));
       return;
@@ -77,9 +69,7 @@ export default function GlobalProfileLoader() {
   useEffect(() => {
     if (!authProfile || !authProfile.agencyId) return;
 
-    const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
-    if (isAuth && !hasSessionCookie) return;
 
     const hasRetailerData = !!user || !!agency || (stores && stores.length > 0);
     if (hasRetailerData || hasFetchedRetailerRef.current) return;
