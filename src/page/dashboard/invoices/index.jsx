@@ -6,9 +6,10 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   InvoiceListHeader,
-  InvoiceEmptyState,
   InvoiceListContent,
 } from "@/components/invoice/list";
+import { EmptyState } from "@/components/ui";
+import { FileText, Plus } from "lucide-react";
 
 import { getInvoices } from "@/store/slices/invoicesSlice";
 import { useRouter } from "next/navigation";
@@ -50,7 +51,24 @@ const InvoicesPage = () => {
             )}
 
             {/* State 2: Empty state — no invoices after load */}
-            {!isLoading && invoices.length === 0 && <InvoiceEmptyState />}
+            {!isLoading && invoices.length === 0 && (
+              <EmptyState
+                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                title={t("common.noResults") || "No Invoices Found"}
+                description={
+                  error
+                    ? `${t("common.error")}: ${error}`
+                    : t("invoice.emptyDescription") || "You haven't created any invoices yet. Start by creating your first one!"
+                }
+                icon={FileText}
+                type={error ? "error" : "empty"}
+                actionButton={{
+                  label: t("invoice.createInvoice"),
+                  icon: Plus,
+                  onClick: () => router.push("/dashboard/invoices/create"),
+                }}
+              />
+            )}
 
             {/* State 3: Invoice list + edit/delete modals managed inside ListContent */}
             {invoices.length > 0 && <InvoiceListContent />}

@@ -216,5 +216,6 @@
   "netTaxable": "Net Taxable",
   "totalGST": "Total GST",
   "notFoundTitle": "Invoice Not Found",
-  "notFoundDescription": "The invoice you are looking for might have been deleted or does not exist."
+  "notFoundDescription": "The invoice you are looking for might have been deleted or does not exist.",
+  "emptyDescription": "You haven't created any invoices yet. Start by creating your first one!"
 }

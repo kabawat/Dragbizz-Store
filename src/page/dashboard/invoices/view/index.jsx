@@ -5,9 +5,10 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { UpdatePaymentStatusModal } from "@/components/invoice";
 import InvoiceLoadingState from "@/components/invoice/view/InvoiceLoadingState";
-import InvoiceNotFound from "@/components/invoice/view/InvoiceNotFound";
 import InvoicePageLayout from "@/components/invoice/view/InvoicePageLayout";
 import InvoiceViewHeader from "@/components/invoice/view/InvoiceViewHeader";
+import { EmptyState } from "@/components/ui";
+import { FileQuestion, ArrowLeft } from "lucide-react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -118,38 +119,53 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   if (fetching || permissionLoading) return <InvoiceLoadingState t={t} />;
 
-  if (!invoiceData) return <InvoiceNotFound t={t} />;
-
   if (!canRead) return null;
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       <div className="no-print"><Sidebar /></div>
       <div className="min-h-screen w-full flex flex-col main-content">
-        <div className="no-print"><Header title={t("invoice.viewInvoice")} description={t("invoice.viewInvoiceDescription")} /></div>
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto w-full">
-            <InvoiceViewHeader
-              invoiceData={invoiceData}
-              invoiceId={invoiceId}
-              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
-              onDownloadPDF={canRead ? handleDownloadPDF : undefined}
-              canCreate={canCreate}
-              t={t}
+        <div className="no-print">
+          <Header title={t("invoice.viewInvoice")} description={t("invoice.viewInvoiceDescription")} />
+        </div>
+        <div className="flex-1 p-6 flex flex-col overflow-y-auto">
+          {!invoiceData ? (
+            <EmptyState
+              title={t("invoice.notFoundTitle") || "Invoice Not Found"}
+              description={t("invoice.notFoundDescription") || "The invoice you are looking for might have been deleted or does not exist."}
+              icon={FileQuestion}
+              type="error"
+              fullHeight={true}
+              actionButton={{
+                label: t("invoice.backToInvoices") || "Go Back to Invoices",
+                icon: ArrowLeft,
+                onClick: () => router.push(searchParams.get("redirect") === "pos" ? "/dashboard/pos" : "/dashboard/invoices"),
+              }}
             />
-            <InvoicePageLayout
-              invoiceData={invoiceData}
-              fetchInvoiceData={fetchInvoiceData}
-              selectedTemplate={selectedTemplate}
-              selectedStore={selectedStore}
-              itemsWithGst={itemsWithGst}
-              calculatedSubtotal={calculatedSubtotal}
-              calculatedGstAmount={calculatedGstAmount}
-              onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
-              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
-              onPrint={canRead ? handlePrintWithRedirect : undefined}
-            />
-          </div>
+          ) : (
+            <div className="max-w-8xl mx-auto w-full">
+              <InvoiceViewHeader
+                invoiceData={invoiceData}
+                invoiceId={invoiceId}
+                onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+                onDownloadPDF={canRead ? handleDownloadPDF : undefined}
+                canCreate={canCreate}
+                t={t}
+              />
+              <InvoicePageLayout
+                invoiceData={invoiceData}
+                fetchInvoiceData={fetchInvoiceData}
+                selectedTemplate={selectedTemplate}
+                selectedStore={selectedStore}
+                itemsWithGst={itemsWithGst}
+                calculatedSubtotal={calculatedSubtotal}
+                calculatedGstAmount={calculatedGstAmount}
+                onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
+                onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+                onPrint={canRead ? handlePrintWithRedirect : undefined}
+              />
+            </div>
+          )}
         </div>
       </div>
 

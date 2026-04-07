@@ -163,5 +163,6 @@
   "done": "Done",
   "partialSuccess": "Bulk upload partially successful",
   "bulkUploadSuccess": "Bulk upload successfully complete ho gaya",
-  "rowData": "Data"
+  "rowData": "Data",
+  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!"
 }

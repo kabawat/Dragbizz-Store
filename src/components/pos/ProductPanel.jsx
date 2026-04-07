@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Search, Grid3X3, List, Package, Loader2 } from "lucide-react";
-import { Select } from "@/components/ui";
+import { Select, EmptyState } from "@/components/ui";
 import ProductCard from "./ProductCard";
 import { CATEGORIES as MOCK_CATEGORIES } from "@/page/dashboard/pos/data/mockData";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -161,9 +161,16 @@ const ProductPanel = ({ addToCart, searchRef }) => {
                         <p className="text-sm">Loading products...</p>
                     </div>
                 ) : filteredProducts.length === 0 ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-16 text-[rgb(var(--color-text-secondary))]">
-                        <Package className="w-12 h-12 mb-3 opacity-30" />
-                        <p className="text-sm">No products found</p>
+                    <div className="col-span-full">
+                        <EmptyState
+                            title={search ? "No Products Found" : "No Products in this Category"}
+                            description={
+                                search
+                                    ? `We couldn't find any products matching "${search}". Try checking your spelling or use different keywords.`
+                                    : "There are no products assigned to this category yet. Select a different category or add new products."
+                            }
+                            icon={search ? Search : Package}
+                        />
                     </div>
                 ) : (
                     <>

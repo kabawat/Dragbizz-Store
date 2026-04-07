@@ -21,6 +21,7 @@ import Card, {
 import Checkbox, { CheckboxGroup } from "./Checkbox";
 import Divider from "./Divider";
 import Dropdown from "./Dropdown";
+import EmptyState from "./EmptyState";
 import ErrorModal from "./ErrorModal";
 import FileUpload from "./FileUpload";
 import IconButton from "./IconButton";
@@ -128,6 +129,7 @@ export {
   ToastContainer,
   ErrorModal,
   IconButton,
+  EmptyState,
 };
 
 // Default export
@@ -199,4 +201,5 @@ export default {
   ToastContainer,
   ErrorModal,
   IconButton,
+  EmptyState,
 };
