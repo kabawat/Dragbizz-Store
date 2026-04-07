@@ -29,7 +29,7 @@ const PaymentHeaderActions = ({
                         type="text"
                         placeholder={`${t("common.search")} ${t("payments.title").toLowerCase()}...`}
                         value={searchTerm}
-                        onChange={(e) => onSearchChange(e.target.value)}
+                        onChange={onSearchChange}
                         leftIcon={Search}
                         className="w-100"
                     />
