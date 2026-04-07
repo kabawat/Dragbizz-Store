@@ -41,7 +41,7 @@ const ManagementShortcuts = () => {
         <Card className="bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] rounded-xl overflow-hidden shadow-none">
             <CardBody className="p-4 shadow-none">
                 <div className="flex items-center justify-between mb-4 px-1">
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--color-text-tertiary))]">
+                    <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
                         Quick Management
                     </h3>
                     <div className="flex gap-1.5 opacity-30">
@@ -69,16 +69,16 @@ const ManagementShortcuts = () => {
                                         <Icon className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col overflow-hidden">
-                                        <span className={`text-sm font-semibold transition-colors line-clamp-1 ${isActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"}`}>
+                                        <span className={`text-sm font-medium transition-colors line-clamp-1 ${isActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"}`}>
                                             {link.name}
                                         </span>
-                                        <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-semibold line-clamp-1 uppercase tracking-tight">
+                                        <span className="text-xs text-[rgb(var(--color-text-secondary))] line-clamp-1">
                                             {link.desc}
                                         </span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                                    <kbd className={`flex items-center justify-center min-w-[22px] h-5 rounded-md border border-[rgb(var(--color-border-primary))] text-[10px] font-bold px-1.5 shadow-none ${isActive ? "bg-[rgb(var(--color-primary))] text-white border-transparent" : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-tertiary))]"}`}>
+                                    <kbd className={`flex items-center justify-center min-w-[22px] h-5 rounded-md border border-[rgb(var(--color-border-primary))] text-xs font-medium px-1.5 shadow-none ${isActive ? "bg-[rgb(var(--color-primary))] text-white border-transparent" : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-tertiary))]"}`}>
                                         ⌥{link.key}
                                     </kbd>
                                     {!isActive && (
