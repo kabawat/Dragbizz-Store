@@ -24,6 +24,7 @@ const SalesOrdersPage = () => {
     const { list: orders, isLoading, error } = useAppSelector((state) => state.salesOrders);
     const [searchValue, setSearchValue] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [orderSourceFilter, setOrderSourceFilter] = useState("all");
 
     const {
         can,
@@ -71,6 +72,8 @@ const SalesOrdersPage = () => {
                             setSearchValue={setSearchValue}
                             statusFilter={statusFilter}
                             setStatusFilter={setStatusFilter}
+                            orderSourceFilter={orderSourceFilter}
+                            setOrderSourceFilter={setOrderSourceFilter}
                         />
 
                         {/* Loading State Wrapper */}
@@ -86,6 +89,7 @@ const SalesOrdersPage = () => {
                         {/* Completely Empty State Fallback */}
                         {!(isLoading || permissionsLoading) && orders.length === 0 && (
                             <EmptyState
+                                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
                                 title={t("common.noResults")}
                                 description={searchValue || statusFilter !== "all"
                                     ? t("salesOrder.noResultsDescription")
