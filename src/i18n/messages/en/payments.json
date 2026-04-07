@@ -1,7 +1,9 @@
 {
   "payment": "Payment",
   "title": "Payments",
-  "description": "Manage payments",
+  "description": "Record and manage your payments to suppliers",
+  "emptyDescription": "Add your first payment to start tracking transactions with your suppliers and keeping your accounts accurate.",
+  "noResultsDescription": "We couldn't find any payments matching your search or filters. Try adjusting them.",
   "manageUpiIds": "Manage UPI IDs",
   "createPayment": "Create Payment",
   "createNewPayment": "Create New Payment",

@@ -1,8 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CreditCard, Plus } from "lucide-react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
+import { EmptyState } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -11,7 +13,6 @@ import { paymentService } from "@/service/retailer";
 import { removePayment, getPayments } from "@/store/slices/paymentsSlice";
 import {
   PaymentHeaderActions,
-  PaymentEmptyState,
   PaymentTable,
   PaymentGrid,
   DeletePaymentModal,
@@ -22,29 +23,29 @@ const Payments = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { payments, stats, isLoading, error, currentFilter, pagination } =
+  const { payments, isLoading, isFetchingMore, error, pagination } =
     useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { can } = useModulePermissions("billing");
-  const canCreate = can("create");
-  const canEdit = can("edit");
-  const canDelete = can("delete");
-  const canRead = can("read");
+  const {
+    can,
+    create: canCreate,
+    edit: canEdit,
+    delete: canDelete,
+    loading: permissionsLoading
+  } = useModulePermissions("billing");
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [_statusFilter, setStatusFilter] = useState("all");
-  const [_supplierFilter, setSupplierFilter] = useState("all");
-  const [_methodFilter, setMethodFilter] = useState("all");
-  const [_dateRange, setDateRange] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [supplierFilter, setSupplierFilter] = useState("all");
+  const [methodFilter, setMethodFilter] = useState("all");
+  const [dateRange, setDateRange] = useState("all");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
   const [viewMode, setViewMode] = useState("card");
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedPayments, setSelectedPayments] = useState([]);
   const menuRefs = useRef({});
   const scrollRef = useRef(null);
-  const lastFetchedStoreId = useRef(null);
   const hasFetched = useRef(false);
 
   // Get stable storeId
@@ -128,62 +129,43 @@ const Payments = () => {
     setOpenMenuId(null);
   };
 
-  // Fetch payments on component mount or store change (only once per store)
-  useEffect(() => {
+  // Fetch payments with debounce + deduplication
+  const fetchPayments = useCallback(async (isFresh = true) => {
     if (!storeId) return;
-
-    // Prevent duplicate calls for the same store
-    if (lastFetchedStoreId.current === storeId && hasFetched.current) {
-      return;
-    }
-
-    // Prevent call if already loading
-    if (isLoading) {
-      return;
-    }
-
-    lastFetchedStoreId.current = storeId;
-    hasFetched.current = true;
 
     dispatch(
       getPayments({
         store: storeId,
+        search: searchTerm || undefined,
         limit: 20,
-        page: 1,
+        page: isFresh ? 1 : (pagination?.page ? pagination.page + 1 : 2),
+        isFreshLoad: isFresh,
       })
     );
-  }, [dispatch, storeId, isLoading]);
+    hasFetched.current = true;
+  }, [dispatch, storeId, searchTerm, pagination?.page]);
+
+  // Debounced trigger for fresh loads
+  useEffect(() => {
+    if (!storeId) return;
+
+    const timer = setTimeout(() => {
+      fetchPayments(true);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [storeId, searchTerm, statusFilter, supplierFilter, methodFilter, dateRange]);
 
   // Handle load more
   const handleLoadMore = useCallback(async () => {
-    if (isLoadingMore || !pagination?.hasNextPage) return;
-
-    setIsLoadingMore(true);
-    try {
-      const storeId = selectedStore?.storeId;
-      await dispatch(
-        getPayments({
-          store: storeId,
-          limit: 20,
-          page: pagination?.page ? pagination.page + 1 : 2,
-        })
-      );
-    } catch (_error) {
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [
-    isLoadingMore,
-    pagination?.hasNextPage,
-    pagination?.page,
-    selectedStore,
-    dispatch,
-  ]);
+    if (isFetchingMore || !pagination?.hasNextPage) return;
+    await fetchPayments(false);
+  }, [isFetchingMore, pagination?.hasNextPage, fetchPayments]);
 
   // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore || !pagination?.hasNextPage)
+      if (!scrollRef.current || isFetchingMore || !pagination?.hasNextPage)
         return;
 
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
@@ -199,7 +181,7 @@ const Payments = () => {
       scrollElement.addEventListener("scroll", handleScroll);
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
-  }, [isLoadingMore, pagination?.hasNextPage, handleLoadMore]);
+  }, [isFetchingMore, pagination?.hasNextPage, handleLoadMore]);
 
   // Handle filter changes
   const _handleFilterChange = (filterType, value) => {
@@ -277,7 +259,7 @@ const Payments = () => {
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
             {/* Loading */}
-            {isLoading && payments.length === 0 && (
+            {(isLoading || permissionsLoading) && payments.length === 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
                 <div className="flex items-center justify-center">
                   <div className="text-center">
@@ -294,18 +276,24 @@ const Payments = () => {
             )}
 
             {/* Search and filter */}
-            {payments.length > 0 && (
-              <PaymentHeaderActions
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                viewMode={viewMode}
-                onViewModeChange={handleViewModeChange}
-              />
-            )}
+            <PaymentHeaderActions
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              viewMode={viewMode}
+              onViewModeChange={handleViewModeChange}
+            />
 
             {/* Empty State */}
-            {!isLoading && payments.length === 0 && (
-              <PaymentEmptyState />
+            {!(isLoading || permissionsLoading) && payments.length === 0 && (
+              <EmptyState
+                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                icon={CreditCard}
+                title={t("payments.noPayments")}
+                description={searchTerm ? t("payments.noResultsDescription") : t("payments.emptyDescription")}
+                actionLabel={!searchTerm && canCreate ? t("payments.createPayment") : null}
+                onAction={() => router.push("/dashboard/payments/create")}
+                actionIcon={Plus}
+              />
             )}
 
             {/* Payments list */}
@@ -318,7 +306,7 @@ const Payments = () => {
                   {viewMode === "table" ? (
                     <PaymentTable
                       payments={payments}
-                      isLoadingMore={isLoadingMore}
+                      isLoadingMore={isFetchingMore}
                       menuRefs={menuRefs}
                       openMenuId={openMenuId}
                       handleMenuToggle={handleMenuToggle}
@@ -329,7 +317,7 @@ const Payments = () => {
                   ) : (
                     <PaymentGrid
                       payments={payments}
-                      isLoadingMore={isLoadingMore}
+                      isLoadingMore={isFetchingMore}
                       selectedPayments={selectedPayments}
                       handlePaymentSelect={handlePaymentSelect}
                       menuRefs={menuRefs}
