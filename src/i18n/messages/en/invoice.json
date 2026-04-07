@@ -214,5 +214,7 @@
   "cannotEditNonDraft": "Only draft invoices can be edited. Released or cancelled invoices are immutable.",
   "grossTotal": "Gross Total",
   "netTaxable": "Net Taxable",
-  "totalGST": "Total GST"
+  "totalGST": "Total GST",
+  "notFoundTitle": "Invoice Not Found",
+  "notFoundDescription": "The invoice you are looking for might have been deleted or does not exist."
 }

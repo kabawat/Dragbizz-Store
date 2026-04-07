@@ -15,6 +15,7 @@ import LoginMethodToggle from "./LoginMethodToggle";
 import OTPInputSection from "./OTPInputSection";
 import PasswordInput from "./PasswordInput";
 import { detectContactType, formatContact, validateForm } from "@/utils/loginUtils";
+import { isLocalhost, getMainDomain, getCurrentSubdomain } from "@/utils/helper/domain";
 
 export default function LoginForm({ onSuccess }) {
     const dispatch = useAppDispatch();
@@ -125,42 +126,39 @@ export default function LoginForm({ onSuccess }) {
 
         if (retailerData?.agency?.subdomain) {
             const subdomain = retailerData.agency.subdomain;
-            const hostname = window.location.hostname;
-            const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
 
             Cookies.set("tenant", subdomain, {
                 expires: 30,
                 path: "/",
                 // On localhost, don't set domain (defaults to current host)
                 // On production, set it to the base domain (e.g. .dragbizz.store) to share across subdomains
-                domain: isLocalhost ? undefined : `.${hostname.split('.').slice(-2).join('.')}`
+                domain: isLocalhost() ? undefined : `.${getMainDomain()}`
             });
 
             const protocol = window.location.protocol;
-            const currentSubdomain = hostname.split('.')[0];
+            const currentSubdomain = getCurrentSubdomain();
 
             // Only redirect if we are NOT already on the correct subdomain
             // Special case for localhost which might not have a subdomain yet
             if (currentSubdomain !== retailerData.agency.subdomain) {
                 let newHostname;
-                if (hostname === "localhost" || hostname === "127.0.0.1") {
+                if (isLocalhost()) {
                     newHostname = `${retailerData.agency.subdomain}.localhost`;
                 } else {
+                    const hostname = window.location.hostname;
                     const parts = hostname.split('.');
                     if (parts.length === 2) {
                         newHostname = `${retailerData.agency.subdomain}.${hostname}`;
-                    } else if (parts.length >= 3) {
+                    } else {
                         parts[0] = retailerData.agency.subdomain;
                         newHostname = parts.join('.');
-                    } else {
-                        newHostname = `${retailerData.agency.subdomain}.${hostname}`;
                     }
                 }
 
                 const port = window.location.port ? `:${window.location.port}` : "";
 
                 // If we are on localhost/dev and shifting domains, use sync API to carry over tokens
-                if ((hostname === "localhost" || hostname === "127.0.0.1") && result.data?.tokens) {
+                if (isLocalhost() && result.data?.tokens) {
                     const { accessToken, refreshToken } = result.data.tokens;
                     finalRedirectUrl = `${protocol}//${newHostname}${port}/api/auth/sync?at=${accessToken}&rt=${refreshToken}&redirect=${thunkRedirectTo || defaultRedirectUrl}`;
                 } else {

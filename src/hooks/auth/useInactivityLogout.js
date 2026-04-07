@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
+import { isLocalhost, getMainDomain } from "@/utils/helper/domain";
 
 // Constants
 const INACTIVITY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
@@ -59,11 +60,9 @@ export function useInactivityLogout() {
 
       // 4. Clear tenant cookie (must match domain/path used when setting)
       if (typeof window !== "undefined") {
-        const hostname = window.location.hostname;
-        const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
         Cookies.remove("tenant", {
           path: "/",
-          domain: isLocalhost ? undefined : `.${hostname.split(".").slice(-2).join(".")}`,
+          domain: isLocalhost() ? undefined : `.${getMainDomain()}`,
         });
       }
 

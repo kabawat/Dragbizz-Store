@@ -4,39 +4,32 @@ import { useEffect } from "react";
 import Script from "next/script";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
-import { updateSubdomain } from "@/utils/helper/domain";
+import { ensureSubdomain } from "@/utils/helper/domain";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
-  // Get profile state
   const { redirectTo, agency, stores, isLoading, isAuthenticated, authProfile, authProfileLoading, staffProfileLoading } = useAppSelector((state) => state.profile);
 
-  // Subscription context
   const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
 
   const isProfileLoading = isLoading || authProfileLoading || staffProfileLoading;
 
-  // Handle redirects and missing data checks
   useEffect(() => {
-    // Don't redirect while loading
     if (isProfileLoading || subscriptionLoading) {
       return;
     }
 
-    // Don't redirect if not authenticated (handled by parent layout)
     if (!isAuthenticated) {
       return;
     }
 
-    // Handle explicit redirects
     if (redirectTo) {
       router.push(redirectTo);
       return;
     }
 
-    // Check for missing data and redirect accordingly
     if (!agency) {
       router.push("/onboarding/agency");
       return;
@@ -48,23 +41,13 @@ export default function DashboardLayout({ children }) {
     }
   }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isProfileLoading, agency, stores, router]);
 
-  // Redirect to correct tenant subdomain (also handles wrong subdomain)
   useEffect(() => {
-    const tenant = authProfile?.tenant;
-    if (!tenant || typeof window === "undefined") return;
-
-    const hostname = window.location.hostname;
-    const parts = hostname.split(".");
-    const currentSubdomain = parts.length > 2 ? parts[0] : null;
-
-    // If no subdomain OR wrong subdomain → redirect to correct one
-    if (currentSubdomain !== tenant) {
-      const domain = updateSubdomain(window.location.href, tenant);
-      window.location.replace(domain.url);
+    if (authProfile?.tenant) {
+      ensureSubdomain(authProfile.tenant);
     }
   }, [authProfile?.tenant]);
 
-  // Show loading while checking data
+
   if (isProfileLoading || subscriptionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
@@ -81,7 +64,6 @@ export default function DashboardLayout({ children }) {
     );
   }
 
-  // Don't render children if redirecting or no subscription
   if (redirectTo || !agency || (agency && (!stores || stores.length === 0))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
