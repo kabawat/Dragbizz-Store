@@ -7,7 +7,7 @@ import { SignatureDrawer } from "@/components/common";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchSignatures, addSignature, removeSignature } from "@/store/slices/signaturesSlice";
-import { signatureService } from "@/service";
+import { signatureService, utilityService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 
@@ -55,6 +55,13 @@ const SignatureSettings = () => {
         );
 
         if (result?.success) {
+            // If the signature was stored in S3, delete the file as well
+            if (signatureToDelete.method === "upload" || signatureToDelete.method === "draw") {
+                utilityService.deleteFile(signatureToDelete.content).catch(err => {
+                    console.error("Failed to delete signature image from S3", err);
+                });
+            }
+
             dispatch(removeSignature(id));
             showToast(t("settings.signatureDeleted") || "Signature deleted successfully", "success");
             setSignatureToDelete(null);
