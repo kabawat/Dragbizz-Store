@@ -1,6 +1,8 @@
 {
   "title": "Bills",
-  "description": "Manage your bills",
+  "description": "Track and manage your supplier bills and invoices",
+  "emptyDescription": "Add your first bill to start tracking purchase invoices and managing supplier payments.",
+  "noResultsDescription": "We couldn't find any bills matching your search or filters. Try adjusting them.",
   "backToBills": "Back to Bills",
   "viewBill": "View Bill",
   "viewBillDescription": "Bill information and details",
