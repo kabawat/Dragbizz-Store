@@ -232,7 +232,7 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
                                 key={preset.label}
                                 type="button"
                                 onClick={() => applyPreset(preset)}
-                                className={`p-3 rounded-lg border text-left transition-all ${selectedPreset === preset.label
+                                className={`p-3 rounded-xl border text-left transition-all ${selectedPreset === preset.label
                                     ? "border-[rgb(var(--color-primary))] bg-[rgba(var(--color-primary),0.05)]"
                                     : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 bg-[rgb(var(--color-bg-secondary))]"
                                     }`}
@@ -329,7 +329,7 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
 
                 {/* Error */}
                 {error && (
-                    <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
                         <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
                         <p className="text-xs text-red-500">{error}</p>
                     </div>

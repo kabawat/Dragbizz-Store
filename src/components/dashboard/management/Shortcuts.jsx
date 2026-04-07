@@ -38,7 +38,7 @@ const ManagementShortcuts = () => {
     ];
 
     return (
-        <Card className="bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] rounded-lg overflow-hidden shadow-none">
+        <Card className="bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] rounded-xl overflow-hidden shadow-none">
             <CardBody className="p-4 shadow-none">
                 <div className="flex items-center justify-between mb-4 px-1">
                     <h3 className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--color-text-tertiary))]">
@@ -59,13 +59,13 @@ const ManagementShortcuts = () => {
                             <a
                                 key={link.href}
                                 href={link.href}
-                                className={`group flex items-center justify-between p-2.5 rounded-lg transition-all border shadow-none ${isActive
+                                className={`group flex items-center justify-between p-2.5 rounded-xl transition-all border shadow-none ${isActive
                                     ? "bg-[rgb(var(--color-primary))]/5 border-[rgb(var(--color-primary))]/30"
                                     : "hover:bg-[rgb(var(--color-bg-secondary))] border-transparent"
                                     }`}
                             >
                                 <div className="flex items-center gap-3 overflow-hidden">
-                                    <div className={`p-2 rounded-lg ${link.bg} ${link.color} flex-shrink-0 shadow-none transition-colors`}>
+                                    <div className={`p-2 rounded-xl ${link.bg} ${link.color} flex-shrink-0 shadow-none transition-colors`}>
                                         <Icon className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col overflow-hidden">
