@@ -11,7 +11,7 @@ import {
 } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useTheme } from "@/contexts/ThemeContext";
-import { categoryService } from "@/service/retailer";
+import { categoryService, utilityService, productService } from "@/service";
 import useApiResponse from "@/hooks/useApiResponse";
 
 const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
@@ -23,11 +23,12 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
     description: "",
     hasExpiryDate: false,
     metadata: {
-      icon: null,
+      icon: null, // This will now store the URL string after auto-upload
       tags: [],
     },
   });
 
+  const [iconUploading, setIconUploading] = useState(false);
   const { execute: executeCreate, loading: addCategoryLoading } = useApiResponse();
 
   // Reset logic
@@ -41,32 +42,102 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
         tags: [],
       },
     });
+    setIconUploading(false);
   }, []);
+
+  // Immediate Upload on selection
+  const handleIconUpload = async (files) => {
+    const file = files?.[0];
+    if (!file) return;
+
+    // Delete existing icon if any before replacing
+    if (newCategoryData.metadata.icon && typeof newCategoryData.metadata.icon === 'string') {
+      await handleRemoveIcon();
+    }
+
+    try {
+      setIconUploading(true);
+      const uploadResult = await utilityService.uploadFile(file, "category");
+      
+      setNewCategoryData(prev => ({
+        ...prev,
+        metadata: { ...prev.metadata, icon: uploadResult.publicFileUrl }
+      }));
+    } catch (error) {
+      console.error("Icon upload failed:", error);
+    } finally {
+      setIconUploading(false);
+    }
+  };
+
+  // Delete from storage when removed
+  const handleRemoveIcon = async () => {
+    const currentIcon = newCategoryData.metadata.icon;
+    if (currentIcon && typeof currentIcon === 'string' && (currentIcon.includes('bucket') || currentIcon.includes('r2.dev'))) {
+      try {
+        await utilityService.deleteFile(currentIcon);
+      } catch (err) {
+        console.warn("Failed to delete category icon from storage:", err);
+      }
+    }
+    
+    setNewCategoryData(prev => ({
+      ...prev,
+      metadata: { ...prev.metadata, icon: null }
+    }));
+  };
 
   const handleAddCategory = async () => {
     if (!newCategoryData.name.trim()) return;
 
-    const apiPayload = {
-      name: newCategoryData.name.trim(),
-      description: newCategoryData.description.trim(),
-      hasExpiryDate: newCategoryData.hasExpiryDate === true,
-      metadata: null,
-    };
+    try {
+      const iconUrl = newCategoryData.metadata.icon;
 
-    const result = await executeCreate(
-      categoryService.createCategory(apiPayload, storeId)
-    );
-
-    if (result) {
-      const body = result.data?.data || result.data;
-      const newCategory = {
-        value: body?.id || body?._id,
-        label: newCategoryData.name.trim(),
+      // Create Category
+      const apiPayload = {
+        name: newCategoryData.name.trim(),
+        description: newCategoryData.description.trim(),
+        hasExpiryDate: newCategoryData.hasExpiryDate === true,
+        metadata: {
+          ...newCategoryData.metadata,
+          icon: iconUrl || "category",
+        },
       };
 
-      onCategoryAdded(newCategory);
-      resetCategoryData();
-      onClose();
+      const result = await executeCreate(
+        categoryService.createCategory(apiPayload, storeId)
+      );
+
+      if (result?.success) {
+        const body = result.data?.data || result.data;
+        const categoryId = body?.id || body?._id;
+
+        // Sync metadata to ProductImageModel (Standard flow)
+        if (iconUrl && categoryId) {
+          try {
+            await productService.saveProductImage({
+              entityId: categoryId,
+              entityType: 'Category',
+              url: iconUrl,
+              isPrimary: true,
+              metadata: { name: newCategoryData.name }
+            });
+          } catch (err) {
+            console.warn("Category image metadata sync failed:", err);
+          }
+        }
+
+        const newCategory = {
+          value: categoryId,
+          label: newCategoryData.name.trim(),
+        };
+
+        onCategoryAdded(newCategory);
+        resetCategoryData();
+        onClose();
+      }
+    } catch (error) {
+      console.error("Category creation failed:", error);
     }
   };
 
@@ -187,12 +258,9 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
                   accept="image/*"
                   multiple={false}
                   value={newCategoryData.metadata.icon ? [newCategoryData.metadata.icon] : []}
-                  onChange={(files) => {
-                    setNewCategoryData((prev) => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, icon: files?.[0] || null },
-                    }));
-                  }}
+                  onChange={handleIconUpload}
+                  onRemove={handleRemoveIcon}
+                  loading={iconUploading}
                   dropZoneLabel={t("products.clickToUpload")}
                   sizeLimitLabel={t("products.imagesUpTo2MB")}
                   helperText={t("products.categoryIconHelperText")}

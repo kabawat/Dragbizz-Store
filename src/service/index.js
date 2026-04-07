@@ -1,9 +1,10 @@
 export { authService } from "./auth";
 export { authAxios, unauthAxios } from "./config/axiosConfig";
 export {
-  billService,
+  categoryService,
   customerService,
   expenseService,
+  inventoryService,
   invoiceService,
   productService,
   signatureService,

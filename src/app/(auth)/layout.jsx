@@ -1,5 +1,5 @@
 "use client";
-import { updateSubdomain } from "@/utils/helper/domain";
+import { ensureMainDomain } from "@/utils/helper/domain";
 import { useEffect } from "react";
 import GuestGuard from "@/components/auth/GuestGuard";
 
@@ -7,13 +7,8 @@ import GuestGuard from "@/components/auth/GuestGuard";
 export default function AuthLayout({ children }) {
 
   useEffect(() => {
-    if (window) {
-      const domain = updateSubdomain(window.location.href, null)
-      if (domain?.hasSubdomain) {
-        window.location.href = domain.url
-      }
-    }
-  }, [])
+    ensureMainDomain();
+  }, []);
 
   return <GuestGuard>{children}</GuestGuard>;
 }

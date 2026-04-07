@@ -5,6 +5,7 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { UpdatePaymentStatusModal } from "@/components/invoice";
 import InvoiceLoadingState from "@/components/invoice/view/InvoiceLoadingState";
+import InvoiceNotFound from "@/components/invoice/view/InvoiceNotFound";
 import InvoicePageLayout from "@/components/invoice/view/InvoicePageLayout";
 import InvoiceViewHeader from "@/components/invoice/view/InvoiceViewHeader";
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -116,6 +117,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
   });
 
   if (fetching || permissionLoading) return <InvoiceLoadingState t={t} />;
+
+  if (!invoiceData) return <InvoiceNotFound t={t} />;
 
   if (!canRead) return null;
 
