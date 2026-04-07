@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getPurchaseOrders as getPOs, setViewMode } from "@/store/slices/purchaseOrdersSlice";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const PurchaseOrderListHeader = () => {
+const PurchaseOrderListHeader = ({ searchValue, setSearchValue }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -21,7 +21,6 @@ const PurchaseOrderListHeader = () => {
     const { can, loading } = useModulePermissions("purchase_order");
     const canCreate = can("create");
 
-    const [searchValue, setSearchValue] = useState("");
     const searchInputRef = useRef(null);
 
     const lastFetchRef = useRef(null);
@@ -84,7 +83,7 @@ const PurchaseOrderListHeader = () => {
                         ref={searchInputRef}
                         placeholder={`${t("common.search")} ${t("purchaseOrders.title").toLowerCase()}...`}
                         value={searchValue}
-                        onChange={(e) => setSearchValue(e.target?.value ?? e)}
+                        onChange={setSearchValue}
                         leftIcon={Search}
                         className="w-100"
                     />
@@ -95,8 +94,8 @@ const PurchaseOrderListHeader = () => {
                         <button
                             onClick={() => handleViewModeChange("table")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <List className="w-4 h-4" />
@@ -105,8 +104,8 @@ const PurchaseOrderListHeader = () => {
                         <button
                             onClick={() => handleViewModeChange("card")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <Grid3X3 className="w-4 h-4" />
@@ -115,11 +114,7 @@ const PurchaseOrderListHeader = () => {
                     </div>
 
                     {canCreate && (
-                        <Button
-                            variant="primary"
-                            onClick={() => router.push("/dashboard/purchase-orders/create")}
-                            leftIcon={Plus}
-                        >
+                        <Button variant="primary" leftIcon={Plus} onClick={() => router.push("/dashboard/purchase-orders/create")} >
                             {t("purchaseOrders.createPO")}
                         </Button>
                     )}

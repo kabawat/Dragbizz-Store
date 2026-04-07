@@ -1,6 +1,8 @@
 {
   "title": "Purchase Orders",
-  "description": "Purchase orders ko manage karo",
+  "description": "Suppliers ke liye apne purchase orders create aur manage karein",
+  "emptyDescription": "Suppliers se inventory request karne aur orders track karne ke liye apna pehla purchase order create karein.",
+  "noResultsDescription": "Humein aapki search ya filters se match hone wala koi purchase order nahi mila. Unhe adjust karke try karein.",
   "createPO": "PO create karo",
   "createPODescription": "Suppliers ke liye naya purchase order add karo",
   "viewPODescription": "Is purchase order ki details yahan dekhein",

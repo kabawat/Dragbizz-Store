@@ -1,6 +1,8 @@
 {
   "title": "Purchase Orders",
-  "description": "Manage purchase orders",
+  "description": "Create and manage your purchase orders for suppliers",
+  "emptyDescription": "Create your first purchase order to start requesting inventory from your suppliers and tracking orders.",
+  "noResultsDescription": "We couldn't find any purchase orders matching your search or filters. Try adjusting them.",
   "createPO": "Create PO",
   "createPODescription": "Add a new purchase order for suppliers",
   "viewPODescription": "View detailed information about this purchase order",
