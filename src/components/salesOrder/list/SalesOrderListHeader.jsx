@@ -15,7 +15,9 @@ const SalesOrderListHeader = ({
     searchValue,
     setSearchValue,
     statusFilter,
-    setStatusFilter
+    setStatusFilter,
+    orderSourceFilter,
+    setOrderSourceFilter
 }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
@@ -32,23 +34,23 @@ const SalesOrderListHeader = ({
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
-    const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null, statusFilter: null });
+    const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null });
 
     // Reset fetch refs when store changes
     useEffect(() => {
         lastFetchRef.current = null;
-        hasFetchedRef.current = { fetched: false, storeId: null, searchValue: null, statusFilter: null };
+        hasFetchedRef.current = { fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null };
     }, [storeId]);
 
     // Fetch Orders with debounce + deduplication
     const fetchSalesOrders = useCallback(async () => {
         if (!storeId) return;
 
-        const fetchKey = `${storeId}-${searchValue}-${statusFilter}`;
+        const fetchKey = `${storeId}-${searchValue}-${statusFilter}-${orderSourceFilter}`;
         if (lastFetchRef.current === fetchKey) return;
 
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter) return;
+        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter) return;
 
         lastFetchRef.current = fetchKey;
 
@@ -58,26 +60,27 @@ const SalesOrderListHeader = ({
             limit: 20,
             cursor: null,
             isFreshLoad: true,
-            status: statusFilter !== "all" ? statusFilter : undefined
+            status: statusFilter !== "all" ? statusFilter : undefined,
+            orderSource: orderSourceFilter !== "all" ? orderSourceFilter : undefined
         };
 
         try {
             await dispatch(getSalesOrders(params));
-            hasFetchedRef.current = { fetched: true, storeId, searchValue, statusFilter };
+            hasFetchedRef.current = { fetched: true, storeId, searchValue, statusFilter, orderSourceFilter };
         } catch {
             lastFetchRef.current = null;
         }
-    }, [dispatch, storeId, searchValue, statusFilter]);
+    }, [dispatch, storeId, searchValue, statusFilter, orderSourceFilter]);
 
     // Debounce hook replacement
     useEffect(() => {
         if (!storeId) return;
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter) return;
+        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter) return;
 
         const timer = setTimeout(() => fetchSalesOrders(), 350);
         return () => clearTimeout(timer);
-    }, [storeId, searchValue, statusFilter, fetchSalesOrders]);
+    }, [storeId, searchValue, statusFilter, orderSourceFilter, fetchSalesOrders]);
 
     const handleViewModeChange = useCallback((mode) => {
         dispatch(setViewMode(mode));
@@ -107,7 +110,20 @@ const SalesOrderListHeader = ({
                     />
                 </div>
 
-                <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex flex-wrap gap-3 items-center mt-3 lg:mt-0">
+                    <div className="min-w-[140px]">
+                        <Select
+                            placeholder={t("common.type", { defaultValue: "All Types" })}
+                            value={orderSourceFilter}
+                            onChange={setOrderSourceFilter}
+                            options={[
+                                { value: "all", label: "All Sources" },
+                                { value: "ONLINE", label: "Online" },
+                                { value: "IN_STORE", label: "In-Store" }
+                            ]}
+                        />
+                    </div>
+                    
                     <div className="min-w-[160px]">
                         <Select
                             placeholder={t("common.allStatus")}
@@ -115,10 +131,12 @@ const SalesOrderListHeader = ({
                             onChange={setStatusFilter}
                             options={[
                                 { value: "all", label: t("common.allStatus") },
-                                { value: "PENDING", label: t("common.pending") },
-                                { value: "CONFIRMED", label: t("salesOrder.confirm") },
-                                { value: "DELIVERED", label: t("salesOrder.markAsDelivered") },
-                                { value: "CANCELLED", label: t("salesOrder.cancelOrder") },
+                                { value: "PENDING", label: t("salesOrder.status.pending") },
+                                { value: "CONFIRMED", label: t("salesOrder.status.confirmed") },
+                                { value: "PROCESSING", label: t("salesOrder.status.processing") },
+                                { value: "SHIPPED", label: t("salesOrder.status.shipped") },
+                                { value: "DELIVERED", label: t("salesOrder.status.delivered") },
+                                { value: "CANCELLED", label: t("salesOrder.status.cancelled") },
                             ]}
                         />
                     </div>
