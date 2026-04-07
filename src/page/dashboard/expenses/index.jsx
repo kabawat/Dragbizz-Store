@@ -1,13 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getExpenses } from "@/store/slices/expenses/expenseSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import ExpenseEmptyState from "@/components/expenses/list/ExpenseEmptyState";
+import { EmptyState } from "@/components/ui";
+import { IndianRupee, Plus, Search } from "lucide-react";
 import ExpenseListContent from "@/components/expenses/list/ExpenseListContent";
 import ExpenseListHeader from "@/components/expenses/list/ExpenseListHeader";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
@@ -21,9 +22,13 @@ const ExpensesPage = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
+  // Local search state (to match Header if needed, though mostly for UI)
+  const [searchValue, setSearchValue] = useState("");
+
   // Permission Management
   const { can, loading: permissionLoading } = useModulePermissions("expense");
   const canRead = can("read");
+  const canCreate = can("create");
 
   useEffect(() => {
     if (!permissionLoading && !canRead) {
@@ -54,11 +59,11 @@ const ExpensesPage = () => {
         <Header title={t("expenses.title")} description={t("expenses.description")} />
 
         {/* Main Content */}
-        <div className="flex-1 p-5">
+        <div className="flex-1 p-5 overflow-y-auto">
           <div className="max-w-8xl mx-auto">
 
             {/* Header manages: search, viewMode, download, create — all internally */}
-            <ExpenseListHeader />
+            <ExpenseListHeader onSearchChange={setSearchValue} />
 
             {/* Loading */}
             {isLoading && expenses.length === 0 && !error && (
@@ -72,7 +77,19 @@ const ExpensesPage = () => {
 
             {/* Empty State */}
             {!isLoading && expenses.length === 0 && (
-              <ExpenseEmptyState />
+              <EmptyState
+                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                title={searchValue ? t("common.noResults") : (t("expenses.noExpenses") || "No Expenses Found")}
+                description={
+                  error
+                    ? `${t("common.error")}: ${error}`
+                    : searchValue
+                      ? `${t("common.noResultsFoundFor")} "${searchValue}"`
+                      : t("expenses.emptyDescription") || t("expenses.startAddingExpense")
+                }
+                icon={searchValue ? Search : IndianRupee}
+                type={error ? "error" : "empty"}
+              />
             )}
 
             {/* Expenses List */}

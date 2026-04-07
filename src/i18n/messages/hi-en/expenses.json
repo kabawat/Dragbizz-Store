@@ -162,5 +162,6 @@
     "noPaymentMethodData": "Payment method data available nahi hai",
     "metric": "Metric",
     "value": "Value"
-  }
+  },
+  "emptyDescription": "Apne business expenses track karo—pehla expense add karke budget manage karo!"
 }

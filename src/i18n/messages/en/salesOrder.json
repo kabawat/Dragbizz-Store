@@ -1,6 +1,8 @@
 {
     "viewOrder": "View Sell Order",
     "orderListDescription": "Orders from your shared catalogs will appear here.",
+    "emptyDescription": "When a customer places an order from your digital catalogs or storefront, it will appear here for processing.",
+    "noResultsDescription": "We couldn't find any orders matching your current filters. Try resetting them or check your search term.",
     "orderListSubtitle": "Manage and track all customer orders from catalogs",
     "backToOrders": "Back to Orders",
     "customerShippingInfo": "Customer & Shipping Info",

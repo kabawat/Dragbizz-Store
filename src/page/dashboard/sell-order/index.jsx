@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
@@ -11,7 +11,8 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 // Modularized Sales Order Components
 import SalesOrderListHeader from "@/components/salesOrder/list/SalesOrderListHeader";
-import SalesOrderEmptyState from "@/components/salesOrder/list/SalesOrderEmptyState";
+import { Package, Search } from "lucide-react";
+import { EmptyState } from "@/components/ui";
 import SalesOrderListContent from "@/components/salesOrder/list/SalesOrderListContent";
 
 const SalesOrdersPage = () => {
@@ -21,12 +22,15 @@ const SalesOrdersPage = () => {
 
     // Smooth deterministic tracking using global Redux Architecture
     const { list: orders, isLoading, error } = useAppSelector((state) => state.salesOrders);
-    const { 
-        can, 
-        create: canCreate, 
-        edit: canEdit, 
-        delete: canDelete, 
-        loading: permissionsLoading 
+    const [searchValue, setSearchValue] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+
+    const {
+        can,
+        create: canCreate,
+        edit: canEdit,
+        delete: canDelete,
+        loading: permissionsLoading
     } = useModulePermissions("sales_order");
 
     useEffect(() => {
@@ -61,24 +65,38 @@ const SalesOrdersPage = () => {
                     <div className="max-w-8xl mx-auto">
 
                         {/* Modular Header Logic */}
-                        <SalesOrderListHeader canCreate={canCreate} />
+                        <SalesOrderListHeader
+                            canCreate={canCreate}
+                            searchValue={searchValue}
+                            setSearchValue={setSearchValue}
+                            statusFilter={statusFilter}
+                            setStatusFilter={setStatusFilter}
+                        />
 
                         {/* Loading State Wrapper */}
                         {(isLoading || permissionsLoading) && orders.length === 0 && !error && (
-                            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
+                            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center shadow-sm">
                                 <div className="text-center">
                                     <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                                    <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
+                                    <p className="text-[rgb(var(--color-text-secondary))] font-medium">{t("common.loading")}</p>
                                 </div>
                             </div>
                         )}
 
                         {/* Completely Empty State Fallback */}
-                        {!(isLoading || permissionsLoading) && orders.length === 0 && <SalesOrderEmptyState />}
+                        {!(isLoading || permissionsLoading) && orders.length === 0 && (
+                            <EmptyState
+                                title={t("common.noResults")}
+                                description={searchValue || statusFilter !== "all"
+                                    ? t("salesOrder.noResultsDescription")
+                                    : t("salesOrder.emptyDescription")}
+                                icon={searchValue || statusFilter !== "all" ? Search : Package}
+                            />
+                        )}
 
                         {/* Hydrated Container Mapping */}
                         {orders.length > 0 && (
-                            <SalesOrderListContent 
+                            <SalesOrderListContent
                                 canCreate={canCreate}
                                 canEdit={canEdit}
                                 canDelete={canDelete}

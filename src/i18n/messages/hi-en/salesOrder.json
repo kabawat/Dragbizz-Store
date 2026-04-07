@@ -1,6 +1,8 @@
 {
     "viewOrder": "Sell Order View karein",
     "orderListDescription": "Aapke shared catalogs ke orders yahan dikhenge.",
+    "emptyDescription": "Jab koi customer aapke digital catalog se order place karega, wo yahan automatic dikhne lagega.",
+    "noResultsDescription": "Aapke filters se match hone wala koi order nahi mila. Kripya reset karein ya search term check karein.",
     "orderListSubtitle": "Catalog ke sabhi orders ko manage aur track karein",
     "backToOrders": "Orders par wapas jayein",
     "customerShippingInfo": "Customer & Shipping Info",

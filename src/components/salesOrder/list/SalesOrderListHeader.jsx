@@ -10,7 +10,13 @@ import { getSalesOrders, setViewMode } from "@/store/slices/salesOrdersSlice";
 import { CatalogQRModal } from "@/components/common";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
+const SalesOrderListHeader = ({
+    canCreate: canCreateProp,
+    searchValue,
+    setSearchValue,
+    statusFilter,
+    setStatusFilter
+}) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -22,8 +28,6 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
     const { can, loading } = useModulePermissions("sales_order");
     const canCreate = canCreateProp ?? can("create");
 
-    const [searchValue, setSearchValue] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
     const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
 
     const searchInputRef = useRef(null);
@@ -123,8 +127,8 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                         <button
                             onClick={() => handleViewModeChange("table")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <List className="w-4 h-4" />
@@ -133,8 +137,8 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                         <button
                             onClick={() => handleViewModeChange("card")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <Grid3X3 className="w-4 h-4" />
@@ -152,7 +156,7 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                             >
                                 {t("settings.publicCatalog")}
                             </Button>
- 
+
                             <CatalogQRModal
                                 isOpen={isCatalogModalOpen}
                                 onClose={() => setIsCatalogModalOpen(false)}
