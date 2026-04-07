@@ -70,7 +70,7 @@ const UsageLimitsPage = () => {
                             {/* Main Resource Monitor (3/4) */}
                             <div className="lg:col-span-3 space-y-6">
 
-                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary)/0.4)] overflow-hidden p-1 shadow-none">
+                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.4)] overflow-hidden p-1 shadow-none">
                                     <div className="p-6 pb-2">
                                         <div className="flex items-center justify-between gap-4 flex-wrap">
                                             <div>
@@ -97,13 +97,13 @@ const UsageLimitsPage = () => {
                                                 const isAtRisk = percentage > 80;
 
                                                 return (
-                                                    <div key={idx} className="group relative overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-6 border-b border-[rgb(var(--color-border-primary))]/30 last:border-0 shadow-none">
+                                                    <div key={idx} className="group relative overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--color-bg-secondary))] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-6 border-b border-[rgb(var(--color-border-primary))]/30 last:border-0 shadow-none">
 
                                                         <div className="flex items-center gap-4 w-full md:w-[220px] flex-shrink-0">
                                                             <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] opacity-40 w-4">
                                                                 {String(idx + 1).padStart(2, '0')}
                                                             </span>
-                                                            <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-none" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+                                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-none" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
                                                                 <Icon size={20} className="stroke-[2]" />
                                                             </div>
                                                             <div className="flex flex-col">
@@ -134,7 +134,7 @@ const UsageLimitsPage = () => {
                                                                 </span>
                                                             </div>
                                                             {!isUnlimited ? (
-                                                                <div className="h-2 w-full bg-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden p-0 border border-[rgb(var(--color-border-primary))]/30 shadow-none">
+                                                                <div className="h-2 w-full bg-[rgb(var(--color-bg-secondary))] rounded-xl overflow-hidden p-0 border border-[rgb(var(--color-border-primary))]/30 shadow-none">
                                                                     <div
                                                                         className="h-full transition-all duration-1000 ease-out relative"
                                                                         style={{
@@ -155,7 +155,7 @@ const UsageLimitsPage = () => {
                                                             {isAtRisk && (
                                                                 <AlertCircle size={16} className="text-red-500" />
                                                             )}
-                                                            <Button variant="ghost" size="xs" className="rounded-lg bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white transition-all px-3 py-1.5 border border-[rgb(var(--color-border-primary))]/50 shadow-none">
+                                                            <Button variant="ghost" size="xs" className="rounded-xl px-3 py-1.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white">
                                                                 Details
                                                             </Button>
                                                         </div>
@@ -168,7 +168,7 @@ const UsageLimitsPage = () => {
                                     <div className="bg-[rgb(var(--color-bg-secondary))]/30 border-t border-[rgb(var(--color-border-primary))] p-4 px-6 md:px-10 shadow-none">
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
+                                                <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
                                                     <Zap size={16} className="fill-current" />
                                                 </div>
                                                 <div>
@@ -178,7 +178,7 @@ const UsageLimitsPage = () => {
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[9px] font-bold uppercase text-[rgb(var(--color-text-tertiary))]">Next Reset</span>
-                                                <Badge variant="secondary" className="font-bold px-3 rounded-lg shadow-none">April 01, 2026</Badge>
+                                                <Badge variant="secondary" className="font-bold px-3 rounded-xl shadow-none">April 01, 2026</Badge>
                                             </div>
                                         </div>
                                     </div>

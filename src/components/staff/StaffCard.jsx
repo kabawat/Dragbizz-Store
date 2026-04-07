@@ -127,7 +127,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
                 {/* Permissions toggle */}
                 <button
                     onClick={() => setShowPermissions(!showPermissions)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg text-xs text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/50 transition-all flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-xl text-xs text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/50 transition-all flex-shrink-0"
                 >
                     <Shield size={12} />
                     <span>{activeModules} modules</span>
@@ -139,7 +139,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
                     <div className="relative flex-shrink-0">
                         <button
                             onClick={() => setShowMenu(!showMenu)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] transition-all"
+                            className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] transition-all"
                         >
                             <MoreVertical size={16} />
                         </button>
@@ -147,7 +147,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
                         {showMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                                <div className="absolute right-0 top-9 z-20 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg overflow-hidden">
+                                <div className="absolute right-0 top-9 z-20 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl overflow-hidden shadow-lg">
 
                                     {/* TEMP_STAFF actions */}
                                     {isTempStaff && (

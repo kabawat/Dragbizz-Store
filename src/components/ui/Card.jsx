@@ -5,7 +5,7 @@ const Card = ({
   variant = "default",
   padding = "md",
   shadow = "",
-  rounded = "lg",
+  rounded = "xl",
   hover = false,
   className = "",
   onClick,
