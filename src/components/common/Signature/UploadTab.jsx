@@ -3,7 +3,7 @@ import { FileUpload } from "@/components/ui";
 import { Info } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-const UploadTab = ({ uploadedFiles, setUploadedFiles }) => {
+const UploadTab = ({ uploadedFiles, setUploadedFiles, loading }) => {
     const { t } = useTranslation();
 
     return (
@@ -15,8 +15,9 @@ const UploadTab = ({ uploadedFiles, setUploadedFiles }) => {
                 </p>
             </div>
             <FileUpload
+                loading={loading}
                 label={t("invoice.uploadSignature")}
-                accept="image/*,.pdf"
+                accept="image/*"
                 multiple={false}
                 value={uploadedFiles}
                 onChange={setUploadedFiles}

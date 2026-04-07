@@ -38,6 +38,7 @@ const SignatureDrawer = ({
     const [selectedFont, setSelectedFont] = useState(SIGNATURE_FONTS[0]);
 
     const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [isUploadingSignature, setIsUploadingSignature] = useState(false);
 
     const [idNumber, setIdNumber] = useState("");
     const [isVerifying, setIsVerifying] = useState(false);
@@ -54,14 +55,46 @@ const SignatureDrawer = ({
 
     useEffect(() => {
         setIsMounted(true);
-        if (uploadedFiles.length > 0 && uploadedFiles[0] instanceof File) {
-            const url = URL.createObjectURL(uploadedFiles[0]);
-            setPreviewUrl(url);
-            return () => URL.revokeObjectURL(url);
+        if (uploadedFiles.length > 0) {
+            if (uploadedFiles[0] instanceof File) {
+                const url = URL.createObjectURL(uploadedFiles[0]);
+                setPreviewUrl(url);
+                return () => URL.revokeObjectURL(url);
+            } else if (typeof uploadedFiles[0] === 'string') {
+                setPreviewUrl(uploadedFiles[0]);
+            }
         } else {
             setPreviewUrl("");
         }
     }, [uploadedFiles]);
+
+    const handleUploadFilesChange = async (files) => {
+        if (!files || files.length === 0) {
+            // Document removed, also delete from S3
+            if (uploadedFiles.length > 0 && typeof uploadedFiles[0] === 'string') {
+                utilityService.deleteFile(uploadedFiles[0]).catch(e => console.error("Failed to delete", e));
+            }
+            setUploadedFiles([]);
+            return;
+        }
+
+        const file = files[0];
+        if (typeof file === 'string') {
+            setUploadedFiles(files);
+            return;
+        }
+
+        try {
+            setIsUploadingSignature(true);
+            const uploadRes = await utilityService.uploadFile(file, "signatures");
+            setUploadedFiles([uploadRes.publicFileUrl]); // Store S3 URL directly
+        } catch (error) {
+            showToast(t("common.uploadFailed") || "Failed to upload image", "error");
+            setUploadedFiles([]);
+        } finally {
+            setIsUploadingSignature(false);
+        }
+    };
 
     const startDrawing = (e) => {
         const canvas = canvasRef.current;
@@ -147,9 +180,13 @@ const SignatureDrawer = ({
                     showToast(t("invoice.pleaseUploadSignature") || "Please upload a signature file.", "error");
                     return;
                 }
-                const fileToUpload = uploadedFiles[0];
-                const uploadRes = await utilityService.uploadFile(fileToUpload, "signatures");
-                finalContent = uploadRes.publicFileUrl;
+                const fileOrUrl = uploadedFiles[0];
+                if (typeof fileOrUrl === 'string') {
+                    finalContent = fileOrUrl;
+                } else {
+                    const uploadRes = await utilityService.uploadFile(fileOrUrl, "signatures");
+                    finalContent = uploadRes.publicFileUrl;
+                }
             } else if (activeTab === "draw") {
                 if (!drawnSignature) {
                     showToast(t("invoice.pleaseDrawSignature") || "Please draw a signature first.", "error");
@@ -259,7 +296,8 @@ const SignatureDrawer = ({
                                 <TabPanel isActive={activeTab === "upload"}>
                                     <UploadTab
                                         uploadedFiles={uploadedFiles}
-                                        setUploadedFiles={setUploadedFiles}
+                                        setUploadedFiles={handleUploadFilesChange}
+                                        loading={isUploadingSignature}
                                     />
                                 </TabPanel>
 
