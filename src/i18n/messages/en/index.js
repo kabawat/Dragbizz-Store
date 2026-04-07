@@ -25,6 +25,8 @@ import suggestions from "./suggestions.json";
 import salesOrder from "./salesOrder.json";
 import shortcuts from "./shortcuts.json";
 import help from "./help.json";
+import limits from "./limits.json";
+import subscription from "./subscription.json";
 
 export default {
   auth,
@@ -53,5 +55,7 @@ export default {
   suggestions,
   salesOrder,
   shortcuts,
-  help
+  help,
+  limits,
+  subscription
 };

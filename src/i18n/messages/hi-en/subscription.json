@@ -1,0 +1,27 @@
+{
+    "title": "Subscription Management",
+    "description": "Configure and manage your active business plan",
+    "trialPlan": "Trial Plan",
+    "activePlanTitle": "Active Plan",
+    "nextBillingLabel": "Next billing:",
+    "planRateLabel": "Plan Rate",
+    "cycleLabel": "Cycle",
+    "monthly": "Monthly",
+    "includedServicesTitle": "Included Services",
+    "featureDetailsFallback": "Full enterprise-level module access enabled.",
+    "support": {
+        "title": "Need Billing Help?",
+        "description": "Our support team is ready for any payment queries at "
+    },
+    "featureDetails": {
+        "billing": "Generate GST-ready bills and manage professional invoices easily.",
+        "invoice": "Advanced invoice tracking with recurring billing and auto-reminders.",
+        "inventory": "Track stock levels, set low-stock alerts, and manage product variants.",
+        "customer": "Centralized database to manage customer groups and credit history.",
+        "expense": "Monitor business costs and generate detailed spending reports.",
+        "staff": "Role-based access control for your team and staff activity logs.",
+        "product": "Detailed product catalogs with category and attribute management.",
+        "reports": "Professional business analytics and sales productivity insights.",
+        "ai": "AI-powered sales predictions and voice-based data management."
+    }
+}

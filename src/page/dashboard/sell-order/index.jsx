@@ -57,10 +57,7 @@ const SalesOrdersPage = () => {
             <Sidebar />
 
             <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-                <Header
-                    title={t("sidebar.sellOrders")}
-                    description={t("salesOrder.orderListSubtitle")}
-                />
+                <Header title={t("sidebar.sellOrders")} description={t("salesOrder.orderListSubtitle")} />
 
                 <div className="flex-1 p-5">
                     <div className="max-w-8xl mx-auto">

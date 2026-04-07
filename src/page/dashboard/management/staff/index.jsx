@@ -130,7 +130,7 @@ const StaffPage = () => {
                                                     <button
                                                         key={tab.value}
                                                         onClick={() => setActiveTab(tab.value)}
-                                                        className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${activeTab === tab.value
+                                                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${activeTab === tab.value
                                                             ? "bg-[rgb(var(--color-primary))] text-white shadow-sm"
                                                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] shadow-none"
                                                             }`}
@@ -142,11 +142,7 @@ const StaffPage = () => {
                                         </div>
 
                                         {/* Invite Button */}
-                                        <Button
-                                            onClick={() => setShowInviteDrawer(true)}
-                                            leftIcon={UserPlus}
-                                            className="px-5"
-                                        >
+                                        <Button leftIcon={UserPlus} className="px-5" onClick={() => setShowInviteDrawer(true)} >
                                             Invite Staff
                                         </Button>
                                     </div>
@@ -172,7 +168,7 @@ const StaffPage = () => {
                                             <div className="divide-y divide-[rgb(var(--color-border-primary)/0.3)]">
                                                 {filteredStaff.map((staff) => (
                                                     <div key={staff._id} className="p-1">
-                                                       <StaffCard
+                                                        <StaffCard
                                                             staff={staff}
                                                             onDeleteTemp={handleDeleteTempStaff}
                                                             onResendInvite={handleResendInvite}
@@ -185,12 +181,12 @@ const StaffPage = () => {
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     {/* Footer / Summary */}
                                     {!isLoading && filteredStaff.length > 0 && (
                                         <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary)/0.5)] px-6 py-3">
-                                            <p className="text-xs font-bold text-[rgb(var(--color-text-secondary))] flex items-center gap-2">
-                                                <Users size={12} className="text-[rgb(var(--color-primary))]" />
+                                            <p className="text-sm font-medium text-[rgb(var(--color-text-secondary))] flex items-center gap-2">
+                                                <Users size={14} className="text-[rgb(var(--color-primary))]" />
                                                 Showing {filteredStaff.length} team members
                                             </p>
                                         </div>
