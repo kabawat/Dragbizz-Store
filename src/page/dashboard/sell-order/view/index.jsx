@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Printer, Download, XCircle, QrCode } from "lucide-react";
+import { ArrowLeft, Printer, Download, XCircle, QrCode, Clock, CheckCircle, Package, AlertCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/header";
@@ -36,6 +36,54 @@ const SALES_ORDER_STATUSES = Object.freeze({
   RETURNED: 'RETURNED'
 });
 
+const StatusBadge = ({ order, statusField = 'status' }) => {
+  const status = order[statusField];
+  const { t } = useTranslation();
+  const styles = {
+    PENDING: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+    CONFIRMED: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    SHIPPED: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+    IN_TRANSIT: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
+    OUT_FOR_DELIVERY: "bg-pink-500/10 text-pink-600 border-pink-500/20",
+    DELIVERED: "bg-green-500/10 text-green-600 border-green-500/20",
+    CANCELLED: "bg-red-500/10 text-red-600 border-red-500/20",
+    PAID: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    UNPAID: "bg-orange-500/10 text-orange-600 border-orange-500/20",
+    PARTIAL: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20",
+    REFUNDED: "bg-gray-500/10 text-gray-600 border-gray-500/20"
+  };
+
+  const icons = {
+    PENDING: Clock,
+    CONFIRMED: CheckCircle,
+    SHIPPED: Package,
+    DELIVERED: CheckCircle,
+    CANCELLED: XCircle,
+    PAID: CheckCircle,
+    UNPAID: AlertCircle,
+    PARTIAL: Clock,
+    REFUNDED: RotateCcw
+  };
+
+  const Icon = icons[status] || Clock;
+
+  const getStatusLabel = (s) => {
+    const key = s?.toLowerCase();
+    if (order.orderSource === 'IN_STORE') {
+      if (s === "SHIPPED" || s === "IN_TRANSIT" || s === "OUT_FOR_DELIVERY") return t("salesOrder.status.ready", { defaultValue: "ORDER READY" });
+      if (s === "DELIVERED") return t("salesOrder.status.served", { defaultValue: "SERVED" });
+    }
+    return t(`salesOrder.status.${key}`, { defaultValue: s?.replace(/_/g, ' ') });
+  };
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider border ${styles[status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+      <Icon className="w-3.5 h-3.5" />
+      {getStatusLabel(status)}
+    </span>
+  );
+};
+
 const ViewSellOrderPage = ({ orderId }) => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -47,11 +95,11 @@ const ViewSellOrderPage = ({ orderId }) => {
   const [loading, setLoading] = useState(true);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
 
-  const { 
-    can, 
-    create: canCreate, 
-    edit: canEdit, 
-    loading: permissionsLoading 
+  const {
+    can,
+    create: canCreate,
+    edit: canEdit,
+    loading: permissionsLoading
   } = useModulePermissions("sales_order");
 
   useEffect(() => {
@@ -145,9 +193,12 @@ const ViewSellOrderPage = ({ orderId }) => {
             title={t("salesOrder.viewOrder")}
             description={
               <div className="flex flex-col gap-2">
-                <span className="inline-flex items-center gap-2">
-                  <span>{t("common.details")} #{order.orderNumber}</span>
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center gap-2">
+                    <span>{t("common.details")} #{order.orderNumber}</span>
+                  </span>
+                  <StatusBadge order={order} />
+                </div>
               </div>
             }
           />

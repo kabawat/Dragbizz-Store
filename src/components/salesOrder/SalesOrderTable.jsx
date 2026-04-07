@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-const StatusBadge = ({ status }) => {
+const StatusBadge = ({ order, statusField = 'status' }) => {
+    const status = order[statusField];
     const { t } = useTranslation();
     const styles = {
         // Delivery Statuses - Using opacity for better dark mode compatibility
@@ -41,6 +42,13 @@ const StatusBadge = ({ status }) => {
         if (s === "PENDING") return t("common.pending");
         if (s === "PAID") return t("common.paid");
         if (s === "UNPAID") return t("common.paymentStatus");
+        
+        // Handle IN_STORE order terminology overrides
+        if (order.orderSource === 'IN_STORE') {
+            if (s === "SHIPPED" || s === "IN_TRANSIT" || s === "OUT_FOR_DELIVERY") return t("salesOrder.status.ready", { defaultValue: "ORDER READY" });
+            if (s === "DELIVERED") return t("salesOrder.status.served", { defaultValue: "SERVED" });
+        }
+        
         return t(`salesOrder.status.${key}`, { defaultValue: s });
     };
 
@@ -190,11 +198,11 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
                                         </div>
                                     </td>
                                     <td className="w-1/6 px-4 py-2">
-                                        <StatusBadge status={order.status} />
+                                        <StatusBadge order={order} statusField="status" />
                                     </td>
 
                                     <td className="w-1/6 px-4 py-2">
-                                        <StatusBadge status={order.paymentStatus} />
+                                        <StatusBadge order={order} statusField="paymentStatus" />
                                     </td>
                                     <td className="w-24 px-4 py-2 text-center">
                                         <div

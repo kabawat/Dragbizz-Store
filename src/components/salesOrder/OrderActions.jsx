@@ -79,11 +79,11 @@ const OrderActions = ({ order, statusList, updatingStatus, onUpdateStatus, canEd
                     <Button
                         variant="primary"
                         className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
-                        leftIcon={Truck}
+                        leftIcon={order.orderSource === 'IN_STORE' ? CheckCircle : Truck}
                         loading={updatingStatus}
-                        onClick={() => onUpdateStatus(statusList.SHIPPED, { message: t("salesOrder.messages.orderShipped") })}
+                        onClick={() => onUpdateStatus(statusList.SHIPPED, { message: order.orderSource === 'IN_STORE' ? 'Order marked as ready' : t("salesOrder.messages.orderShipped") })}
                     >
-                        {t("salesOrder.markAsShipped")}
+                        {order.orderSource === 'IN_STORE' ? t("salesOrder.markAsReady", { defaultValue: "Mark as Ready" }) : t("salesOrder.markAsShipped")}
                     </Button>
                 )}
 
@@ -91,15 +91,15 @@ const OrderActions = ({ order, statusList, updatingStatus, onUpdateStatus, canEd
                     <Button
                         variant="primary"
                         className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
-                        leftIcon={Truck}
+                        leftIcon={order.orderSource === 'IN_STORE' ? CheckSquare : Truck}
                         loading={updatingStatus}
-                        onClick={() => onUpdateStatus(statusList.IN_TRANSIT, { message: t("salesOrder.messages.orderInTransit") })}
+                        onClick={() => onUpdateStatus(order.orderSource === 'IN_STORE' ? statusList.DELIVERED : statusList.IN_TRANSIT, { message: order.orderSource === 'IN_STORE' ? 'Order served to customer' : t("salesOrder.messages.orderInTransit") })}
                     >
-                        {t("salesOrder.markAsInTransit")}
+                        {order.orderSource === 'IN_STORE' ? t("salesOrder.markAsServed", { defaultValue: "Mark as Served" }) : t("salesOrder.markAsInTransit")}
                     </Button>
                 )}
 
-                {order.status === statusList.IN_TRANSIT && (
+                {order.status === statusList.IN_TRANSIT && order.orderSource !== 'IN_STORE' && (
                     <Button
                         variant="primary"
                         className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
@@ -111,7 +111,7 @@ const OrderActions = ({ order, statusList, updatingStatus, onUpdateStatus, canEd
                     </Button>
                 )}
 
-                {order.status === statusList.OUT_FOR_DELIVERY && (
+                {order.status === statusList.OUT_FOR_DELIVERY && order.orderSource !== 'IN_STORE' && (
                     <Button
                         variant="primary"
                         className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"

@@ -57,30 +57,50 @@ const CustomerAndAddress = ({ order }) => {
                         </div>
                     </div>
 
-                    {/* Shipping Address */}
+                    {/* Shipping Address / In-Store Location */}
                     <div className="p-6 bg-[rgb(var(--color-bg-secondary))]/10">
-                        <div className="flex items-center gap-2 mb-4">
-                            <MapPin className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                            <span className="text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-widest">{t("salesOrder.shippingAddress")}</span>
-                        </div>
-
-                        <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/[0.03] to-[rgb(var(--color-primary))]/[0.08] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] min-h-[120px] flex flex-col justify-center">
-                            <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] mb-1">{address?.name || customer?.name}</p>
-                            <div className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed">
-                                {address?.line1 && <p>{address.line1}</p>}
-                                <p>
-                                    {address?.city ? `${address.city}` : ""}
-                                    {address?.state ? `, ${address.state}` : ""}
-                                    {address?.pincode ? ` - ${address.pincode}` : ""}
-                                </p>
-                            </div>
-                            {address?.phone && (
-                                <div className="mt-3 pt-3 border-t border-[rgb(var(--color-border-primary)/0.5)] flex items-center gap-2">
-                                    <span className="text-[10px] font-bold text-[rgb(var(--color-primary))]/60 uppercase tracking-wider">{t("salesOrder.contactAtSite")}:</span>
-                                    <span className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{address.phone}</span>
+                        {order.orderSource === 'IN_STORE' ? (
+                            <>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <MapPin className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                                    <span className="text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-widest">
+                                        {t("salesOrder.storeLocation", { defaultValue: "In-Store Location" })}
+                                    </span>
                                 </div>
-                            )}
-                        </div>
+                                <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/[0.05] to-[rgb(var(--color-primary))]/[0.1] rounded-xl border border-[rgb(var(--color-primary))]/30 min-h-[120px] flex flex-col justify-center items-center text-center">
+                                    <p className="text-[10px] uppercase font-bold tracking-widest text-[rgb(var(--color-text-secondary))] mb-2">Dining At</p>
+                                    <p className="text-2xl font-black text-[rgb(var(--color-primary))]">{order.inStoreLocation || "Store Hub"}</p>
+                                    <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20">
+                                        Self Ordered In Store
+                                    </span>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <MapPin className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                                    <span className="text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-widest">{t("salesOrder.shippingAddress")}</span>
+                                </div>
+
+                                <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/[0.03] to-[rgb(var(--color-primary))]/[0.08] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] min-h-[120px] flex flex-col justify-center">
+                                    <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] mb-1">{address?.name || customer?.name}</p>
+                                    <div className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                                        {address?.line1 && <p>{address.line1}</p>}
+                                        <p>
+                                            {address?.city ? `${address.city}` : ""}
+                                            {address?.state ? `, ${address.state}` : ""}
+                                            {address?.pincode ? ` - ${address.pincode}` : ""}
+                                        </p>
+                                    </div>
+                                    {address?.phone && (
+                                        <div className="mt-3 pt-3 border-t border-[rgb(var(--color-border-primary)/0.5)] flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-[rgb(var(--color-primary))]/60 uppercase tracking-wider">{t("salesOrder.contactAtSite")}:</span>
+                                            <span className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{address.phone}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

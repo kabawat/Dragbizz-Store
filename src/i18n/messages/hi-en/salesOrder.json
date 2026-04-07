@@ -24,9 +24,12 @@
     "decline": "Decline karein",
     "markAsProcessing": "Processing mark karein",
     "markAsShipped": "Shipped mark karein",
+    "markAsReady": "Ready mark karein",
     "markAsInTransit": "In Transit mark karein",
     "markAsOutForDelivery": "Out for Delivery mark karein",
     "markAsDelivered": "Delivered mark karein",
+    "markAsServed": "Served mark karein",
+    "storeLocation": "Store Location",
     "noFurtherActions": "Is {status} order ke liye koi action available nahi hai.",
     "termsConditions": "Terms & Conditions",
     "standardTerms": "Standard store terms apply. Billing issues ke liye support se contact karein.",
@@ -54,6 +57,8 @@
         "paid": "Paid",
         "unpaid": "Unpaid",
         "partial": "Partial",
-        "refunded": "Refunded"
+        "refunded": "Refunded",
+        "ready": "Order Ready",
+        "served": "Served"
     }
 }
