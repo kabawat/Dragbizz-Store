@@ -36,7 +36,12 @@ export default function GlobalProfileLoader() {
     const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
 
-    if (isAuth && !hasSessionCookie) { dispatch(setInitialized(true)); return; }
+    // If no session cookie, we know we're not logged in.
+    // Set initialized to true and stop. AuthGuard will handle redirection for protected routes.
+    if (!hasSessionCookie) {
+      dispatch(setInitialized(true));
+      return;
+    }
 
     const load = async () => {
       try {

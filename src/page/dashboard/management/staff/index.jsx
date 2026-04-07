@@ -199,8 +199,10 @@ const StaffPage = () => {
                 isOpen={showInviteDrawer}
                 onClose={() => setShowInviteDrawer(false)}
                 title="Invite Staff Member"
+                description="Invite a new team member and assign them to one or more stores with specific roles."
                 icon={UserPlus}
-                width="max-w-[768px]"
+                width="max-w-2xl"
+                closeOnOutsideClick={false}
             >
                 <InviteStaffDrawer
                     storeId={storeId}
@@ -213,9 +215,11 @@ const StaffPage = () => {
             <SideDrawer
                 isOpen={!!editingStaff}
                 onClose={() => setEditingStaff(null)}
-                title="Edit Staff Permissions"
+                title="Edit Staff Member"
+                description="Update roles, permissions, and assigned stores for this staff member."
                 icon={Users}
-                width="max-w-[768px]"
+                width="max-w-2xl"
+                closeOnOutsideClick={false}
             >
                 <UpdateStaffDrawer
                     staff={editingStaff}
