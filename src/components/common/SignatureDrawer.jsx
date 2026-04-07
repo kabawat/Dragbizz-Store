@@ -41,7 +41,6 @@ const SignatureDrawer = ({
     const [isUploadingSignature, setIsUploadingSignature] = useState(false);
 
     const [idNumber, setIdNumber] = useState("");
-    const [isVerifying, setIsVerifying] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
 
     const [isSigning, setIsSigning] = useState(false);
@@ -146,15 +145,6 @@ const SignatureDrawer = ({
             ctx.lineJoin = "round";
         }
     }, [activeTab]);
-
-    const handleVerify = () => {
-        if (!idNumber) return;
-        setIsVerifying(true);
-        setTimeout(() => {
-            setIsVerifying(false);
-            setIsVerified(true);
-        }, 1500);
-    };
 
     const handleFinalSign = async () => {
         setIsSigning(true);
