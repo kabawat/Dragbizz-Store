@@ -23,8 +23,7 @@ const Payments = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { payments, isLoading, isFetchingMore, error, pagination } =
-    useAppSelector((state) => state.payments);
+  const { payments, isLoading, isFetchingMore, error, pagination } = useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const {
     can,
@@ -35,10 +34,6 @@ const Payments = () => {
   } = useModulePermissions("billing");
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [supplierFilter, setSupplierFilter] = useState("all");
-  const [methodFilter, setMethodFilter] = useState("all");
-  const [dateRange, setDateRange] = useState("all");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
   const [viewMode, setViewMode] = useState("card");
@@ -154,7 +149,7 @@ const Payments = () => {
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [storeId, searchTerm, statusFilter, supplierFilter, methodFilter, dateRange]);
+  }, [storeId, searchTerm]);
 
   // Handle load more
   const handleLoadMore = useCallback(async () => {
@@ -182,26 +177,6 @@ const Payments = () => {
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
   }, [isFetchingMore, pagination?.hasNextPage, handleLoadMore]);
-
-  // Handle filter changes
-  const _handleFilterChange = (filterType, value) => {
-    switch (filterType) {
-      case "status":
-        setStatusFilter(value);
-        break;
-      case "supplier":
-        setSupplierFilter(value);
-        break;
-      case "method":
-        setMethodFilter(value);
-        break;
-      case "date":
-        setDateRange(value);
-        break;
-      default:
-        break;
-    }
-  };
 
   // Handle payment selection
   const handlePaymentSelect = (paymentId) => {
@@ -290,19 +265,18 @@ const Payments = () => {
                 icon={CreditCard}
                 title={t("payments.noPayments")}
                 description={searchTerm ? t("payments.noResultsDescription") : t("payments.emptyDescription")}
-                actionLabel={!searchTerm && canCreate ? t("payments.createPayment") : null}
-                onAction={() => router.push("/dashboard/payments/create")}
-                actionIcon={Plus}
+                actionButton={!searchTerm && canCreate ? {
+                  label: t("payments.createPayment"),
+                  onClick: () => router.push("/dashboard/payments/create"),
+                  icon: Plus
+                } : null}
               />
             )}
 
             {/* Payments list */}
             {payments.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div
-                  className="h-[calc(100vh-200px)] overflow-y-auto"
-                  ref={scrollRef}
-                >
+                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef} >
                   {viewMode === "table" ? (
                     <PaymentTable
                       payments={payments}

@@ -25,15 +25,15 @@ const SuppliersPage = () => {
   const [accountStatus, setAccountStatus] = useState("");
   const [riskLevel, setRiskLevel] = useState("");
   const [isActive, setIsActive] = useState("");
-  
+
   // Drawer state (needed for EmptyState and Header)
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
 
   const { suppliers, isLoading, error } = useAppSelector((state) => state.suppliers);
   const {
-      can,
-      create: canCreate,
-      loading: permissionsLoading
+    can,
+    create: canCreate,
+    loading: permissionsLoading
   } = useModulePermissions("supplier");
 
   useEffect(() => {
@@ -63,16 +63,16 @@ const SuppliersPage = () => {
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
             <SupplierListHeader
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
-                accountStatus={accountStatus}
-                setAccountStatus={setAccountStatus}
-                riskLevel={riskLevel}
-                setRiskLevel={setRiskLevel}
-                isActive={isActive}
-                setIsActive={setIsActive}
-                showAddSupplierDrawer={showAddSupplierDrawer}
-                setShowAddSupplierDrawer={setShowAddSupplierDrawer}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              accountStatus={accountStatus}
+              setAccountStatus={setAccountStatus}
+              riskLevel={riskLevel}
+              setRiskLevel={setRiskLevel}
+              isActive={isActive}
+              setIsActive={setIsActive}
+              showAddSupplierDrawer={showAddSupplierDrawer}
+              setShowAddSupplierDrawer={setShowAddSupplierDrawer}
             />
 
             {(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (
@@ -86,13 +86,15 @@ const SuppliersPage = () => {
 
             {!(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (
               <EmptyState
-                  className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-                  icon={Building}
-                  title={t("suppliers.noSuppliers")}
-                  description={isFiltered ? t("suppliers.noResultsDescription") : t("suppliers.emptyDescription")}
-                  actionLabel={!isFiltered && canCreate ? t("suppliers.addSupplier") : null}
-                  onAction={() => setShowAddSupplierDrawer(true)}
-                  actionIcon={Plus}
+                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                icon={Building}
+                title={t("suppliers.noSuppliers")}
+                description={isFiltered ? t("suppliers.noResultsDescription") : t("suppliers.emptyDescription")}
+                actionButton={!isFiltered && canCreate ? {
+                  label: t("suppliers.addSupplier"),
+                  onClick: () => setShowAddSupplierDrawer(true),
+                  icon: Plus
+                } : null}
               />
             )}
 
