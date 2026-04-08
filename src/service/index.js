@@ -11,6 +11,7 @@ export {
   storeService,
   suggestionService,
   supplierService,
+  billService,
 } from "./retailer";
 export { utilityService } from "./utility/utility.service";
 export { checkoutService, packageService } from "./subscription";
