@@ -2,7 +2,7 @@
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
 import styles from "./style.module.scss";
-import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
+import { fmt, computeB2CTotals, getItemRows, formatAddress } from "@/components/templates/invoice/b2cHelpers";
 
 const ModernTemplate = ({ invoiceData, selectedStore }) => {
     const {
@@ -39,7 +39,7 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
                         <div className={styles.entityName}>
                             {selectedStore?.storeName || "Your Store"}
                         </div>
-                        <p>{selectedStore?.address || "123 Business Street"}</p>
+                        <p>{formatAddress(selectedStore?.address) || "123 Business Street"}</p>
                         {selectedStore?.phone && <p>Phone: {selectedStore.phone}</p>}
                         {selectedStore?.email && <p>Email: {selectedStore.email}</p>}
                         {selectedStore?.gst && <p>GSTIN: {selectedStore.gst}</p>}
@@ -58,7 +58,7 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
                         )}
                         {invoiceData.customer?.gst && <p>GSTIN: {invoiceData.customer.gst}</p>}
                         {invoiceData.customer?.address && (
-                            <p>{invoiceData.customer.address}</p>
+                            <p>{formatAddress(invoiceData.customer.address)}</p>
                         )}
                     </div>
                 </div>

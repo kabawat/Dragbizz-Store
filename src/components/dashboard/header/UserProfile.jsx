@@ -124,7 +124,7 @@ const UserProfile = () => {
                             <button
                                 onClick={() => {
                                     setIsProfileDropdownOpen(false);
-                                    router.push("/dashboard/suggestions");
+                                    router.push("/dashboard/support?tab=suggestions");
                                 }}
                                 className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer font-medium text-[rgb(var(--color-primary))]"
                             >
