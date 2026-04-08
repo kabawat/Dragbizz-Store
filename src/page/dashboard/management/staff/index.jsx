@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Users, UserPlus, Search, Loader2 } from "lucide-react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
@@ -31,28 +31,27 @@ const StaffPage = () => {
     const [activeTab, setActiveTab] = useState("ALL");
 
     const [staffList, setStaffList] = useState([]);
-    const { execute: executeFetch, loading: isLoading } = useApiResponse();
-    const { execute: executeDelete } = useApiResponse();
-    const { execute: executeResend } = useApiResponse();
-    const { execute: executeRemove } = useApiResponse();
+    const { execute: executeFetch, data: fetchedStaff, loading: isLoading } = useApiResponse();
+    const { execute: executeAction } = useApiResponse();
+    const fetchedStoreId = useRef(null);
 
-    const fetchStaff = useCallback(async () => {
-        if (!storeId) return;
-        const result = await executeFetch(
-            staffService.getStaff(),
-            { showToast: false }
-        );
-        if (result?.success) {
-            setStaffList(Array.isArray(result.data) ? result.data : []);
+    // Sync external API data directly to local state for local optimistic updates
+    useEffect(() => {
+        if (fetchedStaff) {
+            setStaffList(Array.isArray(fetchedStaff) ? fetchedStaff : []);
+        }
+    }, [fetchedStaff]);
+
+    // Triggers exactly once per storeId, no manual async wrapper needed
+    useEffect(() => {
+        if (storeId && fetchedStoreId.current !== storeId) {
+            fetchedStoreId.current = storeId;
+            executeFetch(staffService.getStaff(), { showToast: false });
         }
     }, [storeId, executeFetch]);
 
-    useEffect(() => {
-        fetchStaff();
-    }, [fetchStaff]);
-
     const handleDeleteTempStaff = async (staffId) => {
-        const result = await executeDelete(
+        const result = await executeAction(
             staffService.deleteTempStaff(staffId),
             { message: "Invitation cancelled successfully" }
         );
@@ -62,7 +61,7 @@ const StaffPage = () => {
     };
 
     const handleResendInvite = async (staffId) => {
-        const result = await executeResend(
+        const result = await executeAction(
             staffService.resendStaffInvite(staffId),
             { message: "Staff invitation resent successfully" }
         );
@@ -77,7 +76,7 @@ const StaffPage = () => {
     };
 
     const handleRemoveStaff = async (staffId) => {
-        const result = await executeRemove(
+        const result = await executeAction(
             staffService.removeStaff(staffId),
             { message: "Staff member removed successfully" }
         );
@@ -174,7 +173,7 @@ const StaffPage = () => {
                                                             onResendInvite={handleResendInvite}
                                                             onRemoveStaff={handleRemoveStaff}
                                                             onEditStaff={(s) => setEditingStaff(s)}
-                                                            onRefresh={fetchStaff}
+                                                            onRefresh={() => executeFetch(staffService.getStaff(), { showToast: false })}
                                                         />
                                                     </div>
                                                 ))}
@@ -222,7 +221,7 @@ const StaffPage = () => {
             >
                 <InviteStaffDrawer
                     storeId={storeId}
-                    onSuccess={() => { setShowInviteDrawer(false); fetchStaff(); }}
+                    onSuccess={() => { setShowInviteDrawer(false); executeFetch(staffService.getStaff(), { showToast: false }); }}
                     onCancel={() => setShowInviteDrawer(false)}
                 />
             </SideDrawer>
@@ -239,7 +238,7 @@ const StaffPage = () => {
             >
                 <UpdateStaffDrawer
                     staff={editingStaff}
-                    onSuccess={() => { setEditingStaff(null); fetchStaff(); }}
+                    onSuccess={() => { setEditingStaff(null); executeFetch(staffService.getStaff(), { showToast: false }); }}
                     onCancel={() => setEditingStaff(null)}
                 />
             </SideDrawer>

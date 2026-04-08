@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { Activity, BarChart3, Users, FileText, ShoppingCart, ShoppingBag, Store, Package, Zap, ChevronRight, AlertCircle } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -7,32 +7,10 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-
-import { subscriptionService } from "@/service/retailer";
-import useApiResponse from "@/hooks/useApiResponse";
 import { Loader2 } from "lucide-react";
-
 const UsageLimitsPage = () => {
     const { t } = useTranslation();
-    const { isLoading: isContextLoading } = useSubscription();
-    const { execute: executeFetch, loading: isApiLoading } = useApiResponse();
-    const [subscriptionData, setSubscriptionData] = useState(null);
-
-    const fetchSubscriptionData = useCallback(async () => {
-        const result = await executeFetch(
-            subscriptionService.getSubscription(),
-            { showToast: false }
-        );
-        if (result?.success) {
-            setSubscriptionData(result.data);
-        }
-    }, [executeFetch]);
-
-    useEffect(() => {
-        fetchSubscriptionData();
-    }, [fetchSubscriptionData]);
-
-    const isLoading = isContextLoading || isApiLoading;
+    const { isLoading, subscription: subscriptionData } = useSubscription();
     const MODULE_CONFIG = {
         'billing': { name: t("limits.modules.billing"), icon: Activity, color: "#3b82f6" },
         'invoice': { name: t("limits.modules.invoice"), icon: FileText, color: "#f59e0b" },
@@ -177,10 +155,6 @@ const UsageLimitsPage = () => {
                                                     <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t("limits.autoReset.title")}</h4>
                                                     <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">{t("limits.autoReset.description")}</p>
                                                 </div>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs font-medium text-[rgb(var(--color-text-tertiary))]">{t("limits.autoReset.nextReset")}</span>
-                                                <Badge variant="secondary" className="font-medium px-3 rounded-xl shadow-none">{t("limits.autoReset.date")}</Badge>
                                             </div>
                                         </div>
                                     </div>

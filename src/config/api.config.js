@@ -72,6 +72,7 @@ const API_CONFIG = {
 
   // Subscription Service Endpoints
   SUBSCRIPTION: {
+    SUBSCRIPTIONS: "/plans/subscription",
     PACKAGES: "/plans/packages",
     CHECKOUT: "/plans/checkout",
     PAYMENT: "/plans/payment",
