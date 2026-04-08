@@ -54,7 +54,6 @@ const ViewCustomerPage = ({ customerId }) => {
 
   useEffect(() => {
     fetchCustomerData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId, storeId, t]);
 
   const handleEditSuccess = (updatedData) => {
