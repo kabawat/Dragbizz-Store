@@ -145,9 +145,9 @@ const GstAnalyticsContent = () => {
   const handleSync = async () => {
     if (!storeId || !period.year || !period.month) return;
     const params = { year: period.year, month: period.month };
-    
+
     const result = await executeSync(gstService.syncGstStats(storeId, params));
-    
+
     if (result?.success) {
       // Re-fetch data upon successful sync
       dispatch(getGstSummary({ storeId, params }));

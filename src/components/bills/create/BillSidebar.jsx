@@ -27,40 +27,50 @@ const BillSidebar = ({
     const [purchaseOrders, setPurchaseOrders] = React.useState([]);
     const [showAddSupplierDrawer, setShowAddSupplierDrawer] = React.useState(false);
 
-    // Refs to prevent duplicate calls
-    const suppliersFetchedRef = React.useRef({ storeId: null, fetched: false });
+    // Refs to prevent duplicate API calls
+    const suppliersFetchedRef = React.useRef(null);
+    const posFetchedRef = React.useRef(null);
 
-    const { execute: executeFetchSuppliers, loading: suppliersLoading } = useApiResponse();
-    const { execute: executeFetchPOs, loading: purchaseOrdersLoading } = useApiResponse();
+    const { execute: executeFetchSuppliers, data: suppliersData, loading: suppliersLoading } = useApiResponse();
+    const { execute: executeFetchPOs, data: posData, loading: purchaseOrdersLoading } = useApiResponse();
 
     React.useEffect(() => {
-        if (!storeId || suppliersFetchedRef.current.fetched) return;
-        suppliersFetchedRef.current = { storeId, fetched: true };
+        if (suppliersData) {
+            setSuppliers(suppliersData?.data || suppliersData || []);
+        }
+    }, [suppliersData]);
 
-        executeFetchSuppliers(
-            supplierService.getSuppliers({ limit: 100, lightweight: true, store: storeId }),
-            { showToast: false }
-        ).then((result) => {
-            if (result?.success) {
-                setSuppliers(result.data?.data || result.data || []);
-            } else {
-                suppliersFetchedRef.current = { storeId: null, fetched: false };
-            }
-        });
+    React.useEffect(() => {
+        if (posData) {
+            setPurchaseOrders(posData?.data || posData || []);
+        }
+    }, [posData]);
+
+    React.useEffect(() => {
+        if (storeId && suppliersFetchedRef.current !== storeId) {
+            suppliersFetchedRef.current = storeId;
+            executeFetchSuppliers(
+                supplierService.getSuppliers({ limit: 100, lightweight: true, store: storeId }),
+                { showToast: false }
+            );
+        }
     }, [storeId, executeFetchSuppliers]);
 
     React.useEffect(() => {
-        if (!formData.supplier) { setPurchaseOrders([]); return; }
-        if (!storeId) return;
-
-        executeFetchPOs(
-            purchaseOrderService.getPurchaseOrders({
-                limit: 100, lightweight: true, store: storeId, supplier: formData.supplier
-            }),
-            { showToast: false }
-        ).then((result) => {
-            setPurchaseOrders(result?.success ? (result.data?.data || result.data || []) : []);
-        });
+        if (!formData.supplier) {
+            setPurchaseOrders([]);
+            return;
+        }
+        const lookupKey = `${storeId}_${formData.supplier}`;
+        if (storeId && posFetchedRef.current !== lookupKey) {
+            posFetchedRef.current = lookupKey;
+            executeFetchPOs(
+                purchaseOrderService.getPurchaseOrders({
+                    limit: 100, lightweight: true, store: storeId, supplier: formData.supplier
+                }),
+                { showToast: false }
+            );
+        }
     }, [formData.supplier, storeId, executeFetchPOs]);
 
     // Handle PO from URL
@@ -85,7 +95,7 @@ const BillSidebar = ({
         setSuppliers((prev) => [...prev, newSupplier]);
         handleInputChange("supplier", supplierId);
         // Reset ref so a fresh fetch runs on next mount
-        suppliersFetchedRef.current = { storeId: null, fetched: false };
+        suppliersFetchedRef.current = null;
     }, [handleInputChange]);
 
     return (
