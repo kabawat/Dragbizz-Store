@@ -21,7 +21,7 @@ const EditBill = ({ billId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  const [fetchError, setFetchError] = useState(null);
+  const fetchedBillRef = useRef(null);
 
   const [formData, setFormData] = useState({
     supplier: "",
@@ -33,45 +33,41 @@ const EditBill = ({ billId }) => {
   });
 
   const [errors, setErrors] = useState({});
-  const hasFetched = useRef(false);
 
   const { showError } = useGlobalToast();
-  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeFetch, data: fetchedBill, loading: fetching, error: fetchError } = useApiResponse();
   const { execute: executeUpdate, loading: isUpdating } = useApiResponse();
 
-  // Fetch existing bill data
+  // Populate form when data arrives natively
   useEffect(() => {
-    const fetchBillData = async () => {
-      if (!billId || !selectedStore?.storeId || hasFetched.current) return;
-      hasFetched.current = true;
+    if (fetchedBill) {
+      setFormData({
+        supplier: fetchedBill.supplier?._id || "",
+        purchaseOrder: fetchedBill.purchaseOrder?._id || "",
+        dueDate: fetchedBill.dueDate ? new Date(fetchedBill.dueDate).toISOString().split("T")[0] : "",
+        notes: fetchedBill.notes || "",
+        goodsReceived: fetchedBill.goodsReceived ?? true,
+        items: (fetchedBill.items || []).map(item => ({
+          product: item.product,
+          productName: item.productName || "",
+          quantity: item.quantity || 1,
+          purchasePrice: item.unitPrice || 0,
+        })),
+      });
+    }
+  }, [fetchedBill]);
 
-      const result = await executeFetch(
+  // Fetch API seamlessly
+  useEffect(() => {
+    if (billId && selectedStore?.storeId && fetchedBillRef.current !== billId) {
+      fetchedBillRef.current = billId;
+      executeFetch(
         billService.getBills({ store: selectedStore.storeId, id: billId }),
         { showToast: false }
       );
+    }
+  }, [billId, selectedStore?.storeId, executeFetch]);
 
-      if (result?.success && result.data) {
-        const billData = result.data;
-        setFormData({
-          supplier: billData.supplier?._id || "",
-          purchaseOrder: billData.purchaseOrder?._id || "",
-          dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split("T")[0] : "",
-          notes: billData.notes || "",
-          goodsReceived: billData.goodsReceived ?? true,
-          items: (billData.items || []).map(item => ({
-            product: item.product,
-            productName: item.productName || "",
-            quantity: item.quantity || 1,
-            purchasePrice: item.unitPrice || 0,
-          })),
-        });
-      } else {
-        setFetchError(result?.message || t("errors.failedToFetchData", { item: t("common.bill") }));
-      }
-    };
-
-    fetchBillData();
-  }, [billId, selectedStore?.storeId, t, executeFetch]);
 
   // Handle input changes
   const handleInputChange = useCallback((field, value) => {

@@ -263,11 +263,10 @@ const BasicInfoStep = ({
                     <div className="mb-2">
                       <div className="flex items-center justify-start">
                         <div
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                            contactType === "email"
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === "email"
                               ? "bg-blue-600 text-white dark:bg-blue-600 dark:text-white"
                               : "bg-green-600 text-white dark:bg-green-600 dark:text-white"
-                          }`}
+                            }`}
                         >
                           {contactType === "email" ? (
                             <>

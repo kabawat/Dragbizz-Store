@@ -28,37 +28,38 @@ const ViewCustomerPage = ({ customerId }) => {
   const customerPerm = useModulePermissions("customer");
   const canEdit = customerPerm.edit;
 
-  const { execute, data: customerData, loading } = useApiResponse();
+  const { execute, data: customerData, error: hookError, loading } = useApiResponse();
   const [error, setError] = useState(null);
-  const hasFetched = useRef(false);
+  const fetchedCustomerRef = useRef(null);
 
   // Edit drawer state
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
 
   const { handleDownloadPDF } = useCustomerDetailsPrint(loading || (!customerData && !error), customerData);
 
-  const fetchCustomerData = async (forceRefetch = false) => {
-    if (!customerId || !storeId) return;
-    if (!forceRefetch && hasFetched.current) return;
-    hasFetched.current = true;
+  // Sync natively
+  useEffect(() => {
+    if (hookError) setError(hookError);
+  }, [hookError]);
 
-    const result = await execute(
+  const fetchCustomerData = () => {
+    if (!customerId || !storeId) return;
+    execute(
       customerService.getCustomers({ id: customerId, store: storeId }),
       { showToast: false }
     );
-
-    if (!result?.success) {
-      setError(result?.message || t("errors.failedToFetchData", { item: t("common.customer") }));
-    }
   };
 
   useEffect(() => {
-    fetchCustomerData();
-  }, [customerId, storeId, t]);
+    if (customerId && storeId && fetchedCustomerRef.current !== customerId) {
+      fetchedCustomerRef.current = customerId;
+      fetchCustomerData();
+    }
+  }, [customerId, storeId, execute]);
 
   const handleEditSuccess = (updatedData) => {
     setIsEditDrawerOpen(false);
-    fetchCustomerData(true); // Refetch customer data after edit
+    fetchCustomerData(); // Refetch customer data directly after edit
   };
 
   // Page-level Shortcuts

@@ -36,24 +36,24 @@ const ViewBillPage = ({ billId }) => {
   const canDelete = can("delete");
   const canRead = can("read");
 
-  const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedBillNumber, setDeletedBillNumber] = useState("");
-  const hasFetched = useRef(false);
+  const fetchedBillRef = useRef(null);
 
-  const { execute: executeFetch, data: billData, loading: fetching } = useApiResponse();
+  const { execute: executeFetch, data: billData, loading: fetching, error: activeError } = useApiResponse();
   const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   const { handleDownloadPDF } = useBillDetailsPrint(fetching, billData);
 
   useEffect(() => {
-    if (!billId || !storeId || hasFetched.current) return;
-    hasFetched.current = true;
-    executeFetch(
-      billService.getBills({ store: storeId, id: billId }),
-      { showToast: false }
-    );
+    if (billId && storeId && fetchedBillRef.current !== billId) {
+      fetchedBillRef.current = billId;
+      executeFetch(
+        billService.getBills({ store: storeId, id: billId }),
+        { showToast: false }
+      );
+    }
   }, [billId, storeId, executeFetch]);
 
   const handleEditBill = () => {
@@ -77,7 +77,6 @@ const ViewBillPage = ({ billId }) => {
       setShowDeleteSuccessModal(true);
       setShowDeleteModal(false);
     } else {
-      setError(result?.message || "Failed to delete bill");
       setShowDeleteModal(false);
     }
   };
@@ -115,9 +114,9 @@ const ViewBillPage = ({ billId }) => {
               </Link>
             </div>
 
-            {error && <ErrorState error={error} />}
+            {activeError && <ErrorState error={activeError} />}
 
-            {!error && billData && (
+            {!activeError && billData && (
               <>
                 <div
                   id="bill-details-report-area"
