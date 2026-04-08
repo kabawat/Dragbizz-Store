@@ -37,35 +37,23 @@ const ViewBillPage = ({ billId }) => {
   const canRead = can("read");
 
   const [error, setError] = useState(null);
-  const [billData, setBillData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedBillNumber, setDeletedBillNumber] = useState("");
   const hasFetched = useRef(false);
 
-  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeFetch, data: billData, loading: fetching } = useApiResponse();
   const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   const { handleDownloadPDF } = useBillDetailsPrint(fetching, billData);
 
   useEffect(() => {
-    const fetchBillData = async () => {
-      if (!billId || !storeId || hasFetched.current) return;
-      hasFetched.current = true;
-
-      const result = await executeFetch(
-        billService.getBills({ store: storeId, id: billId }),
-        { showToast: false }
-      );
-
-      if (result?.success && result.data) {
-        setBillData(result.data);
-      } else {
-        setError(result?.message || "Failed to fetch bill data");
-      }
-    };
-
-    fetchBillData();
+    if (!billId || !storeId || hasFetched.current) return;
+    hasFetched.current = true;
+    executeFetch(
+      billService.getBills({ store: storeId, id: billId }),
+      { showToast: false }
+    );
   }, [billId, storeId, executeFetch]);
 
   const handleEditBill = () => {
