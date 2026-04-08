@@ -89,12 +89,6 @@ class InvoiceService extends BaseService {
     return this.delete(url);
   }
 
-  // Public Invoice (unauthenticated)
-  getPublicInvoice(publicId) {
-    return this.unauthPost("/retailer/public/invoices", {
-      id: publicId,
-    });
-  }
 }
 
 // Create and export a singleton instance

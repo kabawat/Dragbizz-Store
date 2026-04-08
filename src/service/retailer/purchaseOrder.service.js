@@ -37,13 +37,6 @@ class PurchaseOrderService extends BaseService {
     return this.get(url);
   }
 
-  // Get public purchase order (unauthenticated)
-  getPublicPurchaseOrder(poId) {
-    return this.unauthPost("/retailer/public/purchase-orders", {
-      id: poId,
-    });
-  }
-
   // Delete a purchase order
   deletePurchaseOrder(poId, storeId = null) {
     const url = this.buildResourceUrl(this.endpoint, poId, storeId);
