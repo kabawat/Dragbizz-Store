@@ -162,5 +162,6 @@
   "createNow": "Create Now",
   "confirmDelete": "Are you sure you want to delete this item?",
   "gst": "GST",
-  "scrollToLoadMore": "Scroll to load more"
+  "scrollToLoadMore": "Scroll to load more",
+  "additionalInformation": "Additional Information"
 }

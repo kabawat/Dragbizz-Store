@@ -230,7 +230,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                 <head>
                     <title>Print QR Code - ${store?.name || 'Catalog'}</title>
                     <style>
-                        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; text-align: center; }
+                        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
                         img { width: 350px; height: 350px; border: 1px solid #eee; padding: 10px; border-radius: 10px; }
                         h1 { color: #1f2937; margin-bottom: 5px; font-size: 28px; }
                         h2 { color: #4b5563; margin-top: 5px; margin-bottom: 20px; font-size: 20px; font-weight: normal; }
@@ -320,8 +320,8 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                             <button
                                 onClick={handleCopy}
                                 className={`flex-shrink-0 p-2.5 rounded-lg transition-colors active:scale-95 ${copied
-                                        ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                                        : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white"
+                                    ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                                    : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white"
                                     }`}
                                 title={copied ? t("settings.upi.copied", "Copied") : t("common.copyLink")}
                             >
