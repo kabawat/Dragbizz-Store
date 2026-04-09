@@ -18,9 +18,7 @@ class SubscriptionService {
 
       const response = await authAxios.get(
         `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`,
-        {
-          params,
-        }
+        { params }
       );
 
       return handleApiSuccess(

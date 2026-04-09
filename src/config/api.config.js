@@ -49,6 +49,7 @@ const API_CONFIG = {
     PUBLIC_CATALOG: "/retailer/public/products",
     PUBLIC_CATEGORIES: "/retailer/public/categories",
     PUBLIC_SALES_ORDER: "/retailer/public/sales-order",
+    PUBLIC_TEMPLATES: "/retailer/public/templates",
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
