@@ -331,10 +331,10 @@ const EditPurchaseOrder = ({ poId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Purchase Order...
+                      {t("common.loadingStoreData")}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch the purchase order
+                      {t("common.pleaseWaitWhileWeFetch", { item: t("purchaseOrders.title") })}
                     </p>
                   </div>
                 </div>
@@ -364,11 +364,10 @@ const EditPurchaseOrder = ({ poId }) => {
                       <AlertCircle className="w-10 h-10 text-red-600" />
                     </div>
                     <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                      Purchase Order Not Found
+                      {t("common.reportNotFound")}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                      The purchase order you're trying to edit doesn't exist or
-                      has been removed.
+                      {t("common.doesntExistOrRemoved", { item: t("purchaseOrders.title") })}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                       <Button
@@ -378,14 +377,14 @@ const EditPurchaseOrder = ({ poId }) => {
                         }
                         className="px-6 py-3"
                       >
-                        Back to Purchase Orders
+                        {t("purchaseOrders.backToPurchaseOrders")}
                       </Button>
                       <Button
                         variant="primary"
                         onClick={() => window.location.reload()}
                         className="px-6 py-3"
                       >
-                        Try Again
+                        {t("common.retry")}
                       </Button>
                     </div>
                   </div>
@@ -403,8 +402,8 @@ const EditPurchaseOrder = ({ poId }) => {
       <Sidebar />
       <div className="min-h-screen w-full flex flex-col">
         <Header
-          title="Edit Purchase Order"
-          description="Update supplier purchase order"
+          title={t("purchaseOrders.editPO")}
+          description={t("purchaseOrders.createPODescription")}
         />
         <div className="flex-1 p-6">
           <div className="w-full">
@@ -415,7 +414,7 @@ const EditPurchaseOrder = ({ poId }) => {
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">
-                  Back to Purchase Orders
+                  {t("purchaseOrders.backToPurchaseOrders")}
                 </span>
               </Link>
             </div>
@@ -451,10 +450,10 @@ const EditPurchaseOrder = ({ poId }) => {
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                                  Basic Information
+                                  {t("purchaseOrders.basicInformation")}
                                 </h3>
                                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                  Essential details for the purchase order
+                                  {t("purchaseOrders.essentialDetailsForPO")}
                                 </p>
                               </div>
                             </div>
@@ -462,7 +461,7 @@ const EditPurchaseOrder = ({ poId }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div className="space-y-2">
                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                  Supplier *
+                                  {t("purchaseOrders.supplier")} *
                                 </label>
                                 <Select
                                   value={formData.supplier}
@@ -473,8 +472,8 @@ const EditPurchaseOrder = ({ poId }) => {
                                     {
                                       value: "",
                                       label: suppliersLoading
-                                        ? "Loading..."
-                                        : "Select Supplier",
+                                        ? t("common.loading")
+                                        : t("purchaseOrders.selectSupplier"),
                                     },
                                     ...suppliers
                                       .filter((s) => s.name || s.supplierName)
@@ -488,13 +487,13 @@ const EditPurchaseOrder = ({ poId }) => {
                                   leftIcon={Building2}
                                   size="sm"
                                   searchable={true}
-                                  placeholder="Choose a supplier"
+                                  placeholder={t("purchaseOrders.chooseSupplier")}
                                 />
                               </div>
 
                               <div className="space-y-2">
                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                  Payment Due In
+                                  {t("purchaseOrders.paymentDueIn")}
                                 </label>
                                 <Select
                                   size="sm"
@@ -503,7 +502,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                     handleInputChange("paymentBy", value)
                                   }
                                   options={[
-                                    { value: "COD", label: "Cash on Delivery" },
+                                    { value: "COD", label: t("purchaseOrders.cashOnDelivery") },
                                     { value: "7_DAYS", label: "7 Days" },
                                     { value: "15_DAYS", label: "15 Days" },
                                     { value: "30_DAYS", label: "30 Days" },
@@ -517,7 +516,7 @@ const EditPurchaseOrder = ({ poId }) => {
 
                               <div className="space-y-2">
                                 <label className="block text sm font-medium text-[rgb(var(--color-text-primary))]">
-                                  Expected Delivery Date
+                                  {t("purchaseOrders.expectedDeliveryDate")}
                                 </label>
                                 <Input
                                   type="date"
@@ -531,13 +530,13 @@ const EditPurchaseOrder = ({ poId }) => {
                                   }
                                   error={errors.expectedDeliveryDate}
                                   leftIcon={Calendar}
-                                  placeholder="Select delivery date"
+                                  placeholder={t("purchaseOrders.selectDeliveryDate")}
                                 />
                               </div>
 
                               <div className="space-y-2">
                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                  Reference Number
+                                  {t("purchaseOrders.referenceNumber")}
                                 </label>
                                 <Input
                                   type="text"
@@ -547,28 +546,28 @@ const EditPurchaseOrder = ({ poId }) => {
                                     handleInputChange("reference", value)
                                   }
                                   leftIcon={FileText}
-                                  placeholder="Enter reference number"
+                                  placeholder={t("purchaseOrders.enterReferenceNumber")}
                                 />
                               </div>
                             </div>
 
                             <div className="mt-6">
                               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                Additional Notes
+                                {t("purchaseOrders.additionalNotes")}
                               </label>
                               <Textarea
                                 value={formData.note}
                                 onChange={(value) =>
                                   handleInputChange("note", value)
                                 }
-                                placeholder="Add any special instructions or notes for this purchase order..."
+                                placeholder={t("purchaseOrders.addSpecialInstructions")}
                                 rows={3}
                                 leftIcon={FileText}
                                 maxLength={500}
                               />
                               {formData.note && (
                                 <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2 text-right">
-                                  {formData.note.length}/500 characters
+                                  {formData.note.length}/500 {t("purchaseOrders.characters")}
                                 </div>
                               )}
                             </div>
@@ -601,10 +600,10 @@ const EditPurchaseOrder = ({ poId }) => {
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                                  Products & Items
+                                  {t("purchaseOrders.productsItems")}
                                 </h3>
                                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                  Add products to your purchase order
+                                  {t("purchaseOrders.addProductsToPO")}
                                 </p>
                               </div>
                             </div>
@@ -616,7 +615,7 @@ const EditPurchaseOrder = ({ poId }) => {
                               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                                 <div className="md:col-span-7">
                                   <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Product *
+                                    {t("purchaseOrders.product")} *
                                   </label>
                                   <Select
                                     value={tempProduct}
@@ -625,8 +624,8 @@ const EditPurchaseOrder = ({ poId }) => {
                                       {
                                         value: "",
                                         label: productsLoading
-                                          ? "Loading..."
-                                          : "Select Product",
+                                          ? t("common.loading")
+                                          : t("purchaseOrders.selectProduct"),
                                       },
                                       ...products
                                         .filter((p) => p.name || p.productName)
@@ -646,7 +645,7 @@ const EditPurchaseOrder = ({ poId }) => {
 
                                 <div className="md:col-span-3">
                                   <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Quantity *
+                                    {t("purchaseOrders.quantity")} *
                                   </label>
                                   <Input
                                     type="number"
@@ -665,8 +664,8 @@ const EditPurchaseOrder = ({ poId }) => {
                                   <AddActionButton
                                     onClick={addItem}
                                     fullWidth
-                                    label="Add"
-                                    title="Add new item"
+                                    label={t("purchaseOrders.add")}
+                                    title={t("purchaseOrders.addNewItem")}
                                   />
                                 </div>
                               </div>
@@ -677,7 +676,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                 <div className="px-4 py-3 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/50">
                                   <div className="flex items-center justify-between">
                                     <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      Added Items ({formData.products.length})
+                                      {t("purchaseOrders.addedPayments")} ({formData.products.length})
                                     </h4>
                                   </div>
                                 </div>
@@ -707,7 +706,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                           <div className="flex-1 min-w-0">
                                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
                                               {item.productName ||
-                                                "Selected Product"}
+                                                t("purchaseOrders.selectedProduct")}
                                             </span>
                                           </div>
                                           <div className="flex-shrink-0">
@@ -720,7 +719,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                                   "rgb(var(--color-primary))",
                                               }}
                                             >
-                                              Qty: {item.quantity}
+                                              {t("purchaseOrders.qty")}: {item.quantity}
                                             </span>
                                           </div>
                                         </div>
@@ -740,9 +739,9 @@ const EditPurchaseOrder = ({ poId }) => {
                             ) : (
                               <div className="text-center py-8 text-[rgb(var(--color-text-secondary))]">
                                 <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                <p className="text-sm">No items added yet</p>
+                                <p className="text-sm">{t("purchaseOrders.noItemsAddedYet")}</p>
                                 <p className="text-xs">
-                                  Add products to update your purchase order
+                                  {t("purchaseOrders.addProductsToCreatePO")}
                                 </p>
                               </div>
                             )}
@@ -760,8 +759,7 @@ const EditPurchaseOrder = ({ poId }) => {
                 <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                   {formData.products.length > 0 && (
                     <span>
-                      {formData.products.length} item
-                      {formData.products.length !== 1 ? "s" : ""} added
+                      {formData.products.length} {formData.products.length !== 1 ? t("purchaseOrders.items") : t("purchaseOrders.item")} {t("purchaseOrders.added")}
                     </span>
                   )}
                 </div>
@@ -773,7 +771,7 @@ const EditPurchaseOrder = ({ poId }) => {
                     leftIcon={Save}
                     size="sm"
                   >
-                    Save
+                    {t("common.save")}
                   </Button>
                   <Button
                     onClick={handleSubmit}
@@ -782,7 +780,7 @@ const EditPurchaseOrder = ({ poId }) => {
                     leftIcon={FileText}
                     size="sm"
                   >
-                    Update Purchase Order
+                    {t("purchaseOrders.editPO")}
                   </Button>
                 </div>
               </div>
@@ -794,14 +792,14 @@ const EditPurchaseOrder = ({ poId }) => {
       <Modal isOpen={showSaveModal} onClose={() => setShowSaveModal(false)}>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-            Save Changes
+            {t("common.save")}
           </h3>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-            Your changes will be saved to this purchase order.
+            {t("purchaseOrders.saveAsDraftDescription")}
           </p>
           <div className="flex gap-3 justify-end">
             <Button variant="outline" onClick={() => setShowSaveModal(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={() => {
@@ -810,7 +808,7 @@ const EditPurchaseOrder = ({ poId }) => {
               }}
               leftIcon={Save}
             >
-              Save
+              {t("common.save")}
             </Button>
           </div>
         </div>
@@ -819,7 +817,7 @@ const EditPurchaseOrder = ({ poId }) => {
       <Modal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Purchase Order Updated Successfully!"
+        title={t("purchaseOrders.deleteSuccess")}
       >
         <div className="p-6 text-center">
           <div
@@ -832,7 +830,7 @@ const EditPurchaseOrder = ({ poId }) => {
             />
           </div>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-            {updatedPONumber || "Purchase Order"} has been updated successfully.
+            {updatedPONumber || t("purchaseOrders.title")} {t("purchaseOrders.added")}
           </p>
           <div className="flex gap-3 justify-center">
             <Button
@@ -842,7 +840,7 @@ const EditPurchaseOrder = ({ poId }) => {
                 router.push("/dashboard/purchase-orders");
               }}
             >
-              Back to Purchase Orders
+              {t("purchaseOrders.backToPurchaseOrders")}
             </Button>
             <Button
               onClick={() => {
@@ -850,7 +848,7 @@ const EditPurchaseOrder = ({ poId }) => {
                 router.push(`/dashboard/purchase-orders/${poId}`);
               }}
             >
-              View Purchase Order
+              {t("purchaseOrders.purchaseOrderDetails")}
             </Button>
           </div>
         </div>
