@@ -179,7 +179,7 @@ export default function ViewPurchaseOrderPage() {
                                 {po.poNumber || po.billNumber}
                               </h2>
                               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                {t("common.status")}: {po.status}
+                                {t("common.status")}: {po.status || t("common.na")}
                               </p>
                             </div>
                           </div>
@@ -265,7 +265,7 @@ export default function ViewPurchaseOrderPage() {
                             <div className="grid grid-cols-12 text-xs text-[rgb(var(--color-text-secondary))] sticky top-0 z-10 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
                               <div className="col-span-6 p-3">{t("purchaseOrders.product")}</div>
                               <div className="col-span-2 p-3 text-right">
-                                {t("purchaseOrders.ordered")}
+                                {t(`purchaseOrders.ordered`)}
                               </div>
                               <div className="col-span-2 p-3 text-right">
                                 {t("purchaseOrders.received")}
