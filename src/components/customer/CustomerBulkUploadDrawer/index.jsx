@@ -1,7 +1,7 @@
 "use client";
-import { AlertCircle, CheckCircle2, FileDown, FileJson, FileSpreadsheet, FileText, Upload, X, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileJson, FileSpreadsheet, FileText, Upload, X, ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import { Button, SideDrawer } from "@/components/ui";
+import { Button, BulkTemplateDownloadButton, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService } from "@/service/retailer/customer.service";
@@ -22,13 +22,11 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { execute, loading: isUploading, clearAll } = useApiResponse();
 
   const accept = ".csv, .xlsx, .json";
-  // Convert standard extensions to actual mime types for validation if needed, or just check extensions
   const validExtensions = ["csv", "xlsx", "json"];
 
   const validateFile = (file) => {
     if (!file) return false;
 
-    // Check extension
     const extension = file.name.split('.').pop().toLowerCase();
     if (!validExtensions.includes(extension)) {
       showError(t("customers.invalidFileType", "Please upload a valid CSV, XLSX, or JSON file."));
@@ -120,10 +118,6 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const handleDownloadSample = () => {
-    // Mock sample download
-    showSuccess(t("customers.sampleDownloaded", "Sample file downloading..."));
-  };
 
   const getFileIcon = (fileName) => {
     if (fileName.endsWith(".csv")) return <FileText className="w-8 h-8 text-blue-500" />;
@@ -287,14 +281,11 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                   <li>{t("customers.instruction2", "Maximum allowed file size is 5MB. ")}</li>
                   <li>{t("customers.instruction3", "Make sure required fields (e.g., phone or name) are present.")}</li>
                 </ul>
-                <Button
-                  size="sm"
-                  onClick={handleDownloadSample}
-                  className="flex items-center gap-2"
-                >
-                  <FileDown className="w-4 h-4" />
-                  {t("customers.downloadSample", "Download Sample File")}
-                </Button>
+                <BulkTemplateDownloadButton
+                  module="customer"
+                  fileName="customer_bulk_upload_template.xlsx"
+                  sheetName="Customers"
+                />
               </div>
 
               {/* Upload Area */}

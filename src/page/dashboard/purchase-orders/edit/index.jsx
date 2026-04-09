@@ -401,17 +401,11 @@ const EditPurchaseOrder = ({ poId }) => {
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <Sidebar />
       <div className="min-h-screen w-full flex flex-col">
-        <Header
-          title={t("purchaseOrders.editPO")}
-          description={t("purchaseOrders.createPODescription")}
-        />
+        <Header title={t("purchaseOrders.editPO")} description={t("purchaseOrders.createPODescription")} />
         <div className="flex-1 p-6">
           <div className="w-full">
             <div className="mb-4 w-full mx-auto">
-              <Link
-                href="/dashboard/purchase-orders"
-                className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent"
-              >
+              <Link href="/dashboard/purchase-orders" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   {t("purchaseOrders.backToPurchaseOrders")}
@@ -419,10 +413,7 @@ const EditPurchaseOrder = ({ poId }) => {
               </Link>
             </div>
 
-            <div
-              className="flex flex-col h-full"
-              style={{ height: "calc(100vh-208px)" }}
-            >
+            <div className="flex flex-col h-full" style={{ height: "calc(100vh-208px)" }}>
               <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
                 <form
                   onSubmit={(e) => {
@@ -436,17 +427,8 @@ const EditPurchaseOrder = ({ poId }) => {
                         <Card>
                           <div className="p-5">
                             <div className="flex items-center mb-6">
-                              <div
-                                className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3"
-                                style={{
-                                  backgroundColor:
-                                    "rgba(var(--color-primary), 0.1)",
-                                }}
-                              >
-                                <FileText
-                                  className="w-5 h-5"
-                                  style={{ color: "rgb(var(--color-primary))" }}
-                                />
+                              <div className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3" style={{ backgroundColor: "rgba(var(--color-primary), 0.1)" }}>
+                                <FileText className="w-5 h-5" style={{ color: "rgb(var(--color-primary))" }} />
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
@@ -471,9 +453,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                   options={[
                                     {
                                       value: "",
-                                      label: suppliersLoading
-                                        ? t("common.loading")
-                                        : t("purchaseOrders.selectSupplier"),
+                                      label: suppliersLoading ? t("common.loading") : t("purchaseOrders.selectSupplier"),
                                     },
                                     ...suppliers
                                       .filter((s) => s.name || s.supplierName)
@@ -498,9 +478,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                 <Select
                                   size="sm"
                                   value={formData.paymentBy}
-                                  onChange={(value) =>
-                                    handleInputChange("paymentBy", value)
-                                  }
+                                  onChange={(value) => handleInputChange("paymentBy", value)}
                                   options={[
                                     { value: "COD", label: t("purchaseOrders.cashOnDelivery") },
                                     { value: "7_DAYS", label: "7 Days" },
@@ -522,12 +500,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                   type="date"
                                   size="sm"
                                   value={formData.expectedDeliveryDate}
-                                  onChange={(value) =>
-                                    handleInputChange(
-                                      "expectedDeliveryDate",
-                                      value
-                                    )
-                                  }
+                                  onChange={(value) => handleInputChange("expectedDeliveryDate", value)}
                                   error={errors.expectedDeliveryDate}
                                   leftIcon={Calendar}
                                   placeholder={t("purchaseOrders.selectDeliveryDate")}
@@ -542,9 +515,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                   type="text"
                                   size="sm"
                                   value={formData.reference}
-                                  onChange={(value) =>
-                                    handleInputChange("reference", value)
-                                  }
+                                  onChange={(value) => handleInputChange("reference", value)}
                                   leftIcon={FileText}
                                   placeholder={t("purchaseOrders.enterReferenceNumber")}
                                 />
@@ -557,9 +528,7 @@ const EditPurchaseOrder = ({ poId }) => {
                               </label>
                               <Textarea
                                 value={formData.note}
-                                onChange={(value) =>
-                                  handleInputChange("note", value)
-                                }
+                                onChange={(value) => handleInputChange("note", value)}
                                 placeholder={t("purchaseOrders.addSpecialInstructions")}
                                 rows={3}
                                 leftIcon={FileText}
@@ -682,43 +651,22 @@ const EditPurchaseOrder = ({ poId }) => {
                                 </div>
                                 <div className="divide-y divide-[rgb(var(--color-border-primary))]">
                                   {formData.products.map((item, index) => (
-                                    <div
-                                      key={index}
-                                      className="px-4 py-4 hover:bg-[rgb(var(--color-bg-secondary))]/30 transition-colors duration-200 group"
-                                    >
+                                    <div key={index} className="px-4 py-4 hover:bg-[rgb(var(--color-bg-secondary))]/30 transition-colors duration-200 group">
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4 flex-1 min-w-0">
                                           <div
                                             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                            style={{
-                                              backgroundColor:
-                                                "rgba(var(--color-primary), 0.1)",
-                                            }}
+                                            style={{ backgroundColor: "rgba(var(--color-primary), 0.1)" }}
                                           >
-                                            <Package
-                                              className="w-4 h-4"
-                                              style={{
-                                                color:
-                                                  "rgb(var(--color-primary))",
-                                              }}
-                                            />
+                                            <Package className="w-4 h-4" style={{ color: "rgb(var(--color-primary))" }} />
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
-                                              {item.productName ||
-                                                t("purchaseOrders.selectedProduct")}
+                                              {item.productName || t("purchaseOrders.selectedProduct")}
                                             </span>
                                           </div>
                                           <div className="flex-shrink-0">
-                                            <span
-                                              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
-                                              style={{
-                                                backgroundColor:
-                                                  "rgba(var(--color-primary), 0.1)",
-                                                color:
-                                                  "rgb(var(--color-primary))",
-                                              }}
-                                            >
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: "rgba(var(--color-primary), 0.1)", color: "rgb(var(--color-primary))" }}>
                                               {t("purchaseOrders.qty")}: {item.quantity}
                                             </span>
                                           </div>
@@ -820,10 +768,7 @@ const EditPurchaseOrder = ({ poId }) => {
         title={t("purchaseOrders.deleteSuccess")}
       >
         <div className="p-6 text-center">
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: "rgba(var(--color-success), 0.1)" }}
-          >
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "rgba(var(--color-success), 0.1)" }} >
             <CheckCircle
               className="w-8 h-8"
               style={{ color: "rgb(var(--color-success))" }}

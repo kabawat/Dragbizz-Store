@@ -9,6 +9,7 @@ import AnimatedBackground from "./AnimatedBackground";
 import AnimatedGridPattern from "./AnimatedGridPattern";
 import Badge, { BadgeGroup, NotificationBadge, StatusBadge } from "./Badge";
 import Button from "./Button";
+import BulkTemplateDownloadButton from "./BulkTemplateDownloadButton";
 import Card, {
   CardActions,
   CardBody,
@@ -63,6 +64,7 @@ import Toggle, { ViewToggle } from "./Toggle";
 // Named exports
 export {
   Button,
+  BulkTemplateDownloadButton,
   AIButton,
   Input,
   Checkbox,
@@ -135,6 +137,7 @@ export {
 // Default export
 export default {
   Button,
+  BulkTemplateDownloadButton,
   AIButton,
   Input,
   Checkbox,
