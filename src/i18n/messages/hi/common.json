@@ -161,5 +161,6 @@
   "expenses": "Expenses",
   "selected": "selected",
   "gst": "GST",
-  "scrollToLoadMore": "और लोड करने के लिए स्क्रॉल करें"
+  "scrollToLoadMore": "और लोड करने के लिए स्क्रॉल करें",
+  "additionalInformation": "अतिरिक्त जानकारी"
 }
