@@ -51,6 +51,36 @@
   "greenCategory": "Green",
   "vibrantCategory": "Vibrant",
   "neutralCategory": "Neutral",
+  "appearanceDescription": "Personalize your workspace with themes and display modes.",
+  "resetToDefaults": "Reset to Defaults",
+  "lightModeDescription": "Perfect for bright environments",
+  "darkModeDescription": "Easy on the eyes in low light",
+  "mainButton": "MAIN BUTTON",
+  "secondaryButton": "SECONDARY",
+  "activeNow": "ACTIVE NOW",
+  "appearanceNote": "Appearance settings are applied instantly across all devices. Your session will remain synchronized.",
+  "themes": {
+    "default": {
+      "name": "Default",
+      "description": "Clean and professional"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Calm and refreshing"
+    },
+    "forest": {
+      "name": "Forest",
+      "description": "Natural and organic"
+    },
+    "sunset": {
+      "name": "Sunset",
+      "description": "Warm and vibrant"
+    },
+    "rose": {
+      "name": "Rose",
+      "description": "Soft and elegant"
+    }
+  },
   "languageSettings": "Language Settings",
   "customizeLanguage": "Choose your preferred language for the application.",
   "chooseLanguage": "Select Language",

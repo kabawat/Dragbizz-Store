@@ -43,6 +43,44 @@
   "accountPreferencesUpdatedSuccess": "खाता प्राथमिकताएं सफलतापूर्वक अपडेट हो गईं!",
   "appearanceSettings": "दिखावट सेटिंग्स",
   "customizeThemeAndAppearance": "अपनी थीम और दिखावट को अनुकूलित करें",
+  "interfaceMode": "इंटरफ़ेस मोड",
+  "accentThemes": "एक्सेंट थीम्स",
+  "livePreview": "लाइव प्रीव्यू",
+  "warmCategory": "वॉर्म",
+  "coolCategory": "कूल",
+  "greenCategory": "ग्रीन",
+  "vibrantCategory": "वाइब्रेंट",
+  "neutralCategory": "न्यूट्रल",
+  "appearanceDescription": "थीम और डिस्प्ले मोड के साथ अपने वर्कस्पेस को निजीकृत करें।",
+  "resetToDefaults": "डिफ़ॉल्ट पर रीसेट करें",
+  "lightModeDescription": "उज्ज्वल वातावरण के लिए उत्तम",
+  "darkModeDescription": "कम रोशनी में आंखों के लिए आसान",
+  "mainButton": "मुख्य बटन",
+  "secondaryButton": "द्वितीयक",
+  "activeNow": "अभी सक्रिय",
+  "appearanceNote": "अपीयरेंस सेटिंग्स सभी डिवाइसों पर तुरंत लागू हो जाती हैं। आपका सत्र सिंक्रनाइज़ रहेगा।",
+  "themes": {
+    "default": {
+      "name": "डिफ़ॉल्ट",
+      "description": "साफ और पेशेवर"
+    },
+    "ocean": {
+      "name": "ओशन",
+      "description": "शांत और स्फूर्तिदायक"
+    },
+    "forest": {
+      "name": "फॉरेस्ट",
+      "description": "प्राकृतिक और जैविक"
+    },
+    "sunset": {
+      "name": "सनसेट",
+      "description": "वॉर्म और वाइब्रेंट"
+    },
+    "rose": {
+      "name": "रोज़",
+      "description": "कोमल और सुंदर"
+    }
+  },
   "languageSettings": "भाषा सेटिंग्स",
   "customizeLanguage": "एप्लिकेशन के लिए अपनी पसंदीदा भाषा चुनें।",
   "chooseLanguage": "भाषा चुनें",

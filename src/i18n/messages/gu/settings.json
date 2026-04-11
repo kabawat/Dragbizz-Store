@@ -43,6 +43,44 @@
   "accountPreferencesUpdatedSuccess": "એકાઉન્ટ પસંદગીઓ સફળતાપૂર્વક અપડેટ થઈ!",
   "appearanceSettings": "દેખાવ સેટિંગ્સ",
   "customizeThemeAndAppearance": "તમારી થીમ અને દેખાવને કસ્ટમાઇઝ કરો",
+  "interfaceMode": "ઇન્ટરફેસ મોડ",
+  "accentThemes": "એક્સેંટ થીમ્સ",
+  "livePreview": "લાઇવ પ્રીવ્યૂ",
+  "warmCategory": "વોર્મ",
+  "coolCategory": "કૂલ",
+  "greenCategory": "ગ્રીન",
+  "vibrantCategory": "વાઇબ્રન્ટ",
+  "neutralCategory": "ન્યુટ્રલ",
+  "appearanceDescription": "થીમ્સ અને ડિસ્પ્લે મોડ્સ સાથે તમારા વર્કસ્પેસને વ્યક્તિગત કરો.",
+  "resetToDefaults": "ડિફોલ્ટ પર રીસેટ કરો",
+  "lightModeDescription": "તેજસ્વી વાતાવરણ માટે ઉત્તમ",
+  "darkModeDescription": "ઓછી રોશનીમાં આંખો માટે સરળ",
+  "mainButton": "મુખ્ય બટન",
+  "secondaryButton": "ગૌણ",
+  "activeNow": "અત્યારે સક્રિય",
+  "appearanceNote": "દેખાવ સેટિંગ્સ બધા ઉપકરણો પર તરત જ લાગુ થાય છે. તમારું સત્ર સિંક્રનાઇઝ રહેશે.",
+  "themes": {
+    "default": {
+      "name": "ડિફોલ્ટ",
+      "description": "સ્વચ્છ અને વ્યાવસાયિક"
+    },
+    "ocean": {
+      "name": "ઓશન",
+      "description": "શાંત અને તાજગી આપનારું"
+    },
+    "forest": {
+      "name": "ફોરેસ્ટ",
+      "description": "કુદરતી અને જૈવિક"
+    },
+    "sunset": {
+      "name": "સનસેટ",
+      "description": "વોર્મ અને વાઇબ્રન્ટ"
+    },
+    "rose": {
+      "name": "રોઝ",
+      "description": "નરમ અને ભવ્ય"
+    }
+  },
   "languageSettings": "ભાષા સેટિંગ્સ",
   "customizeLanguage": "એપ્લિકેશન માટે તમારી પસંદગીની ભાષા પસંદ કરો.",
   "chooseLanguage": "ભાષા પસંદ કરો",
