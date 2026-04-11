@@ -62,11 +62,11 @@
   "themes": {
     "default": {
       "name": "डिफ़ॉल्ट",
-      "description": "साफ और पेशेवर"
+      "description": "साफ और प्रोफेशनल"
     },
     "ocean": {
-      "name": "ओशन",
-      "description": "शांत और स्फूर्तिदायक"
+      "name": "ओशन (ओशियन)",
+      "description": "शांत और ताजा"
     },
     "forest": {
       "name": "फॉरेस्ट",
@@ -74,11 +74,79 @@
     },
     "sunset": {
       "name": "सनसेट",
-      "description": "वॉर्म और वाइब्रेंट"
+      "description": "गर्म और जीवंत"
     },
     "rose": {
       "name": "रोज़",
       "description": "कोमल और सुंदर"
+    },
+    "violet": {
+      "name": "वॉयलेट",
+      "description": "शाही और राजसी"
+    },
+    "indigo": {
+      "name": "इंडिगो",
+      "description": "गहरा और रहस्यमय"
+    },
+    "purple": {
+      "name": "पर्पल",
+      "description": "शानदार और रचनात्मक"
+    },
+    "blue": {
+      "name": "क्लासिक ब्लू",
+      "description": "स्थिर और प्रोफेशनल"
+    },
+    "sapphire": {
+      "name": "सफायर (नीलम)",
+      "description": "चमकदार और परिष्कृत"
+    },
+    "midnight": {
+      "name": "मिडनाइट",
+      "description": "गहरा और आधुनिक"
+    },
+    "emerald": {
+      "name": "एमराल्ड (पन्ना)",
+      "description": "समृद्ध और जीवंत"
+    },
+    "green": {
+      "name": "नेचर ग्रीन",
+      "description": "ताजा और जैविक"
+    },
+    "teal": {
+      "name": "टील",
+      "description": "शांत और प्रोफेशनल"
+    },
+    "lime": {
+      "name": "लाइम",
+      "description": "ऊर्जावान और चमकदार"
+    },
+    "amber": {
+      "name": "एम्बर",
+      "description": "गर्म और चमकता हुआ"
+    },
+    "coral": {
+      "name": "कोरल",
+      "description": "मित्रवत और जीवंत"
+    },
+    "pink": {
+      "name": "पिंक",
+      "description": "कोमल और चंचल"
+    },
+    "sky": {
+      "name": "स्काई ब्लू",
+      "description": "हल्का और ताज़गी भरा"
+    },
+    "cyan": {
+      "name": "सयान",
+      "description": "आधुनिक और साफ"
+    },
+    "slate": {
+      "name": "स्लेट",
+      "description": "संतुलित और तटस्थ"
+    },
+    "zinc": {
+      "name": "ज़िंक",
+      "description": "औद्योगिक और आकर्षक"
     }
   },
   "languageSettings": "भाषा सेटिंग्स",

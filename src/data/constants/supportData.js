@@ -92,25 +92,48 @@ export const getShortcutCategories = (t, isMac = false) => {
 export const getFaqs = (t) => [
     {
         q: t("help.faqs.createInvoice.q") || "How do I create a new invoice?",
-        a: t("help.faqs.createInvoice.a") || "Go to the Invoices page and click 'Add Invoice' or just use the Shift+N shortcut from anywhere. Fill in the client details and items, then click save."
+        a: t("help.faqs.createInvoice.a") || "Go to the Invoices page and click 'Add Invoice' or just use the Shift+N shortcut from anywhere. Fill in the client details and items, then click save.",
+        category: "Sales"
     },
     {
         q: t("help.faqs.multipleStores.q") || "Can I manage multiple stores?",
-        a: t("help.faqs.multipleStores.a") || "Yes! Use the store switcher in the sidebar to create and manage multiple business stores from a single account."
+        a: t("help.faqs.multipleStores.a") || "Yes! Use the store switcher in the sidebar (top section) to create and manage multiple business stores from a single account. Each store has its own inventory and customers.",
+        category: "Management"
     },
     {
         q: t("help.faqs.voiceAI.q") || "How does Voice AI work?",
-        a: t("help.faqs.voiceAI.a") || "Click on the microphone icon in Customer or Product pages (or use Alt+V). Speak the details naturally, and our AI will automatically fill the form fields for you."
+        a: t("help.faqs.voiceAI.a") || "Click on the microphone icon in Customer or Product pages (or use Alt+V). Speak the details naturally (e.g., 'Add a customer named Rahul from Delhi'), and our AI will automatically fill the form for you.",
+        category: "AI Features"
     },
     {
         q: t("help.faqs.exportData.q") || "How do I export my data?",
-        a: t("help.faqs.exportData.a") || "Most list pages have a 'Download' button or Ctrl+D shortcut. You can export data to PDF or CSV based on the page."
+        a: t("help.faqs.exportData.a") || "Most list pages have a 'Download' button or Ctrl+D shortcut. You can export data to PDF, Excel, or CSV formats for your accounting needs.",
+        category: "Data"
+    },
+    {
+        q: t("help.faqs.lowStock.q") || "How to track low stock?",
+        a: t("help.faqs.lowStock.a") || "In the 'Stock' management section, you can see products highlighted in red if they fall below your set minimum quantity. You can also generate a low-stock report.",
+        category: "Inventory"
+    },
+    {
+        q: t("help.faqs.gstReports.q") || "Where can I find GST reports?",
+        a: t("help.faqs.gstReports.a") || "Navigate to 'Analytics' > 'GST Analytics'. Here you can view your tax liabilities and download GSTR reports.",
+        category: "Reports"
     }
 ];
 
 export const getQuickStartSteps = (t) => [
-    t("help.steps.completeProfile") || "Complete your business profile",
-    t("help.steps.configureStore") || "Configure your first store",
-    t("help.steps.addProducts") || "Add your initial products to inventory",
-    t("help.steps.createInvoice") || "Create your first professional invoice"
+    { text: t("help.steps.completeProfile") || "Complete your business profile", completed: true },
+    { text: t("help.steps.configureStore") || "Configure your first store", completed: true },
+    { text: t("help.steps.addProducts") || "Add your initial products to inventory", completed: false },
+    { text: t("help.steps.createInvoice") || "Create your first professional invoice", completed: false },
+    { text: t("help.steps.addUPI") || "Add your UPI ID for payments", completed: false },
+    { text: t("help.steps.tryVoiceAI") || "Try the Voice AI feature", completed: false }
+];
+
+export const getRelatedLinks = (t) => [
+    { title: t("help.links.pos") || "POS Terminal", href: "/dashboard/pos", icon: "Calculator", desc: "Fast retail billing" },
+    { title: t("help.links.inventory") || "Inventory", href: "/dashboard/products", icon: "Package", desc: "Manage stock & products" },
+    { title: t("help.links.analytics") || "Analytics", href: "/dashboard/analytics/revenue", icon: "BarChart3", desc: "Track business growth" },
+    { title: t("help.links.settings") || "Settings", href: "/dashboard/settings", icon: "Settings", desc: "Configure preferences" },
 ];
