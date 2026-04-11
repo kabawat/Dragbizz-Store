@@ -1,6 +1,7 @@
 // src/service/retailer/index.js
 
 export { default as accountService } from "./account.service";
+export { default as agencyService } from "./agency.service";
 export { default as analyticsService } from "./analytics.service";
 export { default as gstService } from "./gst.service";
 export { default as billService } from "./bill.service";

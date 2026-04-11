@@ -74,7 +74,7 @@ export const SortableMetricCard = ({
         <div
             ref={setNodeRef}
             style={style}
-            className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 hover:shadow-lg transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30 relative group"
+            className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30 relative group"
         >
             <div
                 {...attributes}
