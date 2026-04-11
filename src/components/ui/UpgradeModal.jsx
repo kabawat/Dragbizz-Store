@@ -11,7 +11,7 @@ const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
 
   const handleUpgrade = () => {
     onClose();
-    redirectToMainDomain("/packages?upgrade=true");
+    redirectToMainDomain("/pricing");
   };
 
   const benefits = [

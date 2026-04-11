@@ -150,7 +150,7 @@ const SubscriptionUpgradeModal = ({
                         className={styles.sumBtnPrimary}
                         onClick={() => {
                             onClose();
-                            redirectToMainDomain("/packages");
+                            redirectToMainDomain("/pricing");
                         }}
                     >
                         {isQuota ? "Upgrade & Continue" : "Upgrade My Plan"}
