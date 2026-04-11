@@ -43,6 +43,8 @@ import {
 } from "@/components/dashboard/SortableComponents";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { StoresSummaryTable } from "@/components/dashboard/StoresSummaryTable";
+import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 // Lazy load components
 const Sidebar = lazy(() => import("@/components/dashboard/sidebar"));
@@ -57,9 +59,11 @@ const formatPercentChange = (value) => {
 export default function Dashboard() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedStore: storeFromRedux } = useAppSelector(
+  const { selectedStore: storeFromRedux, authProfile, staffProfile } = useAppSelector(
     (state) => state.profile
   );
+
+  const isStaff = authProfile?.role === ROLES.STAFF;
 
   const { execute, loading } = useApiResponse();
   const [metrics, setMetrics] = useState([
@@ -262,48 +266,60 @@ export default function Dashboard() {
 
       <div className="flex-1 min-h-screen flex flex-col overflow-hidden">
         <Suspense fallback={<div className="h-20 bg-[rgb(var(--color-bg-primary))] border-b" />}>
-          <Header title={t("dashboard.title")} description={t("dashboard.description")} />
+          <Header 
+            title={isStaff ? "Operations Overview" : t("dashboard.title")} 
+            description={isStaff ? "Access your quick tools and assigned modules" : t("dashboard.description")} 
+          />
         </Suspense>
 
         <div className="flex-1 p-6 overflow-y-auto">
-          {/* Metrics Section */}
-          <div className="mb-8">
-            {loading && metrics.length === 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg animate-pulse" />)}
-              </div>
-            ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMetricsDragEnd}>
-                <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
+          {isStaff ? (
+            <StaffDashboard 
+               permissions={staffProfile?.permissions || []} 
+               t={t} 
+            />
+          ) : (
+            <>
+              {/* Metrics Section */}
+              <div className="mb-8">
+                {loading && metrics.length === 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {metrics.map(m => <SortableMetricCard key={m.id} {...m} />)}
+                    {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg animate-pulse" />)}
+                  </div>
+                ) : (
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMetricsDragEnd}>
+                    <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {metrics.map(m => <SortableMetricCard key={m.id} {...m} />)}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                )}
+              </div>
+
+              {/* Draggable Layout Grid */}
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>
+                <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    {sections.map(section => (
+                      <div
+                        key={section.id}
+                        className={`w-full ${section.id === "storesSummary" ? "lg:col-span-3" : "lg:col-span-1"}`}
+                      >
+                        {section.id === "quickActions" ? (
+                          <SortableSection id={section.id} isVisible={section.visible}>
+                            {renderSection(section)}
+                          </SortableSection>
+                        ) : (
+                          renderSection(section)
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </SortableContext>
               </DndContext>
-            )}
-          </div>
-
-          {/* Draggable Layout Grid */}
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>
-            <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {sections.map(section => (
-                  <div
-                    key={section.id}
-                    className={`w-full ${section.id === "storesSummary" ? "lg:col-span-3" : "lg:col-span-1"}`}
-                  >
-                    {section.id === "quickActions" ? (
-                      <SortableSection id={section.id} isVisible={section.visible}>
-                        {renderSection(section)}
-                      </SortableSection>
-                    ) : (
-                      renderSection(section)
-                    )}
-                  </div>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+            </>
+          )}
         </div>
       </div>
     </div>
