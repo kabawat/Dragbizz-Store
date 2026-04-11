@@ -71,7 +71,7 @@ const SignatureSettings = () => {
     };
 
     return (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center gap-2">
@@ -82,11 +82,7 @@ const SignatureSettings = () => {
                         {t("settings.signatureDescription") || "Manage your digital signatures for invoices and documents."}
                     </p>
                 </div>
-                <Button
-                    onClick={() => setShowDrawer(true)}
-                    leftIcon={Plus}
-                    variant="primary"
-                >
+                <Button onClick={() => setShowDrawer(true)} leftIcon={Plus} variant="primary" >
                     {t("common.addNew") || "Add New"}
                 </Button>
             </div>
