@@ -12,6 +12,7 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 
 import SignatureDeleteModal from "./SignatureDeleteModal";
+import styles from "./SignatureSettings.module.css";
 
 const SignatureSettings = () => {
     const { t } = useTranslation();
