@@ -33,12 +33,12 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
             {t("settings.appearance")}
           </h2>
           <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-            Personalize your workspace with themes and display modes.
+            {t("settings.appearanceDescription")}
           </p>
         </div>
         <button onClick={resetAppearance} className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))]/40 hover:bg-[rgb(var(--color-primary))]/10 rounded-lg border border-[rgb(var(--color-border-primary))]/50 transition-all">
           <RotateCcw className="w-3.5 h-3.5" />
-          Reset to Defaults
+          {t("settings.resetToDefaults")}
         </button>
       </div>
 
@@ -72,7 +72,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
                     <p className={`font-semibold ${currentVariant === "light" ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"}`}>
                       {t("settings.lightMode")}
                     </p>
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">Perfect for bright environments</p>
+                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">{t("settings.lightModeDescription")}</p>
                   </div>
                 </div>
                 {currentVariant === "light" && (
@@ -101,7 +101,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
                     <p className={`font-semibold ${currentVariant === "dark" ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"}`}>
                       {t("settings.darkMode")}
                     </p>
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">Easy on the eyes in low light</p>
+                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">{t("settings.darkModeDescription")}</p>
                   </div>
                 </div>
                 {currentVariant === "dark" && (
@@ -160,7 +160,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
                       </div>
                       <div>
                         <p className={`text-sm font-bold ${isSelected ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"}`}>
-                          {theme.name}
+                          {t(`settings.themes.${themeKey}.name`) || theme.name}
                         </p>
                         <p className="text-[10px] text-[rgb(var(--color-text-secondary))] truncate uppercase tracking-widest font-bold opacity-70">
                           {t(`settings.${activeCategory}Category`)}
@@ -168,7 +168,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
                       </div>
                     </div>
                     <p className="text-xs text-[rgb(var(--color-text-secondary))] line-clamp-2 leading-relaxed">
-                      {theme.description}
+                      {t(`settings.themes.${themeKey}.description`) || theme.description}
                     </p>
 
                     {isSelected && (
@@ -226,10 +226,10 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="h-10 bg-[rgb(var(--color-primary))] text-white text-[10px] font-bold rounded-lg flex items-center justify-center">
-                    MAIN BUTTON
+                    {t("settings.mainButton")}
                   </div>
                   <div className="h-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] text-[10px] font-bold rounded-lg flex items-center justify-center">
-                    SECONDARY
+                    {t("settings.secondaryButton")}
                   </div>
                 </div>
               </div>
@@ -237,14 +237,14 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
               {/* Overlay Badge */}
               <div className="absolute top-14 right-4 animate-bounce">
                 <div className="bg-emerald-500 text-white text-[8px] font-bold px-2 py-1 rounded-full">
-                  ACTIVE NOW
+                  {t("settings.activeNow")}
                 </div>
               </div>
             </div>
 
             <div className="mt-8 p-4 bg-[rgb(var(--color-primary))]/5 rounded-xl border border-[rgb(var(--color-primary))]/10">
               <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed italic text-center">
-                "Appearance settings are applied instantly across all devices. Your session will remain synchronized."
+                "{t("settings.appearanceNote")}"
               </p>
             </div>
           </section>
