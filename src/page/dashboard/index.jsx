@@ -23,11 +23,14 @@ import {
   Receipt,
   Users,
   Warehouse,
+  TrendingUp,
+  AlertTriangle,
+  LayoutDashboard
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { dashboardService } from "@/service/retailer";
+import { dashboardService, agencyService } from "@/service/retailer";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
@@ -39,13 +42,7 @@ import {
   SortableAnalyticsCard
 } from "@/components/dashboard/SortableComponents";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import {
-  RevenueAnalytics,
-  SalesAnalytics,
-  StockAnalytics,
-  CustomerAnalytics,
-  BillAnalytics,
-} from "@/components/dashboard/AnalyticsWrappers";
+import { StoresSummaryTable } from "@/components/dashboard/StoresSummaryTable";
 
 // Lazy load components
 const Sidebar = lazy(() => import("@/components/dashboard/sidebar"));
@@ -67,19 +64,20 @@ export default function Dashboard() {
   const { execute, loading } = useApiResponse();
   const [metrics, setMetrics] = useState([
     { id: "revenue", title: t("dashboard.totalRevenue"), value: "₹0", change: "0%", changeType: "up", icon: IndianRupee, iconColor: "bg-green-500" },
+    { id: "profit", title: t("dashboard.totalProfit"), value: "₹0", change: "0%", changeType: "up", icon: TrendingUp, iconColor: "bg-emerald-500" },
     { id: "customers", title: t("dashboard.totalCustomers"), value: "0", change: "0%", changeType: "up", icon: Users, iconColor: "bg-blue-500" },
-    { id: "products", title: t("dashboard.productsInStock"), value: "0", change: "0%", changeType: "up", icon: Package, iconColor: "bg-purple-500" },
-    { id: "suppliers", title: t("dashboard.suppliers"), value: "0", change: "0%", changeType: "up", icon: Building2, iconColor: "bg-orange-500" },
+    { id: "products", title: t("dashboard.totalProducts"), value: "0", change: "0%", changeType: "up", icon: Package, iconColor: "bg-purple-500" },
+    { id: "stockValue", title: t("dashboard.stockValue"), value: "₹0", change: "0%", changeType: "up", icon: Warehouse, iconColor: "bg-indigo-500" },
+    { id: "outOfStock", title: t("dashboard.outOfStock"), value: "0", change: "0%", changeType: "down", icon: AlertTriangle, iconColor: "bg-red-500" },
+    { id: "payables", title: t("dashboard.totalPayables"), value: "₹0", change: "0%", changeType: "down", icon: Receipt, iconColor: "bg-orange-500" },
   ]);
 
   const [sections, setSections] = useState([
+    { id: "storesSummary", visible: true },
     { id: "quickActions", visible: true },
-    { id: "revenueAnalytics", visible: true },
-    { id: "salesAnalytics", visible: true },
-    { id: "stockAnalytics", visible: true },
-    { id: "customerAnalytics", visible: true },
-    { id: "billAnalytics", visible: true },
   ]);
+
+  const [storesData, setStoresData] = useState([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -88,47 +86,89 @@ export default function Dashboard() {
 
   const loadDashboardMetrics = useCallback(async (storeId) => {
     const result = await execute(
-      dashboardService.getDashboard({ period: 30, storeId }),
+      agencyService.getSummary(),
       { showToast: false }
     );
 
     if (result?.success && result?.data) {
-      const dashboardData = result.data;
+      const summaryData = result.data;
+      setStoresData(summaryData);
+
+      // Calculate totals across all stores
+      const totals = summaryData.reduce((acc, store) => ({
+        revenue: acc.revenue + (store.revenue || 0),
+        profit: acc.profit + (store.profit || 0),
+        customers: acc.customers + (store.customers || 0),
+        products: acc.products + (store.products || 0),
+        stockValue: acc.stockValue + (store.stockValue || 0),
+        outOfStock: acc.outOfStock + (store.outOfStock || 0),
+        payables: acc.payables + (store.payables || 0),
+      }), {
+        revenue: 0, profit: 0, customers: 0, products: 0, stockValue: 0, outOfStock: 0, payables: 0
+      });
+
       const updatedMetrics = [
         {
           id: "revenue",
           title: t("dashboard.totalRevenue"),
-          value: `₹${dashboardData.metrics.revenue.value.toLocaleString("en-IN")}`,
-          change: formatPercentChange(dashboardData.metrics.revenue.change),
-          changeType: dashboardData.metrics.revenue.changeType,
+          value: `₹${totals.revenue.toLocaleString("en-IN")}`,
+          change: "0%",
+          changeType: "up",
           icon: IndianRupee,
           iconColor: "bg-green-500",
         },
         {
+          id: "profit",
+          title: t("dashboard.totalProfit"),
+          value: `₹${totals.profit.toLocaleString("en-IN")}`,
+          change: "0%",
+          changeType: "up",
+          icon: TrendingUp,
+          iconColor: "bg-emerald-500",
+        },
+        {
           id: "customers",
           title: t("dashboard.totalCustomers"),
-          value: dashboardData.metrics.customers.value.toLocaleString("en-IN"),
-          change: formatPercentChange(dashboardData.metrics.customers.change),
-          changeType: dashboardData.metrics.customers.changeType,
+          value: totals.customers.toLocaleString("en-IN"),
+          change: "0%",
+          changeType: "up",
           icon: Users,
           iconColor: "bg-blue-500",
         },
         {
           id: "products",
-          title: t("dashboard.productsInStock"),
-          value: dashboardData.metrics.products.value.toLocaleString("en-IN"),
-          change: formatPercentChange(dashboardData.metrics.products.change),
-          changeType: dashboardData.metrics.products.changeType,
+          title: t("dashboard.totalProducts"),
+          value: totals.products.toLocaleString("en-IN"),
+          change: "0%",
+          changeType: "up",
           icon: Package,
           iconColor: "bg-purple-500",
         },
         {
-          id: "suppliers",
-          title: t("dashboard.suppliers"),
-          value: dashboardData.metrics.suppliers.value.toLocaleString("en-IN"),
-          change: formatPercentChange(dashboardData.metrics.suppliers.change),
-          changeType: dashboardData.metrics.suppliers.changeType,
-          icon: Building2,
+          id: "stockValue",
+          title: t("dashboard.stockValue"),
+          value: `₹${totals.stockValue.toLocaleString("en-IN")}`,
+          change: "0%",
+          changeType: "up",
+          icon: Warehouse,
+          iconColor: "bg-indigo-500",
+        },
+        {
+          id: "outOfStock",
+          title: t("dashboard.outOfStock"),
+          value: totals.outOfStock.toLocaleString("en-IN"),
+          change: "0%",
+          changeType: "down",
+          icon: AlertTriangle,
+          iconColor: "bg-red-500",
+        },
+        {
+          id: "payables",
+          title: t("dashboard.totalPayables"),
+          value: `₹${totals.payables.toLocaleString("en-IN")}`,
+          change: "0%",
+          changeType: "down",
+          icon: Receipt,
           iconColor: "bg-orange-500",
         },
       ];
@@ -165,7 +205,7 @@ export default function Dashboard() {
         const savedOrder = JSON.parse(savedSections);
         setSections(prev => {
           const reordered = savedOrder.map(id => prev.find(s => s.id === id)).filter(Boolean);
-          const defaultIds = ["quickActions", "revenueAnalytics", "salesAnalytics", "stockAnalytics", "customerAnalytics", "billAnalytics"];
+          const defaultIds = ["storesSummary", "quickActions"];
           const missing = defaultIds.filter(id => !reordered.find(s => s.id === id));
           missing.forEach(id => {
             const def = prev.find(s => s.id === id);
@@ -207,16 +247,8 @@ export default function Dashboard() {
     switch (section.id) {
       case "quickActions":
         return <QuickActions t={t} onActionClick={(path) => router.push(path)} />;
-      case "revenueAnalytics":
-        return <SortableAnalyticsCard id={section.id} title="Revenue" icon={LineChart} iconColor="bg-green-500" isVisible={section.visible}><RevenueAnalytics /></SortableAnalyticsCard>;
-      case "salesAnalytics":
-        return <SortableAnalyticsCard id={section.id} title="Sales" icon={BarChart3} iconColor="bg-blue-500" isVisible={section.visible}><SalesAnalytics /></SortableAnalyticsCard>;
-      case "stockAnalytics":
-        return <SortableAnalyticsCard id={section.id} title="Stock" icon={Warehouse} iconColor="bg-indigo-500" isVisible={section.visible}><StockAnalytics /></SortableAnalyticsCard>;
-      case "customerAnalytics":
-        return <SortableAnalyticsCard id={section.id} title="Customers" icon={Activity} iconColor="bg-orange-500" isVisible={section.visible}><CustomerAnalytics /></SortableAnalyticsCard>;
-      case "billAnalytics":
-        return <SortableAnalyticsCard id={section.id} title="Bills" icon={Receipt} iconColor="bg-red-500" isVisible={section.visible}><BillAnalytics /></SortableAnalyticsCard>;
+      case "storesSummary":
+        return <SortableAnalyticsCard id={section.id} title={t("dashboard.storesSummary")} icon={LayoutDashboard} iconColor="bg-slate-700" isVisible={section.visible}><StoresSummaryTable data={storesData} loading={loading} /></SortableAnalyticsCard>;
       default:
         return null;
     }
@@ -236,7 +268,7 @@ export default function Dashboard() {
         <div className="flex-1 p-6 overflow-y-auto">
           {/* Metrics Section */}
           <div className="mb-8">
-            {loading ? (
+            {loading && metrics.length === 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg animate-pulse" />)}
               </div>
@@ -254,9 +286,12 @@ export default function Dashboard() {
           {/* Draggable Layout Grid */}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>
             <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
-              <div className="columns-1 md:columns-2 xl:columns-3 gap-6 space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {sections.map(section => (
-                  <div key={section.id} className="inline-block w-full">
+                  <div
+                    key={section.id}
+                    className={`w-full ${section.id === "storesSummary" ? "lg:col-span-3" : "lg:col-span-1"}`}
+                  >
                     {section.id === "quickActions" ? (
                       <SortableSection id={section.id} isVisible={section.visible}>
                         {renderSection(section)}

@@ -163,5 +163,11 @@
   "confirmDelete": "Are you sure you want to delete this item?",
   "gst": "GST",
   "scrollToLoadMore": "Scroll to load more",
-  "additionalInformation": "Additional Information"
+  "additionalInformation": "Additional Information",
+  "downloadSample": "Download Sample",
+  "bulkUpload": {
+    "templateFetchError": "Failed to resolve template structure.",
+    "templateDownloaded": "{format} Template downloaded successfully!",
+    "downloadError": "Error generating template file."
+  }
 }

@@ -23,67 +23,84 @@ const BulkTemplateDownloadButton = ({ module, fileName, sheetName, className = "
     { id: "json", label: "JSON (.json)", icon: FileJson, color: "text-amber-600" },
   ];
 
+  // Handle click outside to close menu
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
+  // Handle file generation and download
   useEffect(() => {
     if (!data || !selectedFormat) return;
 
-    const fields = data?.fields ?? data?.[module]?.fields;
+    // Support both direct fields and nested module fields
+    const fields = data?.fields || data?.[module]?.fields;
 
     if (!fields || !Array.isArray(fields)) {
-      showError(t("bulkUpload.templateFetchError", "Failed to fetch template fields."));
+      showError(t("bulkUpload.templateFetchError", "Failed to resolve template structure."));
       setSelectedFormat(null);
       return;
     }
 
     const headers = fields.map((f) => f.name);
     const exampleRow = fields.map((f) => f.example ?? "");
-    const baseFileName = fileName?.split('.')[0] ?? `${module}_bulk_upload_template`;
+    const baseFileName = fileName?.split(".")[0] || `${module}_template`;
+
+    let objectUrl = null;
 
     try {
       if (selectedFormat === "xlsx") {
         const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, sheetName ?? module);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName || module);
         XLSX.writeFile(wb, `${baseFileName}.xlsx`);
-      }
-      else if (selectedFormat === "csv") {
-        const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-        const csv = XLSX.utils.sheet_to_csv(ws);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${baseFileName}.csv`;
-        link.click();
-      }
-      else if (selectedFormat === "json") {
-        const jsonData = headers.reduce((acc, header, idx) => {
-          acc[header] = exampleRow[idx];
-          return acc;
-        }, {});
-        const blob = new Blob([JSON.stringify([jsonData], null, 2)], { type: 'application/json' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${baseFileName}.json`;
-        link.click();
+      } else {
+        let blob;
+        if (selectedFormat === "csv") {
+          const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+          const csv = XLSX.utils.sheet_to_csv(ws);
+          blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        } else if (selectedFormat === "json") {
+          const jsonData = headers.reduce((acc, header, idx) => {
+            acc[header] = exampleRow[idx];
+            return acc;
+          }, {});
+          blob = new Blob([JSON.stringify([jsonData], null, 2)], { type: "application/json" });
+        }
+
+        if (blob) {
+          objectUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = objectUrl;
+          link.download = `${baseFileName}.${selectedFormat}`;
+          link.click();
+        }
       }
 
-      showSuccess(t("bulkUpload.templateDownloaded", `${selectedFormat.toUpperCase()} Template downloaded successfully!`));
+      showSuccess(t("bulkUpload.templateDownloaded", { format: selectedFormat.toUpperCase() }, "Template downloaded successfully!"));
     } catch (err) {
-      showError(t("bulkUpload.downloadError", "Error generating file."));
+      console.error("Template Download Error:", err);
+      showError(t("bulkUpload.downloadError", "Error generating template file."));
     } finally {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
       setSelectedFormat(null);
       setIsOpen(false);
     }
-  }, [data, selectedFormat]);
+  }, [data, selectedFormat, module, fileName, sheetName, showError, showSuccess, t]);
 
   const handleDownload = (format) => {
     setSelectedFormat(format);
@@ -96,20 +113,26 @@ const BulkTemplateDownloadButton = ({ module, fileName, sheetName, className = "
         variant="secondary"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        disabled={loading}
+        isLoading={loading}
         className="flex items-center gap-2 pr-2"
+        aria-haspopup="true"
+        aria-expanded={isOpen}
       >
         <FileDown className="w-4 h-4" />
-        <span>{loading ? t("common.loading", "Loading...") : t("customers.downloadSample", "Download Sample File")}</span>
+        <span>{t("common.downloadSample", "Download Sample")}</span>
         <ChevronDown className={`w-3.5 h-3.5 ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </Button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-xl overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200">
+        <div 
+          className="absolute left-0 mt-2 w-52 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-xl overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200"
+          role="menu"
+        >
           <div className="py-1.5">
             {formats.map((format) => (
               <button
                 key={format.id}
+                role="menuitem"
                 onClick={() => handleDownload(format.id)}
                 className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-[rgb(var(--color-bg-secondary))] transition-colors group cursor-pointer"
               >
