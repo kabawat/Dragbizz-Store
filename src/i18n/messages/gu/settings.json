@@ -79,6 +79,74 @@
     "rose": {
       "name": "રોઝ",
       "description": "નરમ અને ભવ્ય"
+    },
+    "violet": {
+      "name": "વાયોલેટ",
+      "description": "શાહી અને ભવ્ય"
+    },
+    "indigo": {
+      "name": "ઇન્ડિગો",
+      "description": "ઊંડું અને રહસ્યમય"
+    },
+    "purple": {
+      "name": "પર્પલ",
+      "description": "ભવ્ય અને સર્જનાત્મક"
+    },
+    "blue": {
+      "name": "ક્લાસિક બ્લૂ",
+      "description": "સ્થિર અને વ્યાવસાયિક"
+    },
+    "sapphire": {
+      "name": "સેફાયર (નીલમ)",
+      "description": "તેજસ્વી અને અત્યાધુનિક"
+    },
+    "midnight": {
+      "name": "મિડનાઇટ",
+      "description": "ઊંડું અને આધુનિક"
+    },
+    "emerald": {
+      "name": "એમરાલ્ડ (પન્ના)",
+      "description": "સમૃદ્ધ અને જીવંત"
+    },
+    "green": {
+      "name": "નેચર ગ્રીન",
+      "description": "તાજું અને જૈવિક"
+    },
+    "teal": {
+      "name": "ટીલ",
+      "description": "શાંત અને વ્યાવસાયિક"
+    },
+    "lime": {
+      "name": "લાઇમ",
+      "description": "ઊર્જાસભર અને તેજસ્વી"
+    },
+    "amber": {
+      "name": "એમ્બર",
+      "description": "હૂંફાળું અને ચમકતું"
+    },
+    "coral": {
+      "name": "કોરલ",
+      "description": "મૈત્રીપૂર્ણ અને જીવંત"
+    },
+    "pink": {
+      "name": "પિંક",
+      "description": "નરમ અને રમતિયાળ"
+    },
+    "sky": {
+      "name": "સ્કાય બ્લૂ",
+      "description": "હલકું અને તાજગીભર્યું"
+    },
+    "cyan": {
+      "name": "સ્યાન",
+      "description": "આધુનિક અને સ્વચ્છ"
+    },
+    "slate": {
+      "name": "સ્લેટ",
+      "description": "સંતુલિત અને તટસ્થ"
+    },
+    "zinc": {
+      "name": "ઝિંક",
+      "description": "ઔદ્યોગિક અને આકર્ષક"
     }
   },
   "languageSettings": "ભાષા સેટિંગ્સ",

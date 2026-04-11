@@ -79,6 +79,74 @@
     "rose": {
       "name": "Rose",
       "description": "Soft and elegant"
+    },
+    "violet": {
+      "name": "Violet",
+      "description": "Royal look"
+    },
+    "indigo": {
+      "name": "Indigo",
+      "description": "Deep and mysterious"
+    },
+    "purple": {
+      "name": "Purple",
+      "description": "Elegant and creative"
+    },
+    "blue": {
+      "name": "Classic Blue",
+      "description": "Stable and professional"
+    },
+    "sapphire": {
+      "name": "Sapphire",
+      "description": "Bright look"
+    },
+    "midnight": {
+      "name": "Midnight",
+      "description": "Deep and modern"
+    },
+    "emerald": {
+      "name": "Emerald",
+      "description": "Rich vibrant green"
+    },
+    "green": {
+      "name": "Nature Green",
+      "description": "Fresh and organic"
+    },
+    "teal": {
+      "name": "Teal",
+      "description": "Calm and professional"
+    },
+    "lime": {
+      "name": "Lime",
+      "description": "Energetic and bright"
+    },
+    "amber": {
+      "name": "Amber",
+      "description": "Warm glowing feel"
+    },
+    "coral": {
+      "name": "Coral",
+      "description": "Friendly and lively"
+    },
+    "pink": {
+      "name": "Pink",
+      "description": "Soft and playful"
+    },
+    "sky": {
+      "name": "Sky Blue",
+      "description": "Light and refreshing"
+    },
+    "cyan": {
+      "name": "Cyan",
+      "description": "Modern and clean"
+    },
+    "slate": {
+      "name": "Slate",
+      "description": "Balanced and neutral"
+    },
+    "zinc": {
+      "name": "Zinc",
+      "description": "Industrial and sleek"
     }
   },
   "languageSettings": "Language Settings",
