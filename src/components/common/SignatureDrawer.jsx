@@ -11,6 +11,7 @@ import useApiResponse from "@/hooks/useApiResponse";
 
 // Signature Fonts for Typed Signature
 import { SIGNATURE_FONTS } from "@/constants/signatureFonts";
+import styles from "../settings/SignatureSettings.module.css";
 
 // Subcomponents
 import TypeTab from "./Signature/TypeTab";

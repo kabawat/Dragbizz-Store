@@ -36,10 +36,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
             Personalize your workspace with themes and display modes.
           </p>
         </div>
-        <button
-          onClick={resetAppearance}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))]/40 hover:bg-[rgb(var(--color-primary))]/10 rounded-lg border border-[rgb(var(--color-border-primary))]/50 transition-all"
-        >
+        <button onClick={resetAppearance} className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))]/40 hover:bg-[rgb(var(--color-primary))]/10 rounded-lg border border-[rgb(var(--color-border-primary))]/50 transition-all">
           <RotateCcw className="w-3.5 h-3.5" />
           Reset to Defaults
         </button>
@@ -48,7 +45,6 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         {/* Left Column: Configs */}
         <div className="xl:col-span-8 space-y-8">
-
           {/* Theme Mode Selection */}
           <section className="bg-[rgb(var(--color-bg-primary))]/30 backdrop-blur-md rounded-2xl border border-[rgb(var(--color-border-primary))]/50 p-6 overflow-hidden relative">
             <div className="flex items-center gap-2 mb-6">
