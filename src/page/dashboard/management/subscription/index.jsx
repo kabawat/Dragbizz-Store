@@ -7,11 +7,13 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useRouter } from "next/navigation";
 import subscriptionService from "@/service/subscription/subscription.service";
 import useApiResponse from "@/hooks/useApiResponse";
 
 const SubscriptionManagementPage = () => {
     const { t } = useTranslation();
+    const router = useRouter();
     const {
         execute: executeFetch,
         loading: isLoading,
@@ -48,6 +50,25 @@ const SubscriptionManagementPage = () => {
                                         <div className="flex items-center justify-center p-16">
                                             <Loader2 size={32} className="animate-spin text-[rgb(var(--color-primary))]" />
                                         </div>
+                                    ) : !subscription ? (
+                                        <CardBody className="p-16 flex flex-col items-center justify-center text-center">
+                                            <div className="w-24 h-24 bg-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center mb-6">
+                                                <Zap className="w-12 h-12 text-[rgb(var(--color-primary))]" />
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3">
+                                                No Active Plan
+                                            </h3>
+                                            <p className="text-[rgb(var(--color-text-secondary))] mb-8 max-w-md mx-auto">
+                                                You currently don't have an active subscription package. Upgrade your plan to manage features and enjoy premium benefits.
+                                            </p>
+                                            <Button
+                                                variant="primary"
+                                                className="px-8 py-3 rounded-xl font-semibold tracking-wide"
+                                                onClick={() => window.location.href = "/pricing"}
+                                            >
+                                                Upgrade Plan
+                                            </Button>
+                                        </CardBody>
                                     ) : (
                                         <>
                                             <div className="absolute top-0 right-0 p-4 flex gap-2">

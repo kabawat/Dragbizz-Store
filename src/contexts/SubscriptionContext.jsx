@@ -15,7 +15,7 @@ const defaultContext = {
 const SubscriptionContext = createContext(defaultContext);
 
 export const SubscriptionProvider = ({ children }) => {
-  const { execute: executeFetch, data: subscription, loading: isLoading, error } = useApiResponse();
+  const { execute: executeFetch, data: subscription, loading: isLoading } = useApiResponse();
   const hasFetched = useRef(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,11 +47,10 @@ export const SubscriptionProvider = ({ children }) => {
     () => ({
       subscription,
       isLoading,
-      error,
       hasSubscription,
       showUpgradeModal,
     }),
-    [subscription, isLoading, error, hasSubscription]
+    [subscription, isLoading, hasSubscription]
   );
 
   return (
