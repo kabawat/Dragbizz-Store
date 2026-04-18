@@ -78,6 +78,7 @@ const API_CONFIG = {
     CHECKOUT: "/plans/checkout",
     PAYMENT: "/plans/payment",
     WEBHOOKS: "/plans/webhooks",
+    USAGE: "/plans/usage",
   },
 
   // External Services
