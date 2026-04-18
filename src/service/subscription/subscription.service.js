@@ -1,51 +1,27 @@
 import { API_CONFIG } from "@/config";
-import { authAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class SubscriptionService {
-  constructor() {
-    this.baseURL = API_CONFIG.BASE.URL;
+class SubscriptionService extends BaseService {
+  getActiveSubscription(userId = null) {
+    const params = {
+      ...(userId && { userId }),
+      populatePackage: false,
+      fields: "_id,status,startDate,endDate,features,packageId",
+    };
+
+    return this.get(`${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`, params);
   }
 
-  async getActiveSubscription(userId = null) {
-    try {
-      const params = {
-        ...(userId && { userId }),
-        populatePackage: false,
-        fields: "_id,status,startDate,endDate,features,packageId",
-      };
-
-      const response = await authAxios.get(
-        `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`,
-        { params }
-      );
-
-      return handleApiSuccess(
-        response.data,
-        "Active subscription fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "subscription-active");
-    }
-  }
-
-
-  async checkUsage(featureKey, quantity = 1) {
-    try {
-      const response = await authAxios.post(
-        `${API_CONFIG.SUBSCRIPTION.USAGE}/check`,
-        {
-          featureKey,
-          quantity,
-        }
-      );
-      return handleApiSuccess(response.data, "Usage check completed");
-    } catch (error) {
-      return handleApiErrorResponse(error, "usage-check");
-    }
+  checkUsage(featureKey, quantity = 1) {
+    // Note: USAGE endpoint should be defined in API_CONFIG.SUBSCRIPTION
+    const endpoint = API_CONFIG.SUBSCRIPTION.USAGE || "/plans/usage";
+    return this.post(`${endpoint}/check`, {
+      featureKey,
+      quantity,
+    });
   }
 }
 
 const subscriptionService = new SubscriptionService();
 export default subscriptionService;
+
