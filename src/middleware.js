@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export function proxy(request) {
+export function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Define protected routes that require authentication
@@ -17,13 +17,14 @@ export function proxy(request) {
     pathname.startsWith(route)
   );
 
-  // Get auth token from cookies
+  // Get auth status from cookies
   const authToken = request.cookies.get("logged_in")?.value;
 
-  // If protected route and no auth token → redirect to login
+  // If protected route and no auth token → redirect to external login
   if (isProtectedRoute && !authToken) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
+
     return NextResponse.redirect(loginUrl);
   }
 

@@ -1,8 +1,6 @@
 "use client";
 import { ArrowUp, Calculator, Package, Truck } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
-import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { supplierService } from "@/service/retailer";
@@ -21,9 +19,7 @@ const OpeningQuantitySection = ({
   const [suppliersLoading, setSuppliersLoading] = useState(false);
   const { execute } = useApiResponse();
 
-  // Ref to prevent duplicate API calls
   const hasFetchedSuppliers = useRef(false);
-  const { isLoading: featuresLoading } = useFeatureAccess();
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
@@ -48,16 +44,15 @@ const OpeningQuantitySection = ({
     if (result?.success) {
       setSuppliers(result.data || []);
     } else {
-      hasFetchedSuppliers.current = false; // Reset on error so it can retry
+      hasFetchedSuppliers.current = false;
     }
   }, [storeId, execute]);
 
-  // Fetch suppliers on component mount and when storeId or feature access changes
   useEffect(() => {
-    if (storeId && !featuresLoading) {
+    if (storeId) {
       fetchSuppliers();
     }
-  }, [storeId, fetchSuppliers, featuresLoading]);
+  }, [storeId, fetchSuppliers]);
 
   // Format supplier options for dropdown
   const supplierOptions = [

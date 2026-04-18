@@ -2,52 +2,31 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getUserLocationWithDetails } from "@/utils/locationUtils";
 
-// Create Location Context
 const LocationContext = createContext();
 
-// Location Provider Component
+// Provides user geolocation for store creation
 export const LocationProvider = ({ children }) => {
   const [userLocation, setUserLocation] = useState("0,0");
-  const [locationLoading, setLocationLoading] = useState(true);
-  const [locationError, setLocationError] = useState(null);
 
   useEffect(() => {
-    const requestLocation = async () => {
-      setLocationLoading(true);
-      setLocationError(null);
-
+    const fetchLocation = async () => {
       const result = await getUserLocationWithDetails();
-      setUserLocation(result.location);
-
-      if (!result.success && result.error) {
-        setLocationError(result.error.message);
-      }
-
-      setLocationLoading(false);
+      if (result?.location) setUserLocation(result.location);
     };
-
-    requestLocation();
+    fetchLocation();
   }, []);
 
-  const value = {
-    userLocation,
-    locationLoading,
-    locationError,
-    setUserLocation,
-  };
-
   return (
-    <LocationContext.Provider value={value}>
+    <LocationContext.Provider value={{ userLocation }}>
       {children}
     </LocationContext.Provider>
   );
 };
 
-// Hook to use location context
+// Hook for location context
 export const useLocation = () => {
   const context = useContext(LocationContext);
-  if (!context) {
-    throw new Error("useLocation must be used within a LocationProvider");
-  }
+  if (!context) throw new Error("useLocation must be used within LocationProvider");
   return context;
 };
+

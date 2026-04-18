@@ -163,6 +163,7 @@ const ProductPanel = ({ addToCart, searchRef }) => {
                 ) : filteredProducts.length === 0 ? (
                     <div className="col-span-full">
                         <EmptyState
+                            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
                             title={search ? "No Products Found" : "No Products in this Category"}
                             description={
                                 search
