@@ -1,8 +1,4 @@
-// src/config/api.config.js
-// API endpoints and service configuration
-
 const API_CONFIG = {
-  // Base API Configuration
   BASE: {
     URL: process.env.NEXT_PUBLIC_API_URL || "",
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
@@ -12,16 +8,8 @@ const API_CONFIG = {
   // Authentication Endpoints
   AUTH: {
     BASE_URL: "/auth",
-    LOGIN: "/auth/login",
-    LOGIN_VERIFY: "/auth/login",
     REFRESH: "/auth/refresh",
     LOGOUT: "/auth/logout",
-    REGISTER: "/auth/register",
-    VERIFY_OTP: "/auth/register",
-    FORGOT_PASSWORD: "/auth/forgot-password",
-    RESET_PASSWORD: "/auth/reset-password",
-    VERIFY_EMAIL: "/auth/verify-email",
-    RESEND_VERIFICATION: "/auth/resend-verification",
     PROFILE: "/auth/profile",
     NOTIFICATION_SETTINGS: "/auth/settings/notification",
   },
@@ -48,7 +36,6 @@ const API_CONFIG = {
     GST_VERIFY: "/retailer/gst/verify",
     PUBLIC_CATALOG: "/retailer/public/products",
     PUBLIC_CATEGORIES: "/retailer/public/categories",
-    PUBLIC_SALES_ORDER: "/retailer/public/sales-order",
     PUBLIC_TEMPLATES: "/retailer/public/templates",
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
@@ -74,10 +61,6 @@ const API_CONFIG = {
   // Subscription Service Endpoints
   SUBSCRIPTION: {
     SUBSCRIPTIONS: "/plans/subscription",
-    PACKAGES: "/plans/packages",
-    CHECKOUT: "/plans/checkout",
-    PAYMENT: "/plans/payment",
-    WEBHOOKS: "/plans/webhooks",
     USAGE: "/plans/usage",
   },
 

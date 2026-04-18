@@ -1,21 +1,47 @@
 "use client";
 import React from "react";
-import { LucideIcon, ArrowLeft } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui";
-import { useRouter } from "next/navigation";
 
 const EmptyState = ({
   title,
   description,
   icon: Icon,
   type = "empty",
+  size = "sm", // sm, md, lg
   actionButton,
   className = "",
   fullHeight = false,
 }) => {
-  const router = useRouter();
 
-  // Color mapping based on type
+
+  const sizeStyles = {
+    sm: {
+      iconSize: "w-12 h-12",
+      iconInner: "w-6 h-6",
+      titleSize: "text-base sm:text-lg",
+      descSize: "text-xs sm:text-sm",
+      spacing: "mb-3",
+      padding: "p-4",
+    },
+    md: {
+      iconSize: "w-16 h-16",
+      iconInner: "w-8 h-8",
+      titleSize: "text-lg sm:text-xl",
+      descSize: "text-sm",
+      spacing: "mb-6",
+      padding: "p-8",
+    },
+    lg: {
+      iconSize: "w-24 h-24",
+      iconInner: "w-12 h-12",
+      titleSize: "text-2xl sm:text-3xl",
+      descSize: "text-base",
+      spacing: "mb-8",
+      padding: "p-12",
+    },
+  };
+
   const typeStyles = {
     empty: {
       iconBg: "bg-[rgb(var(--color-primary))]/10",
@@ -31,35 +57,33 @@ const EmptyState = ({
     },
   };
 
-  const activeStyle = typeStyles[type] || typeStyles.empty;
+  const activeSize = sizeStyles[size] || sizeStyles.sm;
+  const activeType = typeStyles[type] || typeStyles.empty;
 
-  // Base classes for the container
-  const containerClasses = `flex flex-col items-center justify-center text-center p-8 w-full ${fullHeight ? "min-h-[60vh] flex-1" : ""} ${className}`;
+  const containerClasses = `flex flex-col items-center justify-center text-center ${activeSize.padding} w-full ${fullHeight ? "min-h-[60vh] flex-1" : ""} ${className}`;
 
   return (
     <div className={containerClasses.trim()}>
-      {/* Icon Section */}
       {Icon && (
-        <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 animate-in zoom-in-75 duration-300 ${activeStyle.iconBg}`}>
-          <Icon className={`w-10 h-10 ${activeStyle.iconColor}`} />
+        <div className={`${activeSize.iconSize} rounded-full flex items-center justify-center ${activeSize.spacing} animate-in zoom-in-75 duration-300 ${activeType.iconBg}`}>
+          <Icon className={`${activeSize.iconInner} ${activeType.iconColor}`} />
         </div>
       )}
 
-      {/* Content Section */}
-      <h2 className="text-xl md:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2 max-w-lg">
+      <h2 className={`${activeSize.titleSize} font-bold text-[rgb(var(--color-text-primary))] mb-2 max-w-lg`}>
         {title}
       </h2>
-      <p className="text-[rgb(var(--color-text-secondary))] text-sm md:text-base mb-8 max-w-md mx-auto leading-relaxed">
+      <p className={`text-[rgb(var(--color-text-secondary))] ${activeSize.descSize} mb-6 max-w-md mx-auto leading-relaxed`}>
         {description}
       </p>
 
-      {/* Action Button Section */}
       {actionButton && (
         <div className="animate-in slide-in-from-bottom-2 duration-400">
           <Button
             variant={actionButton.variant || "primary"}
             onClick={actionButton.onClick}
             leftIcon={actionButton.icon}
+            size={size === "sm" ? "sm" : "md"}
             className="px-6"
           >
             {actionButton.label}
@@ -69,5 +93,6 @@ const EmptyState = ({
     </div>
   );
 };
+
 
 export default EmptyState;

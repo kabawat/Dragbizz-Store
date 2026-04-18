@@ -23,7 +23,6 @@ import Checkbox, { CheckboxGroup } from "./Checkbox";
 import Divider from "./Divider";
 import Dropdown from "./Dropdown";
 import EmptyState from "./EmptyState";
-import ErrorModal from "./ErrorModal";
 import FileUpload from "./FileUpload";
 import IconButton from "./IconButton";
 import Input from "./Input";
@@ -45,7 +44,6 @@ import SendMenu from "./SendMenu";
 import SideDrawer from "./SideDrawer";
 import StepProgress from "./StepProgress";
 import StockInDrawer from "./StockInDrawer";
-import SVGBackground from "./SVGBackground";
 import Table, {
   TableBody,
   TableCell,
@@ -103,14 +101,12 @@ export {
   AccordionItem,
   AnimatedBackground,
   AnimatedGridPattern,
-  SVGBackground,
   SettingsPanel,
   SettingsButton,
   SettingsDrawer,
   Dropdown,
   Pagination,
   Toggle,
-  ViewToggle,
   FileUpload,
   MultiSelect,
   TagInput,
@@ -129,7 +125,6 @@ export {
   TableCell,
   Toast,
   ToastContainer,
-  ErrorModal,
   IconButton,
   EmptyState,
 };
@@ -176,14 +171,12 @@ export default {
   AccordionItem,
   AnimatedBackground,
   AnimatedGridPattern,
-  SVGBackground,
   SettingsPanel,
   SettingsButton,
   SettingsDrawer,
   Dropdown,
   Pagination,
   Toggle,
-  ViewToggle,
   FileUpload,
   MultiSelect,
   TagInput,
@@ -202,7 +195,6 @@ export default {
   TableCell,
   Toast,
   ToastContainer,
-  ErrorModal,
   IconButton,
   EmptyState,
 };
