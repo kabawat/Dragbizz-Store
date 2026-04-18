@@ -39,6 +39,7 @@
     },
     "updates": {
         "title": "Service Updates",
-        "message1": "Infrastructure optimized for faster invoice generation."
+        "message1": "Fast invoice generation ke liye infrastructure optimize kiya gaya hai.",
+        "message2": "Enterprise plan ke liye new dynamic quota allotment available hai."
     }
 }
