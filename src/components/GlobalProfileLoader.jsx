@@ -47,17 +47,26 @@ export default function GlobalProfileLoader() {
           } catch (_) { }
         }
 
-        // If first refresh API failed, do not call the 2 profile APIs (getAuthProfile, getRetailerDetails)
+        // If first refresh API failed, do not call the profile APIs
         if (!refreshSucceededRef.current) {
           dispatch(setInitialized(true));
           return;
         }
 
+        const promises = [];
         if (!hasFetchedAuthRef.current) {
           hasFetchedAuthRef.current = true;
-          try {
-            await dispatch(getAuthProfile()).unwrap();
-          } catch (_) { }
+          promises.push(dispatch(getAuthProfile()));
+        }
+
+        // If we have a session but haven't fetched retailer details, do it in parallel
+        if (!hasFetchedRetailerRef.current && !user && !agency) {
+          hasFetchedRetailerRef.current = true;
+          promises.push(dispatch(getRetailerDetails()));
+        }
+
+        if (promises.length > 0) {
+          await Promise.allSettled(promises);
         }
       } catch (_) { }
     };

@@ -47,6 +47,8 @@ const nextConfig = {
       "@dnd-kit/core",
       "@dnd-kit/sortable",
       "@dnd-kit/utilities",
+      "recharts",
+      "axios",
     ],
   },
   async headers() {
