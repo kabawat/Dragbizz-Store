@@ -82,7 +82,7 @@ const InventoryListHeader = ({
     });
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 <div className="w-100 flex">
                     <Input

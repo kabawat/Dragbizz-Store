@@ -68,7 +68,7 @@ const InvoiceListHeader = () => {
     if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center gap-3 flex-wrap">
                 {/* Left side - Filters */}
                 <div className="flex gap-3 flex-wrap">

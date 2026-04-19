@@ -62,7 +62,7 @@ const ExpenseListHeader = ({
     if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 <div className="w-100">
                     <Input
