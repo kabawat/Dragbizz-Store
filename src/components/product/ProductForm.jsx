@@ -1,21 +1,10 @@
 "use client";
 
 // Import drag and drop
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, } from "@dnd-kit/sortable";
 import { Eye, Image as ImageIcon, IndianRupee, Package } from "lucide-react";
+import dynamic from "next/dynamic";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -29,8 +18,9 @@ import BasicInfoSection from "./BasicInfoSection";
 import MediaSection from "./MediaSection";
 import PricingGSTSection from "./PricingGSTSection";
 import SortableSection from "./SortableSection";
-import ProductSectionInfoModal from "./ProductSectionInfoModal";
-import CategoryDrawer from "./CategoryDrawer";
+
+const ProductSectionInfoModal = dynamic(() => import("./ProductSectionInfoModal"), { ssr: false });
+const CategoryDrawer = dynamic(() => import("./CategoryDrawer"), { ssr: false });
 
 const ProductForm = ({
   formData = {},
