@@ -11,6 +11,7 @@ lint_check:
     paths:
       - node_modules/
   script:
+    - corepack enable
     - yarn install --frozen-lockfile --silent
     - yarn lint || true
   only:
