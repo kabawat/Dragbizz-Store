@@ -1,3 +1,4 @@
+import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
@@ -15,6 +16,12 @@ import { LocationProvider } from "./LocationProvider";
 import { siteMetadata, ThemeScript } from "@/app/metadata";
 import GlobalHotkeys from "@/components/GlobalHotkeys";
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
 export const metadata = siteMetadata;
 
 export default function RootLayout({ children }) {
@@ -24,7 +31,7 @@ export default function RootLayout({ children }) {
         <ThemeScript />
 
       </head>
-      <body className="antialiased" suppressHydrationWarning={true}>
+      <body className={`${inter.className} antialiased`} suppressHydrationWarning={true}>
         <ReduxProvider>
           <ThemeProvider>
             <LanguageProvider>
