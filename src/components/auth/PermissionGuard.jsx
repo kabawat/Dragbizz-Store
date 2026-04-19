@@ -8,6 +8,36 @@ import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
+const ROUTE_MODULE_MAP = {
+    "/dashboard/customers": "customer",
+    "/dashboard/invoices": "invoice",
+    "/dashboard/expenses": "expense",
+    "/dashboard/sales-order": "sales_order",
+    "/dashboard/products": "product",
+    "/dashboard/stock": "inventory",
+    "/dashboard/suppliers": "supplier",
+    "/dashboard/purchase-orders": "purchase_order",
+    "/dashboard/bills": "billing",
+    "/dashboard/payments": "billing",
+    "/dashboard/analytics": "analytics",
+    "/dashboard/reports": "reports",
+};
+
+const getModuleFromPath = (path) => {
+    for (const [route, module] of Object.entries(ROUTE_MODULE_MAP)) {
+        if (path === route || path.startsWith(route + "/")) return module;
+    }
+    return null;
+};
+
+const getActionFromPath = (path) => {
+    if (path.includes("/create")) return "create";
+    if (path.includes("/edit")) return "edit";
+    if (path.includes("/analytics")) return "analytics";
+    if (path.includes("/report")) return "report";
+    return "read";
+};
+
 export const PermissionGuard = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
@@ -27,11 +57,7 @@ export const PermissionGuard = ({ children }) => {
 
     useEffect(() => {
         const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile) || subscriptionLoading;
-
-        if (isLoading) {
-            setIsChecking(true);
-            return;
-        }
+        if (isLoading) return setIsChecking(true);
 
         if (!isAuthenticated || !authProfile) {
             setIsChecking(false);
@@ -39,31 +65,9 @@ export const PermissionGuard = ({ children }) => {
             return;
         }
 
-        const ROUTE_MODULE_MAP = {
-            "/dashboard/customers": "customer",
-            "/dashboard/invoices": "invoice",
-            "/dashboard/expenses": "expense",
-            "/dashboard/sales-order": "sales_order",
-            "/dashboard/products": "product",
-            "/dashboard/stock": "inventory",
-            "/dashboard/suppliers": "supplier",
-            "/dashboard/purchase-orders": "purchase_order",
-            "/dashboard/bills": "billing",
-            "/dashboard/payments": "billing",
-            "/dashboard/analytics": "analytics",
-            "/dashboard/reports": "reports",
-        };
-
-        const getModuleFromPath = (path) => {
-            for (const [route, module] of Object.entries(ROUTE_MODULE_MAP)) {
-                if (path === route || path.startsWith(route + "/")) return module;
-            }
-            return null;
-        };
-
         const moduleName = getModuleFromPath(pathname);
 
-        // 1. Subscription Check (Applies to everyone)
+        // 1. Subscription Check
         if (moduleName) {
             const isModuleActive = (subscription?.features || []).some(f => f.module === moduleName);
             if (!isModuleActive) {
@@ -76,65 +80,38 @@ export const PermissionGuard = ({ children }) => {
 
         setIsSubscriptionRestricted(false);
 
-        // 2. Store Owner has full access (after subscription check)
-        if (authProfile?.role === ROLES.OWNER) {
+        // 2. Owner bypass
+        if (authProfile.role === ROLES.OWNER) {
             setHasAccess(true);
             setIsChecking(false);
             return;
         }
 
-        // 4. Staff logic starts here
-        const permissions = staffProfile?.permissions || [];
-
-        // Always allowed paths for staff
-        const ALLOWED_EXACT_PATHS = [
-            "/dashboard",
-            "/dashboard/support",
-            "/dashboard/settings"
-        ];
-
-        if (ALLOWED_EXACT_PATHS.includes(pathname)) {
+        // 3. Staff logic
+        const ALLOWED_PATHS = ["/dashboard", "/dashboard/support", "/dashboard/settings"];
+        if (ALLOWED_PATHS.includes(pathname)) {
             setHasAccess(true);
             setIsChecking(false);
             return;
         }
 
-        // Staff can never access management features (Staff, Subscription, Plan limits)
-        if (pathname === "/dashboard/management" || pathname.startsWith("/dashboard/management/")) {
+        if (pathname.startsWith("/dashboard/management")) {
             setHasAccess(false);
             setIsChecking(false);
             return;
         }
 
-        // Detect action from path
-        const getActionFromPath = (path) => {
-            if (path.includes("/create")) return "create";
-            if (path.includes("/edit")) return "edit";
-            if (path.includes("/analytics")) return "analytics";
-            if (path.includes("/report")) return "report";
-            return "read";
-        };
-
-        const action = getActionFromPath(pathname);
-
-        // Route not in map → allow by default
         if (!moduleName) {
             setHasAccess(true);
             setIsChecking(false);
             return;
         }
 
+        const action = getActionFromPath(pathname);
+        const permissions = staffProfile?.permissions || [];
         const modulePermission = permissions.find((p) => p.module === moduleName);
 
-        // Module permission not assigned at all → deny
-        if (!modulePermission) {
-            setHasAccess(false);
-            setIsChecking(false);
-            return;
-        }
-
-        // Check exact action permission
-        setHasAccess(modulePermission[action] === true);
+        setHasAccess(modulePermission?.[action] === true);
         setIsChecking(false);
 
     }, [pathname, authProfile, staffProfile, authProfileLoading, staffProfileLoading, subscription, subscriptionLoading, isAuthenticated]);
