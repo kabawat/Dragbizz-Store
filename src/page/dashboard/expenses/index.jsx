@@ -6,7 +6,7 @@ import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getExpenses } from "@/store/slices/expenses/expenseSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { EmptyState } from "@/components/ui";
+import { EmptyState, PageLoader } from "@/components/ui";
 import { IndianRupee, Plus, Search } from "lucide-react";
 import ExpenseListContent from "@/components/expenses/list/ExpenseListContent";
 import ExpenseListHeader from "@/components/expenses/list/ExpenseListHeader";
@@ -49,14 +49,7 @@ const ExpensesPage = () => {
       <div className="max-w-8xl mx-auto">
         <ExpenseListHeader onSearchChange={setSearchValue} />
 
-        {isLoading && expenses.length === 0 && !error && (
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
-            <div className="text-center">
-              <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
-            </div>
-          </div>
-        )}
+        {isLoading && expenses.length === 0 && !error && (<PageLoader />)}
 
         {!isLoading && expenses.length === 0 && (
           <EmptyState

@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect } from "react";
 import CustomerListContent from "@/components/customer/list/CustomerListContent";
 import CustomerListHeader from "@/components/customer/list/CustomerListHeader";
-import { EmptyState } from "@/components/ui";
+import { EmptyState, PageLoader } from "@/components/ui";
 import { Users, Search, Plus } from "lucide-react";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -45,14 +45,7 @@ const CustomersPage = () => {
       <div className="max-w-8xl mx-auto">
         <CustomerListHeader onSuccess={handleBulkSuccess} />
 
-        {isLoading && customers.length === 0 && !error && (
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
-            <div className="text-center">
-              <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
-            </div>
-          </div>
-        )}
+        {isLoading && customers.length === 0 && !error && (<PageLoader />)}
 
         {!isLoading && customers.length === 0 && (
           <EmptyState

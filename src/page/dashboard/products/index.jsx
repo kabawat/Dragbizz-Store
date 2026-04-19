@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Package, Plus } from "lucide-react";
-import { EmptyState } from "@/components/ui";
+import { EmptyState, PageLoader } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
@@ -73,14 +73,7 @@ const ProductsPage = () => {
         />
 
         {/* State 1: Initial loading */}
-        {isLoading && products.length === 0 && !error && (
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
-            <div className="text-center">
-              <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
-            </div>
-          </div>
-        )}
+        {isLoading && products.length === 0 && !error && (<PageLoader />)}
 
         {/* State 2: Empty state */}
         {!isLoading && products.length === 0 && (

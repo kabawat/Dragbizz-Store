@@ -11,7 +11,7 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 // Modularized Sales Order Components
 import SalesOrderListHeader from "@/components/salesOrder/list/SalesOrderListHeader";
 import { Package, Search } from "lucide-react";
-import { EmptyState } from "@/components/ui";
+import { EmptyState, PageLoader } from "@/components/ui";
 import SalesOrderListContent from "@/components/salesOrder/list/SalesOrderListContent";
 
 const SalesOrdersPage = () => {
@@ -66,14 +66,7 @@ const SalesOrdersPage = () => {
                 />
 
                 {/* Loading State Wrapper */}
-                {(isLoading || permissionsLoading) && orders.length === 0 && !error && (
-                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center shadow-sm">
-                        <div className="text-center">
-                            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                            <p className="text-[rgb(var(--color-text-secondary))] font-medium">{t("common.loading")}</p>
-                        </div>
-                    </div>
-                )}
+                {(isLoading || permissionsLoading) && orders.length === 0 && !error && (<PageLoader />)}
 
                 {/* Completely Empty State Fallback */}
                 {!(isLoading || permissionsLoading) && orders.length === 0 && (
