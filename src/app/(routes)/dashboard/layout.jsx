@@ -4,6 +4,9 @@ import { useEffect } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { ensureSubdomain } from "@/utils/helper/domain";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
+import Sidebar from "@/components/dashboard/sidebar";
+import Header from "@/components/dashboard/header";
+import { HeaderProvider } from "@/contexts/HeaderContext";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -86,10 +89,22 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] relative">
-      <PermissionGuard>
-        {children}
-      </PermissionGuard>
-    </div>
+    <HeaderProvider>
+      <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
+        <PermissionGuard>
+          <div className="no-print">
+            <Sidebar />
+          </div>
+          <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+            <div className="no-print">
+              <Header />
+            </div>
+            <main className="flex-1 overflow-y-auto custom-scrollbar">
+              {children}
+            </main>
+          </div>
+        </PermissionGuard>
+      </div>
+    </HeaderProvider>
   );
 }

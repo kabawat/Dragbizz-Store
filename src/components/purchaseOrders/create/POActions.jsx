@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 
 const POActions = ({ t, formData, isCreating, handleSaveDraft, handleSubmit }) => {
     return (
-        <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+        <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary)/0.4)] px-6 py-4">
             <div className="flex items-center justify-between w-full mx-auto">
                 <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                     {formData.products.length > 0 && (

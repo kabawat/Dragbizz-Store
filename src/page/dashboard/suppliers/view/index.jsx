@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import useApiResponse from "@/hooks/useApiResponse";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import SupplierDetailsTemplate from "@/components/templates/supplier/SupplierDetailsTemplate";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -25,6 +24,8 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewSupplierPage = ({ supplierId }) => {
   const { t } = useTranslation();
+
+    useDashboardHeader("View Supplier", "Supplier information and details");
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -149,12 +150,9 @@ const ViewSupplierPage = ({ supplierId }) => {
       </div>
 
       <div className="flex h-screen relative w-full overflow-hidden">
-        <Sidebar />
+        
         <div className="min-h-screen w-full flex flex-col">
-          <Header
-            title="View Supplier"
-            description="Supplier information and details"
-          />
+          
           <div className="flex-1 p-6">
             <div className="">
               <div className="mb-6">

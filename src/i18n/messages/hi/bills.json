@@ -140,5 +140,7 @@
   "balanceDue": "बकाया राशि:",
   "billDetailsFooter": "बिल विवरण",
   "storeLocationNotAvailable": "स्टोर स्थान उपलब्ध नहीं है",
-  "unnamedProduct": "बिना नाम का उत्पाद"
+  "unnamedProduct": "बिना नाम का उत्पाद",
+  "noItemsTile": "कोई आइटम जोड़ा नहीं गया।",
+  "noItemsdisc": "ऊपर से कोई उत्पाद और मात्रा चुनें।"
 }

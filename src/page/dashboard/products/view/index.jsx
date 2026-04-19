@@ -6,11 +6,10 @@ import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import ProductDetailsTemplate from "@/components/templates/product/ProductDetailsTemplate";
 import { Badge, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -19,6 +18,8 @@ import { useProductDetailsPrint } from "./hooks/useProductDetailsPrint";
 
 const ViewProductPage = ({ productId }) => {
   const { t } = useTranslation();
+
+    useDashboardHeader(t("products.viewProduct"), t("products.viewProductDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
@@ -161,13 +162,10 @@ const ViewProductPage = ({ productId }) => {
   if (fetching) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <Sidebar />
+        
 
         <div className="min-h-screen w-full flex flex-col">
-          <Header
-            title={t("products.viewProduct")}
-            description={t("products.viewProductDescription")}
-          />
+          
 
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto w-full">
@@ -196,15 +194,12 @@ const ViewProductPage = ({ productId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       {/* Sidebar */}
-      <Sidebar />
+      
 
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header
-          title={t("products.viewProduct")}
-          description={t("products.viewProductDescription")}
-        />
+        
 
         {/* Main Content */}
         <div className="flex-1 p-6">

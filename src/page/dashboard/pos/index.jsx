@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useRef } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import ProductPanel from "@/components/pos/ProductPanel";
 import CartPanel from "@/components/pos/CartPanel";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 
 const POSPage = () => {
+    const { t } = useTranslation();
     const [cart, setCart] = useState([]);
-
+    useDashboardHeader(t("pos.title"), t("pos.description"));
     // Refs exposed to shortcuts
     const searchRef = useRef(null);
     const checkoutRef = useRef(null);
@@ -47,22 +48,13 @@ const POSPage = () => {
     });
 
     return (
-        <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-            <Sidebar />
-
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <Header title="POS" description="Point of Sale — fast billing at your fingertips" />
-
-                <div className="flex flex-1 overflow-hidden gap-0">
-                    <ProductPanel addToCart={addToCart} searchRef={searchRef} />
-
-                    <CartPanel
-                        cart={cart}
-                        setCart={setCart}
-                        checkoutRef={checkoutRef}
-                    />
-                </div>
-            </div>
+        <div className="flex flex-1 overflow-hidden gap-0 h-[calc(100vh-64px)]">
+            <ProductPanel addToCart={addToCart} searchRef={searchRef} />
+            <CartPanel
+                cart={cart}
+                setCart={setCart}
+                checkoutRef={checkoutRef}
+            />
         </div>
     );
 };

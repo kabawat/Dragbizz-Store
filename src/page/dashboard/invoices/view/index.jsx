@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { UpdatePaymentStatusModal } from "@/components/invoice";
 import InvoiceLoadingState from "@/components/invoice/view/InvoiceLoadingState";
 import InvoicePageLayout from "@/components/invoice/view/InvoicePageLayout";
@@ -11,6 +9,7 @@ import { EmptyState } from "@/components/ui";
 import { FileQuestion, ArrowLeft } from "lucide-react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
@@ -26,6 +25,8 @@ import {
 
 const ViewInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("invoice.viewInvoice"), t("invoice.viewInvoiceDescription"));
   const router = useRouter();
   const searchParams = useSearchParams();
   const autoPrint = searchParams.get("autoPrint") === "true";
@@ -87,10 +88,17 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   const handlePrintWithRedirect = useCallback(() => {
     handlePrint();
-    setTimeout(() => {
-      setupRedirectAfterPrint();
-    }, 1000)
-  }, [handlePrint, setupRedirectAfterPrint]);
+
+    const isAutoPrint = searchParams.get("autoPrint") === "true";
+    const isPosRedirect = searchParams.get("redirect") === "pos";
+
+    // Redirect only if it's an auto-print from POS
+    if (isAutoPrint && isPosRedirect) {
+      setTimeout(() => {
+        setupRedirectAfterPrint();
+      }, 600);
+    }
+  }, [handlePrint, setupRedirectAfterPrint, searchParams]);
 
   // Handle Auto-Print
   useEffect(() => {
@@ -122,51 +130,45 @@ const ViewInvoicePage = ({ invoiceId }) => {
   if (!canRead) return null;
 
   return (
-    <div className="flex h-screen relative w-full overflow-hidden">
-      <div className="no-print"><Sidebar /></div>
-      <div className="min-h-screen w-full flex flex-col main-content">
-        <div className="no-print">
-          <Header title={t("invoice.viewInvoice")} description={t("invoice.viewInvoiceDescription")} />
-        </div>
-        <div className="flex-1 p-6 flex flex-col overflow-y-auto">
-          {!invoiceData ? (
-            <EmptyState
-              title={t("invoice.notFoundTitle") || "Invoice Not Found"}
-              description={t("invoice.notFoundDescription") || "The invoice you are looking for might have been deleted or does not exist."}
-              icon={FileQuestion}
-              type="error"
-              fullHeight={true}
-              actionButton={{
-                label: t("invoice.backToInvoices") || "Go Back to Invoices",
-                icon: ArrowLeft,
-                onClick: () => router.push(searchParams.get("redirect") === "pos" ? "/dashboard/pos" : "/dashboard/invoices"),
-              }}
+    <div className="w-full overflow-hidden">
+      <div className="flex-1 p-6 flex flex-col overflow-y-auto">
+        {!invoiceData ? (
+          <EmptyState
+            title={t("invoice.notFoundTitle") || "Invoice Not Found"}
+            description={t("invoice.notFoundDescription") || "The invoice you are looking for might have been deleted or does not exist."}
+            icon={FileQuestion}
+            type="error"
+            fullHeight={true}
+            actionButton={{
+              label: t("invoice.backToInvoices") || "Go Back to Invoices",
+              icon: ArrowLeft,
+              onClick: () => router.push(searchParams.get("redirect") === "pos" ? "/dashboard/pos" : "/dashboard/invoices"),
+            }}
+          />
+        ) : (
+          <div className="max-w-8xl mx-auto w-full">
+            <InvoiceViewHeader
+              invoiceData={invoiceData}
+              invoiceId={invoiceId}
+              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+              onDownloadPDF={canRead ? handleDownloadPDF : undefined}
+              canCreate={canCreate}
+              t={t}
             />
-          ) : (
-            <div className="max-w-8xl mx-auto w-full">
-              <InvoiceViewHeader
-                invoiceData={invoiceData}
-                invoiceId={invoiceId}
-                onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
-                onDownloadPDF={canRead ? handleDownloadPDF : undefined}
-                canCreate={canCreate}
-                t={t}
-              />
-              <InvoicePageLayout
-                invoiceData={invoiceData}
-                fetchInvoiceData={fetchInvoiceData}
-                selectedTemplate={selectedTemplate}
-                selectedStore={selectedStore}
-                itemsWithGst={itemsWithGst}
-                calculatedSubtotal={calculatedSubtotal}
-                calculatedGstAmount={calculatedGstAmount}
-                onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
-                onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
-                onPrint={canRead ? handlePrintWithRedirect : undefined}
-              />
-            </div>
-          )}
-        </div>
+            <InvoicePageLayout
+              invoiceData={invoiceData}
+              fetchInvoiceData={fetchInvoiceData}
+              selectedTemplate={selectedTemplate}
+              selectedStore={selectedStore}
+              itemsWithGst={itemsWithGst}
+              calculatedSubtotal={calculatedSubtotal}
+              calculatedGstAmount={calculatedGstAmount}
+              onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
+              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+              onPrint={canRead ? handlePrintWithRedirect : undefined}
+            />
+          </div>
+        )}
       </div>
 
       {showPaymentStatusModal && (

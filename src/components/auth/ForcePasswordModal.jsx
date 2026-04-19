@@ -266,7 +266,7 @@ export default function ForcePasswordModal({ isOpen }) {
                         </button>
                     </form>
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }

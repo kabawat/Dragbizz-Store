@@ -135,5 +135,7 @@
   "total": "Total",
   "deleteConfirm": "Are you sure you want to delete this purchase order?",
   "deleteSuccess": "Purchase order deleted successfully",
-  "errorLoading": "Error loading purchase orders"
+  "errorLoading": "Error loading purchase orders",
+  "noItemsTile": "Abhi tak koi items add nahi kiye",
+  "noItemsdisc": "Items add karne ke liye upar se product aur quantity select karo."
 }

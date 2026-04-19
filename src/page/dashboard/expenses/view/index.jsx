@@ -15,8 +15,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import useApiResponse from "@/hooks/useApiResponse";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import ExpenseDetailsTemplate from "@/components/templates/expense/ExpenseDetailsTemplate";
 import ExpenseDeleteModal from "@/components/expenses/list/ExpenseDeleteModal";
 import { Badge, Button, Loading } from "@/components/ui";
@@ -27,6 +25,7 @@ import {
   getStatusLabel,
 } from "@/data/constants/expenses";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { expenseService } from "@/service";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useExpenseDetailsPrint } from "./hooks/useExpenseDetailsPrint";
@@ -35,6 +34,8 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
+
+    useDashboardHeader(t("expenses.viewExpense") || "View Expense", t("expenses.viewExpenseDescription") || "Expense information and details");
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -117,12 +118,9 @@ const ViewExpensePage = ({ expenseId }) => {
   if (fetching || permissionLoading) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <Sidebar />
+        
         <div className="min-h-screen w-full flex flex-col">
-          <Header
-            title={t("expenses.viewExpense") || "View Expense"}
-            description={t("expenses.viewExpenseDescription") || "Expense information and details"}
-          />
+          
           <div className="flex-1 flex items-center justify-center">
             <Loading
               size="xl"
@@ -138,15 +136,12 @@ const ViewExpensePage = ({ expenseId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       {/* Sidebar */}
-      <Sidebar />
+      
 
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header
-          title={t("expenses.viewExpense") || "View Expense"}
-          description={t("expenses.viewExpenseDescription") || "Expense information and details"}
-        />
+        
 
         {/* Main Content */}
         <div className="flex-1 p-6">

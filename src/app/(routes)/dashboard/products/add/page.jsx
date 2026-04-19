@@ -11,7 +11,6 @@ const AddProductPage = dynamic(() => import("@/page/dashboard/products/add"), {
       </div>
     </div>
   ),
-  ssr: false, // Set to false if it relies heavily on window/browser APIs or if it's purely a client form
 });
 
 export const metadata = {

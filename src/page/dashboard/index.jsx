@@ -14,11 +14,7 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import {
-  Activity,
-  BarChart3,
-  Building2,
   IndianRupee,
-  LineChart,
   Package,
   Receipt,
   Users,
@@ -28,12 +24,13 @@ import {
   LayoutDashboard
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { dashboardService, agencyService } from "@/service/retailer";
+import { agencyService } from "@/service/retailer";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 
 // Extracted Dashboard Components
 import {
@@ -45,10 +42,6 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { StoresSummaryTable } from "@/components/dashboard/StoresSummaryTable";
 import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
-
-// Lazy load components
-const Sidebar = lazy(() => import("@/components/dashboard/sidebar"));
-const Header = lazy(() => import("@/components/dashboard/header"));
 
 const formatPercentChange = (value) => {
   const numericValue = Number(value);
@@ -64,6 +57,12 @@ export default function Dashboard() {
   );
 
   const isStaff = authProfile?.role === ROLES.STAFF;
+
+  // Set Header title and description
+  useDashboardHeader(
+    isStaff ? "Operations Overview" : t("dashboard.title"),
+    isStaff ? "Access your quick tools and assigned modules" : t("dashboard.description")
+  );
 
   const { execute, loading } = useApiResponse();
   const [metrics, setMetrics] = useState([
@@ -259,69 +258,54 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[rgb(var(--color-bg-secondary))] relative">
-      <Suspense fallback={<div className="w-64 bg-[rgb(var(--color-bg-primary))] border-r" />}>
-        <Sidebar />
-      </Suspense>
-
-      <div className="flex-1 min-h-screen flex flex-col overflow-hidden">
-        <Suspense fallback={<div className="h-20 bg-[rgb(var(--color-bg-primary))] border-b" />}>
-          <Header
-            title={isStaff ? "Operations Overview" : t("dashboard.title")}
-            description={isStaff ? "Access your quick tools and assigned modules" : t("dashboard.description")}
-          />
-        </Suspense>
-
-        <div className="flex-1 p-6 overflow-y-auto">
-          {isStaff ? (
-            <StaffDashboard
-              permissions={staffProfile?.permissions || []}
-              t={t}
-            />
-          ) : (
-            <>
-              {/* Metrics Section */}
-              <div className="mb-8">
-                {loading && metrics.length === 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg animate-pulse" />)}
-                  </div>
-                ) : (
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMetricsDragEnd}>
-                    <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {metrics.map(m => <SortableMetricCard key={m.id} {...m} />)}
-                      </div>
-                    </SortableContext>
-                  </DndContext>
-                )}
+    <div className="p-6">
+      {isStaff ? (
+        <StaffDashboard
+          permissions={staffProfile?.permissions || []}
+          t={t}
+        />
+      ) : (
+        <>
+          {/* Metrics Section */}
+          <div className="mb-8">
+            {loading && metrics.length === 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg animate-pulse" />)}
               </div>
-
-              {/* Draggable Layout Grid */}
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>
-                <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    {sections.map(section => (
-                      <div
-                        key={section.id}
-                        className={`w-full ${section.id === "storesSummary" ? "lg:col-span-3" : "lg:col-span-1"}`}
-                      >
-                        {section.id === "quickActions" ? (
-                          <SortableSection id={section.id} isVisible={section.visible}>
-                            {renderSection(section)}
-                          </SortableSection>
-                        ) : (
-                          renderSection(section)
-                        )}
-                      </div>
-                    ))}
+            ) : (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMetricsDragEnd}>
+                <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {metrics.map(m => <SortableMetricCard key={m.id} {...m} />)}
                   </div>
                 </SortableContext>
               </DndContext>
-            </>
-          )}
-        </div>
-      </div>
+            )}
+          </div>
+
+          {/* Draggable Layout Grid */}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>
+            <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {sections.map(section => (
+                  <div
+                    key={section.id}
+                    className={`w-full ${section.id === "storesSummary" ? "lg:col-span-3" : "lg:col-span-1"}`}
+                  >
+                    {section.id === "quickActions" ? (
+                      <SortableSection id={section.id} isVisible={section.visible}>
+                        {renderSection(section)}
+                      </SortableSection>
+                    ) : (
+                      renderSection(section)
+                    )}
+                  </div>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </>
+      )}
     </div>
   );
 }

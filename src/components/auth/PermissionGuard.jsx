@@ -93,7 +93,7 @@ export const PermissionGuard = ({ children }) => {
 
     if (!hasAccess) {
         return (
-            <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
+            <div className="flex w-full bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
                 <Sidebar />
 
                 <div className="flex-1 flex flex-col min-h-screen overflow-hidden">

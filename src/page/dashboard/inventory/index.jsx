@@ -2,8 +2,6 @@
 import { useRouter } from "next/navigation";
 import { Package, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { EmptyState } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -14,11 +12,14 @@ import {
     InventoryListContent
 } from "@/components/inventory";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 
 const InventoryPage = () => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
+
+    useDashboardHeader(t("inventory.title"), t("inventory.description"));
 
     const [showInventoryDrawer, setShowInventoryDrawer] = useState(false);
     const [searchValue, setSearchValue] = useState("");
@@ -40,7 +41,6 @@ const InventoryPage = () => {
         }
     }, [can, permissionsLoading, router]);
 
-    // Restore saved view mode on mount
     useEffect(() => {
         const savedViewMode = localStorage.getItem("inventory-view-mode");
         if (savedViewMode === "table" || savedViewMode === "card") {
@@ -53,62 +53,46 @@ const InventoryPage = () => {
     });
 
     return (
-        <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-            <Sidebar />
-
-            <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-                <Header
-                    title={t("inventory.title")}
-                    description={t("inventory.description")}
+        <div className="p-5">
+            <div className="max-w-8xl mx-auto w-full">
+                <InventoryListHeader
+                    showInventoryDrawer={showInventoryDrawer}
+                    setShowInventoryDrawer={setShowInventoryDrawer}
+                    canCreate={canCreate}
+                    searchValue={searchValue}
+                    setSearchValue={setSearchValue}
                 />
 
-                <div className="flex-1 p-5">
-                    <div className="max-w-8xl mx-auto">
-
-                        {/* Search, filters, view toggle, add button */}
-                        <InventoryListHeader
-                            showInventoryDrawer={showInventoryDrawer}
-                            setShowInventoryDrawer={setShowInventoryDrawer}
-                            canCreate={canCreate}
-                            searchValue={searchValue}
-                            setSearchValue={setSearchValue}
-                        />
-
-                        {/* State 1: Initial loading */}
-                        {(inventoryLoading || permissionsLoading) && inventories.length === 0 && !error && (
-                            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
-                                <div className="text-center">
-                                    <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                                    <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* State 2: Empty state */}
-                        {!(inventoryLoading || permissionsLoading) && inventories.length === 0 && (
-                            <EmptyState
-                                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-                                icon={Package}
-                                title={t("inventory.noInventory")}
-                                description={searchValue ? t("inventory.noResultsDescription") : t("inventory.emptyDescription")}
-                                actionButton={!searchValue && canCreate ? {
-                                    label: t("inventory.addStock"),
-                                    onClick: () => setShowInventoryDrawer(true),
-                                    icon: Plus
-                                } : null}
-                            />
-                        )}
-
-                        {/* State 3: Inventory list + modals + drawers */}
-                        {inventories.length > 0 && (
-                            <InventoryListContent
-                                canEdit={canEdit}
-                                canDelete={canDelete}
-                                canCreate={canCreate}
-                            />
-                        )}
+                {(inventoryLoading || permissionsLoading) && inventories.length === 0 && !error && (
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
+                        <div className="text-center">
+                            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                            <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {!(inventoryLoading || permissionsLoading) && inventories.length === 0 && (
+                    <EmptyState
+                        className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                        icon={Package}
+                        title={t("inventory.noInventory")}
+                        description={searchValue ? t("inventory.noResultsDescription") : t("inventory.emptyDescription")}
+                        actionButton={!searchValue && canCreate ? {
+                            label: t("inventory.addStock"),
+                            onClick: () => setShowInventoryDrawer(true),
+                            icon: Plus
+                        } : null}
+                    />
+                )}
+
+                {inventories.length > 0 && (
+                    <InventoryListContent
+                        canEdit={canEdit}
+                        canDelete={canDelete}
+                        canCreate={canCreate}
+                    />
+                )}
             </div>
         </div>
     );

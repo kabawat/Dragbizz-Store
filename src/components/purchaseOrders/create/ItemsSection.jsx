@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Package, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AddActionButton, Card, Input, Select } from "@/components/ui";
+import { AddActionButton, Card, EmptyState, Input, Select } from "@/components/ui";
 
 const ItemsSection = ({ t, formData, setFormData, products, productsLoading, errors, setErrors }) => {
     const router = useRouter();
@@ -67,7 +67,7 @@ const ItemsSection = ({ t, formData, setFormData, products, productsLoading, err
     };
 
     return (
-        <Card className="sticky top-0">
+        <Card className="">
             <div className="p-4">
                 <div className="flex items-center mb-6">
                     <div className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3">
@@ -208,11 +208,13 @@ const ItemsSection = ({ t, formData, setFormData, products, productsLoading, err
                         </div>
                     </div>
                 ) : (
-                    <div className="text-center py-8 text-[rgb(var(--color-text-secondary))]">
-                        <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p className="text-sm">{t("purchaseOrders.noItemsAddedYet")}</p>
-                        <p className="text-xs">{t("purchaseOrders.addProductsToCreatePO")}</p>
-                    </div>
+                    <EmptyState
+                        icon={Package}
+                        title={t("purchaseOrders.noItemsTile")}
+                        description={t("purchaseOrders.noItemsdisc")}
+                        className="py-8"
+                        size="md"
+                    />
                 )}
             </div>
         </Card>

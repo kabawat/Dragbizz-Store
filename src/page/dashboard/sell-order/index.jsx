@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setViewMode } from "@/store/slices/salesOrdersSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -17,6 +16,7 @@ import SalesOrderListContent from "@/components/salesOrder/list/SalesOrderListCo
 
 const SalesOrdersPage = () => {
     const { t } = useTranslation();
+    useDashboardHeader(t("sidebar.sellOrders"), t("salesOrder.orderListSubtitle"));
     const router = useRouter();
     const dispatch = useAppDispatch();
 
@@ -53,59 +53,49 @@ const SalesOrdersPage = () => {
     });
 
     return (
-        <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-            <Sidebar />
+        <div className="p-5">
+            <div className="max-w-8xl mx-auto">
+                <SalesOrderListHeader
+                    canCreate={canCreate}
+                    searchValue={searchValue}
+                    setSearchValue={setSearchValue}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    orderSourceFilter={orderSourceFilter}
+                    setOrderSourceFilter={setOrderSourceFilter}
+                />
 
-            <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-                <Header title={t("sidebar.sellOrders")} description={t("salesOrder.orderListSubtitle")} />
-
-                <div className="flex-1 p-5">
-                    <div className="max-w-8xl mx-auto">
-
-                        {/* Modular Header Logic */}
-                        <SalesOrderListHeader
-                            canCreate={canCreate}
-                            searchValue={searchValue}
-                            setSearchValue={setSearchValue}
-                            statusFilter={statusFilter}
-                            setStatusFilter={setStatusFilter}
-                            orderSourceFilter={orderSourceFilter}
-                            setOrderSourceFilter={setOrderSourceFilter}
-                        />
-
-                        {/* Loading State Wrapper */}
-                        {(isLoading || permissionsLoading) && orders.length === 0 && !error && (
-                            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center shadow-sm">
-                                <div className="text-center">
-                                    <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                                    <p className="text-[rgb(var(--color-text-secondary))] font-medium">{t("common.loading")}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Completely Empty State Fallback */}
-                        {!(isLoading || permissionsLoading) && orders.length === 0 && (
-                            <EmptyState
-                                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-                                title={t("common.noResults")}
-                                description={searchValue || statusFilter !== "all"
-                                    ? t("salesOrder.noResultsDescription")
-                                    : t("salesOrder.emptyDescription")}
-                                icon={searchValue || statusFilter !== "all" ? Search : Package}
-                            />
-                        )}
-
-                        {/* Hydrated Container Mapping */}
-                        {orders.length > 0 && (
-                            <SalesOrderListContent
-                                canCreate={canCreate}
-                                canEdit={canEdit}
-                                canDelete={canDelete}
-                            />
-                        )}
-
+                {/* Loading State Wrapper */}
+                {(isLoading || permissionsLoading) && orders.length === 0 && !error && (
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center shadow-sm">
+                        <div className="text-center">
+                            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                            <p className="text-[rgb(var(--color-text-secondary))] font-medium">{t("common.loading")}</p>
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {/* Completely Empty State Fallback */}
+                {!(isLoading || permissionsLoading) && orders.length === 0 && (
+                    <EmptyState
+                        className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                        title={t("common.noResults")}
+                        description={searchValue || statusFilter !== "all"
+                            ? t("salesOrder.noResultsDescription")
+                            : t("salesOrder.emptyDescription")}
+                        icon={searchValue || statusFilter !== "all" ? Search : Package}
+                    />
+                )}
+
+                {/* Hydrated Container Mapping */}
+                {orders.length > 0 && (
+                    <SalesOrderListContent
+                        canCreate={canCreate}
+                        canEdit={canEdit}
+                        canDelete={canDelete}
+                    />
+                )}
+
             </div>
         </div>
     );
