@@ -119,7 +119,11 @@ export const AnalyticsCard = ({ title, icon: Icon, iconColor, children, linkTo }
                 </h2>
             </div>
             {linkTo && (
-                <Link href={linkTo} className="flex items-center text-sm font-medium text-[rgb(var(--color-primary))] hover:brightness-110 transition-all group">
+                <Link 
+                    href={linkTo} 
+                    prefetch={false}
+                    className="flex items-center text-sm font-medium text-[rgb(var(--color-primary))] hover:brightness-110 transition-all group"
+                >
                     Details
                     <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
                 </Link>

@@ -7,37 +7,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
-
-const ROUTE_MODULE_MAP = {
-    "/dashboard/customers": "customer",
-    "/dashboard/invoices": "invoice",
-    "/dashboard/expenses": "expense",
-    "/dashboard/sales-order": "sales_order",
-    "/dashboard/products": "product",
-    "/dashboard/stock": "inventory",
-    "/dashboard/suppliers": "supplier",
-    "/dashboard/purchase-orders": "purchase_order",
-    "/dashboard/bills": "billing",
-    "/dashboard/payments": "billing",
-    "/dashboard/analytics": "analytics",
-    "/dashboard/reports": "reports",
-};
-
-const getModuleFromPath = (path) => {
-    for (const [route, module] of Object.entries(ROUTE_MODULE_MAP)) {
-        if (path === route || path.startsWith(route + "/")) return module;
-    }
-    return null;
-};
-
-const getActionFromPath = (path) => {
-    if (path.includes("/create")) return "create";
-    if (path.includes("/edit")) return "edit";
-    if (path.includes("/analytics")) return "analytics";
-    if (path.includes("/report")) return "report";
-    return "read";
-};
-
+import { getModuleFromPath, getActionFromPath } from "@/data/config/moduleRegistry";
 export const PermissionGuard = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
@@ -160,9 +130,9 @@ export const PermissionGuard = ({ children }) => {
                                             {/* Icon container */}
                                             <div className={`relative w-24 h-24 rounded-full bg-gradient-to-br ${isSubscriptionRestricted ? 'from-[#f59e0b]/25 to-[#f59e0b]/10 border-[#f59e0b]/30 shadow-[#f59e0b]/20' : 'from-red-500/25 to-red-700/10 border-red-500/30 shadow-red-500/20'} border shadow-xl flex items-center justify-center`}>
                                                 {isSubscriptionRestricted ? (
-                                                    <Crown className="w-11 h-11 text-[#f59e0b] drop-shadow-sm" />
+                                                    <Crown className="w-11 h-11 text-[#f59e0b] drop-shadow-sm" role="img" aria-label="Premium feature crown" />
                                                 ) : (
-                                                    <ShieldAlert className="w-11 h-11 text-red-500 drop-shadow-sm" />
+                                                    <ShieldAlert className="w-11 h-11 text-red-500 drop-shadow-sm" role="img" aria-label="Access denied shield" />
                                                 )}
                                             </div>
                                         </div>
@@ -218,7 +188,7 @@ export const PermissionGuard = ({ children }) => {
                                         }}
                                         className="cursor-pointer group flex items-center gap-2.5 px-6 py-3 bg-[#f59e0b] text-white font-semibold rounded-xl hover:bg-[#f59e0b]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[#f59e0b]/25"
                                     >
-                                        <Crown className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                                        <Crown className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" role="img" aria-hidden="true" />
                                         Upgrade Plan Now
                                     </button>
                                 ) : (
@@ -231,6 +201,7 @@ export const PermissionGuard = ({ children }) => {
                                             className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
                                             fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor" strokeWidth={2.5}
+                                            role="img" aria-hidden="true"
                                         >
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                                         </svg>
