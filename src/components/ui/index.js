@@ -37,6 +37,7 @@ import LogoutModal from "./LogoutModal";
 import Modal, { ModalBody, ModalFooter, ModalHeader } from "./Modal";
 import MultiSelect from "./MultiSelect";
 import Pagination from "./Pagination";
+import PageLoader from "./PageLoader";
 import RichTextEditor from "./RichTextEditor";
 import Select from "./Select";
 import SendMenu from "./SendMenu";
@@ -104,6 +105,7 @@ export {
   SettingsDrawer,
   Dropdown,
   Pagination,
+  PageLoader,
   Toggle,
   FileUpload,
   MultiSelect,
@@ -173,6 +175,7 @@ export default {
   SettingsDrawer,
   Dropdown,
   Pagination,
+  PageLoader,
   Toggle,
   FileUpload,
   MultiSelect,
