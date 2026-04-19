@@ -1,8 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Script from "next/script";
-import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
 import { ensureSubdomain } from "@/utils/helper/domain";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
@@ -10,14 +8,21 @@ import { PermissionGuard } from "@/components/auth/PermissionGuard";
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
-  const { redirectTo, agency, stores, isLoading, isAuthenticated, authProfile, authProfileLoading, staffProfileLoading } = useAppSelector((state) => state.profile);
-
-  const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
+  const {
+    redirectTo,
+    agency,
+    stores,
+    isLoading,
+    isAuthenticated,
+    authProfile,
+    authProfileLoading,
+    staffProfileLoading
+  } = useAppSelector((state) => state.profile);
 
   const isProfileLoading = isLoading || authProfileLoading || staffProfileLoading;
 
   useEffect(() => {
-    if (isProfileLoading || subscriptionLoading) {
+    if (isProfileLoading) {
       return;
     }
 
@@ -39,7 +44,7 @@ export default function DashboardLayout({ children }) {
       router.push("/onboarding/store");
       return;
     }
-  }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isProfileLoading, agency, stores, router]);
+  }, [isAuthenticated, redirectTo, isProfileLoading, agency, stores, router]);
 
   useEffect(() => {
     if (authProfile?.tenant) {
@@ -48,7 +53,7 @@ export default function DashboardLayout({ children }) {
   }, [authProfile?.tenant]);
 
 
-  if (isProfileLoading || subscriptionLoading) {
+  if (isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">

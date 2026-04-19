@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { createContext, useContext, useState, useMemo, useEffect, useRef } from "react";
 import SubscriptionUpgradeModal from "@/components/subscription/SubscriptionUpgradeModal";
 import { subscriptionService } from "@/service/retailer";
 import useApiResponse from "@/hooks/useApiResponse";
@@ -21,6 +21,7 @@ export const SubscriptionProvider = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalType, setModalType] = useState("UPGRADE"); // 'UPGRADE' | 'QUOTA'
+
   useEffect(() => {
     if (!hasFetched.current && executeFetch) {
       hasFetched.current = true;
@@ -41,16 +42,14 @@ export const SubscriptionProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
-  const hasSubscription = !!subscription;
-
   const value = useMemo(
     () => ({
       subscription,
       isLoading,
-      hasSubscription,
+      hasSubscription: !!subscription,
       showUpgradeModal,
     }),
-    [subscription, isLoading, hasSubscription]
+    [subscription, isLoading]
   );
 
   return (
