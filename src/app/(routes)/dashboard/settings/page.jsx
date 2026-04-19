@@ -1,19 +1,10 @@
-"use client";
+import SettingsPage from "@/page/dashboard/settings";
 
-import dynamic from "next/dynamic";
+export const metadata = {
+  title: "Settings - DragBizz Store",
+  description: "Configure your store settings, profile, and preferences",
+};
 
-const SettingsPage = dynamic(() => import("@/page/dashboard/settings"), {
-  ssr: false,
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-[rgb(var(--color-text-secondary))]">
-          Loading Settings...
-        </p>
-      </div>
-    </div>
-  ),
-});
-
-export default SettingsPage;
+export default function SettingsPageRoute() {
+  return <SettingsPage />;
+}

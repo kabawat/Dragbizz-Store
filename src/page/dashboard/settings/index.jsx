@@ -93,10 +93,7 @@ const SettingsPage = () => {
             <Sidebar />
 
             <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-                <Header
-                    title={t("settings.title")}
-                    description={t("settings.description")}
-                />
+                <Header title={t("settings.title")} description={t("settings.description")} />
 
                 <div className="flex-1 flex overflow-hidden">
                     {/* Left Sidebar Navigation */}
