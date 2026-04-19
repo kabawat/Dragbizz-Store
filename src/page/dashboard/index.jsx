@@ -266,17 +266,17 @@ export default function Dashboard() {
 
       <div className="flex-1 min-h-screen flex flex-col overflow-hidden">
         <Suspense fallback={<div className="h-20 bg-[rgb(var(--color-bg-primary))] border-b" />}>
-          <Header 
-            title={isStaff ? "Operations Overview" : t("dashboard.title")} 
-            description={isStaff ? "Access your quick tools and assigned modules" : t("dashboard.description")} 
+          <Header
+            title={isStaff ? "Operations Overview" : t("dashboard.title")}
+            description={isStaff ? "Access your quick tools and assigned modules" : t("dashboard.description")}
           />
         </Suspense>
 
         <div className="flex-1 p-6 overflow-y-auto">
           {isStaff ? (
-            <StaffDashboard 
-               permissions={staffProfile?.permissions || []} 
-               t={t} 
+            <StaffDashboard
+              permissions={staffProfile?.permissions || []}
+              t={t}
             />
           ) : (
             <>

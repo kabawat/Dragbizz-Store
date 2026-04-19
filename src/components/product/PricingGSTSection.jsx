@@ -278,8 +278,6 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
           {t("products.gstInformation")}
         </h3>
 
-
-
         {/* GST Fields - Always show, but some parts conditional */}
         <>
           {/* GST Rate, Type, and HSN Code - Single Row */}

@@ -60,10 +60,7 @@ const SupportPage = () => {
             <Sidebar />
 
             <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-                <Header
-                    title={t("suggestions.title") || "Support Center"}
-                    description={t("suggestions.description") || "Get help, share ideas, and master shortcuts."}
-                />
+                <Header title={t("suggestions.title") || "Support Center"} description={t("suggestions.description") || "Get help, share ideas, and master shortcuts."} />
 
                 <div className="flex-1 flex overflow-hidden">
                     {/* Left Sidebar Navigation (100% Match with Settings Page) */}
