@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { SUB_MODULE_MAP } from "@/data/config/moduleRegistry";
 
 // Roles
 export const ROLES = {
@@ -58,19 +59,7 @@ export const useModulePermissions = (moduleKey) => {
     const isOwner = authProfile.role === ROLES.OWNER;
     const isStaff = authProfile.role === ROLES.STAFF;
 
-    // Subscription mapping
-    const subModuleMap = {
-      'customers': 'customer',
-      'invoices': 'invoice',
-      'pos': 'billing',
-      'products': 'product',
-      'stock': 'inventory',
-      'suppliers': 'supplier',
-      'purchase_order': 'purchase_order',
-      'expenses': 'expense'
-    };
-
-    const subKey = subModuleMap[moduleKey] || moduleKey;
+    const subKey = SUB_MODULE_MAP[moduleKey] || moduleKey;
     const isModuleActive = !subscription ? false : (subscription?.features || []).some(f => f.module === subKey);
 
     // Block if module not in subscription
@@ -140,6 +129,3 @@ export const useModulePermissions = (moduleKey) => {
     isAuthenticated,
   ]);
 };
-
-
-
