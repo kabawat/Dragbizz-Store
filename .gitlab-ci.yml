@@ -37,10 +37,7 @@ deploy_staging:
     - ssh -o StrictHostKeyChecking=no $STAGING_USER@$STAGING_HOST "
         cd $DEPLOY_PATH &&
         git pull origin develop &&
-        yarn install &&
-        yarn build &&
-        pm2 restart all &&
-        pm2 save
+        bash deploy.sh
       "
   environment:
     name: staging
@@ -67,10 +64,7 @@ deploy_production:
     - ssh -o StrictHostKeyChecking=no $STAGING_USER@$STAGING_HOST "
         cd $DEPLOY_PATH &&
         git pull origin main &&
-        yarn install &&
-        yarn build &&
-        pm2 restart all &&
-        pm2 save
+        bash deploy.sh
       "
   environment:
     name: production
