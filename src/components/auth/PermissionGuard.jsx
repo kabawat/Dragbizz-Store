@@ -1,7 +1,8 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Crown } from "lucide-react";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
@@ -10,34 +11,72 @@ import { ROLES } from "@/hooks/permissions/useModulePermissions";
 export const PermissionGuard = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
-    const { 
-        authProfile, 
-        authProfileLoading, 
-        staffProfile, 
+    const {
+        authProfile,
+        authProfileLoading,
+        staffProfile,
         staffProfileLoading,
-        isAuthenticated 
+        isAuthenticated
     } = useAppSelector((state) => state.profile);
-    
+
+    const { subscription, isLoading: subscriptionLoading } = useSubscription();
+
     const [hasAccess, setHasAccess] = useState(true);
+    const [isSubscriptionRestricted, setIsSubscriptionRestricted] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
-        // 1. Determine if we are still loading credentials
-        const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile);
-        
+        const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile) || subscriptionLoading;
+
         if (isLoading) {
             setIsChecking(true);
             return;
         }
 
-        // 2. If not authenticated after loading, let AuthGuard handle it
         if (!isAuthenticated || !authProfile) {
             setIsChecking(false);
-            setHasAccess(true); // Don't show restricted screen for unauth users
+            setHasAccess(true);
             return;
         }
 
-        // 3. Store Owner has full access
+        const ROUTE_MODULE_MAP = {
+            "/dashboard/customers": "customer",
+            "/dashboard/invoices": "invoice",
+            "/dashboard/expenses": "expense",
+            "/dashboard/sales-order": "sales_order",
+            "/dashboard/products": "product",
+            "/dashboard/stock": "inventory",
+            "/dashboard/suppliers": "supplier",
+            "/dashboard/purchase-orders": "purchase_order",
+            "/dashboard/bills": "billing",
+            "/dashboard/payments": "billing",
+            "/dashboard/analytics": "analytics",
+            "/dashboard/reports": "reports",
+        };
+
+        const getModuleFromPath = (path) => {
+            for (const [route, module] of Object.entries(ROUTE_MODULE_MAP)) {
+                if (path === route || path.startsWith(route + "/")) return module;
+            }
+            return null;
+        };
+
+        const moduleName = getModuleFromPath(pathname);
+
+        // 1. Subscription Check (Applies to everyone)
+        if (moduleName) {
+            const isModuleActive = (subscription?.features || []).some(f => f.module === moduleName);
+            if (!isModuleActive) {
+                setHasAccess(false);
+                setIsSubscriptionRestricted(true);
+                setIsChecking(false);
+                return;
+            }
+        }
+
+        setIsSubscriptionRestricted(false);
+
+        // 2. Store Owner has full access (after subscription check)
         if (authProfile?.role === ROLES.OWNER) {
             setHasAccess(true);
             setIsChecking(false);
@@ -67,34 +106,6 @@ export const PermissionGuard = ({ children }) => {
             return;
         }
 
-        // Route to module mapping
-        const ROUTE_MODULE_MAP = {
-            "/dashboard/customers": "customer",
-            "/dashboard/invoices": "invoice",
-            "/dashboard/invoices/create": "invoice",
-            "/dashboard/expenses": "expense",
-            "/dashboard/sales-order": "sales_order",
-            "/dashboard/products": "product",
-            "/dashboard/products/create": "product",
-            "/dashboard/stock": "inventory",
-            "/dashboard/suppliers": "supplier",
-            "/dashboard/purchase-orders": "purchase_order",
-            "/dashboard/bills": "billing",
-            "/dashboard/payments": "billing",
-            "/dashboard/analytics": "analytics",
-            "/dashboard/reports": "reports",
-        };
-
-        // Detect module from path
-        const getModuleFromPath = (path) => {
-            for (const [route, module] of Object.entries(ROUTE_MODULE_MAP)) {
-                if (path === route || path.startsWith(route + "/")) {
-                    return module;
-                }
-            }
-            return null;
-        };
-
         // Detect action from path
         const getActionFromPath = (path) => {
             if (path.includes("/create")) return "create";
@@ -104,7 +115,6 @@ export const PermissionGuard = ({ children }) => {
             return "read";
         };
 
-        const moduleName = getModuleFromPath(pathname);
         const action = getActionFromPath(pathname);
 
         // Route not in map → allow by default
@@ -127,7 +137,7 @@ export const PermissionGuard = ({ children }) => {
         setHasAccess(modulePermission[action] === true);
         setIsChecking(false);
 
-    }, [pathname, authProfile, staffProfile, authProfileLoading, staffProfileLoading, isAuthenticated]);
+    }, [pathname, authProfile, staffProfile, authProfileLoading, staffProfileLoading, subscription, subscriptionLoading, isAuthenticated]);
 
     // Show nothing (or a subtle loader) while checking permissions
     if (isChecking) {
@@ -171,17 +181,21 @@ export const PermissionGuard = ({ children }) => {
                                                 style={{ animationDuration: "2.5s" }}
                                             />
                                             {/* Icon container */}
-                                            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-red-500/25 to-red-700/10 border border-red-500/30 shadow-xl shadow-red-500/20 flex items-center justify-center">
-                                                <ShieldAlert className="w-11 h-11 text-red-500 drop-shadow-sm" />
+                                            <div className={`relative w-24 h-24 rounded-full bg-gradient-to-br ${isSubscriptionRestricted ? 'from-[#f59e0b]/25 to-[#f59e0b]/10 border-[#f59e0b]/30 shadow-[#f59e0b]/20' : 'from-red-500/25 to-red-700/10 border-red-500/30 shadow-red-500/20'} border shadow-xl flex items-center justify-center`}>
+                                                {isSubscriptionRestricted ? (
+                                                    <Crown className="w-11 h-11 text-[#f59e0b] drop-shadow-sm" />
+                                                ) : (
+                                                    <ShieldAlert className="w-11 h-11 text-red-500 drop-shadow-sm" />
+                                                )}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Pulsing status pill below 403 */}
-                                <span className="mt-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 px-4 py-1.5 rounded-full">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                    Permission Denied
+                                <span className={`mt-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest ${isSubscriptionRestricted ? 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' : 'text-red-500 bg-red-500/10 border-red-500/20'} px-4 py-1.5 rounded-full`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${isSubscriptionRestricted ? 'bg-[#f59e0b]' : 'bg-red-500'} animate-pulse`} />
+                                    {isSubscriptionRestricted ? "Plan Limited" : "Permission Denied"}
                                 </span>
                             </div>
 
@@ -191,36 +205,61 @@ export const PermissionGuard = ({ children }) => {
                             {/* Right — text + button */}
                             <div className="flex flex-col items-start max-w-sm">
                                 <h1 className="text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-3 leading-tight">
-                                    Access <span className="text-red-500">Restricted</span>
+                                    {isSubscriptionRestricted ? (
+                                        <>Plan <span className="text-[#f59e0b]">Restricted</span></>
+                                    ) : (
+                                        <>Access <span className="text-red-500">Restricted</span></>
+                                    )}
                                 </h1>
 
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-2">
-                                    You don&apos;t have the required permissions to view this section.
-                                </p>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                                    Please contact your{" "}
-                                    <span className="text-[rgb(var(--color-primary))] font-semibold">store owner</span>{" "}
-                                    to request access.
-                                </p>
+                                {isSubscriptionRestricted ? (
+                                    <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
+                                        Your current plan does not include this module. Please upgrade your subscription or contact your store admin to access this feature.
+                                    </p>
+                                ) : (
+                                    <>
+                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-2">
+                                            You don&apos;t have the required permissions to view this section.
+                                        </p>
+                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
+                                            Please contact your{" "}
+                                            <span className="text-[rgb(var(--color-primary))] font-semibold">store owner</span>{" "}
+                                            to request access.
+                                        </p>
+                                    </>
+                                )}
 
                                 {/* Divider */}
                                 <div className="w-full h-px bg-[rgb(var(--color-border-primary))]/40 mb-8" />
 
-                                {/* Return button */}
-                                <button
-                                    onClick={() => router.push("/dashboard")}
-                                    className="group flex items-center gap-2.5 px-6 py-3 bg-[rgb(var(--color-primary))] text-white font-semibold rounded-xl hover:bg-[rgb(var(--color-primary))]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[rgb(var(--color-primary))]/25"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
-                                        fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" strokeWidth={2.5}
+                                {/* Return / Upgrade button */}
+                                {isSubscriptionRestricted && authProfile?.role === ROLES.OWNER ? (
+                                    <button
+                                        onClick={() => {
+                                            const { redirectToMainDomain } = require("@/utils/helper/domain");
+                                            redirectToMainDomain("/pricing");
+                                        }}
+                                        className="cursor-pointer group flex items-center gap-2.5 px-6 py-3 bg-[#f59e0b] text-white font-semibold rounded-xl hover:bg-[#f59e0b]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[#f59e0b]/25"
                                     >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                                    </svg>
-                                    Return to Dashboard
-                                </button>
+                                        <Crown className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                                        Upgrade Plan Now
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => router.push("/dashboard")}
+                                        className="group flex items-center gap-2.5 px-6 py-3 bg-[rgb(var(--color-primary))] text-white font-semibold rounded-xl hover:bg-[rgb(var(--color-primary))]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[rgb(var(--color-primary))]/25"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
+                                            fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" strokeWidth={2.5}
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                        </svg>
+                                        Return to Dashboard
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
