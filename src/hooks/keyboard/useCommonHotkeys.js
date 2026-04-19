@@ -13,16 +13,8 @@ export const useCommonHotkeys = ({
     onSearch,
     onViewTable,
     onViewGrid,
-    onVoiceAI,
 } = {}) => {
     const hotkeys = {};
-
-    if (onVoiceAI) {
-        hotkeys['alt+v'] = (e) => {
-            e.preventDefault();
-            onVoiceAI();
-        };
-    }
 
     if (onViewTable) {
         hotkeys['alt+1'] = (e) => {

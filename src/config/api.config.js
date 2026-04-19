@@ -51,13 +51,6 @@ const API_CONFIG = {
     DELETE_URL: "/utility/v1/storage/file"
   },
 
-  // Voice AI Service Endpoints
-  VOICE_AI: {
-    CUSTOMER_CHAT: "/voice-ai/api/v1/customer/chat",
-    SUPPLIER_CHAT: "/voice-ai/api/v1/supplier/chat",
-    PRODUCT_EXTRACT: "/voice-ai/api/v1/product/extract-from-image",
-  },
-
   // Subscription Service Endpoints
   SUBSCRIPTION: {
     SUBSCRIPTIONS: "/plans/subscription",

@@ -3,7 +3,6 @@
 import Accordion, { AccordionItem } from "./Accordion";
 import ActionMenu from "./ActionMenu";
 import AddActionButton from "./AddActionButton";
-import AIButton from "./AIButton";
 import Alert from "./Alert";
 import AnimatedBackground from "./AnimatedBackground";
 import AnimatedGridPattern from "./AnimatedGridPattern";
@@ -63,7 +62,6 @@ import Toggle, { ViewToggle } from "./Toggle";
 export {
   Button,
   BulkTemplateDownloadButton,
-  AIButton,
   Input,
   Checkbox,
   CheckboxGroup,
@@ -133,7 +131,6 @@ export {
 export default {
   Button,
   BulkTemplateDownloadButton,
-  AIButton,
   Input,
   Checkbox,
   CheckboxGroup,
