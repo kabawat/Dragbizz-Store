@@ -1,7 +1,7 @@
 "use client";
-
 import { useMemo } from "react";
 import { useAppSelector } from "@/store/hooks";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 // Roles
 export const ROLES = {
@@ -17,6 +17,7 @@ const DEFAULT_PERMISSIONS = {
   delete: false,
   report: false,
   analytics: false,
+  moduleActive: true, // Internal flag for subscription status
 };
 
 // Full access
@@ -30,30 +31,52 @@ const FULL_ACCESS_PERMISSIONS = {
 };
 
 export const useModulePermissions = (moduleKey) => {
-  const { 
-    authProfile, 
+  const {
+    authProfile,
     authProfileLoading,
-    staffProfile, 
-    staffProfileLoading, 
-    isAuthenticated 
+    staffProfile,
+    staffProfileLoading,
+    isAuthenticated
   } = useAppSelector((state) => state.profile);
 
+  const { subscription, isLoading: subscriptionLoading } = useSubscription();
+
   return useMemo(() => {
-    const isInitialLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile);
-    
+    const isInitialLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile) || subscriptionLoading;
+
     // Deny if unauth or profile still loading
     if (!isAuthenticated || !authProfile) {
-      return { 
-        ...DEFAULT_PERMISSIONS, 
+      return {
+        ...DEFAULT_PERMISSIONS,
         loading: isInitialLoading,
         isOwner: false,
         isStaff: false,
-        can: () => false 
+        can: () => false
       };
     }
 
     const isOwner = authProfile.role === ROLES.OWNER;
     const isStaff = authProfile.role === ROLES.STAFF;
+
+    // Subscription mapping
+    const subModuleMap = {
+      'customers': 'customer',
+      'invoices': 'invoice',
+      'pos': 'billing',
+      'products': 'product',
+      'stock': 'inventory',
+      'suppliers': 'supplier',
+      'purchase_order': 'purchase_order',
+      'expenses': 'expense'
+    };
+
+    const subKey = subModuleMap[moduleKey] || moduleKey;
+    const isModuleActive = !subscription ? false : (subscription?.features || []).some(f => f.module === subKey);
+
+    // Block if module not in subscription
+    if (moduleKey && !isModuleActive && !isInitialLoading) {
+      return { ...DEFAULT_PERMISSIONS, moduleActive: false, loading: false, isOwner, isStaff, can: () => false };
+    }
 
     // Full access for owners
     if (isOwner) {
@@ -68,12 +91,12 @@ export const useModulePermissions = (moduleKey) => {
 
     // Default if module key is missing
     if (!moduleKey) {
-      return { 
-        ...DEFAULT_PERMISSIONS, 
+      return {
+        ...DEFAULT_PERMISSIONS,
         loading: isInitialLoading,
         isOwner: false,
         isStaff: isStaff,
-        can: () => false 
+        can: () => false
       };
     }
 
@@ -111,6 +134,8 @@ export const useModulePermissions = (moduleKey) => {
     authProfileLoading,
     staffProfile?.permissions,
     staffProfileLoading,
+    subscription,
+    subscriptionLoading,
     moduleKey,
     isAuthenticated,
   ]);

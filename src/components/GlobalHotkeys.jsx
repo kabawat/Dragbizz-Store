@@ -1,15 +1,20 @@
 "use client";
-
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import { useAppDispatch } from "@/store/hooks";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { useRouter } from "next/navigation";
-
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
+import { useMemo } from "react";
 
 // GlobalHotkeys Component Handles strictly global navigation shortcuts (Alt + Key) and global Help navigation.
 const GlobalHotkeys = () => {
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const { withAccess } = useSubscriptionAccess();
+
+    const navigateTo = (path, moduleName = null) => {
+        withAccess(moduleName, () => router.push(path))();
+    };
 
     useHotkeys({
         // --- Sidebar Toggle ---
@@ -29,47 +34,47 @@ const GlobalHotkeys = () => {
         },
         "alt+a": (e) => { // Analytics
             e.preventDefault();
-            router.push("/dashboard/analytics/revenue");
+            navigateTo("/dashboard/analytics/revenue", "invoice"); // Analytics usually depends on main modules
         },
         "alt+c": (e) => { // Customers
             e.preventDefault();
-            router.push("/dashboard/customers");
+            navigateTo("/dashboard/customers", "customer");
         },
         "alt+i": (e) => { // Invoices
             e.preventDefault();
-            router.push("/dashboard/invoices");
+            navigateTo("/dashboard/invoices", "invoice");
         },
         "alt+p": (e) => { // Products
             e.preventDefault();
-            router.push("/dashboard/products");
+            navigateTo("/dashboard/products", "product");
         },
         "alt+e": (e) => { // Expenses
             e.preventDefault();
-            router.push("/dashboard/expenses");
+            navigateTo("/dashboard/expenses", "expense");
         },
         "alt+s": (e) => { // Stock
             e.preventDefault();
-            router.push("/dashboard/stock");
+            navigateTo("/dashboard/stock", "inventory");
         },
         "alt+u": (e) => { // Suppliers
             e.preventDefault();
-            router.push("/dashboard/suppliers");
+            navigateTo("/dashboard/suppliers", "supplier");
         },
         "alt+b": (e) => { // Bills
             e.preventDefault();
-            router.push("/dashboard/bills");
+            navigateTo("/dashboard/bills", "billing");
         },
         "alt+y": (e) => { // Payments
             e.preventDefault();
-            router.push("/dashboard/payments");
+            navigateTo("/dashboard/payments", "billing");
         },
         "alt+o": (e) => { // Sales Orders
             e.preventDefault();
-            router.push("/dashboard/sales-order");
+            navigateTo("/dashboard/sales-order", "invoice");
         },
         "alt+shift+o": (e) => { // Purchase Orders
             e.preventDefault();
-            router.push("/dashboard/purchase-orders");
+            navigateTo("/dashboard/purchase-orders", "purchase_order");
         },
         "alt+q": (e) => { // Support Center (Questions)
             e.preventDefault();
