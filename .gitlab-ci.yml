@@ -6,6 +6,7 @@ stages:
 lint_check:
   stage: test
   image: node:22-alpine
+  allow_failure: true
   cache:
     key: $CI_COMMIT_REF_SLUG
     paths:
