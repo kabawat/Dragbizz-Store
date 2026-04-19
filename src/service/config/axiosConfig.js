@@ -1,45 +1,34 @@
 // src/service/config/axiosConfig.js
 import axios from "axios";
 import API_CONFIG from "@/config/api.config";
-import { generateCacheKey, setCachedResponse } from "@/utils/requestCache";
-import {
-  createCancelToken,
-  getRequestKey as getCancelKey,
-  removeCancelToken,
-} from "@/utils/requestCancellation";
-import {
-  getRequestKey as getDedupKey,
-  getPendingRequest,
-  setPendingRequest,
-} from "@/utils/requestDeduplication";
 
-// Base configuration
+// Base config
 const BASE_URL = API_CONFIG.BASE.URL;
 
-// Common configuration for all axios instances
+// Common config
 const commonConfig = {
   timeout: parseInt(API_CONFIG.BASE.TIMEOUT, 10),
-  withCredentials: true, // Crucial for sending cookies
+  withCredentials: true, // Cookies
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
-    "X-Requested-With": "XMLHttpRequest" // CSRF protection header
+    "X-Requested-With": "XMLHttpRequest" // CSRF
   },
 };
 
-// Unauthenticated axios instance
+// Unauth instance
 export const unauthAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
 });
 
-// Authenticated axios instance (for auth service)
+// Auth instance
 export const authAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
 });
 
-// Axios instance for file uploads (authenticated)
+// Upload instance
 export const uploadAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
@@ -49,16 +38,16 @@ export const uploadAxios = axios.create({
   },
 });
 
-// Flag to prevent multiple refresh attempts
+// Global refresh state
 let isRefreshing = false;
 let failedQueue = [];
 
-const processQueue = (error, token = null) => {
+const processQueue = (error) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve();
     }
   });
 
@@ -66,32 +55,10 @@ const processQueue = (error, token = null) => {
 };
 
 const setupAuthInterceptors = (instance) => {
-  // Request interceptor for authenticated requests
+  // Request interceptor
   instance.interceptors.request.use(
     (config) => {
-      // No need to manually attach token, cookies are handled by browser
-
-      const method = config.method?.toUpperCase() || "GET";
-      const url = config.url || "";
-      const params = config.params || {};
-
-      const cacheKey = generateCacheKey(url, method, params);
-      const dedupKey = getDedupKey(url, method, params);
-      const cancelKey = getCancelKey(url, method, params);
-
-      config.metadata = {
-        cacheKey,
-        dedupKey,
-        cancelKey,
-        useCache: config.useCache !== false && method === "GET",
-        useDeduplication: config.useDeduplication !== false,
-        useCancellation: config.useCancellation !== false,
-      };
-
-      if (config.metadata.useCancellation) {
-        config.cancelToken = createCancelToken(config.metadata.cancelKey);
-      }
-
+      // Cookies handled by browser
       return config;
     },
     (error) => {
@@ -101,55 +68,18 @@ const setupAuthInterceptors = (instance) => {
 
   instance.interceptors.response.use(
     (response) => {
-      const { metadata } = response.config || {};
-
-      if (metadata?.useCache && response.config.method?.toUpperCase() === "GET") {
-        setCachedResponse(metadata.cacheKey, response.data);
-      }
-
-      if (metadata?.useDeduplication) {
-        const pending = getPendingRequest(metadata.dedupKey);
-        if (pending) {
-          setPendingRequest(metadata.dedupKey, Promise.resolve(response));
-        }
-      }
-
-      if (metadata?.cancelKey) {
-        removeCancelToken(metadata.cancelKey);
-      }
-
       return response;
     },
     async (error) => {
-      if (error.__cached) {
-        return Promise.resolve({
-          ...error.config,
-          data: error.data,
-          fromCache: true,
-        });
-      }
-
-      if (error.__deduplicated) {
-        return error.promise.then((response) => ({
-          ...error.config,
-          ...response,
-          fromDeduplication: true,
-        }));
-      }
-
       if (axios.isCancel(error)) {
         return Promise.reject(error);
       }
 
       const originalRequest = error.config;
 
-      if (originalRequest?.metadata?.cancelKey) {
-        removeCancelToken(originalRequest.metadata.cancelKey);
-      }
-
       if (error.response?.status === 401 && !originalRequest._retry) {
         if (isRefreshing) {
-          // If already refreshing, queue this request
+          // Queue requests while refreshing
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           })
@@ -165,7 +95,7 @@ const setupAuthInterceptors = (instance) => {
         isRefreshing = true;
 
         try {
-          // Call refresh token endpoint (browser will automatically send the rt cookie)
+          // Call refresh token
           const { default: authService } = await import(
             "@/service/auth/auth.service"
           );
@@ -176,7 +106,7 @@ const setupAuthInterceptors = (instance) => {
             isRefreshing = false;
             processQueue(null);
 
-            // Retry original request (browser will now have the new at cookie)
+            // Retry request
             return instance(originalRequest);
           } else {
             throw new Error("Token refresh failed");
@@ -186,7 +116,7 @@ const setupAuthInterceptors = (instance) => {
           isRefreshing = false;
           processQueue(refreshError);
 
-          // Only redirect to login when user is on a protected/dashboard route.
+          // Redirect to login if on protected route
           if (typeof window !== "undefined") {
             const pathname = window.location.pathname || "";
             const protectedPrefixes = ["/dashboard", "/profile", "/settings", "/admin", "/onboarding"];
@@ -207,14 +137,6 @@ const setupAuthInterceptors = (instance) => {
 
 setupAuthInterceptors(authAxios);
 setupAuthInterceptors(uploadAxios);
-
-// Response interceptor for unauthenticated requests
-unauthAxios.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => Promise.reject(error)
-);
 
 export default {
   authAxios,

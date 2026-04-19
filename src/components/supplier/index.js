@@ -4,6 +4,5 @@ export { default as SupplierAddSuccessModal } from "./SupplierAddSuccessModal";
 export { default as SupplierCard } from "./SupplierCard";
 export { default as SupplierForm } from "./SupplierForm";
 export { default as SupplierTable } from "./SupplierTable";
-export { default as VoiceAISupplier } from "./VoiceAISupplier";
 export { default as DeleteSupplierModal } from "./DeleteSupplierModal";
 export { default as SupplierHeaderActions } from "./SupplierHeaderActions";

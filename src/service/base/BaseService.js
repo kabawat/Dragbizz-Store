@@ -33,30 +33,10 @@ export class BaseService {
     return this.authAxios.delete(this.buildUrl(url, params));
   }
 
-  // Unauth methods
-  async unauthGet(url, params = {}) {
-    return this.unauthAxios.get(this.buildUrl(url, params));
-  }
-
-  async unauthPost(url, data = {}, params = {}) {
-    return this.unauthAxios.post(this.buildUrl(url, params), data);
-  }
-
-  async unauthPut(url, data = {}, params = {}) {
-    return this.unauthAxios.put(this.buildUrl(url, params), data);
-  }
-
-  async unauthPatch(url, data = {}, params = {}) {
-    return this.unauthAxios.patch(this.buildUrl(url, params), data);
-  }
-
-  async unauthDelete(url, params = {}) {
-    return this.unauthAxios.delete(this.buildUrl(url, params));
-  }
-
   // Helper
   buildResourceUrl(resourceEndpoint, resourceId, storeId = null) {
     let url = resourceId ? `${resourceEndpoint}/${resourceId}` : resourceEndpoint;
     return storeId ? this.buildUrl(url, { store: storeId }) : url;
   }
 }
+

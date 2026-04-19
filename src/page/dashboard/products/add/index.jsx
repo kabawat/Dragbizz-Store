@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import Header from "@/components/dashboard/header";
 // Import components
 import Sidebar from "@/components/dashboard/sidebar";
-import { AIProductExtract, ProductForm } from "@/components/product";
-import { AIButton, Button } from "@/components/ui";
+import { ProductForm } from "@/components/product";
+import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
@@ -29,7 +29,6 @@ const AddProductPage = () => {
     }
   }, [can, permissionsLoading, router]);
 
-  const [showAIModal, setShowAIModal] = useState(false);
   const {
     execute,
     loading,
@@ -169,126 +168,6 @@ const AddProductPage = () => {
     router.push("/dashboard/products");
   };
 
-  // Handle AI extraction success - Pre-fill form with extracted data
-  const handleAIExtractSuccess = (extractedData) => {
-    if (!extractedData) return;
-
-    try {
-      const updatedFormData = { ...formData };
-
-      // Map extracted data to form fields
-      // Basic fields
-      if (extractedData.name) updatedFormData.name = extractedData.name;
-      if (extractedData.brand) updatedFormData.brand = extractedData.brand;
-      if (extractedData.category)
-        updatedFormData.category = extractedData.category;
-      if (extractedData.subcategory)
-        updatedFormData.subcategory = extractedData.subcategory;
-      if (extractedData.barcode)
-        updatedFormData.barcode = extractedData.barcode;
-      if (extractedData.sku) updatedFormData.sku = extractedData.sku;
-
-      // Pricing fields
-      if (extractedData.mrp !== undefined && extractedData.mrp !== null) {
-        updatedFormData.mrp = String(extractedData.mrp);
-      }
-      if (
-        extractedData.sellingPrice !== undefined &&
-        extractedData.sellingPrice !== null
-      ) {
-        updatedFormData.sellingPrice = String(extractedData.sellingPrice);
-      }
-      if (
-        extractedData.basePrice !== undefined &&
-        extractedData.basePrice !== null
-      ) {
-        updatedFormData.basePrice = String(extractedData.basePrice);
-      }
-      if (
-        extractedData.discount !== undefined &&
-        extractedData.discount !== null
-      ) {
-        updatedFormData.discount = String(extractedData.discount);
-      }
-      if (extractedData.currency)
-        updatedFormData.currency = extractedData.currency;
-      if (extractedData.uom) updatedFormData.uom = extractedData.uom;
-
-      // GST Info
-      if (extractedData.gstInfo) {
-        updatedFormData.gstInfo = {
-          ...updatedFormData.gstInfo,
-          isGstIncluded:
-            extractedData.gstInfo.isGstIncluded !== undefined
-              ? extractedData.gstInfo.isGstIncluded
-              : (extractedData.isGstIncluded !== undefined ? extractedData.isGstIncluded : updatedFormData.gstInfo.isGstIncluded),
-          gstRate:
-            extractedData.gstInfo.gstRate !== undefined &&
-              extractedData.gstInfo.gstRate !== null
-              ? String(extractedData.gstInfo.gstRate)
-              : updatedFormData.gstInfo.gstRate,
-          gstType:
-            extractedData.gstInfo.gstType || updatedFormData.gstInfo.gstType,
-          hsnCode:
-            extractedData.gstInfo.hsnCode || updatedFormData.gstInfo.hsnCode,
-          sacCode:
-            extractedData.gstInfo.sacCode || updatedFormData.gstInfo.sacCode,
-          cessRate:
-            extractedData.gstInfo.cessRate !== undefined &&
-              extractedData.gstInfo.cessRate !== null
-              ? String(extractedData.gstInfo.cessRate)
-              : updatedFormData.gstInfo.cessRate,
-        };
-      }
-
-      // Content fields
-      if (extractedData.content) {
-        updatedFormData.content = {
-          ...updatedFormData.content,
-          shortDescription:
-            extractedData.content.shortDescription ||
-            updatedFormData.content.shortDescription,
-          longDescription:
-            extractedData.content.longDescription ||
-            updatedFormData.content.longDescription,
-          tags:
-            extractedData.content.tags &&
-              Array.isArray(extractedData.content.tags)
-              ? [
-                ...(updatedFormData.content.tags || []),
-                ...extractedData.content.tags,
-              ].filter((tag, index, self) => self.indexOf(tag) === index)
-              : updatedFormData.content.tags,
-          features:
-            extractedData.content.features &&
-              Array.isArray(extractedData.content.features)
-              ? [
-                ...(updatedFormData.content.features || []),
-                ...extractedData.content.features,
-              ].filter(
-                (feature, index, self) => self.indexOf(feature) === index
-              )
-              : updatedFormData.content.features,
-          specifications:
-            extractedData.content.specifications &&
-              Array.isArray(extractedData.content.specifications)
-              ? [
-                ...(updatedFormData.content.specifications || []),
-                ...extractedData.content.specifications,
-              ]
-              : updatedFormData.content.specifications,
-        };
-      }
-
-      // Update form data
-      setFormData(updatedFormData);
-      setShowAIModal(false);
-      showSuccess(t("products.aiExtractSuccess"));
-    } catch (error) {
-      logger.error("Error pre-filling form:", error);
-      showError(t("products.aiExtractError"));
-    }
-  };
 
   return (
     <div className="flex h-screen relative overflow-hidden">
@@ -321,11 +200,6 @@ const AddProductPage = () => {
                     {t("products.backToProducts")}
                   </span>
                 </Link>
-                <div className="flex items-center space-x-3">
-                  <AIButton onClick={() => setShowAIModal(true)} size="sm">
-                    {t("products.aiExtract")}
-                  </AIButton>
-                </div>
               </div>
 
               <div className="overflow-hidden">
@@ -357,14 +231,6 @@ const AddProductPage = () => {
         )}
       </div>
 
-      {/* AI Product Extract Modal */}
-      {showAIModal && (
-        <AIProductExtract
-          storeId={storeId}
-          onExtractSuccess={handleAIExtractSuccess}
-          onCancel={() => setShowAIModal(false)}
-        />
-      )}
     </div>
   );
 };

@@ -79,7 +79,6 @@ export const getShortcutCategories = (t, isMac = false) => {
             items: [
                 { keys: [alt, "1"], action: t("shortcuts.actions.tableView") || "Switch to Table View" },
                 { keys: [alt, "2"], action: t("shortcuts.actions.cardView") || "Switch to Card View" },
-                { keys: [alt, "V"], action: t("shortcuts.actions.voiceAI") || "Trigger Voice AI Assistant" },
                 { keys: ["Esc"], action: t("shortcuts.actions.close") || "Close Drawer or Modal" },
                 { keys: [ctrl, "Esc"], action: t("shortcuts.actions.back") || "Navigate Back" },
                 { keys: ["Shift", "Backspace"], action: t("shortcuts.actions.globalBack") || "Global Navigate Back" },
@@ -87,7 +86,6 @@ export const getShortcutCategories = (t, isMac = false) => {
         }
     ];
 };
-
 
 export const getFaqs = (t) => [
     {
@@ -99,11 +97,6 @@ export const getFaqs = (t) => [
         q: t("help.faqs.multipleStores.q") || "Can I manage multiple stores?",
         a: t("help.faqs.multipleStores.a") || "Yes! Use the store switcher in the sidebar (top section) to create and manage multiple business stores from a single account. Each store has its own inventory and customers.",
         category: "Management"
-    },
-    {
-        q: t("help.faqs.voiceAI.q") || "How does Voice AI work?",
-        a: t("help.faqs.voiceAI.a") || "Click on the microphone icon in Customer or Product pages (or use Alt+V). Speak the details naturally (e.g., 'Add a customer named Rahul from Delhi'), and our AI will automatically fill the form for you.",
-        category: "AI Features"
     },
     {
         q: t("help.faqs.exportData.q") || "How do I export my data?",
@@ -128,7 +121,6 @@ export const getQuickStartSteps = (t) => [
     { text: t("help.steps.addProducts") || "Add your initial products to inventory", completed: false },
     { text: t("help.steps.createInvoice") || "Create your first professional invoice", completed: false },
     { text: t("help.steps.addUPI") || "Add your UPI ID for payments", completed: false },
-    { text: t("help.steps.tryVoiceAI") || "Try the Voice AI feature", completed: false }
 ];
 
 export const getRelatedLinks = (t) => [

@@ -1,7 +1,6 @@
 // Product Components
 
 export { default as AdditionalDetailsSection } from "./AdditionalDetailsSection";
-export { default as AIProductExtract } from "./AIProductExtract";
 export { default as BasicInfoSection } from "./BasicInfoSection";
 export { default as PricingGSTSection } from "./PricingGSTSection";
 // Product Modals

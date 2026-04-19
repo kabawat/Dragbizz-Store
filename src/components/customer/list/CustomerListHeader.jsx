@@ -2,7 +2,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload } from "lucide-react";
 import { Button, Input, SideDrawer } from "@/components/ui";
-import { CreateCustomer, VoiceAICustomer } from "@/components/customer";
+import { CreateCustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
 import CustomerBulkUploadDrawer from "@/components/customer/CustomerBulkUploadDrawer";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -34,7 +34,6 @@ const CustomerListHeader = ({
 
     const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
-    const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     useEffect(() => {
@@ -69,11 +68,9 @@ const CustomerListHeader = ({
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
-        onVoiceAI: () => setShowVoiceAIDrawer(true),
         onClose: () => {
             if (showCustomerDrawer) setShowCustomerDrawer(false);
             else if (showDownloadDrawer) setShowDownloadDrawer(false);
-            else if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
             else if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
     });
@@ -144,15 +141,6 @@ const CustomerListHeader = ({
                             </Button>
 
                             <Button
-                                variant="secondary"
-                                onClick={() => setShowVoiceAIDrawer(true)}
-                                className="flex items-center gap-2 h-9"
-                            >
-                                <Mic className="w-4 h-4" />
-                                {t("customers.voiceAI")}
-                            </Button>
-
-                            <Button
                                 variant="primary"
                                 onClick={() => setShowCustomerDrawer(true)}
                                 leftIcon={Plus}
@@ -200,25 +188,6 @@ const CustomerListHeader = ({
                 />
             )}
 
-            {/* Voice AI Drawer */}
-            <SideDrawer
-                isOpen={showVoiceAIDrawer}
-                onClose={() => setShowVoiceAIDrawer(false)}
-                title={t("customers.createWithVoiceAI")}
-                icon={Mic}
-                description={t("customers.voiceAIDescription")}
-                width="w-full md:w-2/3 lg:w-1/2"
-            >
-                <div className="h-full">
-                    <VoiceAICustomer
-                        onSuccess={(customerData) => {
-                            onSuccess?.(customerData);
-                            setShowVoiceAIDrawer(false);
-                        }}
-                        onCancel={() => setShowVoiceAIDrawer(false)}
-                    />
-                </div>
-            </SideDrawer>
         </div>
     );
 };

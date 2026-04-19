@@ -60,16 +60,6 @@ export const LazySupplierDownloadDrawer = createLazyComponent(
   { ssr: false }
 );
 
-export const LazyVoiceAISupplier = createLazyComponent(
-  () => import("@/components/supplier/VoiceAISupplier"),
-  { ssr: false }
-);
-
-export const LazyVoiceAICustomer = createLazyComponent(
-  () => import("@/components/customer/VoiceAICustomer"),
-  { ssr: false }
-);
-
 export const LazyCustomerForm = createLazyComponent(
   () => import("@/components/customer/CustomerForm"),
   { ssr: false }

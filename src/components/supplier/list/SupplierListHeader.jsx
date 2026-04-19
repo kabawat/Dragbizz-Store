@@ -6,7 +6,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuppliers, setViewMode } from "@/store/slices/supplier/supplierSlice";
-import { AddSupplierDrawer, VoiceAISupplier } from "@/components/supplier";
+import { AddSupplierDrawer } from "@/components/supplier";
 import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
 import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
@@ -32,7 +32,6 @@ const SupplierListHeader = ({
         [selectedStore]);
 
     // Internal Drawers
-    const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
@@ -43,7 +42,6 @@ const SupplierListHeader = ({
     useEffect(() => {
         if (!canCreate) {
             setShowAddSupplierDrawer(false);
-            setShowVoiceAIDrawer(false);
             setShowBulkUploadDrawer(false);
         }
     }, [canCreate]);
@@ -105,7 +103,6 @@ const SupplierListHeader = ({
         onNew: canCreate ? () => setShowAddSupplierDrawer(true) : undefined,
         onClose: () => {
             if (showAddSupplierDrawer) setShowAddSupplierDrawer(false);
-            if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
             if (showDownloadDrawer) setShowDownloadDrawer(false);
             if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
@@ -113,7 +110,6 @@ const SupplierListHeader = ({
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
         onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
-        onVoiceAI: canCreate ? () => setShowVoiceAIDrawer(true) : undefined,
     });
 
     const handleSupplierSuccess = useCallback(() => {
@@ -228,14 +224,6 @@ const SupplierListHeader = ({
                     {canCreate && (
                         <>
                             <Button
-                                variant="outline"
-                                onClick={() => setShowVoiceAIDrawer(true)}
-                                leftIcon={Mic}
-                            >
-                                {t("customers.voiceAI")}
-                            </Button>
-
-                            <Button
                                 variant="primary"
                                 onClick={() => setShowAddSupplierDrawer(true)}
                                 leftIcon={Plus}
@@ -252,26 +240,6 @@ const SupplierListHeader = ({
                 onClose={() => setShowAddSupplierDrawer(false)}
                 onSuccess={handleSupplierSuccess}
             />
-
-            <SideDrawer
-                isOpen={showVoiceAIDrawer}
-                onClose={() => setShowVoiceAIDrawer(false)}
-                title="Create Supplier with Voice AI"
-                icon={Mic}
-                description="Chat with AI to create a supplier naturally"
-                width="w-full md:w-2/3 lg:w-1/2"
-            >
-                <div className="h-full">
-                    <VoiceAISupplier
-                        storeId={storeId}
-                        onSuccess={() => {
-                            handleSupplierSuccess();
-                            setShowVoiceAIDrawer(false);
-                        }}
-                        onCancel={() => setShowVoiceAIDrawer(false)}
-                    />
-                </div>
-            </SideDrawer>
 
             <SupplierDownloadDrawer
                 isOpen={showDownloadDrawer}
