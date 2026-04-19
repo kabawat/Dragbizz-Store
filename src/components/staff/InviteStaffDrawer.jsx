@@ -40,11 +40,11 @@ const PRESET_ROLES = [
     },
     {
         label: "Cashier",
-        description: "Billing & invoices only",
+        description: "Invoices only",
         permissions: [
-            { module: "billing", create: true, read: true, edit: true, delete: false, report: false, analytics: false },
-            { module: "invoice", create: true, read: true, edit: false, delete: false, report: false, analytics: false },
+            { module: "invoice", create: true, read: true, edit: true, delete: true, report: true, analytics: false },
             { module: "customer", create: false, read: true, edit: false, delete: false, report: false, analytics: false },
+            { module: "product", create: false, read: true, edit: false, delete: false, report: false, analytics: false },
         ],
     },
     {
@@ -53,6 +53,11 @@ const PRESET_ROLES = [
         permissions: [
             { module: "product", create: false, read: true, edit: true, delete: false, report: false, analytics: false },
             { module: "inventory", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "supplier", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "purchase_order", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "sales_order", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "expense", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "reports", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
         ],
     },
 ];
