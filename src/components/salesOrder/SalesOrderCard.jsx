@@ -43,13 +43,13 @@ const StatusBadge = ({ order, statusField = 'status' }) => {
         if (s === "PENDING") return t("common.pending");
         if (s === "PAID") return t("common.paid");
         if (s === "UNPAID") return t("common.paymentStatus");
-        
+
         // Handle IN_STORE order terminology overrides
         if (order.orderSource === 'IN_STORE') {
             if (s === "SHIPPED" || s === "IN_TRANSIT" || s === "OUT_FOR_DELIVERY") return t("salesOrder.status.ready", { defaultValue: "ORDER READY" });
             if (s === "DELIVERED") return t("salesOrder.status.served", { defaultValue: "SERVED" });
         }
-        
+
         return t(`salesOrder.status.${key}`, { defaultValue: s });
     };
 
@@ -224,7 +224,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
                 </div>
 
             </div>
-        </div >
+        </div>
     );
 };
 

@@ -14,8 +14,6 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import {
     AccountSettings,
     AppearanceSettings,
@@ -30,11 +28,14 @@ import {
 import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppSelector } from "@/store/hooks";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 const SettingsPage = () => {
     const { t } = useTranslation();
+
+    useDashboardHeader(t("settings.title"), t("settings.description"));
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -89,60 +90,52 @@ const SettingsPage = () => {
     };
 
     return (
-        <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-            <Sidebar />
-
-            <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-                <Header title={t("settings.title")} description={t("settings.description")} />
-
-                <div className="flex-1 flex overflow-hidden">
-                    {/* Left Sidebar Navigation */}
-                    <div className="w-64 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/50 flex-shrink-0">
-                        <div className="p-4">
-                            <div className="space-y-1">
-                                {settingsTabs.map((tab) => {
-                                    const Icon = tab.icon;
-                                    const isActive = activeTab === tab.id;
-                                    return (
-                                        <button
-                                            key={tab.id}
-                                            onClick={() => handleTabChange(tab.id)}
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${isActive
-                                                ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20"
-                                                : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))]/30 hover:text-[rgb(var(--color-text-primary))]"
-                                                }`}
-                                        >
-                                            <Icon className="w-5 h-5" />
-                                            <span className="font-medium">{tab.label}</span>
-                                            {isActive && (
-                                                <ChevronRight className="w-4 h-4 ml-auto" />
-                                            )}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
+        <div className="flex-1 flex overflow-hidden">
+            {/* Left Sidebar Navigation */}
+            <div className="w-64 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/50 flex-shrink-0">
+                <div className="p-4">
+                    <div className="space-y-1">
+                        {settingsTabs.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => handleTabChange(tab.id)}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${isActive
+                                        ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20"
+                                        : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))]/30 hover:text-[rgb(var(--color-text-primary))]"
+                                        }`}
+                                >
+                                    <Icon className="w-5 h-5" />
+                                    <span className="font-medium">{tab.label}</span>
+                                    {isActive && (
+                                        <ChevronRight className="w-4 h-4 ml-auto" />
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
+                </div>
+            </div>
 
-                    {/* Content Area */}
-                    <div className="flex-1 min-h-0 overflow-hidden p-4 sm:p-6">
-                        <div className="w-full h-full mx-auto overflow-y-auto custom-scrollbar">
-                            {activeTab === "appearance" && (
-                                <AppearanceSettings
-                                    animationKey={animationKey}
-                                    handleToggleVariant={handleToggleVariant}
-                                />
-                            )}
-                            {activeTab === "language" && <LanguageSettings />}
-                            {activeTab === "profile" && <ProfileSettings user={user} />}
-                            {activeTab === "account" && <AccountSettings />}
-                            {activeTab === "store" && <StoreSettings selectedStore={selectedStore} />}
-                            {activeTab === "signature" && <SignatureSettings />}
-                            {activeTab === "payment" && <ManageUpiSettings />}
-                            {activeTab === "security" && <SecuritySettings />}
-                            {activeTab === "notifications" && <NotificationsSettings />}
-                        </div>
-                    </div>
+            {/* Content Area */}
+            <div className="flex-1 min-h-0 overflow-hidden p-4 sm:p-6">
+                <div className="w-full h-full mx-auto overflow-y-auto custom-scrollbar">
+                    {activeTab === "appearance" && (
+                        <AppearanceSettings
+                            animationKey={animationKey}
+                            handleToggleVariant={handleToggleVariant}
+                        />
+                    )}
+                    {activeTab === "language" && <LanguageSettings />}
+                    {activeTab === "profile" && <ProfileSettings user={user} />}
+                    {activeTab === "account" && <AccountSettings />}
+                    {activeTab === "store" && <StoreSettings selectedStore={selectedStore} />}
+                    {activeTab === "signature" && <SignatureSettings />}
+                    {activeTab === "payment" && <ManageUpiSettings />}
+                    {activeTab === "security" && <SecuritySettings />}
+                    {activeTab === "notifications" && <NotificationsSettings />}
                 </div>
             </div>
         </div>

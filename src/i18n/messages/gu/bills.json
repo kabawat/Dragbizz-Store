@@ -140,5 +140,7 @@
   "balanceDue": "બાકી રકમ:",
   "billDetailsFooter": "બિલ વિગતો",
   "storeLocationNotAvailable": "સ્ટોર સ્થાન ઉપલબ્ધ નથી",
-  "unnamedProduct": "અનામી ઉત્પાદન"
+  "unnamedProduct": "અનામી ઉત્પાદન",
+  "noItemsTile": "કોઈ આઇટમ્સ ઉમેરાઈ નથી.",
+  "noItemsdisc": "ઉપરથી કોઈ પ્રોડક્ટ અને ક્વોન્ટિટી પસંદ કરો."
 }

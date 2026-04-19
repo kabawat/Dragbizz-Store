@@ -142,5 +142,7 @@
   "balanceDue": "Balance Due:",
   "billDetailsFooter": "bill details",
   "storeLocationNotAvailable": "Store Location Not Available",
-  "unnamedProduct": "Unnamed Product"
+  "unnamedProduct": "Unnamed Product",
+  "noItemsTile": "Abhi tak koi items add nahi kiye",
+  "noItemsdisc": "Items add karne ke liye upar se product aur quantity select karo."
 }

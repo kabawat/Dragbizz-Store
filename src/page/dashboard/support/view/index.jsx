@@ -4,15 +4,16 @@ import { ArrowLeft, ThumbsUp, Calendar, Tag, User, MessageSquare, Lightbulb, Tra
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuggestionById, upvoteSuggestion, deleteSuggestion } from "@/store/slices/suggestionsSlice";
 import { Badge, Button, Modal } from "@/components/ui";
 
 const ViewSuggestionPage = ({ suggestionId }) => {
     const { t } = useTranslation();
+
+    useDashboardHeader(t("suggestions.title"), t("suggestions.description"));
     const router = useRouter();
     const dispatch = useAppDispatch();
 
@@ -87,9 +88,9 @@ const ViewSuggestionPage = ({ suggestionId }) => {
     if (isLoading && !suggestion) {
         return (
             <div className="flex h-screen relative w-full overflow-hidden">
-                <Sidebar />
+                
                 <div className="min-h-screen w-full flex flex-col">
-                    <Header title={t("suggestions.title")} />
+                    
                     <div className="flex-1 flex items-center justify-center">
                         <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
                     </div>
@@ -100,12 +101,9 @@ const ViewSuggestionPage = ({ suggestionId }) => {
 
     return (
         <div className="flex h-screen relative w-full overflow-hidden">
-            <Sidebar />
+            
             <div className="min-h-screen w-full flex flex-col">
-                <Header
-                    title={t("suggestions.title")}
-                    description={t("suggestions.description")}
-                />
+                
 
                 <div className="flex-1 p-6">
                     <div className="mb-6">

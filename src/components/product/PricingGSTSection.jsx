@@ -477,7 +477,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
             </div>
           </div>
         </>
-      </div >
+      </div>
     </>
   );
 };

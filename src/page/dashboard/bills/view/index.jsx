@@ -3,8 +3,6 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import BillDetailsTemplate from "@/components/templates/bill/BillDetailsTemplate";
 import { billService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -12,6 +10,7 @@ import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDate, formatDateTime } from "@/utils/dateFormatter";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import BillActions from "./components/BillActions";
 import BillBatches from "./components/BillBatches";
@@ -27,6 +26,8 @@ import { useBillDetailsPrint } from "./hooks/useBillDetailsPrint";
 
 const ViewBillPage = ({ billId }) => {
   const { t } = useTranslation();
+
+    useDashboardHeader(t("bills.viewBill"), t("bills.viewBillDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -96,12 +97,9 @@ const ViewBillPage = ({ billId }) => {
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
-      <Sidebar />
+      
       <div className="h-screen w-full flex flex-col overflow-hidden">
-        <Header
-          title={t("bills.viewBill")}
-          description={t("bills.viewBillDescription")}
-        />
+        
         <div className="flex-1 p-6 overflow-hidden">
           <div className="">
             <div className="mb-6">

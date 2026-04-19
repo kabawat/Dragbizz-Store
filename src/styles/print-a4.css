@@ -1,5 +1,6 @@
 /* public/print-a4.css */
 @media print {
+
   .no-print,
   nav,
   header,
@@ -48,9 +49,31 @@
     border-collapse: collapse;
   }
 
+  .overflow-y-auto,
+  .overflow-auto,
+  .custom-scrollbar {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  main,
+  .main-content,
+  .flex-1 {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .grid[style*="height"],
+  div[style*="height"] {
+    height: auto !important;
+    max-height: none !important;
+  }
+
   * {
-    color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 

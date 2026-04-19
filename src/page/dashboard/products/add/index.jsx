@@ -3,12 +3,11 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/sidebar";
 import { ProductForm } from "@/components/product";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -17,6 +16,8 @@ import logger from "@/utils/logger";
 
 const AddProductPage = () => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("products.addNewProduct"), t("products.addNewProductDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
@@ -131,11 +132,11 @@ const AddProductPage = () => {
       })
       .filter(Boolean);
 
-    const payload = { 
+    const payload = {
       ...formData,
       images: sanitizedImages
     };
-    
+
     const mrp = parseFloat(payload.mrp) || 0;
     const sellingPrice = parseFloat(payload.sellingPrice) || 0;
 
@@ -168,69 +169,43 @@ const AddProductPage = () => {
     router.push("/dashboard/products");
   };
 
-
   return (
-    <div className="flex h-screen relative overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="overflow-hidden">
+      <div className="max-w-8xl mx-auto w-full">
+        <div className="p-5 w-full mx-auto">
+          <Link href="/dashboard/products" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {t("products.backToProducts")}
+            </span>
+          </Link>
+        </div>
 
-      {/* Main Content */}
-      <div className="flex-1 min-h-screen flex flex-col">
-        {/* Header */}
-        <Header
-          title={t("products.addNewProduct")}
-          description={t("products.addNewProductDescription")}
-        />
-
-        {permissionsLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-[rgb(var(--color-text-secondary))] animate-pulse font-medium">{t("common.loadingData")}</p>
+        <div className="overflow-hidden">
+          <div className="h-[calc(100vh-210px)] overflow-y-auto px-5">
+            <ProductForm
+              formData={formData}
+              onChange={handleFormDataChange}
+              fieldErrors={fieldErrors}
+              storeId={storeId}
+              productId={null}
+            />
           </div>
-        ) : (
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto">
-              <div className="mb-6 flex items-center justify-between">
-                <Link
-                  href="/dashboard/products"
-                  className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    {t("products.backToProducts")}
-                  </span>
-                </Link>
-              </div>
 
-              <div className="overflow-hidden">
-                <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
-                  <ProductForm
-                    formData={formData}
-                    onChange={handleFormDataChange}
-                    fieldErrors={fieldErrors}
-                    storeId={storeId}
-                    productId={null}
-                  />
-                </div>
-
-                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3 ml-auto">
-                      <Button variant="outline" onClick={handleCancel} disabled={loading} >
-                        {t("common.cancel")}
-                      </Button>
-                      <Button variant="success" onClick={handleSaveAndPublish} disabled={loading} loading={loading} leftIcon={Save} >
-                        {t("products.saveAndPublish")}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+          <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 ml-auto">
+                <Button variant="outline" onClick={handleCancel} disabled={loading} >
+                  {t("common.cancel")}
+                </Button>
+                <Button variant="success" onClick={handleSaveAndPublish} disabled={loading} loading={loading} leftIcon={Save} >
+                  {t("products.saveAndPublish")}
+                </Button>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
-
     </div>
   );
 };

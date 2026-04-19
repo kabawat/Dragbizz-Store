@@ -8,7 +8,12 @@ const initialState = {
         purchase: true,
         analytics: true,
     },
+    header: {
+        title: "",
+        description: "",
+    },
 };
+
 
 const uiSlice = createSlice({
     name: "ui",
@@ -32,8 +37,21 @@ const uiSlice = createSlice({
                 state.expandedMenus[key] = true;
             }
         },
+        setHeader: (state, action) => {
+            state.header = {
+                title: action.payload.title || "",
+                description: action.payload.description || "",
+            };
+        },
     },
 });
 
-export const { setSidebarCollapsed, toggleSidebar, toggleExpandedMenu, expandMenu } = uiSlice.actions;
+export const {
+    setSidebarCollapsed,
+    toggleSidebar,
+    toggleExpandedMenu,
+    expandMenu,
+    setHeader
+} = uiSlice.actions;
+
 export default uiSlice.reducer;

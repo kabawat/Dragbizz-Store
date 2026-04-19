@@ -3,17 +3,21 @@ import { ArrowLeft, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
-// Import components
-import Sidebar from "@/components/dashboard/sidebar";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 // Import inventory components
 import InventoryForm from "@/components/inventory/InventoryForm";
 // Import services
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
+import { Button } from "@/components/ui";
 
 const EditInventoryPage = ({ inventoryId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
+  
+  useDashboardHeader(t("inventory.editStock") || "Edit Stock", t("inventory.editStockDescription") || "Update inventory details");
+
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
     selectedStore?.storeId || "";
@@ -173,176 +177,143 @@ const EditInventoryPage = ({ inventoryId }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--color-bg-primary))] via-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))]">
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Header />
-            <div className="flex-1 overflow-y-auto flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--color-primary))]"></div>
-            </div>
-          </div>
-        </div>
+      <div className="flex-1 p-6 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--color-primary))]"></div>
       </div>
     );
   }
 
   if (error || !inventory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--color-bg-primary))] via-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))]">
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Header />
-            <div className="flex-1 overflow-y-auto flex items-center justify-center">
-              <div className="text-center">
-                <Package className="w-16 h-16 text-[rgb(var(--color-text-tertiary))] mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                  {error || "Inventory not found"}
-                </h3>
-                <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                  The inventory you're trying to edit doesn't exist or has been
-                  removed.
-                </p>
-                <Link href="/dashboard/stock">
-                  <Button className="flex items-center gap-2">
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Stock
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
+      <div className="flex-1 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <Package className="w-16 h-16 text-[rgb(var(--color-text-tertiary))] mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+            {error || "Inventory not found"}
+          </h3>
+          <p className="text-[rgb(var(--color-text-secondary))] mb-6">
+            The inventory you're trying to edit doesn't exist or has been
+            removed.
+          </p>
+          <Link href="/dashboard/stock">
+            <Button className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Stock
+            </Button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--color-bg-primary))] via-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))]">
-      <div className="flex h-screen overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar />
+    <div className="p-6">
+      {/* Page Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Link href={`/dashboard/stock/view/${inventoryId}`}>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] flex items-center gap-3">
+              <Package className="w-8 h-8 text-[rgb(var(--color-primary))]" />
+              Edit Stock
+            </h1>
+            <p className="text-[rgb(var(--color-text-secondary))] mt-1">
+              Update stock information for {inventory.product?.name}
+            </p>
+          </div>
+        </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
-          <Header />
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
 
-          {/* Page Content */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-6">
-              {/* Page Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <Link href={`/dashboard/stock/view/${inventoryId}`}>
-                    <Button
-                      variant="outline"
-                      className="flex items-center gap-2"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Back
-                    </Button>
-                  </Link>
-                  <div>
-                    <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] flex items-center gap-3">
-                      <Package className="w-8 h-8 text-[rgb(var(--color-primary))]" />
-                      Edit Stock
-                    </h1>
-                    <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-                      Update stock information for {inventory.product?.name}
-                    </p>
-                  </div>
+      {/* Form Container */}
+      <div
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
+        {/* Main Form - Left Side */}
+        <div className="lg:col-span-2 flex flex-col">
+          <div className="flex-1 pe-3">
+            <InventoryForm
+              formData={formData}
+              onChange={handleFormDataChange}
+              fieldErrors={fieldErrors}
+            />
+          </div>
+
+          {/* Action Buttons - Fixed Bottom */}
+          <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl p-4 shadow-sm">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Info Panel - Right Side */}
+        <div className="lg:col-span-1">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl p-6 border border-[rgb(var(--color-border-primary))]">
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
+              Edit Information
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                  Current Inventory
+                </h4>
+                <div className="space-y-2 text-sm text-[rgb(var(--color-text-secondary))]">
+                  <p>
+                    <strong>Product:</strong> {inventory.product?.name}
+                  </p>
+                  <p>
+                    <strong>Brand:</strong> {inventory.product?.brand}
+                  </p>
+                  <p>
+                    <strong>Current Stock:</strong>{" "}
+                    {inventory.stockSummary?.totalQuantity || 0}
+                  </p>
+                  <p>
+                    <strong>Available:</strong>{" "}
+                    {inventory.stockSummary?.availableQuantity || 0}
+                  </p>
                 </div>
               </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-600">{error}</p>
-                </div>
-              )}
-
-              {/* Form Container */}
-              <div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-                style={{ height: "calc(100vh - 200px)" }}
-              >
-                {/* Main Form - Left Side */}
-                <div className="lg:col-span-2 flex flex-col h-full">
-                  <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
-                    <InventoryForm
-                      formData={formData}
-                      onChange={handleFormDataChange}
-                      fieldErrors={fieldErrors}
-                    />
-                  </div>
-
-                  {/* Action Buttons - Fixed Bottom */}
-                  <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      disabled={saving}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={saving}
-                      className="flex items-center gap-2"
-                    >
-                      <Save className="w-4 h-4" />
-                      {saving ? "Saving..." : "Save Changes"}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Info Panel - Right Side */}
-                <div className="lg:col-span-1">
-                  <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 border border-[rgb(var(--color-border-primary))] h-full">
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-                      Edit Information
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                          Current Inventory
-                        </h4>
-                        <div className="space-y-2 text-sm text-[rgb(var(--color-text-secondary))]">
-                          <p>
-                            <strong>Product:</strong> {inventory.product?.name}
-                          </p>
-                          <p>
-                            <strong>Brand:</strong> {inventory.product?.brand}
-                          </p>
-                          <p>
-                            <strong>Current Stock:</strong>{" "}
-                            {inventory.stockSummary?.totalQuantity || 0}
-                          </p>
-                          <p>
-                            <strong>Available:</strong>{" "}
-                            {inventory.stockSummary?.availableQuantity || 0}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                          Tips
-                        </h4>
-                        <ul className="space-y-1 text-sm text-[rgb(var(--color-text-secondary))]">
-                          <li>
-                            • Update quantity to reflect current stock levels
-                          </li>
-                          <li>• Adjust purchase price if cost has changed</li>
-                          <li>• Select the correct supplier for this batch</li>
-                          <li>• Set expiry date for perishable items</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                  Tips
+                </h4>
+                <ul className="space-y-1 text-sm text-[rgb(var(--color-text-secondary))]">
+                  <li>
+                    • Update quantity to reflect current stock levels
+                  </li>
+                  <li>• Adjust purchase price if cost has changed</li>
+                  <li>• Select the correct supplier for this batch</li>
+                  <li>• Set expiry date for perishable items</li>
+                </ul>
               </div>
             </div>
           </div>

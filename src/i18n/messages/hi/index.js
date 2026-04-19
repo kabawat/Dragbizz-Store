@@ -27,6 +27,8 @@ import shortcuts from "./shortcuts.json";
 import help from "./help.json";
 import limits from "./limits.json";
 import subscription from "./subscription.json";
+import pos from "./pos.json";
+import staff from "./staff.json";
 
 export default {
   auth,
@@ -44,6 +46,8 @@ export default {
   modals,
   notifications,
   payments,
+  pos,
+  staff,
   products,
   purchaseOrders,
   quota,

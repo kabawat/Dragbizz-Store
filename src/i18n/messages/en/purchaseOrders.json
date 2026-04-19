@@ -135,5 +135,7 @@
   "bankTransfer": "Bank Transfer",
   "cheque": "Cheque",
   "createBill": "Create Bill",
-  "loadingMore": "Loading more purchase orders..."
+  "loadingMore": "Loading more purchase orders...",
+  "noItemsTile": "No items added yet.",
+  "noItemsdisc": "Select a product and quantity above to add items."
 }

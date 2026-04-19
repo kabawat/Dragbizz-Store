@@ -2,12 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import storeService from "@/service/retailer/store.service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { getStoreUpi } from "@/store/slices/storeUpiSlice";
 import {
   UpiHeader,
@@ -19,6 +18,8 @@ import {
 
 const ManageUpiPage = () => {
   const { t } = useTranslation();
+
+    useDashboardHeader(t("payments.manageUpiIds"), t("settings.upi.manageUpiDescription"));
   const dispatch = useAppDispatch();
   const { showError, showSuccess } = useGlobalToast();
   const { stores: reduxStores } = useAppSelector((state) => state.profile);
@@ -114,14 +115,11 @@ const ManageUpiPage = () => {
   const activeStores = stores.filter((s) => s.status !== "DELETED");
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <Sidebar />
+    
+      
 
-      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-        <Header
-          title={t("payments.manageUpiIds")}
-          description={t("settings.upi.manageUpiDescription")}
-        />
+      
+        
 
         <div className="flex-1 p-5 overflow-auto">
           <div className="max-w-6xl mx-auto">

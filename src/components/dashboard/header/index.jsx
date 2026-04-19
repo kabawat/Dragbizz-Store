@@ -3,8 +3,14 @@ import { SettingsButton } from "@/components/ui";
 import HeaderTitle from "./HeaderTitle";
 import NotificationBell from "./NotificationBell";
 import UserProfile from "./UserProfile";
+import { useHeader } from "@/contexts/HeaderContext";
 
-const Header = ({ title, description }) => {
+const Header = ({ title: t, description: d }) => {
+  const { headerContent } = useHeader();
+
+  const title = t || headerContent.title;
+  const description = d || headerContent.description;
+
   return (
     <header className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-b border-[rgb(var(--color-border-primary))]/50 px-4 py-2 shadow-sm relative z-[100]">
       <div className="flex items-center justify-between">

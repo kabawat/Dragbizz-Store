@@ -117,10 +117,6 @@ const MediaSection = ({
       {/* Title & Count */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <ImageIcon className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-          <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-            {t("products.images") || "Product Images"}
-          </h3>
           {images.length > 0 && (
             <span className="px-2 py-0.5 text-xs font-medium bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] rounded-full">
               {images.length}

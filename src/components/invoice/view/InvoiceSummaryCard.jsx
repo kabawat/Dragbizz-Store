@@ -132,7 +132,7 @@ const InvoiceSummaryCard = ({
           </span>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

@@ -1,10 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Package, Plus } from "lucide-react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { EmptyState } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProducts, setViewMode } from "@/store/slices/products/productSlice";
@@ -15,6 +14,8 @@ import { useEffect, useState } from "react";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("products.title"), t("products.description"));
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -57,68 +58,46 @@ const ProductsPage = () => {
   const isFiltered = searchValue || sortBy || showInCatalog || category;
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <Sidebar />
-
-      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-        <Header
-          title={t("products.title")}
-          description={t("products.description")}
+    <div className="p-6">
+      <div className="max-w-8xl mx-auto w-full">
+        <ProductListHeader
+          canCreate={canCreate}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          showInCatalog={showInCatalog}
+          setShowInCatalog={setShowInCatalog}
+          category={category}
+          setCategory={setCategory}
         />
 
-        {permissionsLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-[rgb(var(--color-text-secondary))] animate-pulse font-medium">{t("common.loadingData")}</p>
-          </div>
-        ) : (
-          <div className="flex-1 p-5">
-            <div className="max-w-8xl mx-auto">
-
-              {/* Search, filters, view toggle, add button */}
-              <ProductListHeader
-                canCreate={canCreate}
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                showInCatalog={showInCatalog}
-                setShowInCatalog={setShowInCatalog}
-                category={category}
-                setCategory={setCategory}
-              />
-
-              {/* State 1: Initial loading */}
-              {isLoading && products.length === 0 && !error && (
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
-                  <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* State 2: Empty state */}
-              {!isLoading && products.length === 0 && (
-                <EmptyState
-                  className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-                  icon={Package}
-                  title={t("products.noProducts")}
-                  description={isFiltered ? t("products.noResultsDescription") : t("products.emptyDescription")}
-                  actionButton={!isFiltered && canCreate ? {
-                    label: t("products.addProduct"),
-                    onClick: () => router.push("/dashboard/products/create"),
-                    icon: Plus
-                  } : null}
-                />
-              )}
-
-              {/* State 3: Product list + modals + drawers */}
-              {products.length > 0 && <ProductListContent canEdit={canEdit} canDelete={canDelete} />}
-
+        {/* State 1: Initial loading */}
+        {isLoading && products.length === 0 && !error && (
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
             </div>
           </div>
         )}
+
+        {/* State 2: Empty state */}
+        {!isLoading && products.length === 0 && (
+          <EmptyState
+            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+            icon={Package}
+            title={t("products.noProducts")}
+            description={isFiltered ? t("products.noResultsDescription") : t("products.emptyDescription")}
+            actionButton={!isFiltered && canCreate ? {
+              label: t("products.addProduct"),
+              onClick: () => router.push("/dashboard/products/create"),
+              icon: Plus
+            } : null}
+          />
+        )}
+
+        {products.length > 0 && <ProductListContent canEdit={canEdit} canDelete={canDelete} />}
       </div>
     </div>
   );

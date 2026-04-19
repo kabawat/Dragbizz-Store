@@ -1,11 +1,9 @@
 "use client";
-import { ArrowLeft, Info, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/sidebar";
 import {
   ProductAddSuccessModal,
   ProductForm,
@@ -13,6 +11,7 @@ import {
 } from "@/components/product";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -20,6 +19,8 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("products.editProduct"), t("products.editProductDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -42,7 +43,6 @@ const UpdateProductPage = ({ productId }) => {
   } = useApiResponse();
 
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [updatedProductName, setUpdatedProductName] = useState("");
   const [productNotFound, setProductNotFound] = useState(false);
 
   // Initial form data
@@ -143,28 +143,22 @@ const UpdateProductPage = ({ productId }) => {
     if (productId && storeId) {
       fetchProductData();
     }
-  }, [productId, storeId, executeFetch]);
+  }, [productId, storeId, executeFetch, t]);
 
   // Update store ID when selectedStore changes
   useEffect(() => {
-    const currentStoreId =
-      selectedStore?.storeId;
-    if (currentStoreId) {
+    if (selectedStore?.storeId) {
       setFormData((prevData) => ({
         ...prevData,
-        store: currentStoreId,
+        store: selectedStore.storeId,
       }));
     }
   }, [selectedStore]);
 
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
-    // Ensure fieldName is a string
-    if (typeof fieldName !== "string") {
-      return;
-    }
+    if (typeof fieldName !== "string") return;
 
-    // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
@@ -175,24 +169,18 @@ const UpdateProductPage = ({ productId }) => {
 
     setFormData((prevData) => {
       const newData = { ...prevData };
-
-      // Helper function to resolve the new value if it's a function
       const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
 
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
-        if (!newData[parent]) {
-          newData[parent] = {};
-        }
+        if (!newData[parent]) newData[parent] = {};
         newData[parent] = {
           ...newData[parent],
           [child]: getNewValue(newData[parent][child]),
         };
       } else {
-        // Handle top-level fields
         newData[fieldName] = getNewValue(newData[fieldName]);
       }
-
       return newData;
     });
   };
@@ -201,7 +189,6 @@ const UpdateProductPage = ({ productId }) => {
   const handleSaveAndUpdate = async () => {
     setFieldErrors({});
 
-    // Calculate discount percentage based on MRP and sellingPrice
     const mrp = parseFloat(formData.mrp) || 0;
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
     let discountPercentage = "0";
@@ -212,7 +199,6 @@ const UpdateProductPage = ({ productId }) => {
       );
     }
 
-    // Sanitize images array: extract uploadedUrl from File objects, use string URLs, or extract from objects
     const sanitizedImages = (formData.images || [])
       .map(img => {
         if (typeof img === "string") return img;
@@ -250,37 +236,23 @@ const UpdateProductPage = ({ productId }) => {
     router.push("/dashboard/products");
   };
 
-  // Success modal handlers
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    router.push("/dashboard/products");
-  };
-
   // Loading state
   if (initialLoading || permissionsLoading) {
     return (
-      <div className="flex h-screen relative overflow-hidden">
-        <Sidebar />
-
-        <div className="flex-1 min-h-screen flex flex-col">
-          <Header />
-
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto">
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Product...
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t("common.pleaseWaitWhileWeFetch", {
-                        item: t("common.product"),
-                      })}
-                    </p>
-                  </div>
-                </div>
+      <div className="p-6">
+        <div className="max-w-8xl mx-auto">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
+                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                  Loading Product...
+                </h2>
+                <p className="text-[rgb(var(--color-text-secondary))]">
+                  {t("common.pleaseWaitWhileWeFetch", {
+                    item: t("common.product"),
+                  })}
+                </p>
               </div>
             </div>
           </div>
@@ -290,34 +262,26 @@ const UpdateProductPage = ({ productId }) => {
   }
 
   // Product not found state
-
   if (productNotFound) {
     return (
-      <div className="flex h-screen relative overflow-hidden">
-        <Sidebar />
-
-        <div className="flex-1 min-h-screen flex flex-col">
-          <Header />
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto">
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t("modals.notFound", { item: t("common.product") })}
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-                      {t("modals.notFound", { item: t("common.product") })}
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      leftIcon={ArrowLeft}
-                    >
-                      {t("common.backTo", { item: t("common.products") })}
-                    </Button>
-                  </div>
-                </div>
+      <div className="p-6">
+        <div className="max-w-8xl mx-auto">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                  {t("modals.notFound", { item: t("common.product") })}
+                </h2>
+                <p className="text-[rgb(var(--color-text-secondary))] mb-4">
+                  {t("modals.notFound", { item: t("common.product") })}
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  leftIcon={ArrowLeft}
+                >
+                  {t("common.backTo", { item: t("common.products") })}
+                </Button>
               </div>
             </div>
           </div>
@@ -327,59 +291,50 @@ const UpdateProductPage = ({ productId }) => {
   }
 
   return (
-    <div className="flex h-screen relative overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="overflow-hidden">
+      <div className="max-w-8xl mx-auto w-full">
+        <div className="p-5 w-full mx-auto">
+          <Link
+            href="/dashboard/products"
+            className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {t("products.backToProducts")}
+            </span>
+          </Link>
+        </div>
 
-      {/* Main Content */}
-      <div className="flex-1 min-h-screen flex flex-col">
-        {/* Header */}
-        <Header title={t("products.editProduct")} description={t("products.editProductDescription")} />
+        <div className="overflow-hidden">
+          <div className="h-[calc(100vh-210px)] overflow-y-auto px-5">
+            <ProductForm
+              formData={formData}
+              onChange={handleFormDataChange}
+              fieldErrors={fieldErrors}
+              storeId={storeId}
+              productId={productId}
+            />
+          </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto">
-            {/* Back Button */}
-            <div className="mb-6">
-              <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Products</span>
-              </Link>
-            </div>
-
-            {/* Form Container - Scrollable */}
-            <div className="overflow-hidden">
-              <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
-                <ProductForm
-                  formData={formData}
-                  onChange={handleFormDataChange}
-                  fieldErrors={fieldErrors}
-                  storeId={storeId}
-                  productId={productId}
-                />
-              </div>
-
-              {/* Fixed Action Bar */}
-              <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowInfoModal(true)}
-                    leftIcon={Info}
-                    className="text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                  >
-                    Info
-                  </Button>
-
-                  <div className="flex items-center space-x-3">
-                    <Button variant="outline" onClick={handleCancel} disabled={loading} >
-                      Cancel
-                    </Button>
-                    <Button variant="success" onClick={() => handleSaveAndUpdate(formData)} disabled={loading} loading={loading} leftIcon={Save} >
-                      Update Product
-                    </Button>
-                  </div>
-                </div>
+          <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 ml-auto">
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  variant="success"
+                  onClick={handleSaveAndUpdate}
+                  disabled={loading}
+                  loading={loading}
+                  leftIcon={Save}
+                >
+                  {t("products.updateProduct")}
+                </Button>
               </div>
             </div>
           </div>

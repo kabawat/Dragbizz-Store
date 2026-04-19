@@ -5,6 +5,7 @@
   "noResultsDescription": "We couldn't find any products matching your search or filters. Try adjusting them or clearing filters.",
   "addProduct": "Add Product",
   "editProduct": "Edit Product",
+  "updateProduct": "Update Product",
   "deleteProduct": "Delete Product",
   "product": "Product",
   "productName": "Product Name",
@@ -181,7 +182,6 @@
   "productImageHelperText": "High-quality images help customers identify your products",
   "imageTip": "Adding multiple images from different angles increases conversion rates. (Multi-image support coming soon)",
   "addCatalogContent": "Add catalog details",
-
   "addCatalogContentHelperText": "Add descriptions, features and images for your public catalog page where customers shop online",
   "statusVisibility": "Status & Visibility",
   "additionalDetails": "Additional Details",

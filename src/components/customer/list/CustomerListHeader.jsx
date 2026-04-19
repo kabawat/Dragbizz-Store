@@ -187,7 +187,6 @@ const CustomerListHeader = ({
                     onSuccess={handleBulkUploadSuccess}
                 />
             )}
-
         </div>
     );
 };

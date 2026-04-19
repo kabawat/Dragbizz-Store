@@ -1,19 +1,20 @@
 "use client";
 import React, { useState } from "react";
 import { Package, Plus, Trash2 } from "lucide-react";
-import { Button, Card, Input, Select } from "@/components/ui";
+import { Button, Card, EmptyState, Input, Select } from "@/components/ui";
 import { productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const BillItemsSection = ({
-    t,
     formData,
     setFormData,
     showError,
     errors,
     setErrors,
 }) => {
+    const { t } = useTranslation();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
 
@@ -248,12 +249,13 @@ const BillItemsSection = ({
                         </div>
                     </div>
                 ) : (
-                    <div className="flex-1 flex items-center justify-center">
-                        <div className="text-center text-[rgb(var(--color-text-secondary))]">
-                            <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                            <p className="text-sm">{t("common.noItems")}</p>
-                        </div>
-                    </div>
+                    <EmptyState
+                        icon={Package}
+                        title={t("bills.noItemsTile")}
+                        description={t("bills.noItemsdisc")}
+                        className="h-full"
+                        size="md"
+                    />
                 )}
             </div>
         </Card>
