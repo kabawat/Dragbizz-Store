@@ -79,6 +79,7 @@ export const SidebarNavItem = ({
                                     <Link
                                         key={subItem.name}
                                         href={subItem.href}
+                                        prefetch={false}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             withAccess(subItem.module, () => router.push(subItem.href), subItem.requireAnalytics)();
@@ -129,6 +130,7 @@ export const SidebarNavItem = ({
         >
             <Link
                 href={item.href}
+                prefetch={false}
                 onClick={(e) => {
                     e.preventDefault();
                     withAccess(item.module, () => router.push(item.href), item.requireAnalytics)();
