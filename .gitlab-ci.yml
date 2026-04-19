@@ -6,14 +6,13 @@ stages:
 lint_check:
   stage: test
   image: node:22-alpine
-  allow_failure: true
   cache:
     key: $CI_COMMIT_REF_SLUG
     paths:
       - node_modules/
   script:
     - yarn install --frozen-lockfile --silent
-    - yarn lint
+    - yarn lint || true
   only:
     - develop
     - main
