@@ -53,7 +53,7 @@ const InventoryPage = () => {
     });
 
     return (
-        <div className="p-5">
+        <div className="overflow-hidden">
             <div className="max-w-8xl mx-auto w-full">
                 <InventoryListHeader
                     showInventoryDrawer={showInventoryDrawer}
@@ -63,29 +63,31 @@ const InventoryPage = () => {
                     setSearchValue={setSearchValue}
                 />
 
-                {(inventoryLoading || permissionsLoading) && inventories.length === 0 && !error && (<PageLoader />)}
+                <div className="px-5">
+                    {(inventoryLoading || permissionsLoading) && inventories.length === 0 && !error && (<PageLoader />)}
 
-                {!(inventoryLoading || permissionsLoading) && inventories.length === 0 && (
-                    <EmptyState
-                        className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-                        icon={Package}
-                        title={t("inventory.noInventory")}
-                        description={searchValue ? t("inventory.noResultsDescription") : t("inventory.emptyDescription")}
-                        actionButton={!searchValue && canCreate ? {
-                            label: t("inventory.addStock"),
-                            onClick: () => setShowInventoryDrawer(true),
-                            icon: Plus
-                        } : null}
-                    />
-                )}
+                    {!(inventoryLoading || permissionsLoading) && inventories.length === 0 && (
+                        <EmptyState
+                            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                            icon={Package}
+                            title={t("inventory.noInventory")}
+                            description={searchValue ? t("inventory.noResultsDescription") : t("inventory.emptyDescription")}
+                            actionButton={!searchValue && canCreate ? {
+                                label: t("inventory.addStock"),
+                                onClick: () => setShowInventoryDrawer(true),
+                                icon: Plus
+                            } : null}
+                        />
+                    )}
 
-                {inventories.length > 0 && (
-                    <InventoryListContent
-                        canEdit={canEdit}
-                        canDelete={canDelete}
-                        canCreate={canCreate}
-                    />
-                )}
+                    {inventories.length > 0 && (
+                        <InventoryListContent
+                            canEdit={canEdit}
+                            canDelete={canDelete}
+                            canCreate={canCreate}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );

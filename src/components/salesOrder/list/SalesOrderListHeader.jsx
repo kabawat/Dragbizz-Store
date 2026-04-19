@@ -96,7 +96,7 @@ const SalesOrderListHeader = ({
     });
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 <div className="w-100">
                     <Input
@@ -123,7 +123,7 @@ const SalesOrderListHeader = ({
                             ]}
                         />
                     </div>
-                    
+
                     <div className="min-w-[160px]">
                         <Select
                             placeholder={t("common.allStatus")}

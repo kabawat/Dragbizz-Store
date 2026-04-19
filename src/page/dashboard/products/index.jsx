@@ -58,7 +58,7 @@ const ProductsPage = () => {
   const isFiltered = searchValue || sortBy || showInCatalog || category;
 
   return (
-    <div className="p-6">
+    <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto w-full">
         <ProductListHeader
           canCreate={canCreate}
@@ -72,25 +72,25 @@ const ProductsPage = () => {
           setCategory={setCategory}
         />
 
-        {/* State 1: Initial loading */}
-        {isLoading && products.length === 0 && !error && (<PageLoader />)}
+        <div className="px-5">
+          {isLoading && products.length === 0 && !error && (<PageLoader />)}
 
-        {/* State 2: Empty state */}
-        {!isLoading && products.length === 0 && (
-          <EmptyState
-            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-            icon={Package}
-            title={t("products.noProducts")}
-            description={isFiltered ? t("products.noResultsDescription") : t("products.emptyDescription")}
-            actionButton={!isFiltered && canCreate ? {
-              label: t("products.addProduct"),
-              onClick: () => router.push("/dashboard/products/create"),
-              icon: Plus
-            } : null}
-          />
-        )}
+          {!isLoading && products.length === 0 && (
+            <EmptyState
+              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+              icon={Package}
+              title={t("products.noProducts")}
+              description={isFiltered ? t("products.noResultsDescription") : t("products.emptyDescription")}
+              actionButton={!isFiltered && canCreate ? {
+                label: t("products.addProduct"),
+                onClick: () => router.push("/dashboard/products/create"),
+                icon: Plus
+              } : null}
+            />
+          )}
 
-        {products.length > 0 && <ProductListContent canEdit={canEdit} canDelete={canDelete} />}
+          {products.length > 0 && <ProductListContent canEdit={canEdit} canDelete={canDelete} />}
+        </div>
       </div>
     </div>
   );

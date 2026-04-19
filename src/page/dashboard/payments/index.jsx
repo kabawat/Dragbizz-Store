@@ -220,7 +220,7 @@ const Payments = () => {
   };
 
   return (
-    <div className="p-5">
+    <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto">
         {/* Search and filter */}
         <PaymentHeaderActions
@@ -229,95 +229,97 @@ const Payments = () => {
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
         />
+        <div className="px-5">
 
-        {isLoading && payments.length === 0 && !error && (<PageLoader />)}
+          {isLoading && payments.length === 0 && !error && (<PageLoader />)}
 
-        {!isLoading && payments.length === 0 && (
-          <EmptyState
-            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-            icon={CreditCard}
-            title={t("payments.noPayments")}
-            description={searchTerm ? t("payments.noResultsDescription") : t("payments.emptyDescription")}
-            actionButton={!searchTerm && canCreate ? {
-              label: t("payments.createPayment"),
-              onClick: () => router.push("/dashboard/payments/create"),
-              icon: Plus
-            } : null}
-          />
-        )}
+          {!isLoading && payments.length === 0 && (
+            <EmptyState
+              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+              icon={CreditCard}
+              title={t("payments.noPayments")}
+              description={searchTerm ? t("payments.noResultsDescription") : t("payments.emptyDescription")}
+              actionButton={!searchTerm && canCreate ? {
+                label: t("payments.createPayment"),
+                onClick: () => router.push("/dashboard/payments/create"),
+                icon: Plus
+              } : null}
+            />
+          )}
 
-        {/* Payments list */}
-        {payments.length > 0 && (
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-            <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef} >
-              {viewMode === "table" ? (
-                <PaymentTable
-                  payments={payments}
-                  isLoadingMore={isFetchingMore}
-                  menuRefs={menuRefs}
-                  openMenuId={openMenuId}
-                  handleMenuToggle={handleMenuToggle}
-                  handleMenuAction={handleMenuAction}
-                  canEdit={canEdit}
-                  canDelete={canDelete}
-                />
-              ) : (
-                <PaymentGrid
-                  payments={payments}
-                  isLoadingMore={isFetchingMore}
-                  selectedPayments={selectedPayments}
-                  handlePaymentSelect={handlePaymentSelect}
-                  menuRefs={menuRefs}
-                  openMenuId={openMenuId}
-                  handleMenuToggle={handleMenuToggle}
-                  handleMenuAction={handleMenuAction}
-                  canEdit={canEdit}
-                  canDelete={canDelete}
-                />
-              )}
-            </div>
+          {/* Payments list */}
+          {payments.length > 0 && (
+            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
+              <div className="h-[calc(100vh-210px)] overflow-y-auto" ref={scrollRef} >
+                {viewMode === "table" ? (
+                  <PaymentTable
+                    payments={payments}
+                    isLoadingMore={isFetchingMore}
+                    menuRefs={menuRefs}
+                    openMenuId={openMenuId}
+                    handleMenuToggle={handleMenuToggle}
+                    handleMenuAction={handleMenuAction}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
+                  />
+                ) : (
+                  <PaymentGrid
+                    payments={payments}
+                    isLoadingMore={isFetchingMore}
+                    selectedPayments={selectedPayments}
+                    handlePaymentSelect={handlePaymentSelect}
+                    menuRefs={menuRefs}
+                    openMenuId={openMenuId}
+                    handleMenuToggle={handleMenuToggle}
+                    handleMenuAction={handleMenuAction}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
+                  />
+                )}
+              </div>
 
-            {/* Footer */}
-            <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {pagination?.hasNextPage ? (
-                    <>
-                      Showing{" "}
-                      <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                        {payments.length}
-                      </span>{" "}
-                      payments
-                      <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
-                        • Scroll down to load more
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                        {t("payments.showingPayments", {
-                          count: payments.length,
-                        })}
-                      </span>
-                      <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                        • {t("payments.noMore")}
-                      </span>
-                    </>
-                  )}
+              {/* Footer */}
+              <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                    {pagination?.hasNextPage ? (
+                      <>
+                        Showing{" "}
+                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                          {payments.length}
+                        </span>{" "}
+                        payments
+                        <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                          • Scroll down to load more
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                          {t("payments.showingPayments", {
+                            count: payments.length,
+                          })}
+                        </span>
+                        <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                          • {t("payments.noMore")}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                 </div>
-                <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      <DeletePaymentModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        paymentToDelete={paymentToDelete}
-        onConfirmDelete={confirmDelete}
-      />
+        <DeletePaymentModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          paymentToDelete={paymentToDelete}
+          onConfirmDelete={confirmDelete}
+        />
+      </div>
     </div>
   );
 };

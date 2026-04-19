@@ -50,7 +50,7 @@ const SuppliersPage = () => {
   const isFiltered = searchValue || accountStatus || riskLevel || isActive;
 
   return (
-    <div className="p-5">
+    <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto">
         <SupplierListHeader
           searchValue={searchValue}
@@ -65,23 +65,25 @@ const SuppliersPage = () => {
           setShowAddSupplierDrawer={setShowAddSupplierDrawer}
         />
 
-        {(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (<PageLoader />)}
+        <div className="px-5">
+          {(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (<PageLoader />)}
 
-        {!(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (
-          <EmptyState
-            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-            icon={Building}
-            title={t("suppliers.noSuppliers")}
-            description={isFiltered ? t("suppliers.noResultsDescription") : t("suppliers.emptyDescription")}
-            actionButton={!isFiltered && canCreate ? {
-              label: t("suppliers.addSupplier"),
-              onClick: () => setShowAddSupplierDrawer(true),
-              icon: Plus
-            } : null}
-          />
-        )}
+          {!(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (
+            <EmptyState
+              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+              icon={Building}
+              title={t("suppliers.noSuppliers")}
+              description={isFiltered ? t("suppliers.noResultsDescription") : t("suppliers.emptyDescription")}
+              actionButton={!isFiltered && canCreate ? {
+                label: t("suppliers.addSupplier"),
+                onClick: () => setShowAddSupplierDrawer(true),
+                icon: Plus
+              } : null}
+            />
+          )}
 
-        {suppliers.length > 0 && <SupplierListContent />}
+          {suppliers.length > 0 && <SupplierListContent />}
+        </div>
       </div>
     </div>
   );

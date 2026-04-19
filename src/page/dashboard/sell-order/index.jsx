@@ -53,7 +53,7 @@ const SalesOrdersPage = () => {
     });
 
     return (
-        <div className="p-5">
+        <div className="overflow-hidden">
             <div className="max-w-8xl mx-auto">
                 <SalesOrderListHeader
                     canCreate={canCreate}
@@ -64,30 +64,31 @@ const SalesOrdersPage = () => {
                     orderSourceFilter={orderSourceFilter}
                     setOrderSourceFilter={setOrderSourceFilter}
                 />
+                <div className="px-5">
+                    {/* Loading State Wrapper */}
+                    {(isLoading || permissionsLoading) && orders.length === 0 && !error && (<PageLoader />)}
 
-                {/* Loading State Wrapper */}
-                {(isLoading || permissionsLoading) && orders.length === 0 && !error && (<PageLoader />)}
+                    {/* Completely Empty State Fallback */}
+                    {!isLoading && orders.length === 0 && (
+                        <EmptyState
+                            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                            title={t("common.noResults")}
+                            description={searchValue || statusFilter !== "all"
+                                ? t("salesOrder.noResultsDescription")
+                                : t("salesOrder.emptyDescription")}
+                            icon={searchValue || statusFilter !== "all" ? Search : Package}
+                        />
+                    )}
 
-                {/* Completely Empty State Fallback */}
-                {!(isLoading || permissionsLoading) && orders.length === 0 && (
-                    <EmptyState
-                        className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-                        title={t("common.noResults")}
-                        description={searchValue || statusFilter !== "all"
-                            ? t("salesOrder.noResultsDescription")
-                            : t("salesOrder.emptyDescription")}
-                        icon={searchValue || statusFilter !== "all" ? Search : Package}
-                    />
-                )}
-
-                {/* Hydrated Container Mapping */}
-                {orders.length > 0 && (
-                    <SalesOrderListContent
-                        canCreate={canCreate}
-                        canEdit={canEdit}
-                        canDelete={canDelete}
-                    />
-                )}
+                    {/* Hydrated Container Mapping */}
+                    {orders.length > 0 && (
+                        <SalesOrderListContent
+                            canCreate={canCreate}
+                            canEdit={canEdit}
+                            canDelete={canDelete}
+                        />
+                    )}
+                </div>
 
             </div>
         </div>

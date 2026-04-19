@@ -36,27 +36,26 @@ const Bills = () => {
   });
 
   return (
-    <div className="p-5">
+    <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto">
         <BillListHeader searchValue={searchValue} setSearchValue={setSearchValue} />
-        {(isLoading || permissionsLoading) && bills.length === 0 && !error && (<PageLoader />)}
-
-        {/* Empty State */}
-        {!(isLoading || permissionsLoading) && bills.length === 0 && !error && (
-          <EmptyState
-            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-            icon={FileText}
-            title={t("bills.noBills")}
-            description={searchValue ? t("bills.noResultsDescription") : t("bills.emptyDescription")}
-            actionButton={!searchValue && canCreate ? {
-              label: t("bills.createBill"),
-              onClick: () => router.push("/dashboard/bills/create"),
-              icon: Plus
-            } : null}
-          />
-        )}
-
-        {bills.length > 0 && <BillListContent />}
+        <div className="px-5">
+          {(isLoading || permissionsLoading) && bills.length === 0 && !error && (<PageLoader />)}
+          {!(isLoading || permissionsLoading) && bills.length === 0 && !error && (
+            <EmptyState
+              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+              icon={FileText}
+              title={t("bills.noBills")}
+              description={searchValue ? t("bills.noResultsDescription") : t("bills.emptyDescription")}
+              actionButton={!searchValue && canCreate ? {
+                label: t("bills.createBill"),
+                onClick: () => router.push("/dashboard/bills/create"),
+                icon: Plus
+              } : null}
+            />
+          )}
+          {bills.length > 0 && <BillListContent />}
+        </div>
       </div>
     </div>
   );

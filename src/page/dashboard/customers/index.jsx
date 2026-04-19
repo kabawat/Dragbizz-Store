@@ -41,23 +41,25 @@ const CustomersPage = () => {
   }, [dispatch, storeId]);
 
   return (
-    <div className="p-5">
+    <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto">
         <CustomerListHeader onSuccess={handleBulkSuccess} />
 
-        {isLoading && customers.length === 0 && !error && (<PageLoader />)}
+        <div className="px-5">
+          {isLoading && customers.length === 0 && !error && (<PageLoader />)}
 
-        {!isLoading && customers.length === 0 && (
-          <EmptyState
-            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-            title={searchValue ? t("common.noResults") : (t("customers.noCustomers") || "No Customers Found")}
-            description={error ? `${t("common.error")}: ${error}` : searchValue ? `${t("common.noResultsFoundFor")} "${searchValue}"` : t("customers.emptyDescription") || t("customers.description")}
-            icon={searchValue ? Search : Users}
-            type={error ? "error" : "empty"}
-          />
-        )}
+          {!isLoading && customers.length === 0 && (
+            <EmptyState
+              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+              title={searchValue ? t("common.noResults") : (t("customers.noCustomers") || "No Customers Found")}
+              description={error ? `${t("common.error")}: ${error}` : searchValue ? `${t("common.noResultsFoundFor")} "${searchValue}"` : t("customers.emptyDescription") || t("customers.description")}
+              icon={searchValue ? Search : Users}
+              type={error ? "error" : "empty"}
+            />
+          )}
 
-        {customers.length > 0 && <CustomerListContent />}
+          {customers.length > 0 && <CustomerListContent />}
+        </div>
       </div>
     </div>
   );

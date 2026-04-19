@@ -42,26 +42,26 @@ const PurchaseOrders = () => {
   });
 
   return (
-    <div className="p-5">
-      <div className="max-w-8xl mx-auto">
+    <div className="overflow-hidden">
+      <div className="max-w-8xl mx-auto w-full">
         <PurchaseOrderListHeader searchValue={searchValue} setSearchValue={setSearchValue} />
-        {(isLoading || permissionsLoading) && purchaseOrders.length === 0 && !error && (<PageLoader />)}
-
-        {!(isLoading || permissionsLoading) && purchaseOrders.length === 0 && (
-          <EmptyState
-            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-            icon={FileText}
-            title={t("purchaseOrders.noPurchaseOrders")}
-            description={searchValue ? t("purchaseOrders.noResultsDescription") : t("purchaseOrders.emptyDescription")}
-            actionButton={!searchValue && canCreate ? {
-              label: t("purchaseOrders.createPO"),
-              onClick: () => router.push("/dashboard/purchase-orders/create"),
-              icon: Plus
-            } : null}
-          />
-        )}
-
-        {purchaseOrders.length > 0 && <PurchaseOrderListContent />}
+        <div className="px-5">
+          {(isLoading || permissionsLoading) && purchaseOrders.length === 0 && !error && (<PageLoader />)}
+          {!(isLoading || permissionsLoading) && purchaseOrders.length === 0 && (
+            <EmptyState
+              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+              icon={FileText}
+              title={t("purchaseOrders.noPurchaseOrders")}
+              description={searchValue ? t("purchaseOrders.noResultsDescription") : t("purchaseOrders.emptyDescription")}
+              actionButton={!searchValue && canCreate ? {
+                label: t("purchaseOrders.createPO"),
+                onClick: () => router.push("/dashboard/purchase-orders/create"),
+                icon: Plus
+              } : null}
+            />
+          )}
+          {purchaseOrders.length > 0 && <PurchaseOrderListContent />}
+        </div>
       </div>
     </div>
   );

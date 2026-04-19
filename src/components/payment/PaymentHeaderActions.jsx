@@ -21,7 +21,7 @@ const PaymentHeaderActions = ({
     if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 {/* Search */}
                 <div className="w-100">
@@ -35,15 +35,13 @@ const PaymentHeaderActions = ({
                     />
                 </div>
 
-                {/* Action buttons */}
                 <div className="flex gap-3">
-                    {/* View toggle */}
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                         <button
                             onClick={() => onViewModeChange("table")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <List className="w-4 h-4" />
@@ -52,8 +50,8 @@ const PaymentHeaderActions = ({
                         <button
                             onClick={() => onViewModeChange("card")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <Grid3X3 className="w-4 h-4" />

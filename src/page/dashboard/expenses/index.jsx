@@ -45,29 +45,31 @@ const ExpensesPage = () => {
   });
 
   return (
-    <div className="p-5">
+    <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto">
         <ExpenseListHeader onSearchChange={setSearchValue} />
 
-        {isLoading && expenses.length === 0 && !error && (<PageLoader />)}
+        <div className="px-5">
+          {isLoading && expenses.length === 0 && !error && (<PageLoader />)}
 
-        {!isLoading && expenses.length === 0 && (
-          <EmptyState
-            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-            title={searchValue ? t("common.noResults") : (t("expenses.noExpenses") || "No Expenses Found")}
-            description={
-              error
-                ? `${t("common.error")}: ${error}`
-                : searchValue
-                  ? `${t("common.noResultsFoundFor")} "${searchValue}"`
-                  : t("expenses.emptyDescription") || t("expenses.startAddingExpense")
-            }
-            icon={searchValue ? Search : IndianRupee}
-            type={error ? "error" : "empty"}
-          />
-        )}
+          {!isLoading && expenses.length === 0 && (
+            <EmptyState
+              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+              title={searchValue ? t("common.noResults") : (t("expenses.noExpenses") || "No Expenses Found")}
+              description={
+                error
+                  ? `${t("common.error")}: ${error}`
+                  : searchValue
+                    ? `${t("common.noResultsFoundFor")} "${searchValue}"`
+                    : t("expenses.emptyDescription") || t("expenses.startAddingExpense")
+              }
+              icon={searchValue ? Search : IndianRupee}
+              type={error ? "error" : "empty"}
+            />
+          )}
 
-        {expenses.length > 0 && (<ExpenseListContent />)}
+          {expenses.length > 0 && (<ExpenseListContent />)}
+        </div>
       </div>
     </div>
   );
