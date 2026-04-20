@@ -21,7 +21,7 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 const ViewCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
 
-    useDashboardHeader(t("customers.viewCustomer"), t("customers.viewCustomerDescription"));
+  useDashboardHeader(t("customers.viewCustomer"), t("customers.viewCustomerDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -74,17 +74,15 @@ const ViewCustomerPage = ({ customerId }) => {
   if (loading && !customerData) return <LoadingState />;
 
   return (
-    <div className="flex h-screen relative w-full overflow-hidden">
-      
-      <div className="min-h-screen w-full flex flex-col">
-        
-        <div className="flex-1 p-6">
-          <CustomerViewHeader t={t} />
+    <div className="overflow-hidden">
+      <div className="w-full">
+        <CustomerViewHeader t={t} />
 
+        <div className="px-5">
           {error && <ErrorState error={error} />}
 
           {!error && customerData && (
-            <>
+            <div>
               <div id="customer-details-report-area" className="hidden">
                 <CustomerDetailsTemplate
                   customerData={customerData}
@@ -100,7 +98,7 @@ const ViewCustomerPage = ({ customerId }) => {
                 onDownloadPDF={handleDownloadPDF}
                 t={t}
               />
-            </>
+            </div>
           )}
         </div>
       </div>

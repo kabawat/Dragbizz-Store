@@ -119,16 +119,16 @@ const EditCustomerPage = ({ customerId }) => {
   if (fetching) return <LoadingState t={t} />;
 
   return (
-    <div className="p-5">
-      <div className="max-w-8xl mx-auto w-full">
-        <div className="mb-6">
+    <div className="overflow-hidden">
+      <div className="max-w-8xl mx-auto">
+        <div className="p-5">
           <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">{t("common.backTo", { item: t("common.customers") })}</span>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 200px)" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 210px)" }}>
           <div className="lg:col-span-2 flex flex-col h-full">
             <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
               <CustomerForm formData={formData} onChange={handleFormDataChange} fieldErrors={fieldErrors} gstVerification={gstVerification} />
