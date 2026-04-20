@@ -130,13 +130,6 @@ const setupAuthInterceptors = (instance) => {
         }
       }
 
-      // Handle 403 Forbidden (Subscription or Permission restricted)
-      if (error.response?.status === 403) {
-        if (typeof window !== "undefined") {
-          window.location.href = "/dashboard";
-        }
-        return Promise.reject(error);
-      }
       return Promise.reject(error);
     }
   );

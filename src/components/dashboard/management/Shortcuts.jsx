@@ -3,6 +3,7 @@ import React from 'react';
 import { Users, CreditCard, Activity, ChevronRight } from "lucide-react";
 import { Card, CardBody } from "@/components/ui";
 import { usePathname } from "next/navigation";
+import Link from 'next/link';
 
 const ManagementShortcuts = () => {
     const pathname = usePathname();
@@ -56,7 +57,7 @@ const ManagementShortcuts = () => {
                         const isActive = pathname === link.href;
 
                         return (
-                            <a
+                            <Link
                                 key={link.href}
                                 href={link.href}
                                 className={`group flex items-center justify-between p-2.5 rounded-xl transition-all border shadow-none ${isActive
@@ -85,7 +86,7 @@ const ManagementShortcuts = () => {
                                         <ChevronRight className="w-3.5 h-3.5 text-[rgb(var(--color-text-tertiary))] transition-transform" />
                                     )}
                                 </div>
-                            </a>
+                            </Link>
                         );
                     })}
                 </div>
