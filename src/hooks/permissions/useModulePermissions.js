@@ -60,21 +60,36 @@ export const useModulePermissions = (moduleKey) => {
     const isStaff = authProfile.role === ROLES.STAFF;
 
     const subKey = SUB_MODULE_MAP[moduleKey] || moduleKey;
-    const isModuleActive = !subscription ? false : (subscription?.features || []).some(f => f.module === subKey);
+    const feature = (subscription?.features || []).find(f => f.module === subKey);
 
-    // Block if module not in subscription
+    // Feature active check (considering maxLimit 0 as inactive)
+    const isModuleActive = feature && (feature.usageType === "UNLIMITED" || (feature.maxLimit && feature.maxLimit > 0));
+
+    // Block if module not in subscription or has limit 0
     if (moduleKey && !isModuleActive && !isInitialLoading) {
-      return { ...DEFAULT_PERMISSIONS, moduleActive: false, loading: false, isOwner, isStaff, can: () => false };
+      return {
+        ...DEFAULT_PERMISSIONS,
+        moduleActive: false,
+        loading: isInitialLoading,
+        isOwner,
+        isStaff,
+        can: () => false
+      };
     }
 
-    // Full access for owners
+    // Full access for owners (BUT restricted by subscription flags for reports/analytics)
     if (isOwner) {
-      return {
+      const ownerPerms = {
         ...FULL_ACCESS_PERMISSIONS,
+        analytics: !!feature?.analytics,
+        report: !!feature?.report,
+      };
+      return {
+        ...ownerPerms,
         loading: false,
         isOwner: true,
         isStaff: false,
-        can: () => true,
+        can: (action) => ownerPerms[action] === true,
       };
     }
 
@@ -107,6 +122,9 @@ export const useModulePermissions = (moduleKey) => {
     const perms = {
       ...DEFAULT_PERMISSIONS,
       ...(modulePermission || {}),
+      // Staff permissions are FURTHER restricted by subscription flags
+      analytics: (modulePermission?.analytics && feature?.analytics) || false,
+      report: (modulePermission?.report && feature?.report) || false,
     };
 
     if (perms.module) delete perms.module;

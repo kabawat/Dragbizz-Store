@@ -1,6 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search, Upload } from "lucide-react";
+import { Download, Grid3X3, List, Mic, Plus, Search, Upload, Crown } from "lucide-react";
 import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -10,6 +10,7 @@ import { AddSupplierDrawer } from "@/components/supplier";
 import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
 import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 const SupplierListHeader = ({
     searchValue,
@@ -36,8 +37,20 @@ const SupplierListHeader = ({
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     const { can, loading } = useModulePermissions("supplier");
+    const { hasAccess, withAccess } = useSubscriptionAccess();
+
     const canCreate = can("create");
-    const canDownload = can("report") || can("read");
+    // Button is shown if user has report OR read permission
+    const canSeeDownload = can("report") || can("read");
+    // Check if subscription blocks reports
+    const isReportLocked = !hasAccess("supplier", false, true);
+
+    const handleDownloadClick = withAccess(
+        "supplier",
+        () => setShowDownloadDrawer(true),
+        false,
+        true
+    );
 
     useEffect(() => {
         if (!canCreate) {
@@ -109,7 +122,7 @@ const SupplierListHeader = ({
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
-        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
+        onDownload: canSeeDownload ? handleDownloadClick : undefined,
     });
 
     const handleSupplierSuccess = useCallback(() => {
@@ -211,13 +224,19 @@ const SupplierListHeader = ({
                         </Button>
                     )}
 
-                    {canDownload && (
+                    {canSeeDownload && (
                         <Button
                             variant="secondary"
-                            onClick={() => setShowDownloadDrawer(true)}
-                            leftIcon={Download}
+                            onClick={handleDownloadClick}
+                            className="flex items-center gap-2 h-9 relative"
                         >
+                            <Download className="w-4 h-4" />
                             {t("common.download")}
+                            {isReportLocked && (
+                                <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                                    <Crown size={8} className="fill-white/20" />
+                                </div>
+                            )}
                         </Button>
                     )}
 

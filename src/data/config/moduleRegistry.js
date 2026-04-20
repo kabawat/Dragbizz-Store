@@ -18,6 +18,7 @@ export const MODULE_KEYS = {
 export const ROUTE_MODULE_MAP = {
     "/dashboard/customers": MODULE_KEYS.CUSTOMERS,
     "/dashboard/invoices": MODULE_KEYS.INVOICES,
+    "/dashboard/pos": MODULE_KEYS.INVOICES,
     "/dashboard/expenses": MODULE_KEYS.EXPENSES,
     "/dashboard/sales-order": MODULE_KEYS.SALES_ORDER,
     "/dashboard/products": MODULE_KEYS.PRODUCTS,
@@ -42,7 +43,7 @@ export const getModuleFromPath = (path) => {
 export const SUB_MODULE_MAP = {
     'customers': MODULE_KEYS.CUSTOMERS,
     'invoices': MODULE_KEYS.INVOICES,
-    'pos': MODULE_KEYS.BILLING,
+    'pos': MODULE_KEYS.INVOICES,
     'products': MODULE_KEYS.PRODUCTS,
     'stock': MODULE_KEYS.INVENTORY,
     'suppliers': MODULE_KEYS.SUPPLIERS,

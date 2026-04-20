@@ -97,8 +97,8 @@ const SubscriptionManagementPage = () => {
                                                         {subscription?.startDate && <span className="text-[rgb(var(--color-border-primary))]">•</span>}
                                                         <span className="text-[rgb(var(--color-text-tertiary))]">
                                                             {t("subscription.nextBillingLabel")} <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                                                                {subscription?.nextBillingDate
-                                                                    ? moment(subscription.nextBillingDate).format("MMM D, YYYY")
+                                                                {subscription?.nextBillingDate || subscription?.endDate
+                                                                    ? moment(subscription.nextBillingDate || subscription.endDate).format("MMM D, YYYY")
                                                                     : "-- /-- /--"}
                                                             </span>
                                                         </span>
@@ -138,17 +138,19 @@ const SubscriptionManagementPage = () => {
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                                                {(subscription?.features || []).map((feature) => (
-                                                    <div key={feature.module} className="flex flex-col gap-1 border-l-2 border-[rgb(var(--color-primary))]/20 pl-4 hover:border-[rgb(var(--color-primary))] transition-all group">
-                                                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] capitalize flex items-center gap-2">
-                                                            <CheckCircle2 className="w-4 h-4 text-[rgb(var(--color-success))]" />
-                                                            {feature.module.replace('_', ' ')}
-                                                        </h4>
-                                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-                                                            {t(`subscription.featureDetails.${feature.module}`).startsWith('subscription.') ? t("subscription.featureDetailsFallback") : t(`subscription.featureDetails.${feature.module}`)}
-                                                        </p>
-                                                    </div>
-                                                ))}
+                                                {(subscription?.features || [])
+                                                    .filter(f => f.usageType === "UNLIMITED" || (f.maxLimit && f.maxLimit > 0))
+                                                    .map((feature) => (
+                                                        <div key={feature.module} className="flex flex-col gap-1 border-l-2 border-[rgb(var(--color-primary))]/20 pl-4 hover:border-[rgb(var(--color-primary))] transition-all group">
+                                                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] capitalize flex items-center gap-2">
+                                                                <CheckCircle2 className="w-4 h-4 text-[rgb(var(--color-success))]" />
+                                                                {feature.module.replace('_', ' ')}
+                                                            </h4>
+                                                            <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
+                                                                {t(`subscription.featureDetails.${feature.module}`).startsWith('subscription.') ? t("subscription.featureDetailsFallback") : t(`subscription.featureDetails.${feature.module}`)}
+                                                            </p>
+                                                        </div>
+                                                    ))}
                                             </div>
                                         </div>
                                     </CardBody>
