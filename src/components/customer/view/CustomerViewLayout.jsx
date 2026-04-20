@@ -1,16 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import CustomerBasicInfo from "@/components/customer/view/components/CustomerBasicInfo";
 import CompanyDetails from "@/components/customer/view/components/CompanyDetails";
 import AccountDetails from "@/components/customer/view/components/AccountDetails";
 import Addresses from "@/components/customer/view/components/Addresses";
 import CustomerActions from "@/components/customer/view/components/CustomerActions";
-import DeleteModal from "@/components/customer/view/components/DeleteModal";
-import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { customerService } from "@/service";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useRouter } from "next/navigation";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const CustomerViewLayout = ({
     customerData,
@@ -20,50 +14,12 @@ const CustomerViewLayout = ({
     onDownloadPDF,
     t,
 }) => {
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const { showSuccess, showError } = useGlobalToast();
-    const router = useRouter();
-    // Module permissions (hide/disable actions accordingly)
-    const { can } = useModulePermissions("customer");
-    const canEdit = can("edit");
-    const canDelete = can("delete");
-
-    const handleEdit = canEdit ? onEdit : undefined;
-    const handleDelete = canDelete ? () => setShowDeleteModal(true) : undefined;
-
-    const handleConfirmDelete = async () => {
-        if (!customerId || !storeId) return;
-        setIsDeleting(true);
-        try {
-            const result = await customerService.deleteCustomer(customerId, storeId);
-            if (result.success) {
-                showSuccess(t("modals.deletedSuccessfully", { item: t("common.customer") }));
-                router.push("/dashboard/customers");
-            } else {
-                showError(result.message || t("errors.failedToDelete", { item: t("common.customer") }));
-            }
-        } catch (_error) {
-            showError(t("errors.failedToDeleteTryAgain", { item: t("common.customer") }));
-        } finally {
-            setIsDeleting(false);
-            setShowDeleteModal(false);
-        }
-    };
-
-    useCommonHotkeys({
-        onDelete: canDelete ? () => setShowDeleteModal(true) : undefined,
-        onClose: () => {
-            if (showDeleteModal) setShowDeleteModal(false);
-        }
-    });
-
     if (!customerData) return null;
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-300px)]">
-            <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="overflow-y-auto pe-3 space-y-6 h-[calc(100vh-200px)] max-h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 overflow-hidden">
+            <div className="lg:col-span-2">
+                <div className="overflow-y-auto pe-3 space-y-6 h-[calc(100vh-150px)] custom-scrollbar">
                     <CustomerBasicInfo customerData={customerData} />
                     <CompanyDetails companyDetails={customerData.companyDetails} />
                     <AccountDetails account={customerData.account} />
@@ -73,19 +29,10 @@ const CustomerViewLayout = ({
 
             <CustomerActions
                 customerData={customerData}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    canEdit={canEdit}
-                    canDelete={canDelete}
+                customerId={customerId}
+                storeId={storeId}
+                onEdit={onEdit}
                 onDownloadPDF={onDownloadPDF}
-            />
-
-            <DeleteModal
-                isOpen={showDeleteModal}
-                customerName={customerData?.name}
-                onCancel={() => setShowDeleteModal(false)}
-                onConfirm={handleConfirmDelete}
-                isDeleting={isDeleting}
             />
         </div>
     );
