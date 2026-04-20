@@ -1,10 +1,5 @@
-#!/bin/bash
-
-# Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Load user profile to ensure tools like nvm, yarn, and pm2 are in the PATH
-# Non-interactive SSH sessions often don't load these by default.
 [ -f "$HOME/.profile" ] && source "$HOME/.profile"
 [ -f "$HOME/.bash_profile" ] && source "$HOME/.bash_profile"
 [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
