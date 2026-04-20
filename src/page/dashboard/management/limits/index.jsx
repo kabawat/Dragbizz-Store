@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
-import { Activity, BarChart3, Users, FileText, ShoppingCart, ShoppingBag, Store, Package, Zap, ChevronRight, AlertCircle } from "lucide-react";
-import { Badge, Button } from "@/components/ui";
+import { Activity, BarChart3, Users, FileText, ShoppingCart, ShoppingBag, Store, Package, Zap, ChevronRight, AlertCircle, Info } from "lucide-react";
+import { Badge, Button, Modal } from "@/components/ui";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 
 const UsageLimitsPage = () => {
     const { t } = useTranslation();
+    const [selectedFeature, setSelectedFeature] = React.useState(null);
 
     useDashboardHeader(t("limits.title"), t("limits.description"));
     const router = useRouter();
@@ -89,8 +90,9 @@ const UsageLimitsPage = () => {
                                         {stats.map((stat, idx) => {
                                             const Icon = stat.icon;
                                             const isUnlimited = stat.limit === Infinity || stat.limit === null;
-                                            const percentage = isUnlimited ? 0 : (stat.used / stat.limit) * 100;
-                                            const isAtRisk = percentage > 80;
+                                            const isNotIncluded = stat.limit === 0 && stat.usageType !== "UNLIMITED";
+                                            const percentage = (isUnlimited || isNotIncluded) ? 0 : (stat.used / stat.limit) * 100;
+                                            const isAtRisk = !isNotIncluded && percentage > 80;
 
                                             return (
                                                 <div key={idx} className="group relative overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--color-bg-secondary))] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-6 border-b border-[rgb(var(--color-border-primary))]/30 last:border-0 shadow-none">
@@ -115,9 +117,9 @@ const UsageLimitsPage = () => {
                                                             <div className="flex flex-col">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="text-lg font-medium text-[rgb(var(--color-text-primary))]">
-                                                                        {stat.used.toLocaleString()}
+                                                                        {isNotIncluded ? "—" : stat.used.toLocaleString()}
                                                                     </span>
-                                                                    {!isUnlimited && (
+                                                                    {!isUnlimited && !isNotIncluded && (
                                                                         <span className="text-sm text-[rgb(var(--color-text-tertiary))]">
                                                                             / {stat.limit.toLocaleString()}
                                                                         </span>
@@ -126,10 +128,10 @@ const UsageLimitsPage = () => {
                                                                 </div>
                                                             </div>
                                                             <span className={`text-xs font-medium ${isAtRisk ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`}>
-                                                                {isUnlimited ? t("limits.stats.unlimitedAccess") : t("limits.stats.utilizedPercentage", { percentage: percentage.toFixed(0) })}
+                                                                {isUnlimited ? t("limits.stats.unlimitedAccess") : isNotIncluded ? t("limits.stats.notIncluded") : t("limits.stats.utilizedPercentage", { percentage: percentage.toFixed(0) })}
                                                             </span>
                                                         </div>
-                                                        {!isUnlimited ? (
+                                                        {!isUnlimited && !isNotIncluded ? (
                                                             <div className="h-2 w-full bg-[rgb(var(--color-bg-secondary))] rounded-xl overflow-hidden p-0 border border-[rgb(var(--color-border-primary))]/30 shadow-none">
                                                                 <div
                                                                     className="h-full transition-all duration-1000 ease-out relative"
@@ -139,10 +141,17 @@ const UsageLimitsPage = () => {
                                                                     }}
                                                                 />
                                                             </div>
-                                                        ) : (
+                                                        ) : isUnlimited ? (
                                                             <div className="flex items-center gap-2">
                                                                 <div className="h-[1px] flex-1 bg-gradient-to-r from-[rgb(var(--color-border-primary))]/30 to-transparent" />
                                                                 <span className="text-xs font-medium text-green-500">{t("limits.stats.unlimitedPlan")}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-2 opacity-60">
+                                                                <div className="h-[1px] flex-1 bg-dashed bg-gradient-to-r from-[rgb(var(--color-border-primary))]/30 to-transparent" />
+                                                                <span className="text-xs font-medium text-[rgb(var(--color-text-tertiary))] italic">
+                                                                    {t("limits.stats.notIncluded")}
+                                                                </span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -151,7 +160,12 @@ const UsageLimitsPage = () => {
                                                         {isAtRisk && (
                                                             <AlertCircle size={16} className="text-red-500" />
                                                         )}
-                                                        <Button variant="ghost" size="xs" className="rounded-xl px-3 py-1.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="xs"
+                                                            className="rounded-xl px-3 py-1.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white"
+                                                            onClick={() => setSelectedFeature({ ...stat, isNotIncluded })}
+                                                        >
                                                             {t("limits.stats.detailsBtn")}
                                                         </Button>
                                                     </div>
@@ -218,6 +232,86 @@ const UsageLimitsPage = () => {
                     </div>
                 </div>
             </div>
+            {/* Feature Details Modal */}
+            {selectedFeature && (
+                <Modal
+                    isOpen={!!selectedFeature}
+                    onClose={() => setSelectedFeature(null)}
+                    title={t("limits.details.title", { feature: selectedFeature.name })}
+                    size="md"
+                >
+                    <div className="space-y-5 py-1">
+                        {/* Status Alert if not included */}
+                        {selectedFeature.isNotIncluded && (
+                            <div className="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-600">
+                                <AlertCircle size={18} />
+                                <p className="text-xs font-medium">This feature is not part of your current plan.</p>
+                            </div>
+                        )}                        <div className="flex items-center gap-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-xl border border-[rgb(var(--color-border-primary))]/40">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm" style={{ backgroundColor: `${selectedFeature.color}15`, color: selectedFeature.color }}>
+                                <selectedFeature.icon size={20} className="stroke-[2]" />
+                            </div>
+                            <div>
+                                <h4 className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-[0.1em] mb-0.5">{t("limits.details.usageTitle")}</h4>
+                                <p className="text-lg font-black text-[rgb(var(--color-text-primary))] tabular-nums leading-none">
+                                    {selectedFeature.isNotIncluded ? "0" : selectedFeature.used.toLocaleString()} 
+                                    <span className="text-xs font-medium text-[rgb(var(--color-text-tertiary))] ml-1 opacity-60">
+                                        / {selectedFeature.limit === Infinity ? "∞" : selectedFeature.limit.toLocaleString()}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[rgb(var(--color-border-primary))]/20 group transition-all duration-300 hover:border-[rgb(var(--color-primary))]/20">
+                                <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1">{t("limits.details.remaining")}</p>
+                                <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] tabular-nums">
+                                    {selectedFeature.limit === Infinity ? "∞" : selectedFeature.isNotIncluded ? "0" : Math.max(0, selectedFeature.limit - selectedFeature.used).toLocaleString()}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[rgb(var(--color-border-primary))]/20 group transition-all duration-300 hover:border-[rgb(var(--color-primary))]/20">
+                                <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1">{t("limits.details.type")}</p>
+                                <p className="text-xs font-bold text-[rgb(var(--color-text-primary))] capitalize truncate">
+                                    {selectedFeature.usageType?.toLowerCase()?.replace('_', ' ') || "Standard"}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 bg-gradient-to-br from-[rgb(var(--color-primary))/0.03] to-[rgb(var(--color-primary))/0.08] rounded-xl border border-[rgb(var(--color-primary)/0.1)]">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-900 shadow-sm flex items-center justify-center">
+                                    <BarChart3 size={14} className="text-[rgb(var(--color-primary))]" />
+                                </div>
+                                <span className="text-[11px] font-semibold text-[rgb(var(--color-text-secondary))]">{t("limits.details.analytics")}</span>
+                            </div>
+                            <Badge variant={selectedFeature.hasAnalytics ? "success" : "secondary"} className="text-[8px] font-bold uppercase tracking-wider px-2 py-0 rounded-md border-none shadow-sm">
+                                {selectedFeature.hasAnalytics ? t("limits.details.active") : t("limits.details.inactive")}
+                            </Badge>
+                        </div>
+
+                        {!selectedFeature.isNotIncluded && selectedFeature.limit !== Infinity && (
+                            <div className="pt-1">
+                                <Button 
+                                    className="w-full rounded-lg font-bold text-[11px] py-2.5 shadow-sm"
+                                    onClick={() => window.location.href = "/pricing"}
+                                >
+                                    Boost Limits
+                                </Button>
+                            </div>
+                        )}
+                        {selectedFeature.isNotIncluded && (
+                            <div className="pt-1">
+                                <Button 
+                                    className="w-full rounded-lg font-bold text-[11px] py-2.5 shadow-sm"
+                                    onClick={() => window.location.href = "/pricing"}
+                                >
+                                    Unlock Feature
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 };

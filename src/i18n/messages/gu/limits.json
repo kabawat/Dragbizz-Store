@@ -20,7 +20,8 @@
         "unlimitedAccess": "Unlimited",
         "utilizedPercentage": "{percentage}% Utilized",
         "unlimitedPlan": "Unlimited Plan",
-        "detailsBtn": "Details"
+        "detailsBtn": "Details",
+        "notIncluded": "Not Included"
     },
     "autoReset": {
         "title": "Auto-Reset Quotas",
@@ -41,5 +42,15 @@
         "title": "Service Updates",
         "message1": "Infrastructure optimized for faster invoice generation.",
         "message2": "New dynamic quota allocation available for Enterprise."
+    },
+    "details": {
+        "title": "{feature} Details",
+        "usageTitle": "Usage Overview",
+        "remaining": "Remaining Quota",
+        "analytics": "Advanced Analytics",
+        "type": "Quota Policy",
+        "active": "Active",
+        "inactive": "Locked",
+        "unlimited": "Unlimited"
     }
 }
