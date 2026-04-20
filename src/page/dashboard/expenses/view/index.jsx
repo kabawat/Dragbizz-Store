@@ -10,6 +10,7 @@ import {
   Hash,
   IndianRupee,
   Trash2,
+  Crown,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,11 +32,12 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useExpenseDetailsPrint } from "./hooks/useExpenseDetailsPrint";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 const ViewExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
 
-    useDashboardHeader(t("expenses.viewExpense") || "View Expense", t("expenses.viewExpenseDescription") || "Expense information and details");
+  useDashboardHeader(t("expenses.viewExpense") || "View Expense", t("expenses.viewExpenseDescription") || "Expense information and details");
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -47,9 +49,19 @@ const ViewExpensePage = ({ expenseId }) => {
 
   // Permission Management
   const { can, loading: permissionLoading } = useModulePermissions("expense");
+  const { hasAccess, withAccess } = useSubscriptionAccess();
+
   const canRead = can("read");
   const canEdit = can("edit");
   const canDelete = can("delete");
+  const isReportLocked = !hasAccess("expense", false, true);
+
+  const handleDownloadClick = withAccess(
+    "expense",
+    () => handleDownloadPDF(expenseData),
+    false,
+    true
+  );
 
   useEffect(() => {
     if (!permissionLoading && !canRead) {
@@ -96,7 +108,7 @@ const ViewExpensePage = ({ expenseId }) => {
   useCommonHotkeys({
     onEdit: canEdit ? handleEditExpense : undefined,
     onDelete: canDelete ? handleDeleteExpense : undefined,
-    onDownload: canRead ? () => handleDownloadPDF(expenseData) : undefined,
+    onDownload: canRead ? handleDownloadClick : undefined,
     onBack: () => router.push("/dashboard/expenses"),
   });
 
@@ -118,9 +130,9 @@ const ViewExpensePage = ({ expenseId }) => {
   if (fetching || permissionLoading) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        
+
         <div className="min-h-screen w-full flex flex-col">
-          
+
           <div className="flex-1 flex items-center justify-center">
             <Loading
               size="xl"
@@ -136,12 +148,12 @@ const ViewExpensePage = ({ expenseId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       {/* Sidebar */}
-      
+
 
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        
+
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -458,11 +470,16 @@ const ViewExpensePage = ({ expenseId }) => {
 
                         <Button
                           variant="outline"
-                          className="flex-1"
-                          onClick={() => handleDownloadPDF(expenseData)}
-                          leftIcon={Download}
+                          className="flex-1 relative"
+                          onClick={handleDownloadClick}
                         >
+                          <Download className="w-4 h-4 mr-2" />
                           Download
+                          {isReportLocked && (
+                            <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                              <Crown size={8} className="fill-white/20" />
+                            </div>
+                          )}
                         </Button>
                       </div>
 

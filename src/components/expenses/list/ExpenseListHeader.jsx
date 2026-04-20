@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { Download, Grid3X3, List, Plus, Search } from "lucide-react";
+import { Download, Grid3X3, List, Plus, Search, Crown } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import { AddExpenseDrawer, ExpenseDownloadDrawer } from "@/components/expenses";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -8,6 +8,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setViewMode, getExpenses } from "@/store/slices/expenses/expenseSlice";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 const ExpenseListHeader = ({
     onSearchChange,
@@ -16,8 +17,20 @@ const ExpenseListHeader = ({
     const { t } = useTranslation();
 
     const { can, loading } = useModulePermissions("expense");
+    const { hasAccess, withAccess } = useSubscriptionAccess();
+    
     const canCreate = can("create");
-    const canDownload = can("report") || can("read");
+    // Button is shown if user has report OR read permission
+    const canSeeDownload = can("report") || can("read");
+    // Check if subscription blocks reports
+    const isReportLocked = !hasAccess("expense", false, true);
+
+    const handleDownloadClick = withAccess(
+        "expense", 
+        () => setShowDownloadDrawer(true), 
+        false, 
+        true
+    );
 
     const { viewMode, expenses } = useAppSelector((state) => state.expenses);
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -49,7 +62,7 @@ const ExpenseListHeader = ({
 
     useCommonHotkeys({
         onNew: canCreate ? () => setShowAddDrawer(true) : undefined,
-        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
+        onDownload: canSeeDownload ? handleDownloadClick : undefined,
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
@@ -102,13 +115,19 @@ const ExpenseListHeader = ({
                         </div>
                     )}
 
-                    {canDownload && (
+                    {canSeeDownload && (
                         <Button
                             variant="outline"
-                            onClick={() => setShowDownloadDrawer(true)}
-                            leftIcon={Download}
+                            onClick={handleDownloadClick}
+                            className="flex items-center gap-2 h-9 relative"
                         >
+                            <Download className="w-4 h-4" />
                             {t("expenses.download")}
+                            {isReportLocked && (
+                                <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                                    <Crown size={8} className="fill-white/20" />
+                                </div>
+                            )}
                         </Button>
                     )}
                     {canCreate && (

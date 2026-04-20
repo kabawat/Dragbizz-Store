@@ -39,10 +39,28 @@ export const PermissionGuard = ({ children }) => {
 
         // 1. Subscription Check
         if (moduleName) {
-            const isModuleActive = (subscription?.features || []).some(f => f.module === moduleName);
+            const action = getActionFromPath(pathname);
+            const feature = (subscription?.features || []).find(f => f.module === moduleName);
+            const isModuleActive = feature && (feature.usageType === "UNLIMITED" || (feature.maxLimit && feature.maxLimit > 0));
+
             if (!isModuleActive) {
                 setHasAccess(false);
                 setIsSubscriptionRestricted(true);
+                setIsChecking(false);
+                return;
+            }
+
+            // Sub-feature check (Analytics/Reports)
+            if (action === "analytics" && !feature.analytics) {
+                setIsSubscriptionRestricted(true);
+                setHasAccess(false);
+                setIsChecking(false);
+                return;
+            }
+
+            if (action === "report" && !feature.report) {
+                setIsSubscriptionRestricted(true);
+                setHasAccess(false);
                 setIsChecking(false);
                 return;
             }

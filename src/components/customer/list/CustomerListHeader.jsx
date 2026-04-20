@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload } from "lucide-react";
+import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload, Crown } from "lucide-react";
 import { Button, Input, SideDrawer } from "@/components/ui";
 import { CreateCustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
@@ -10,6 +10,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomers, setViewMode } from "@/store/slices/customers/customerSlice";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 const CustomerListHeader = ({
     onSuccess,
@@ -26,8 +27,20 @@ const CustomerListHeader = ({
     const hasCustomers = customers.length > 0;
 
     const { can, loading } = useModulePermissions("customer");
+    const { hasAccess, withAccess } = useSubscriptionAccess();
+
     const canCreate = can("create");
-    const canDownload = can("report") || can("read");
+    // Button is shown if user has report OR read permission
+    const canSeeDownload = can("report") || can("read");
+    // Check if subscription blocks reports
+    const isReportLocked = !hasAccess("customer", false, true);
+
+    const handleDownloadClick = withAccess(
+        "customer",
+        () => setShowDownloadDrawer(true),
+        false,
+        true
+    );
 
     // search state lives here
     const [searchValue, setSearchValue] = useState("");
@@ -64,7 +77,7 @@ const CustomerListHeader = ({
 
     useCommonHotkeys({
         onNew: canCreate ? () => setShowCustomerDrawer(true) : undefined,
-        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
+        onDownload: canSeeDownload ? handleDownloadClick : undefined,
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
@@ -118,14 +131,19 @@ const CustomerListHeader = ({
                         </div>
                     )}
 
-                    {canDownload && (
+                    {canSeeDownload && (
                         <Button
                             variant="secondary"
-                            onClick={() => setShowDownloadDrawer(true)}
-                            className="flex items-center gap-2 h-9"
+                            onClick={handleDownloadClick}
+                            className="flex items-center gap-2 h-9 relative"
                         >
                             <Download className="w-4 h-4" />
                             {t("customers.download")}
+                            {isReportLocked && (
+                                <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                                    <Crown size={8} className="fill-white/20" />
+                                </div>
+                            )}
                         </Button>
                     )}
 

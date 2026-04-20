@@ -82,7 +82,7 @@ export const SidebarNavItem = ({
                                         prefetch={false}
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            withAccess(subItem.module, () => router.push(subItem.href), subItem.requireAnalytics)();
+                                            withAccess(subItem.module, () => router.push(subItem.href), subItem.requireAnalytics || false, false, true)();
                                         }}
                                         className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${isSubActive
                                             ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
@@ -133,7 +133,7 @@ export const SidebarNavItem = ({
                 prefetch={false}
                 onClick={(e) => {
                     e.preventDefault();
-                    withAccess(item.module, () => router.push(item.href), item.requireAnalytics)();
+                    withAccess(item.module, () => router.push(item.href), item.requireAnalytics || false, false, true)();
                 }}
                 className={`w-full flex items-center rounded-lg transition-all duration-300 cursor-pointer ${bottomSpecificClasses} ${isActive
                     ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"

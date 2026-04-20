@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-import { Building, Download, Edit, Trash2 } from "lucide-react";
+import { Building, Download, Edit, Trash2, Crown } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useRouter } from "next/navigation";
@@ -27,8 +28,18 @@ const SupplierActions = ({
   const router = useRouter();
 
   const { can } = useModulePermissions("supplier");
+  const { hasAccess, withAccess } = useSubscriptionAccess();
+
   const canEdit = can("edit");
   const canDelete = can("delete");
+  const isReportLocked = !hasAccess("supplier", false, true);
+
+  const handleDownloadClick = withAccess(
+    "supplier",
+    () => onDownload(supplierData),
+    false,
+    true
+  );
 
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -111,13 +122,18 @@ const SupplierActions = ({
 
             <Button
               variant="outline"
-              className="flex-1"
-              leftIcon={Download}
-              onClick={() => onDownload(supplierData)}
+              className="flex-1 relative"
+              onClick={handleDownloadClick}
               disabled={fetching || !supplierData}
             >
+              <Download className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Download</span>
               <span className="sm:hidden">Download</span>
+              {isReportLocked && (
+                <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                  <Crown size={8} className="fill-white/20" />
+                </div>
+              )}
             </Button>
           </div>
 
