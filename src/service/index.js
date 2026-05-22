@@ -14,6 +14,7 @@ export {
   billService,
 } from "./retailer";
 export { utilityService } from "./utility/utility.service";
+export { fcmService } from "./utility/fcm.service";
 export { publicTemplateService } from "./public/template.service";
 
 // Default export

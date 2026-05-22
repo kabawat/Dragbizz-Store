@@ -8,12 +8,14 @@ import NetworkError from "@/components/ui/NetworkError";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ToastProvider } from "@/contexts/ToastContext";
+import { FcmProvider } from "@/contexts/FcmContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import { SocketNotificationProvider } from "@/contexts/SocketNotificationContext";
 import { ReduxProvider } from "@/store/provider";
 import { LocationProvider } from "./LocationProvider";
 
 import { siteMetadata, ThemeScript } from "@/app/metadata";
+import FcmForegroundBridge from "@/components/FcmForegroundBridge";
 import GlobalHotkeys from "@/components/GlobalHotkeys";
 
 const inter = Inter({
@@ -37,18 +39,21 @@ export default function RootLayout({ children }) {
             <LanguageProvider>
               <ToastProvider>
                 <SocketProvider>
-                  <SocketNotificationProvider>
-                    <ErrorBoundary>
-                      <GlobalProfileLoader />
-                      <LocationProvider>
-                        <GlobalHotkeys />
-                        {children}
-                        <GlobalToastContainer />
-                        <NetworkError />
-                        <SettingsDrawer />
-                      </LocationProvider>
-                    </ErrorBoundary>
-                  </SocketNotificationProvider>
+                  <FcmProvider>
+                    <SocketNotificationProvider>
+                      <FcmForegroundBridge />
+                      <ErrorBoundary>
+                        <GlobalProfileLoader />
+                        <LocationProvider>
+                          <GlobalHotkeys />
+                          {children}
+                          <GlobalToastContainer />
+                          <NetworkError />
+                          <SettingsDrawer />
+                        </LocationProvider>
+                      </ErrorBoundary>
+                    </SocketNotificationProvider>
+                  </FcmProvider>
                 </SocketProvider>
               </ToastProvider>
             </LanguageProvider>

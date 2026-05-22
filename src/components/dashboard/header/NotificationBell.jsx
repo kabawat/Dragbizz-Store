@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useSocketContext } from "@/contexts/SocketContext";
-import { useSocketNotification } from "@/contexts/SocketNotificationContext";
 import { getNotificationConfig } from "@/utils/notification";
+import { useIncomingNotification } from "@/hooks/notifications/useIncomingNotification";
 import {
-    addNotification,
     markAsRead,
     markAllAsRead as dispatchMarkAllAsRead
 } from "@/store/slices/notificationsSlice";
@@ -18,7 +17,7 @@ const NotificationBell = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { socketService } = useSocketContext();
-    const { showNotification } = useSocketNotification();
+    const { handleIncomingNotification } = useIncomingNotification();
 
     const notifications = useSelector((state) => state.notifications.notifications);
     const unreadCount = useSelector((state) => state.notifications.unreadCount);
@@ -48,20 +47,12 @@ const NotificationBell = () => {
         if (!socketService) return;
 
         const handleRealtimeNotification = (data) => {
-            
-
-            const notificationPayload = {
+            handleIncomingNotification({
                 message: data.message || "New activity detected",
                 type: data.type,
-                data: data // store full data for config
-            };
+                data,
+            });
 
-            dispatch(addNotification(notificationPayload));
-            showNotification(data);
-
-            // Trigger bell animation
-            setShouldAnimateBell(true);
-            setTimeout(() => setShouldAnimateBell(false), 1000);
         };
 
         socketService.on("customer_created", handleRealtimeNotification);
@@ -71,7 +62,7 @@ const NotificationBell = () => {
             socketService.off("customer_created", handleRealtimeNotification);
             socketService.off("sales_order_created", handleRealtimeNotification);
         };
-    }, [socketService, t, showNotification]);
+    }, [socketService, handleIncomingNotification]);
 
     const markAllAsRead = () => {
         dispatch(dispatchMarkAllAsRead());

@@ -176,7 +176,16 @@
     "masterChannels": "Master Channels",
     "activityCategories": "Activity Categories",
     "configureCategory": "Configure how you get notified for",
-    "loadingPreferences": "Loading your preferences..."
+    "loadingPreferences": "Loading your preferences...",
+    "pushPermissionDenied": "Push notifications are blocked in your browser. Enable them in site settings, then turn push on again.",
+    "pushPermissionDefault": "Turn push on to allow notifications when the app is in the background.",
+    "pushNotSupported": "Push notifications are not supported in this browser.",
+    "pushEnabledSuccess": "Push notifications enabled",
+    "pushDisabledSuccess": "Push notifications disabled",
+    "pushEnableFailed": "Could not enable push notifications",
+    "fcmTokenUnavailable": "Could not get a device token. Check that notifications are allowed.",
+    "fcmSaveFailed": "Could not save notification token to the server",
+    "fcmRegisterFailed": "Failed to register for push notifications"
   },
   "securitySettings": "Security Settings",
   "manageAccountSecurity": "Manage your account security",

@@ -176,7 +176,16 @@
     "masterChannels": "Master Channels",
     "activityCategories": "Activity Categories",
     "configureCategory": "Configure karein aapko notifications kaise milenge",
-    "loadingPreferences": "Aapki preferences load ho rahi hain..."
+    "loadingPreferences": "Aapki preferences load ho rahi hain...",
+    "pushPermissionDenied": "Browser ne push notifications block kar diye hain. Site settings se allow karein, phir dubara push ON karein.",
+    "pushPermissionDefault": "Background notifications ke liye push channel ON karein — browser permission maangega.",
+    "pushNotSupported": "Is browser mein push notifications supported nahi hain.",
+    "pushEnabledSuccess": "Push notifications enable ho gaye",
+    "pushDisabledSuccess": "Push notifications disable ho gaye",
+    "pushEnableFailed": "Push notifications enable nahi ho paye",
+    "fcmTokenUnavailable": "Device token nahi mila. Notifications allow hain ya nahi check karein.",
+    "fcmSaveFailed": "Server par notification token save nahi hua",
+    "fcmRegisterFailed": "Push register karne mein error aaya"
   },
   "securitySettings": "Security Settings",
   "manageAccountSecurity": "Manage your account security",

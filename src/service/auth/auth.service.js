@@ -22,6 +22,18 @@ class AuthService {
         if (!result.data) {
           return { success: false, message: "Refresh failed", error: "null_data" };
         }
+        import("@/firebase/fcmDebug")
+          .then(({ fcmDebug }) => fcmDebug("auth/refresh OK → triggering FCM sync"))
+          .catch(() => {});
+        import("@/firebase/notification")
+          .then(({ syncFcmTokenAfterAuthRefresh }) =>
+            syncFcmTokenAfterAuthRefresh().catch((err) => {
+              import("@/firebase/fcmDebug").then(({ fcmDebugWarn }) =>
+                fcmDebugWarn("FCM sync after refresh failed", err?.message ?? err)
+              );
+            })
+          )
+          .catch(() => {});
         return result;
       } catch (error) {
         return handleApiErrorResponse(error, "token-refresh");
