@@ -48,7 +48,10 @@ const API_CONFIG = {
     BASE_URL: "/utility",
     SOCKET: "/utility/socket.io",
     UPLOAD_URL: "/utility/v1/storage/upload-url",
-    DELETE_URL: "/utility/v1/storage/file"
+    DELETE_URL: "/utility/v1/storage/file",
+    FCM_SAVE_TOKEN: "/utility/v1/fcm/save-token",
+    FCM_DELETE_TOKEN: "/utility/v1/fcm/token",
+    FCM_SEND: "/utility/v1/fcm/send",
   },
 
   // Subscription Service Endpoints

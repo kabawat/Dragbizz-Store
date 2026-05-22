@@ -49,10 +49,25 @@ const nextConfig = {
       "@dnd-kit/utilities",
       "recharts",
       "axios",
+      "firebase/app",
+      "firebase/messaging",
     ],
   },
   async headers() {
     return [
+      {
+        source: "/firebase-messaging-sw.js",
+        headers: [
+          {
+            key: "Service-Worker-Allowed",
+            value: "/",
+          },
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+        ],
+      },
       {
         source: "/_next/webpack-hmr",
         headers: [
