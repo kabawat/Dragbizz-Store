@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import { useAppDispatch } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
+import fcmService from "@/service/utility/fcm.service";
 import { isLocalhost, getMainDomain, redirectToMainDomain } from "@/utils/helper/domain";
 
 export function useLogout() {
@@ -22,6 +23,12 @@ export function useLogout() {
   const confirmLogout = async () => {
     try {
       setIsLoggingOut(true);
+      try {
+        await fcmService.deleteToken();
+      } catch (err) {
+        // Ignore FCM deletion error on logout
+      }
+      
       // 1. Call backend logout (deletes HttpOnly cookies)
       await authService.logout();
 

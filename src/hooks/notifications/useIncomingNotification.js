@@ -24,19 +24,26 @@ export function useIncomingNotification() {
         data: incoming.data || incoming,
       };
 
+      const id = incoming.id || incoming.messageId || incoming.data?.messageId || Date.now();
+
       dispatch(
         addNotification({
+          id,
           message: payload.message,
           type: payload.type,
           data: payload.data,
         })
       );
 
-      showNotification({
-        message: payload.message,
-        type: payload.type,
-        ...(payload.data && typeof payload.data === "object" ? payload.data : {}),
-      });
+      // Only show toast if the tab is visible to prevent duplicate sounds/toasts in multi-tab
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        showNotification({
+          id,
+          message: payload.message,
+          type: payload.type,
+          ...(payload.data && typeof payload.data === "object" ? payload.data : {}),
+        });
+      }
 
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("app:notification"));
