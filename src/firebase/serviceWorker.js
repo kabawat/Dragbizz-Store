@@ -1,4 +1,5 @@
 import { fcmDebug, fcmDebugWarn, isFcmSecureContext } from "./fcmDebug";
+import logger from "@/utils/logger";
 
 // FCM service worker path
 export const FCM_SERVICE_WORKER_PATH = "/firebase-messaging-sw.js";
@@ -76,6 +77,7 @@ export async function registerFcmServiceWorker() {
   } catch (error) {
     registrationPromise = null;
     fcmDebugWarn("serviceWorker: registration failed", error?.message ?? error);
+    logger.error("[FCM] serviceWorker: registration failed", error);
     throw error;
   }
 }

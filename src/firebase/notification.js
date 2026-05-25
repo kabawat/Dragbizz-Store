@@ -11,6 +11,7 @@ import { getFcmDeviceInfo } from "./deviceInfo";
 import { getFirebaseMessaging } from "./firebase";
 import fcmService from "@/service/utility/fcm.service";
 import { getFcmServiceWorkerRegistration } from "./serviceWorker";
+import logger from "@/utils/logger";
 
 /** Current browser notification permission. */
 export function getNotificationPermissionState() {
@@ -110,7 +111,7 @@ export async function registerPushNotifications() {
     fcmDebug("registerPushNotifications: done", { success: true });
     return { success: true, permission, token };
   } catch (error) {
-    console.error("[FCM] registerPushNotifications failed", error);
+    logger.error("[FCM] registerPushNotifications failed", error);
     return {
       success: false,
       permission,
@@ -144,7 +145,12 @@ export async function syncFcmTokenAfterAuthRefresh() {
     return refreshFcmSyncPromise;
   }
 
-  refreshFcmSyncPromise = (async () => {
+  refreshFcmSyncPromise = navigator.locks ? navigator.locks.request("fcm-sync", { ifAvailable: true }, async (lock) => {
+    if (!lock) {
+      fcmDebug("syncFcmTokenAfterAuthRefresh: skipped — another tab is syncing");
+      return { success: true, message: "Skipped: another tab is syncing" };
+    }
+    
     await getFcmServiceWorkerRegistration();
 
     const permission = getNotificationPermissionState();
@@ -168,7 +174,63 @@ export async function syncFcmTokenAfterAuthRefresh() {
           message: saveResult?.message,
         };
       } catch (error) {
-        console.error("[FCM] sync after auth refresh failed", error);
+        logger.error("[FCM] sync after auth refresh failed", error);
+        return { success: false, permission, message: "fcmRegisterFailed" };
+      }
+    }
+
+    if (permission === "default") {
+      const { default: authService } = await import("@/service/auth/auth.service");
+      const settingsResult = await authService.getNotificationSettings();
+      const pushEnabled =
+        settingsResult?.success === true &&
+        settingsResult.data?.channels?.push !== false;
+
+      fcmDebug("syncFcmTokenAfterAuthRefresh: notification settings", {
+        settingsOk: settingsResult?.success,
+        pushEnabled,
+      });
+
+      if (pushEnabled) {
+        fcmDebug("syncFcmTokenAfterAuthRefresh: prompting registerPushNotifications");
+        return registerPushNotifications();
+      }
+    }
+
+    if (permission === "denied") {
+      fcmDebugWarn(
+        "syncFcmTokenAfterAuthRefresh: skipped — unblock notifications in browser site settings, then reload"
+      );
+    } else {
+      fcmDebug("syncFcmTokenAfterAuthRefresh: skipped", { permission });
+    }
+    return { success: false, permission };
+  }) : (async () => {
+    // Fallback if navigator.locks is not supported
+    await getFcmServiceWorkerRegistration();
+
+    const permission = getNotificationPermissionState();
+    fcmDebug("syncFcmTokenAfterAuthRefresh: permission", { permission });
+
+    if (permission === "granted") {
+      try {
+        const token = await getFcmDeviceToken();
+        if (!token) {
+          fcmDebugWarn("syncFcmTokenAfterAuthRefresh: granted but no token");
+          return { success: false, permission, message: "fcmTokenUnavailable" };
+        }
+        const saveResult = await saveFcmTokenToServer(token);
+        fcmDebug("syncFcmTokenAfterAuthRefresh: save-token", {
+          success: saveResult?.success,
+          message: saveResult?.message,
+        });
+        return {
+          success: saveResult?.success === true,
+          permission,
+          message: saveResult?.message,
+        };
+      } catch (error) {
+        logger.error("[FCM] sync after auth refresh failed", error);
         return { success: false, permission, message: "fcmRegisterFailed" };
       }
     }

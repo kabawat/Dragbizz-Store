@@ -3,6 +3,7 @@ import { fcmDebug, fcmDebugToken, fcmDebugWarn } from "@/firebase/fcmDebug";
 import { getFcmDeviceInfo } from "@/firebase/deviceInfo";
 import { authAxios } from "@/service/config/axiosConfig";
 import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
+import logger from "@/utils/logger";
 
 class FcmService {
   async saveToken(token, options = {}) {
@@ -33,6 +34,7 @@ class FcmService {
         status: error?.response?.status,
         message: error?.response?.data?.message ?? error?.message,
       });
+      logger.error("[FCM] API save-token failed", error);
       return handleApiErrorResponse(error, "fcm-save-token");
     }
   }
@@ -54,6 +56,7 @@ class FcmService {
         status: error?.response?.status,
         message: error?.response?.data?.message ?? error?.message,
       });
+      logger.error("[FCM] API delete-token failed", error);
       return handleApiErrorResponse(error, "fcm-delete-token");
     }
   }
