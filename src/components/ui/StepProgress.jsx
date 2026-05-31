@@ -101,7 +101,7 @@ const StepProgress = ({
             value: data.gstInfo?.gstRate,
             required: false,
           },
-          { name: "gstType", value: data.gstInfo?.gstType, required: false },
+          { name: "hsnCode", value: data.gstInfo?.hsnCode, required: false },
           {
             name: "hsnCode",
             value: data.gstInfo?.hsnCode?.trim(),

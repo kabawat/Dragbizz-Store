@@ -510,22 +510,6 @@ const ViewProductPage = ({ productId }) => {
                                 </div>
                               </div>
 
-                              {/* GST Type */}
-                              {(productData.gstInfo?.gstRate || productData.gstInfo?.gstType) && (
-                                <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
-                                  <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
-                                  <div className="relative z-10">
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                      GST Type
-                                    </p>
-                                    <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {productData.gstInfo?.gstType ||
-                                        t("common.na")}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-
                               {/* HSN Code */}
                               {productData.gstInfo?.hsnCode && (
                                 <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">

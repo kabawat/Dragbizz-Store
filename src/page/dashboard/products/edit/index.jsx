@@ -67,7 +67,7 @@ const UpdateProductPage = ({ productId }) => {
     stockQuantity: 0,
     gstInfo: {
       gstRate: "",
-      gstType: "CGST_SGST",
+      gstCategory: "TAXABLE",
       hsnCode: "",
       isGstIncluded: true,
     },
@@ -121,7 +121,7 @@ const UpdateProductPage = ({ productId }) => {
           gstInfo: {
             isGstIncluded: product?.gstInfo?.isGstIncluded !== undefined ? product?.gstInfo?.isGstIncluded : (product?.gstInfo?.isGstApplicable || false),
             gstRate: product?.gstInfo?.gstRate || "",
-            gstType: product?.gstInfo?.gstType || "CGST_SGST",
+            gstCategory: product?.gstInfo?.gstCategory || "TAXABLE",
             hsnCode: product?.gstInfo?.hsnCode || "",
           },
           // Content data from nested content object

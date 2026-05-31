@@ -7,6 +7,11 @@ class InvoiceService extends BaseService {
     this.endpoint = API_CONFIG?.RETAILER?.INVOICE;
   }
 
+  // Preview totals & GST breakup (transaction-level, no persist)
+  calculateInvoicePreview(payload, params = {}) {
+    return this.post(`${this.endpoint}/calculate`, payload, params);
+  }
+
   // Create Draft Invoice
   createDraftInvoice(invoiceData) {
     return this.post(this.endpoint, invoiceData);

@@ -21,7 +21,7 @@ const transformProductData = (apiProduct) => {
 
     // GST information
     gst: apiProduct.gstInfo?.gstRate || apiProduct.gst || apiProduct.gstRate || 0,
-    gstType: apiProduct.gstInfo?.gstType || apiProduct.gstType || "CGST_SGST",
+    gstCategory: apiProduct.gstInfo?.gstCategory || "TAXABLE",
     hsnCode: apiProduct.gstInfo?.hsnCode || apiProduct.hsnCode || apiProduct.hsn || "",
     isGstIncluded: apiProduct.gstInfo?.isGstIncluded === true,
 
