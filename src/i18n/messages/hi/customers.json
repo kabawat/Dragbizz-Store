@@ -76,6 +76,18 @@
   "editMore": "और संपादित करें",
   "activeCustomer": "सक्रिय ग्राहक",
   "memberSince": "सदस्यता से",
+  "source": "स्रोत",
+  "sourceValues": {
+    "MANUAL": "मैन्युअल",
+    "POS": "POS",
+    "INVOICE": "चालान",
+    "BULK_IMPORT": "थोक अपलोड",
+    "ONLINE": "ऑनलाइन",
+    "IN_STORE": "इन-स्टोर",
+    "WHATSAPP": "WhatsApp",
+    "PHONE": "फ़ोन",
+    "QR_CATALOG": "QR कैटलॉग"
+  },
   "download": "डाउनलोड",
   "export": "ग्राहक निर्यात करें",
   "downloadCustomers": "ग्राहक डाउनलोड करें",

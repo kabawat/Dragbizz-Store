@@ -18,6 +18,7 @@
   "item": "आइटम",
   "items": "आइटम",
   "createInvoiceButton": "चालान बनाएं",
+  "createNewInvoice": "नया चालान बनाएं",
   "noItemsTile": "कोई आइटम जोड़ा नहीं गया।",
   "noItemsdisc": "ऊपर से कोई उत्पाद और मात्रा चुनें।",
   "loadingCustomers": "ग्राहक लोड हो रहे हैं...",

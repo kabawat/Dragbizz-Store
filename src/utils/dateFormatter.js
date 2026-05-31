@@ -62,6 +62,22 @@ export const formatDateOnly = (date) => {
   }
 };
 
+/** e.g. 01 - jun - 2026 */
+export const formatDateDash = (date) => {
+  if (!date) return "--";
+
+  try {
+    const parsed = moment(date);
+    if (!parsed.isValid()) return "--";
+    return `${parsed.format("DD")} ${parsed.format("MMM").toLowerCase()}, ${parsed.format("YYYY")}`;
+  } catch (_error) {
+    return "--";
+  }
+};
+
+export const getRecordCreatedAt = (record) =>
+  record?.createdAt || record?.timestamps?.createdAt || null;
+
 export const formatTime = (date) => {
   if (!date) return "--";
 

@@ -8,7 +8,9 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
 import { IconButton } from "../ui";
 
 const CustomerCard = ({
@@ -175,6 +177,12 @@ const CustomerCard = ({
 
         {/* Customer Stats Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("customers.source")}
+            </span>
+            <CustomerSourceBadge source={customer.source} />
+          </div>
           <div className="flex items-center justify-between">
             <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               {t("common.status")}
@@ -188,7 +196,7 @@ const CustomerCard = ({
               {t("customers.memberSince")}
             </span>
             <span className="text-xs sm:text-sm font-medium text-[rgb(var(--color-text-primary))]">
-              {new Date(customer.createdAt || Date.now()).toLocaleDateString()}
+              {formatDateDash(getRecordCreatedAt(customer))}
             </span>
           </div>
         </div>

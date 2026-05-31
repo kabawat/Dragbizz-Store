@@ -18,6 +18,7 @@
   "item": "Item",
   "items": "Items",
   "createInvoiceButton": "Invoice create karo",
+  "createNewInvoice": "Naya Invoice create karo",
   "noItemsTile": "Abhi tak koi items add nahi kiye",
   "noItemsdisc": "Items add karne ke liye upar se product aur quantity select karo.",
   "loadingCustomers": "Customers load ho rahe hain...",

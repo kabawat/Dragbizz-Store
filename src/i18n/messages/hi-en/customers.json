@@ -76,6 +76,18 @@
   "editMore": "Aur edit karo",
   "activeCustomer": "Active Customer",
   "memberSince": "Member Since",
+  "source": "Source",
+  "sourceValues": {
+    "MANUAL": "Manual",
+    "POS": "POS",
+    "INVOICE": "Invoice",
+    "BULK_IMPORT": "Bulk Upload",
+    "ONLINE": "Online",
+    "IN_STORE": "In-Store",
+    "WHATSAPP": "WhatsApp",
+    "PHONE": "Phone",
+    "QR_CATALOG": "QR Catalog"
+  },
   "download": "Download",
   "export": "Export Customers",
   "downloadCustomers": "Download Customers",
