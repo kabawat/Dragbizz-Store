@@ -14,7 +14,7 @@ const CartHeader = ({ cartCount, onClear }) => {
             </div>
             <button
                 onClick={onClear}
-                className="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors"
+                className="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors cursor-pointer"
                 disabled={cartCount === 0}
             >
                 <Trash2 className="w-3 h-3" /> Clear
