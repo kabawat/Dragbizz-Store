@@ -29,7 +29,7 @@ class StoreService extends BaseService {
 
   // Get store details
   async getStore(storeId) {
-    return this.get(this.endpoint, { id: storeId });
+    return this.get(this.endpoint, { id: String(storeId) });
   }
 
   // Update store

@@ -26,7 +26,7 @@ const StoreSettings = () => {
   // Drawer/Modal state
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
-  const [editingStoreId, setEditingStoreId] = useState(null);
+  const [editingStore, setEditingStore] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState(null);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
@@ -65,8 +65,8 @@ const StoreSettings = () => {
   };
 
   // Handle edit store - open drawer
-  const handleEditStore = (storeId) => {
-    setEditingStoreId(storeId);
+  const handleEditStore = (store) => {
+    setEditingStore(store);
     setIsEditDrawerOpen(true);
   };
 
@@ -142,10 +142,10 @@ const StoreSettings = () => {
 
       <StoreEditDrawer
         isOpen={isEditDrawerOpen}
-        editingStoreId={editingStoreId}
+        editingStore={editingStore}
         onClose={() => {
           setIsEditDrawerOpen(false);
-          setEditingStoreId(null);
+          setEditingStore(null);
         }}
         onSuccess={handleEditSuccess}
         onError={showError}
