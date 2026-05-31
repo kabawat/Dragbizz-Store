@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
     CartHeader,
     CustomerSearch,
@@ -6,64 +6,100 @@ import {
     CartSummary,
     PaymentSection
 } from "./cart";
-import { calculateInvoiceGST } from "@/utils/gstCalculator";
+import { useAppSelector } from "@/store/hooks";
+import { invoiceService } from "@/service";
+import useApiResponse from "@/hooks/useApiResponse";
 
-// POS Cart Container
+// POS Cart Container — totals from backend (transaction-level GST)
 const CartPanel = ({ cart, setCart, checkoutRef }) => {
     const [customerName, setCustomerName] = useState("");
     const [globalDiscount, setGlobalDiscount] = useState("");
-
-    // --- Totals Calculation ---
-    const mappedItems = useMemo(() => {
-        return cart.map((i) => ({
-            price: i.pricing?.sellingPrice || i.price || 0,
-            quantity: i.qty,
-            gstRate: i.gstInfo?.gstRate || i.tax || 0,
-            isInclusive: i.gstInfo?.isGstIncluded ?? i.isInclusive ?? true,
-        }));
-    }, [cart]);
-
-    const gstSummary = calculateInvoiceGST({
-        items: mappedItems,
-        totalDiscount: globalDiscount || 0,
-        discountMode: "POST_TOTAL",
-        supplierHasGst: true,
+    const [totals, setTotals] = useState({
+        subtotal: 0,
+        taxTotal: 0,
+        grandTotal: 0,
+        gstBreakdown: null,
     });
+    const [calculating, setCalculating] = useState(false);
 
-    const { subtotal, totalAmount: grandTotal, gst: { total: taxTotal } } = gstSummary;
+    const { selectedStore } = useAppSelector((state) => state.profile);
+    const storeId = selectedStore?.storeId || selectedStore?._id;
+    const { execute } = useApiResponse();
+    const debounceRef = useRef(null);
 
-    const discountAmt = globalDiscount || 0;
+    const fetchTotals = useCallback(async () => {
+        if (!storeId || cart.length === 0) {
+            setTotals({ subtotal: 0, taxTotal: 0, grandTotal: 0, gstBreakdown: null });
+            return;
+        }
+
+        setCalculating(true);
+        const result = await execute(
+            invoiceService.calculateInvoicePreview(
+                {
+                    store: storeId,
+                    items: cart.map((item) => ({
+                        product: item.id || item._id,
+                        quantity: item.qty,
+                    })),
+                    totalDiscount: Number(globalDiscount) || 0,
+                    discountMode: "POST_TOTAL",
+                    isWalkin: true,
+                },
+                { store: storeId }
+            ),
+            { showToast: false }
+        );
+        setCalculating(false);
+
+        if (result?.success) {
+            const data = result.data;
+            setTotals({
+                subtotal: data?.subtotal ?? 0,
+                taxTotal: data?.gst?.amount ?? data?.gst?.breakdown?.total ?? 0,
+                grandTotal: data?.totalAmount ?? 0,
+                gstBreakdown: data?.gst?.breakdown ?? null,
+            });
+        }
+    }, [cart, globalDiscount, storeId, execute]);
+
+    useEffect(() => {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(fetchTotals, 300);
+        return () => clearTimeout(debounceRef.current);
+    }, [fetchTotals]);
+
+    const { subtotal, taxTotal, grandTotal, gstBreakdown } = totals;
+    const discountAmt = Number(globalDiscount) || 0;
 
     return (
         <div className="w-80 xl:w-96 flex flex-col bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] overflow-hidden z-10 transition-all duration-300">
-            {/* 1. Header & Quick Actions */}
             <CartHeader
                 cartCount={cart.reduce((sum, item) => sum + item.qty, 0)}
                 onClear={() => setCart([])}
             />
 
-            {/* 2. Walk-in Customer Identification */}
             <CustomerSearch
                 customerName={customerName}
                 setCustomerName={setCustomerName}
             />
 
-            {/* 3. Product List (Handles local quty & item-discounts) */}
             <CartItemsList
                 cart={cart}
                 setCart={setCart}
             />
 
-            {/* 4. Totals & Payment (Handles checkout flow) */}
             {cart.length > 0 && (
                 <div className="animate-in slide-in-from-bottom duration-500 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
                     <CartSummary
                         subtotal={subtotal}
                         taxTotal={taxTotal}
+                        gstBreakdown={gstBreakdown}
                         discountAmt={discountAmt}
                         globalDiscount={globalDiscount}
                         setGlobalDiscount={setGlobalDiscount}
                         grandTotal={grandTotal}
+                        calculating={calculating}
                     />
 
                     <PaymentSection

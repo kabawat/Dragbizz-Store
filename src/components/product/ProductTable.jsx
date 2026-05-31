@@ -314,9 +314,7 @@ const ProductTable = ({
                               </span>
                             </div>
                             <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                              {product.gstType === "CGST_SGST"
-                                ? "CGST+SGST"
-                                : product.gstType || "CGST+SGST"}
+                              {product.gstCategory || "TAXABLE"}
                             </div>
                             {(product.hsnCode || product.hsn) && (
                               <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">

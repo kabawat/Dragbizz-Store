@@ -15,25 +15,6 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
     onChange(field, value);
   };
 
-  // GST Type options
-  const gstTypeOptions = (t) => [
-    {
-      value: "CGST_SGST",
-      label: t("products.cgstSgst"),
-      description: t("products.cgstSgstDescription"),
-    },
-    {
-      value: "IGST",
-      label: t("products.igst"),
-      description: t("products.igstDescription"),
-    },
-    {
-      value: "UTGST",
-      label: t("products.utgst"),
-      description: t("products.utgstDescription"),
-    },
-  ];
-
   // Memoize GST amount based on include/exclude option
   const gstAmount = useMemo(() => {
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
@@ -280,9 +261,14 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
 
         {/* GST Fields - Always show, but some parts conditional */}
         <>
-          {/* GST Rate, Type, and HSN Code - Single Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {/* GST Rate */}
+          <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-4 flex items-start gap-2">
+            <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span>
+              CGST/SGST vs IGST is calculated automatically when you bill, based on your store state and the customer&apos;s state.
+            </span>
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <Select
                 label={t("products.gstRate")}
@@ -300,24 +286,6 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
               />
             </div>
 
-            {/* GST Type */}
-            <div>
-              <Select
-                label={t("products.gstType")}
-                options={gstTypeOptions(t)}
-                value={formData.gstInfo?.gstType || "CGST_SGST"}
-                onChange={(value) =>
-                  handleFieldChange("gstInfo.gstType", value)
-                }
-                error={errors.gstType}
-                errorMessage={errors.gstType}
-                required={hasStoreGst}
-                searchable
-                placeholder={t("products.selectGstType")}
-              />
-            </div>
-
-            {/* HSN Code */}
             <div>
               <Input
                 label={t("products.hsnCode")}
@@ -405,31 +373,13 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
             </h4>
 
             {/* Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {/* Price Field */}
-
-
-              {/* GST Rate */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
                 <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
                   {t("products.gstRate")}
                 </span>
                 <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                   {(parseFloat(formData.gstInfo?.gstRate) || 0).toFixed(2)}%
-                </span>
-              </div>
-
-              {/* GST Type */}
-              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
-                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
-                  {t("products.gstType")}
-                </span>
-                <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate" title={gstTypeOptions(t).find(
-                  (type) => type.value === formData.gstInfo?.gstType
-                )?.label || formData.gstInfo?.gstType}>
-                  {gstTypeOptions(t).find(
-                    (type) => type.value === formData.gstInfo?.gstType
-                  )?.label || formData.gstInfo?.gstType}
                 </span>
               </div>
 

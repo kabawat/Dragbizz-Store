@@ -53,8 +53,10 @@ const AddProductPage = () => {
     uom: "PCS",
     gstInfo: {
       gstRate: "",
-      gstType: "CGST_SGST",
+      gstCategory: "TAXABLE",
       hsnCode: "",
+      sacCode: "",
+      cessRate: 0,
       isGstIncluded: true,
     },
     content: {
