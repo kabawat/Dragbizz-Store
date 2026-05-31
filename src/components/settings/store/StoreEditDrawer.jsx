@@ -34,11 +34,13 @@ const StoreEditDrawer = ({
 
   const {
     isVerifyingGst,
-    isGstVerified,
-    handleVerifyGst: verifyGst,
+    isGstVerified: isGstVerifiedFromApi,
+    handleVerifyGst: verifyGstNumber,
     resetGstVerification,
   } = useGstVerification(setForm);
 
+  const isGstVerified = isGstVerifiedFromApi || Boolean(form.gstDetail);
+  
   useEffect(() => {
     if (!isOpen || !editingStoreId) return;
 
@@ -85,7 +87,7 @@ const StoreEditDrawer = ({
       setErrors((prev) => ({ ...prev, gst: "Please enter a valid GST number" }));
       return;
     }
-    await verifyGst(form.gst);
+    await verifyGstNumber(form.gst);
   };
 
   const handleChange = (e) => {

@@ -38,8 +38,8 @@ const StoreAddDrawer = ({ isOpen, onClose, onSuccess, onError }) => {
   const {
     isVerifyingGst,
     isGstVerified,
-    handleVerifyGst: verifyGst,
-    resetGstVerification
+    handleVerifyGst: verifyGstNumber,
+    resetGstVerification,
   } = useGstVerification(setForm);
 
   // Handle GST Verification
@@ -48,7 +48,7 @@ const StoreAddDrawer = ({ isOpen, onClose, onSuccess, onError }) => {
       setErrors((prev) => ({ ...prev, gst: "Please enter a valid GST number" }));
       return;
     }
-    await verifyGst(form.gst);
+    await verifyGstNumber(form.gst);
   };
 
   // Handle form field changes
