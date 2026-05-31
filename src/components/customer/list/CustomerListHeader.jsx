@@ -1,7 +1,7 @@
 "use client";
-import { useRef, useState, useCallback, useEffect } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload, Crown } from "lucide-react";
-import { Button, Input, SideDrawer } from "@/components/ui";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { Download, Grid3X3, List, Plus, Search, Upload, Crown, Users } from "lucide-react";
+import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { CreateCustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
 import CustomerBulkUploadDrawer from "@/components/customer/CustomerBulkUploadDrawer";
@@ -13,16 +13,21 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 const CustomerListHeader = ({
+    searchValue,
+    setSearchValue,
+    isActive,
+    setIsActive,
     onSuccess,
-    onSearchChange, // optional: notify parent if needed
 }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
-    // viewMode, selectedStore & customers come from Redux directly
     const { viewMode, customers } = useAppSelector((state) => state.customers);
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = useMemo(
+        () => selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "",
+        [selectedStore]
+    );
 
     const hasCustomers = customers.length > 0;
 
@@ -30,9 +35,7 @@ const CustomerListHeader = ({
     const { hasAccess, withAccess } = useSubscriptionAccess();
 
     const canCreate = can("create");
-    // Button is shown if user has report OR read permission
     const canSeeDownload = can("report") || can("read");
-    // Check if subscription blocks reports
     const isReportLocked = !hasAccess("customer", false, true);
 
     const handleDownloadClick = withAccess(
@@ -41,9 +44,6 @@ const CustomerListHeader = ({
         false,
         true
     );
-
-    // search state lives here
-    const [searchValue, setSearchValue] = useState("");
 
     const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
@@ -54,11 +54,53 @@ const CustomerListHeader = ({
     }, [canCreate]);
 
     const searchInputRef = useRef(null);
+    const lastFetchRef = useRef(null);
+    const hasFetchedRef = useRef({ fetched: false, storeId: null, search: null, active: null });
 
-    const handleSearchChange = (value) => {
-        setSearchValue(value);
-        onSearchChange?.(value);
-    };
+    useEffect(() => {
+        lastFetchRef.current = null;
+        hasFetchedRef.current = { fetched: false, storeId: null, search: null, active: null };
+    }, [storeId]);
+
+    const fetchCustomers = useCallback(async () => {
+        if (!storeId) return;
+
+        const fetchKey = `${storeId}-${searchValue}-${isActive}`;
+        if (lastFetchRef.current === fetchKey) return;
+
+        const last = hasFetchedRef.current;
+        if (last.fetched && last.storeId === storeId && last.search === searchValue && last.active === isActive) {
+            return;
+        }
+
+        lastFetchRef.current = fetchKey;
+
+        const params = {
+            store: storeId,
+            limit: 20,
+            isFreshLoad: true,
+            ...(searchValue?.trim() ? { search: searchValue.trim() } : {}),
+            ...(isActive !== "" ? { isActive } : {}),
+        };
+
+        try {
+            await dispatch(getCustomers(params));
+            hasFetchedRef.current = { fetched: true, storeId, search: searchValue, active: isActive };
+        } catch {
+            lastFetchRef.current = null;
+        }
+    }, [dispatch, storeId, searchValue, isActive]);
+
+    useEffect(() => {
+        if (!storeId) return;
+        const last = hasFetchedRef.current;
+        if (last.fetched && last.storeId === storeId && last.search === searchValue && last.active === isActive) {
+            return;
+        }
+
+        const timer = setTimeout(() => fetchCustomers(), 350);
+        return () => clearTimeout(timer);
+    }, [storeId, searchValue, isActive, fetchCustomers]);
 
     const handleViewModeChange = (mode) => {
         dispatch(setViewMode(mode));
@@ -68,12 +110,12 @@ const CustomerListHeader = ({
     const handleCustomerSuccess = (customerData) => {
         setShowCustomerDrawer(false);
         onSuccess?.(customerData);
+        fetchCustomers();
     };
 
     const handleBulkUploadSuccess = useCallback(() => {
-        if (!storeId) return;
-        dispatch(getCustomers({ store: storeId, limit: 20, isFreshLoad: true }));
-    }, [dispatch, storeId]);
+        fetchCustomers();
+    }, [fetchCustomers]);
 
     useCommonHotkeys({
         onNew: canCreate ? () => setShowCustomerDrawer(true) : undefined,
@@ -88,24 +130,41 @@ const CustomerListHeader = ({
         },
     });
 
-    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
+    if (loading) {
+        return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
+    }
 
     return (
         <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                <div className="w-100">
-                    <Input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder={`${t("common.search")} ${t("customers.title").toLowerCase()}...`}
-                        value={searchValue}
-                        onChange={handleSearchChange}
-                        leftIcon={Search}
-                        className="w-100"
-                    />
+                <div className="flex flex-1 flex-wrap items-center gap-3 min-w-0">
+                    <div className="flex-1 min-w-[200px] max-w-md">
+                        <Input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder={`${t("common.search")} ${t("customers.title").toLowerCase()}...`}
+                            value={searchValue}
+                            onChange={setSearchValue}
+                            leftIcon={Search}
+                            className="w-full"
+                        />
+                    </div>
+                    <div className="min-w-[140px]">
+                        <Select
+                            placeholder={t("common.status") || "Status"}
+                            value={isActive}
+                            onChange={setIsActive}
+                            options={[
+                                { value: "", label: t("common.allStatus") },
+                                { value: "true", label: t("common.active") },
+                                { value: "false", label: t("common.inactive") },
+                            ]}
+                            clearable
+                        />
+                    </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-shrink-0">
                     {hasCustomers && (
                         <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                             <button
@@ -170,7 +229,6 @@ const CustomerListHeader = ({
                 </div>
             </div>
 
-            {/* Create Customer Drawer */}
             <SideDrawer
                 isOpen={showCustomerDrawer}
                 onClose={() => setShowCustomerDrawer(false)}
@@ -189,7 +247,6 @@ const CustomerListHeader = ({
                 </div>
             </SideDrawer>
 
-            {/* Download Drawer */}
             {showDownloadDrawer && (
                 <CustomerDownloadDrawer
                     isOpen={showDownloadDrawer}
@@ -197,7 +254,6 @@ const CustomerListHeader = ({
                 />
             )}
 
-            {/* Bulk Upload Drawer */}
             {showBulkUploadDrawer && (
                 <CustomerBulkUploadDrawer
                     isOpen={showBulkUploadDrawer}
