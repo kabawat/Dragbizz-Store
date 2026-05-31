@@ -67,8 +67,8 @@ export default function StoreCreation() {
   const {
     isVerifyingGst,
     isGstVerified,
-    handleVerifyGst: verifyGst,
-    resetGstVerification
+    handleVerifyGst: verifyGstNumber,
+    resetGstVerification,
   } = useGstVerification(setFormData);
 
   // Load agency data from Redux
@@ -85,7 +85,7 @@ export default function StoreCreation() {
 
   const handleVerifyGst = async () => {
     if (!formData.gst || formData.gst.length < 15) return;
-    await verifyGst(formData.gst);
+    await verifyGstNumber(formData.gst);
   };
 
   const updateFormData = (field, value) => {
