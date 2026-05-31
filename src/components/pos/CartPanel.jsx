@@ -35,7 +35,7 @@ const CartPanel = ({ cart, setCart, checkoutRef }) => {
     const discountAmt = globalDiscount || 0;
 
     return (
-        <div className="w-80 xl:w-96 flex flex-col bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] overflow-hidden shadow-2xl z-10 transition-all duration-300">
+        <div className="w-80 xl:w-96 flex flex-col bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] overflow-hidden z-10 transition-all duration-300">
             {/* 1. Header & Quick Actions */}
             <CartHeader
                 cartCount={cart.reduce((sum, item) => sum + item.qty, 0)}
@@ -56,7 +56,7 @@ const CartPanel = ({ cart, setCart, checkoutRef }) => {
 
             {/* 4. Totals & Payment (Handles checkout flow) */}
             {cart.length > 0 && (
-                <div className="animate-in slide-in-from-bottom duration-500 border-t border-[rgb(var(--color-border-primary))] shadow-[0_-12px_40px_rgba(0,0,0,0.06)] bg-[rgb(var(--color-bg-primary))]">
+                <div className="animate-in slide-in-from-bottom duration-500 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
                     <CartSummary
                         subtotal={subtotal}
                         taxTotal={taxTotal}

@@ -113,7 +113,7 @@ const PaymentSection = ({
                                 className={`flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-xl border text-[10px] font-semibold uppercase tracking-wider transition-all duration-200 ${isActive
                                     ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] scale-[1.02]"
                                     : "border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/30 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
-                                    } shadow-sm hover:shadow-md active:scale-[0.98] cursor-pointer`}
+                                    } active:scale-[0.98] cursor-pointer`}
                             >
                                 <Icon className={`w-4 h-4 ${isActive ? "animate-pulse" : ""}`} />
                                 {pm.label}
@@ -134,13 +134,13 @@ const PaymentSection = ({
                         />
                         <div className="flex flex-wrap gap-1.5 mb-3">
                             {quickAmounts.map((amt) => (
-                                <button key={amt} onClick={() => setCashReceived(String(amt))} className="flex-1 min-w-[50px] px-2 py-1.5 text-xs rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5 shadow-sm active:scale-95 transition-all text-center cursor-pointer">
+                                <button key={amt} onClick={() => setCashReceived(String(amt))} className="flex-1 min-w-[50px] px-2 py-1.5 text-xs rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5 active:scale-95 transition-all text-center cursor-pointer">
                                     ₹{amt}
                                 </button>
                             ))}
                         </div>
                         {cashReceived && parseFloat(cashReceived) >= grandTotal && (
-                            <div className="flex justify-between items-center text-sm font-bold text-green-700 bg-green-50/80 border border-green-200 rounded-xl px-4 py-3 shadow-inner shadow-green-100/50">
+                            <div className="flex justify-between items-center text-sm font-bold text-green-700 bg-green-50/80 border border-green-200 rounded-xl px-4 py-3">
                                 <span className="opacity-80">Change Due</span>
                                 <span className="text-lg">{fmt(changeDue)}</span>
                             </div>
@@ -153,7 +153,7 @@ const PaymentSection = ({
                     ref={checkoutRef}
                     onClick={handleCheckout}
                     disabled={isCheckoutDisabled}
-                    className="w-full py-4 rounded-2xl bg-[rgb(var(--color-primary))] text-white font-black text-sm flex items-center justify-center gap-3 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-[rgb(var(--color-primary))]/30 uppercase tracking-widest mt-2 group cursor-pointer"
+                    className="w-full py-4 rounded-2xl bg-[rgb(var(--color-primary))] text-white font-black text-sm flex items-center justify-center gap-3 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest mt-2 group cursor-pointer"
                 >
                     {invoiceLoading ? (
                         <div className="flex items-center gap-2">
