@@ -1,7 +1,9 @@
 "use client";
 import { Edit, Eye, MoreVertical, Trash2, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
 
 const CustomerTable = ({
   customers = [],
@@ -49,24 +51,27 @@ const CustomerTable = ({
     <div className={`${className}`}>
       {/* Sticky Header */}
       <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-        <table className="w-full min-w-[600px] table-fixed">
+        <table className="w-full min-w-[760px] table-fixed">
           <thead>
             <tr>
-              <th className="w-1/3 px-6 py-4 text-left">
+              <th className="w-[26%] px-6 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   {t("customers.customer")}
                 </span>
               </th>
-              <th className="w-1/4 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[17%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("customers.phone")}
               </th>
-              <th className="w-1/4 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[22%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("customers.email")}
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[17%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("customers.source")}
+              </th>
+              <th className="w-[14%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.status")}
               </th>
-              <th className="w-24 px-6 py-4 text-center">
+              <th className="w-[4%] px-1 py-4 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
               </th>
             </tr>
@@ -76,7 +81,7 @@ const CustomerTable = ({
 
       {/* Table Body */}
       <div className="overflow-x-auto min-h-[300px]">
-        <table className="w-full min-w-[600px] table-fixed">
+        <table className="w-full min-w-[760px] table-fixed">
           <tbody className="divide-y divide-gray-100">
             {customers.map((customer) => (
               <tr
@@ -85,7 +90,7 @@ const CustomerTable = ({
               >
                 {/* Customer Column */}
                 <td
-                  className="w-1/3 px-6 py-4 cursor-pointer group/cell"
+                  className="w-[26%] px-6 py-4 cursor-pointer group/cell"
                   onClick={() => onViewDetails?.(customer.id)}
                 >
                   <div className="flex items-center gap-4">
@@ -98,42 +103,51 @@ const CustomerTable = ({
                       </h3>
                       <span className="text-xs text-[rgb(var(--color-text-secondary))]">
                         {t("common.added")}:{" "}
-                        {new Date(customer.createdAt || Date.now()).toLocaleDateString()}
+                        {formatDateDash(getRecordCreatedAt(customer))}
                       </span>
                     </div>
                   </div>
                 </td>
 
                 {/* Phone Column */}
-                <td className="w-1/4 px-6 py-4">
+                <td className="w-[17%] px-6 py-4">
                   <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                     {customer.phone || "N/A"}
                   </span>
                 </td>
 
                 {/* Email Column */}
-                <td className="w-1/4 px-6 py-4">
+                <td className="w-[22%] px-6 py-4">
                   <span className="text-sm text-[rgb(var(--color-text-primary))]">
                     {customer.email || "N/A"}
                   </span>
                 </td>
 
+                {/* Source Column */}
+                <td className="w-[17%] px-6 py-4">
+                  <CustomerSourceBadge source={customer.source} />
+                </td>
+
                 {/* Status Column */}
-                <td className="w-1/6 px-6 py-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-500/10 text-green-600 border-green-500/20">
-                    {t("common.active")}
+                <td className="w-[14%] px-6 py-4">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    customer.isActive === false
+                      ? "bg-red-500/10 text-red-600 border-red-500/20"
+                      : "bg-green-500/10 text-green-600 border-green-500/20"
+                  }`}>
+                    {customer.isActive === false ? t("common.inactive") : t("common.active")}
                   </span>
                 </td>
 
                 {/* Actions Column */}
-                <td className="w-24 px-6 py-4 text-center">
+                <td className="w-[4%] px-1 py-4 text-center">
                   <div
                     className="relative inline-block"
                     ref={(el) => (menuRefs.current[customer.id] = el)}
                   >
                     <button
                       onClick={() => handleMenuToggle(customer.id)}
-                      className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                      className="p-1.5 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                       title={t("common.actions")}
                     >
                       <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
