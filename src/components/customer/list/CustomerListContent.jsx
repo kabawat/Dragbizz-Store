@@ -11,7 +11,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { Users } from "lucide-react";
 
-const CustomerListContent = () => {
+const CustomerListContent = ({ searchValue = "", isActive = "" }) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -24,6 +24,11 @@ const CustomerListContent = () => {
     const { can } = useModulePermissions("customer");
     const canEdit = can("edit");
     const canDelete = can("delete");
+
+    const searchRef = useRef(searchValue);
+    const isActiveRef = useRef(isActive);
+    searchRef.current = searchValue;
+    isActiveRef.current = isActive;
 
     // ─── Refs for stable IntersectionObserver callback ───────────────────────
     const sentinelRef = useRef(null);
@@ -53,6 +58,8 @@ const CustomerListContent = () => {
                             store: storeIdRef.current,
                             nextCursor: paginationRef.current.nextCursor,
                             isFreshLoad: false,
+                            ...(searchRef.current?.trim() ? { search: searchRef.current.trim() } : {}),
+                            ...(isActiveRef.current !== "" ? { isActive: isActiveRef.current } : {}),
                         })
                     );
                 }
