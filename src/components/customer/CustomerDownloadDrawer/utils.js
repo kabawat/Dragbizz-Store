@@ -127,7 +127,8 @@ export const buildDownloadParams = (
   storeId,
   startDate,
   endDate,
-  selectedFields
+  selectedFields,
+  source = ""
 ) => {
   const fieldMapping = {
     storeName: "storeName",
@@ -150,5 +151,6 @@ export const buildDownloadParams = (
     downloadAll: true,
     limit: 10000,
     fields: backendFields,
+    ...(source ? { source } : {}),
   };
 };

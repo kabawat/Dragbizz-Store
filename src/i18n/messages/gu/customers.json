@@ -77,6 +77,7 @@
   "activeCustomer": "સક્રિય ગ્રાહક",
   "memberSince": "સભ્ય ત્યારથી",
   "source": "સ્ત્રોત",
+  "allSources": "બધા સ્ત્રોત",
   "sourceValues": {
     "MANUAL": "મેન્યુઅલ",
     "POS": "POS",
