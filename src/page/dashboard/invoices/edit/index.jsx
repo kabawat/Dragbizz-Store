@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
+import { findProductByScanCode, getProductId } from "@/utils/product/findProductByScanCode";
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -192,6 +193,33 @@ const EditInvoicePage = ({ invoiceId }) => {
     setFormData({ ...formData, customer: value });
   };
 
+  const lookupProductByCode = useCallback(
+    async (code) => {
+      if (!selectedStore?.storeId) return null;
+      const result = await execute(
+        productService.getProducts({
+          search: code,
+          store: selectedStore.storeId,
+          lightweight: true,
+          limit: 20,
+        }),
+        { showToast: false }
+      );
+      if (!result?.success) return null;
+      return findProductByScanCode(result?.data || [], code);
+    },
+    [selectedStore?.storeId, execute]
+  );
+
+  const handleProductResolved = useCallback((product) => {
+    const id = getProductId(product);
+    if (!id) return;
+    setProducts((prev) => {
+      if (prev.some((p) => getProductId(p) === id)) return prev;
+      return [...prev, product];
+    });
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -347,6 +375,8 @@ const EditInvoicePage = ({ invoiceId }) => {
                       formData={formData}
                       setFormData={setFormData}
                       showError={showError}
+                      lookupProductByCode={lookupProductByCode}
+                      onProductResolved={handleProductResolved}
                     />
                   </form>
                 </div>
