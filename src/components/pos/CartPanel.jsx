@@ -4,14 +4,20 @@ import {
     CustomerSearch,
     CartItemsList,
     CartSummary,
-    PaymentSection
+    PaymentSection,
 } from "./cart";
 import { useAppSelector } from "@/store/hooks";
 import { invoiceService } from "@/service";
 import useApiResponse from "@/hooks/useApiResponse";
 
-// POS Cart Container — totals from backend (transaction-level GST)
-const CartPanel = ({ cart, setCart, checkoutRef }) => {
+const CartPanel = ({
+    cart,
+    setCart,
+    checkoutRef,
+    mobileOpen = false,
+    onMobileClose,
+    onTotalsChange,
+}) => {
     const [customerName, setCustomerName] = useState("");
     const [globalDiscount, setGlobalDiscount] = useState("");
     const [totals, setTotals] = useState({
@@ -26,6 +32,8 @@ const CartPanel = ({ cart, setCart, checkoutRef }) => {
     const storeId = selectedStore?.storeId || selectedStore?._id;
     const { execute } = useApiResponse();
     const debounceRef = useRef(null);
+
+    const itemCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
     const fetchTotals = useCallback(async () => {
         if (!storeId || cart.length === 0) {
@@ -72,11 +80,29 @@ const CartPanel = ({ cart, setCart, checkoutRef }) => {
     const { subtotal, taxTotal, grandTotal, gstBreakdown } = totals;
     const discountAmt = Number(globalDiscount) || 0;
 
+    useEffect(() => {
+        onTotalsChange?.({ grandTotal, itemCount });
+    }, [grandTotal, itemCount, onTotalsChange]);
+
+    useEffect(() => {
+        if (cart.length === 0 && mobileOpen) {
+            onMobileClose?.();
+        }
+    }, [cart.length, mobileOpen, onMobileClose]);
+
     return (
-        <div className="w-80 xl:w-96 flex flex-col bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] overflow-hidden z-10 transition-all duration-300">
+        <div
+            className={`
+                flex flex-col bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] overflow-hidden transition-transform duration-300 ease-out
+                absolute top-0 right-0 bottom-0 w-full max-w-md z-50 shadow-2xl border-l border-[rgb(var(--color-border-primary))]
+                lg:relative lg:inset-auto lg:z-10 lg:w-80 xl:w-96 lg:max-w-none lg:shadow-none
+                ${mobileOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}
+            `}
+        >
             <CartHeader
-                cartCount={cart.reduce((sum, item) => sum + item.qty, 0)}
+                cartCount={itemCount}
                 onClear={() => setCart([])}
+                onClose={onMobileClose}
             />
 
             <CustomerSearch
@@ -84,13 +110,10 @@ const CartPanel = ({ cart, setCart, checkoutRef }) => {
                 setCustomerName={setCustomerName}
             />
 
-            <CartItemsList
-                cart={cart}
-                setCart={setCart}
-            />
+            <CartItemsList cart={cart} setCart={setCart} />
 
             {cart.length > 0 && (
-                <div className="animate-in slide-in-from-bottom duration-500 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
+                <div className="flex-shrink-0 animate-in slide-in-from-bottom duration-500 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
                     <CartSummary
                         subtotal={subtotal}
                         taxTotal={taxTotal}
