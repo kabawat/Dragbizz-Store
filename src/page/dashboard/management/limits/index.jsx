@@ -42,13 +42,13 @@ const UsageLimitsPage = () => {
     });
 
     return (
-        <div className="p-5">
-            <div className="max-w-8xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        <div className="p-5 h-[calc(100vh-64px)] box-border overflow-hidden flex flex-col">
+            <div className="max-w-8xl mx-auto flex-1 min-h-0 w-full flex flex-col">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0 overflow-hidden">
                     {/* Main Resource Monitor (3/4) */}
-                    <div className="lg:col-span-3 space-y-6">
-                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.4)] overflow-hidden p-1 shadow-none">
-                            <div className="p-6 pb-2">
+                    <div className="lg:col-span-3 flex flex-col min-h-0 gap-4 overflow-hidden">
+                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.4)] overflow-hidden shadow-none flex flex-col flex-1 min-h-0">
+                            <div className="flex-shrink-0 p-6 pb-2">
                                 <div className="flex items-center justify-between gap-4 flex-wrap">
                                     <div>
                                         <h2 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">{t("limits.resourceMonitor.title")}</h2>
@@ -62,11 +62,11 @@ const UsageLimitsPage = () => {
                             </div>
 
                             {isLoading ? (
-                                <div className="flex items-center justify-center p-12">
+                                <div className="flex-1 min-h-0 flex items-center justify-center">
                                     <Loader2 size={32} className="animate-spin text-[rgb(var(--color-primary))]" />
                                 </div>
                             ) : !subscriptionData ? (
-                                <div className="p-16 flex flex-col items-center justify-center text-center">
+                                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center text-center p-8">
                                     <div className="w-24 h-24 bg-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center mb-6">
                                         <Zap className="w-12 h-12 text-[rgb(var(--color-primary))]" />
                                     </div>
@@ -86,7 +86,7 @@ const UsageLimitsPage = () => {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="p-4 space-y-1">
+                                    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 space-y-1">
                                         {stats.map((stat, idx) => {
                                             const Icon = stat.icon;
                                             const isUnlimited = stat.limit === Infinity || stat.limit === null;
@@ -174,7 +174,7 @@ const UsageLimitsPage = () => {
                                         })}
                                     </div>
 
-                                    <div className="bg-[rgb(var(--color-bg-secondary))]/30 border-t border-[rgb(var(--color-border-primary))] p-4 px-6 md:px-10 shadow-none">
+                                    <div className="flex-shrink-0 bg-[rgb(var(--color-bg-secondary))]/30 border-t border-[rgb(var(--color-border-primary))] p-4 px-6 md:px-10 shadow-none">
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
@@ -191,32 +191,12 @@ const UsageLimitsPage = () => {
                             )}
 
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="p-6 rounded-lg bg-[rgb(var(--color-primary)/0.1)] relative shadow-none min-h-[160px] flex flex-col justify-center">
-                                <h3 className="text-lg font-medium mb-2">{t("limits.upgrade.title")}</h3>
-                                <p className="text-sm opacity-90 mb-6 leading-relaxed max-w-[80%]">{t("limits.upgrade.description")}</p>
-                                <Button size="sm" className="rounded-lg text-sm px-4 border-none w-fit shadow-none">{t("limits.upgrade.btnText")}</Button>
-                            </div>
-
-                            <div className="p-6 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] relative flex flex-col justify-center shadow-none">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600 shadow-none">
-                                        <BarChart3 size={18} />
-                                    </div>
-                                    <h3 className="font-medium text-[rgb(var(--color-text-primary))] text-sm">{t("limits.insights.title")}</h3>
-                                </div>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed">
-                                    {t("limits.insights.description")}
-                                </p>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Right Side (1/4) */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
                         <ManagementShortcuts />
-                        <div className="mt-4 p-5 rounded-lg border border-[rgb(var(--color-border-primary))] border-dashed bg-[rgb(var(--color-bg-primary))]/50 shadow-none">
+                        <div className="mt-4 flex-shrink-0 p-5 rounded-lg border border-[rgb(var(--color-border-primary))] border-dashed bg-[rgb(var(--color-bg-primary))]/50 shadow-none">
                             <h4 className="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-3">{t("limits.updates.title")}</h4>
                             <div className="space-y-3">
                                 {[1, 2].map(i => (
@@ -228,6 +208,11 @@ const UsageLimitsPage = () => {
                                     </div>
                                 ))}
                             </div>
+                        </div>
+                        <div className="mt-4 flex-shrink-0 p-6 rounded-lg bg-[rgb(var(--color-primary)/0.1)] shadow-none flex flex-col justify-center">
+                            <h3 className="text-lg font-medium mb-2">{t("limits.upgrade.title")}</h3>
+                            <p className="text-sm opacity-90 mb-6 leading-relaxed">{t("limits.upgrade.description")}</p>
+                            <Button size="sm" className="rounded-lg text-sm px-4 border-none w-fit shadow-none">{t("limits.upgrade.btnText")}</Button>
                         </div>
                     </div>
                 </div>
