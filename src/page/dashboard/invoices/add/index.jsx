@@ -13,6 +13,7 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
+import { findProductByScanCode, getProductId } from "@/utils/product/findProductByScanCode";
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import Sidebar from "@/components/dashboard/sidebar";
@@ -144,6 +145,33 @@ const CreateInvoicePage = () => {
     }
   };
 
+  const lookupProductByCode = useCallback(
+    async (code) => {
+      if (!storeId) return null;
+      const result = await execute(
+        productService.getProducts({
+          search: code,
+          store: storeId,
+          lightweight: true,
+          limit: 20,
+        }),
+        { showToast: false }
+      );
+      if (!result?.success) return null;
+      return findProductByScanCode(result?.data || [], code);
+    },
+    [storeId, execute]
+  );
+
+  const handleProductResolved = useCallback((product) => {
+    const id = getProductId(product);
+    if (!id) return;
+    setProducts((prev) => {
+      if (prev.some((p) => getProductId(p) === id)) return prev;
+      return [...prev, product];
+    });
+  }, []);
+
   const handleCustomerSuccess = async (customerData) => {
     customersFetchedRef.current = { storeId: null, fetched: false };
     await fetchCustomers();
@@ -260,6 +288,8 @@ const CreateInvoicePage = () => {
                       formData={formData}
                       setFormData={setFormData}
                       showError={showError}
+                      lookupProductByCode={lookupProductByCode}
+                      onProductResolved={handleProductResolved}
                     />
                   </form>
                 </div>

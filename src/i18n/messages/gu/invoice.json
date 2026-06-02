@@ -2,6 +2,7 @@
   "createInvoice": "ઇન્વૉઇસ બનાવો",
   "createInvoiceDescription": "નવું ગ્રાહક ઇન્વૉઇસ બનાવો",
   "backToInvoices": "ઇન્વૉઇસ પર પાછા જાઓ",
+  "barcodeProductNotFound": "આ બારકોડ માટે કોઈ પ્રોડક્ટ મળ્યું નથી: {code}",
   "selectProduct": "ઉત્પાદન પસંદ કરો",
   "quantity": "જથ્થો",
   "addItem": "આઇટમ ઉમેરો",

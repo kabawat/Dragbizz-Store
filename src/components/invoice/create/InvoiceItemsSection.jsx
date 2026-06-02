@@ -1,7 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Calculator, Package, Plus, Trash2 } from "lucide-react";
 import { Button, Card, EmptyState, Input, Select } from "@/components/ui";
+import { useBarcodeScanner } from "@/hooks/barcode/useBarcodeScanner";
+import { addProductToInvoiceItems } from "@/utils/invoice/addProductToInvoiceItems";
+import { findProductByScanCode, getProductId } from "@/utils/product/findProductByScanCode";
 
 const InvoiceItemsSection = ({
     t,
@@ -9,10 +12,78 @@ const InvoiceItemsSection = ({
     formData,
     setFormData,
     showError,
+    lookupProductByCode,
+    onProductResolved,
 }) => {
-    // Local state for item addition
     const [selectedProduct, setSelectedProduct] = useState("");
     const [selectedQuantity, setSelectedQuantity] = useState(1);
+    const [scanning, setScanning] = useState(false);
+    const scanInFlightRef = useRef(false);
+
+    const appendProduct = useCallback(
+        (product, quantity = 1) => {
+            if (!getProductId(product)) {
+                showError(t("invoice.productNotFound"));
+                return false;
+            }
+
+            setFormData((prev) => {
+                const result = addProductToInvoiceItems(prev.items, product, quantity);
+                return result.added ? { ...prev, items: result.items } : prev;
+            });
+            return true;
+        },
+        [setFormData, showError, t]
+    );
+
+    const resolveAndAddProduct = useCallback(
+        async (code) => {
+            const trimmed = String(code || "").trim();
+            if (!trimmed || scanInFlightRef.current) return;
+
+            scanInFlightRef.current = true;
+            setScanning(true);
+            try {
+                let product = findProductByScanCode(products, trimmed);
+
+                if (!product && lookupProductByCode) {
+                    product = await lookupProductByCode(trimmed);
+                }
+
+                if (!product) {
+                    showError(t("invoice.barcodeProductNotFound", { code: trimmed }));
+                    return;
+                }
+
+                if (onProductResolved) {
+                    onProductResolved(product);
+                }
+
+                const qty = parseInt(selectedQuantity, 10) || 1;
+                if (appendProduct(product, qty)) {
+                    setSelectedProduct("");
+                }
+            } finally {
+                scanInFlightRef.current = false;
+                setScanning(false);
+            }
+        },
+        [
+            products,
+            lookupProductByCode,
+            onProductResolved,
+            selectedQuantity,
+            appendProduct,
+            showError,
+            t,
+        ]
+    );
+
+    useBarcodeScanner({
+        onScan: resolveAndAddProduct,
+        enabled: !scanning,
+    });
+
     const handleAddItem = () => {
         if (!selectedProduct) {
             showError(t("invoice.pleaseSelectProduct"));
@@ -25,60 +96,11 @@ const InvoiceItemsSection = ({
             return;
         }
 
-        const productPrice = product.pricing?.sellingPrice || 0;
         const quantityToAdd = parseInt(selectedQuantity, 10) || 1;
-
-        // Check if product already exists in items
-        const existingItemIndex = formData.items.findIndex(
-            (item) => item.product === selectedProduct
-        );
-
-        const gstRate = product.gstInfo?.gstRate || 0;
-        const isInclusive = product.gstInfo?.isGstIncluded ?? false;
-        const uom = product.pricing?.uom || product.uom || "Unit";
-
-        let updatedItems;
-        if (existingItemIndex !== -1) {
-            // Product already exists, increment quantity
-            updatedItems = [...formData.items];
-            const existingItem = updatedItems[existingItemIndex];
-            const newQuantity = existingItem.quantity + quantityToAdd;
-            const newTotal = productPrice * newQuantity;
-
-            updatedItems[existingItemIndex] = {
-                ...existingItem,
-                quantity: newQuantity,
-                total: newTotal,
-                // Keep GST info in sync with product in case it changed
-                gstRate: existingItem.gstRate !== undefined ? existingItem.gstRate : gstRate,
-                isInclusive: existingItem.isInclusive !== undefined ? existingItem.isInclusive : isInclusive,
-            };
-        } else {
-            // Product doesn't exist, add as new item
-            const total = productPrice * quantityToAdd;
-
-            const newItem = {
-                product: selectedProduct,
-                productName: product.name || "",
-                quantity: quantityToAdd,
-                price: productPrice,
-                total: total,
-                gstRate,
-                isInclusive,
-                uom,
-            };
-
-            updatedItems = [...formData.items, newItem];
+        if (appendProduct(product, quantityToAdd)) {
+            setSelectedProduct("");
+            setSelectedQuantity(1);
         }
-
-        setFormData({
-            ...formData,
-            items: updatedItems,
-        });
-
-        // Reset selection
-        setSelectedProduct("");
-        setSelectedQuantity(1);
     };
 
     const handleRemoveItem = (index) => {
@@ -90,7 +112,6 @@ const InvoiceItemsSection = ({
         <Card padding="none" className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden">
             <div className="p-4 flex flex-col h-full overflow-hidden">
                 <div className="mb-4 flex-shrink-0">
-                    {/* Add Item Section */}
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                         <div className="md:col-span-6">
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">

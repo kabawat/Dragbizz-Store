@@ -2,6 +2,7 @@
   "createInvoice": "Create Invoice",
   "createInvoiceDescription": "Create a new customer invoice",
   "backToInvoices": "Back to Invoices",
+  "barcodeProductNotFound": "No product found for barcode: {code}",
   "selectProduct": "Select Product",
   "quantity": "Quantity",
   "addItem": "Add Item",
