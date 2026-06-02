@@ -3,16 +3,16 @@ import React, { useState, useEffect } from "react";
 import { CheckCircle2, Wallet, Banknote, CreditCard, ChevronRight, Loader2 } from "lucide-react";
 
 // Final payment verification modal.
-const PaymentConfirmModal = ({ isOpen, onClose, onConfirm, grandTotal, initialPaymentMethod, loading }) => {
+const PaymentConfirmModal = ({ isOpen, onClose, onConfirm, grandTotal, loading }) => {
     const [paidAmount, setPaidAmount] = useState(grandTotal);
-    const [mode, setMode] = useState(initialPaymentMethod || "cash");
+    const [mode, setMode] = useState("cash");
 
     useEffect(() => {
         if (isOpen) {
             setPaidAmount(grandTotal);
-            setMode(initialPaymentMethod || "cash");
+            setMode("cash");
         }
-    }, [grandTotal, initialPaymentMethod, isOpen]);
+    }, [grandTotal, isOpen]);
 
     if (!isOpen) return null;
 
@@ -63,13 +63,13 @@ const PaymentConfirmModal = ({ isOpen, onClose, onConfirm, grandTotal, initialPa
                                             <button
                                                 key={m.id}
                                                 onClick={() => setMode(m.id)}
-                                                className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all duration-200 cursor-pointer ${active
+                                                className={`flex flex-row items-center justify-center gap-1.5 py-3 px-2 rounded-xl border transition-all duration-200 cursor-pointer min-w-0 ${active
                                                     ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
                                                     : "border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/20 bg-[rgb(var(--color-bg-primary))]"
                                                     }`}
                                             >
-                                                <Icon size={18} />
-                                                <span className="text-[10px] font-bold uppercase tracking-tighter">{m.label}</span>
+                                                <Icon size={16} className="flex-shrink-0" />
+                                                <span className="text-[10px] font-bold uppercase tracking-wide whitespace-nowrap leading-none">{m.label}</span>
                                             </button>
                                         );
                                     })}
