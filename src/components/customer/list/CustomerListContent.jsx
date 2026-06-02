@@ -10,8 +10,15 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { Users } from "lucide-react";
+import { buildCustomerListParams } from "@/utils/customer/customerList.util";
 
-const CustomerListContent = ({ searchValue = "", isActive = "" }) => {
+const CustomerListContent = ({
+    searchValue = "",
+    isActive = "",
+    source = "",
+    startDate = "",
+    endDate = "",
+}) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -25,10 +32,8 @@ const CustomerListContent = ({ searchValue = "", isActive = "" }) => {
     const canEdit = can("edit");
     const canDelete = can("delete");
 
-    const searchRef = useRef(searchValue);
-    const isActiveRef = useRef(isActive);
-    searchRef.current = searchValue;
-    isActiveRef.current = isActive;
+    const filtersRef = useRef({ searchValue, isActive, source, startDate, endDate });
+    filtersRef.current = { searchValue, isActive, source, startDate, endDate };
 
     // ─── Refs for stable IntersectionObserver callback ───────────────────────
     const sentinelRef = useRef(null);
@@ -53,14 +58,21 @@ const CustomerListContent = ({ searchValue = "", isActive = "" }) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && !isFetchingMoreRef.current && storeIdRef.current) {
+                    const { searchValue: search, isActive: active, source: src, startDate: start, endDate: end } =
+                        filtersRef.current;
                     dispatch(
-                        getCustomers({
-                            store: storeIdRef.current,
-                            nextCursor: paginationRef.current.nextCursor,
-                            isFreshLoad: false,
-                            ...(searchRef.current?.trim() ? { search: searchRef.current.trim() } : {}),
-                            ...(isActiveRef.current !== "" ? { isActive: isActiveRef.current } : {}),
-                        })
+                        getCustomers(
+                            buildCustomerListParams({
+                                storeId: storeIdRef.current,
+                                search,
+                                isActive: active,
+                                source: src,
+                                startDate: start,
+                                endDate: end,
+                                nextCursor: paginationRef.current.nextCursor,
+                                isFreshLoad: false,
+                            })
+                        )
                     );
                 }
             },

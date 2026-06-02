@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
-import { Download, Grid3X3, List, Plus, Search, Upload, Crown, Users } from "lucide-react";
+import { Download, Grid3X3, List, Plus, RotateCcw, Search, Upload, Crown, Users } from "lucide-react";
 import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { CreateCustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
@@ -11,12 +11,23 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomers, setViewMode } from "@/store/slices/customers/customerSlice";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
+import { getCustomerSourceOptions } from "@/utils/customer/customerSource.util";
+import {
+    buildCustomerListParams,
+    getCustomerListFetchKey,
+} from "@/utils/customer/customerList.util";
 
 const CustomerListHeader = ({
     searchValue,
     setSearchValue,
     isActive,
     setIsActive,
+    source,
+    setSource,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
     onSuccess,
 }) => {
     const dispatch = useAppDispatch();
@@ -55,52 +66,101 @@ const CustomerListHeader = ({
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
-    const hasFetchedRef = useRef({ fetched: false, storeId: null, search: null, active: null });
+    const listFilters = { search: searchValue, isActive, source, startDate, endDate };
+    const hasFetchedRef = useRef({
+        fetched: false,
+        storeId: null,
+        search: null,
+        active: null,
+        source: null,
+        startDate: null,
+        endDate: null,
+    });
+
+    const sourceOptions = useMemo(() => getCustomerSourceOptions(t), [t]);
+    const hasActiveFilters = Boolean(isActive || source || startDate || endDate);
 
     useEffect(() => {
         lastFetchRef.current = null;
-        hasFetchedRef.current = { fetched: false, storeId: null, search: null, active: null };
+        hasFetchedRef.current = {
+            fetched: false,
+            storeId: null,
+            search: null,
+            active: null,
+            source: null,
+            startDate: null,
+            endDate: null,
+        };
     }, [storeId]);
+
+    const handleClearFilters = () => {
+        setIsActive("");
+        setSource("");
+        setStartDate("");
+        setEndDate("");
+    };
 
     const fetchCustomers = useCallback(async () => {
         if (!storeId) return;
 
-        const fetchKey = `${storeId}-${searchValue}-${isActive}`;
+        const fetchKey = getCustomerListFetchKey(storeId, listFilters);
         if (lastFetchRef.current === fetchKey) return;
 
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.search === searchValue && last.active === isActive) {
+        if (
+            last.fetched &&
+            last.storeId === storeId &&
+            last.search === searchValue &&
+            last.active === isActive &&
+            last.source === source &&
+            last.startDate === startDate &&
+            last.endDate === endDate
+        ) {
             return;
         }
 
         lastFetchRef.current = fetchKey;
 
-        const params = {
-            store: storeId,
-            limit: 20,
+        const params = buildCustomerListParams({
+            storeId,
+            ...listFilters,
             isFreshLoad: true,
-            ...(searchValue?.trim() ? { search: searchValue.trim() } : {}),
-            ...(isActive !== "" ? { isActive } : {}),
-        };
+        });
 
         try {
             await dispatch(getCustomers(params));
-            hasFetchedRef.current = { fetched: true, storeId, search: searchValue, active: isActive };
+            hasFetchedRef.current = {
+                fetched: true,
+                storeId,
+                search: searchValue,
+                active: isActive,
+                source,
+                startDate,
+                endDate,
+            };
         } catch {
             lastFetchRef.current = null;
         }
-    }, [dispatch, storeId, searchValue, isActive]);
+    }, [dispatch, storeId, searchValue, isActive, source, startDate, endDate]);
 
     useEffect(() => {
         if (!storeId) return;
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.search === searchValue && last.active === isActive) {
+        if (
+            last.fetched &&
+            last.storeId === storeId &&
+            last.search === searchValue &&
+            last.active === isActive &&
+            last.source === source &&
+            last.startDate === startDate &&
+            last.endDate === endDate
+        ) {
             return;
         }
 
         const timer = setTimeout(() => fetchCustomers(), 350);
         return () => clearTimeout(timer);
-    }, [storeId, searchValue, isActive, fetchCustomers]);
+    }, [storeId, searchValue, isActive, source, startDate, endDate, fetchCustomers]);
 
     const handleViewModeChange = (mode) => {
         dispatch(setViewMode(mode));
@@ -162,6 +222,51 @@ const CustomerListHeader = ({
                             clearable
                         />
                     </div>
+                    <div className="min-w-[160px]">
+                        <Select
+                            placeholder={t("customers.source")}
+                            value={source}
+                            onChange={setSource}
+                            options={sourceOptions}
+                            clearable
+                        />
+                    </div>
+                    <div className="w-[140px]">
+                        <Input
+                            type={startDate ? "date" : "text"}
+                            onFocus={(e) => (e.target.type = "date")}
+                            onBlur={(e) => {
+                                if (!e.target.value) e.target.type = "text";
+                            }}
+                            value={startDate}
+                            onChange={setStartDate}
+                            max={endDate || undefined}
+                            placeholder={t("common.startDate")}
+                        />
+                    </div>
+                    <div className="w-[140px]">
+                        <Input
+                            type={endDate ? "date" : "text"}
+                            onFocus={(e) => (e.target.type = "date")}
+                            onBlur={(e) => {
+                                if (!e.target.value) e.target.type = "text";
+                            }}
+                            value={endDate}
+                            onChange={setEndDate}
+                            min={startDate || undefined}
+                            placeholder={t("common.endDate")}
+                        />
+                    </div>
+                    {hasActiveFilters && (
+                        <Button
+                            variant="ghost"
+                            onClick={handleClearFilters}
+                            className="h-10 px-3 text-sm font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] flex items-center gap-2"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            {t("common.clearFilters")}
+                        </Button>
+                    )}
                 </div>
 
                 <div className="flex gap-3 flex-shrink-0">
