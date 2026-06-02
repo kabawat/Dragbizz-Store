@@ -130,7 +130,7 @@ const ProductListContent = ({ canEdit = false, canDelete = false }) => {
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
                 <div className="h-[calc(100vh-210px)] overflow-y-auto">
                     {viewMode === "table" ? (
-                        <div className="h-auto">
+                        <div className="h-full">
                             <ProductTable
                                 products={transformedProducts}
                                 onEdit={handleEditProduct}
