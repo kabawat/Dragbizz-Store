@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { Receipt, ArrowRight, Loader2 } from "lucide-react";
+import { Receipt, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
@@ -92,25 +93,26 @@ const PaymentSection = ({
     return (
         <>
             <div className="p-4 pt-0">
-                <button
-                    ref={checkoutRef}
-                    onClick={handleCheckout}
-                    disabled={invoiceLoading}
-                    className="w-full py-4 rounded-2xl bg-[rgb(var(--color-primary))] text-white font-black text-sm flex items-center justify-center gap-3 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest group cursor-pointer"
+                <div
+                    ref={(el) => {
+                        if (checkoutRef) checkoutRef.current = el?.querySelector("button") ?? null;
+                    }}
+                    className="w-full"
                 >
-                    {invoiceLoading ? (
-                        <div className="flex items-center gap-2">
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            Processing...
-                        </div>
-                    ) : (
-                        <>
-                            <Receipt className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                            Collect {fmt(grandTotal)}
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </>
-                    )}
-                </button>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        fullWidth
+                        onClick={handleCheckout}
+                        disabled={invoiceLoading}
+                        loading={invoiceLoading}
+                        leftIcon={Receipt}
+                        rightIcon={ArrowRight}
+                        className="uppercase tracking-wide font-semibold"
+                    >
+                        Collect {fmt(grandTotal)}
+                    </Button>
+                </div>
             </div>
 
             <PaymentConfirmModal

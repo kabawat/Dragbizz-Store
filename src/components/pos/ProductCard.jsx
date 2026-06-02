@@ -22,7 +22,7 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                 onClick={() => onAdd(product)}
                 className="group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-300 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden cursor-pointer flex flex-col gap-2 relative"
             >
-                <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-full h-28 relative">
+                <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-full h-20 sm:h-24 md:h-28 relative">
                     {imageUrl ? (
                         <img src={imageUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     ) : (

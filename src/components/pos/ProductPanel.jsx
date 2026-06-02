@@ -100,12 +100,15 @@ const ProductPanel = ({ addToCart, searchRef }) => {
     }, [search, selectedCategory, products]);
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden p-4 gap-3 min-h-0">
-            {/* Search + View toggle */}
-            <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-1 min-w-[200px] max-w-sm">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-secondary))]" />
+        <div className="flex-1 flex flex-col overflow-hidden p-3 sm:p-4 gap-3 min-h-0 h-full">
+            {/* Search + filters + view toggle */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 flex-shrink-0">
+                <div className="flex flex-col sm:flex-row gap-3 flex-1 min-w-0 w-full">
+                    <div className="relative flex-1 min-w-0 w-full">
+                        <Search
+                            size={16}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-secondary))] pointer-events-none"
+                        />
                         <input
                             ref={searchRef}
                             type="text"
@@ -115,23 +118,22 @@ const ProductPanel = ({ addToCart, searchRef }) => {
                             className="w-full pl-9 pr-4 py-2.5 text-sm bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg text-[rgb(var(--color-text-primary))] placeholder-[rgb(var(--color-text-secondary))] focus:outline-none focus:border-[rgb(var(--color-primary))]"
                         />
                     </div>
-                    {/* Category Filter */}
-                    <div className="w-56">
+                    <div className="w-full sm:w-48 md:w-56 flex-shrink-0">
                         <Select
                             value={selectedCategory}
                             onChange={(val) => setSelectedCategory(val)}
-                            options={categories.map(c => ({ label: c.name, value: c.id }))}
+                            options={categories.map((c) => ({ label: c.name, value: c.id }))}
                             placeholder="All Categories"
-                            className="h-[40px]"
-                            searchable={true}
+                            searchable
                         />
                     </div>
                 </div>
-                {/* View Mode */}
-                <div className="flex items-center gap-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg p-1">
+                <div className="flex items-center gap-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg p-1 self-end sm:self-auto flex-shrink-0">
                     <button
+                        type="button"
                         onClick={() => setViewMode("grid")}
-                        className={`p-1.5 rounded-md transition-all ${viewMode === "grid"
+                        aria-label="Grid view"
+                        className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === "grid"
                             ? "bg-[rgb(var(--color-primary))] text-white shadow-sm"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                             }`}
@@ -139,8 +141,10 @@ const ProductPanel = ({ addToCart, searchRef }) => {
                         <Grid3X3 size={18} />
                     </button>
                     <button
+                        type="button"
                         onClick={() => setViewMode("list")}
-                        className={`p-1.5 rounded-md transition-all ${viewMode === "list"
+                        aria-label="List view"
+                        className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === "list"
                             ? "bg-[rgb(var(--color-primary))] text-white shadow-sm"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                             }`}
@@ -151,10 +155,12 @@ const ProductPanel = ({ addToCart, searchRef }) => {
             </div>
 
             {/* Products grid/list */}
-            <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar p-2 ${viewMode === "grid"
-                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-[200px]"
-                : "flex flex-col gap-3"
-                }`}>
+            <div
+                className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar p-1 sm:p-2 ${viewMode === "grid"
+                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4 auto-rows-[minmax(160px,1fr)] sm:auto-rows-[180px] md:auto-rows-[200px]"
+                    : "flex flex-col gap-2 sm:gap-3"
+                    }`}
+            >
                 {isLoading && !products.length ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-16 text-[rgb(var(--color-text-secondary))]">
                         <Loader2 className="w-8 h-8 mb-3 animate-spin opacity-50" />
