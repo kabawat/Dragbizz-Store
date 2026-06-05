@@ -1,7 +1,9 @@
 {
   "payment": "Payment",
   "title": "Payments",
-  "description": "Payments ko manage karo",
+  "description": "Suppliers ko apne payments record aur manage karein",
+  "emptyDescription": "Suppliers ke saath transactions track karne aur apne accounts accurate rakhne ke liye apna pehla payment add karein.",
+  "noResultsDescription": "Humein aapki search ya filters se match hone wala koi payment nahi mila. Unhe adjust karke try karein.",
   "manageUpiIds": "UPI IDs Manage karein",
   "createPayment": "Payment create karo",
   "createNewPayment": "Naya Payment create karo",

@@ -76,6 +76,19 @@
   "editMore": "વધુ સંપાદિત કરો",
   "activeCustomer": "સક્રિય ગ્રાહક",
   "memberSince": "સભ્ય ત્યારથી",
+  "source": "સ્ત્રોત",
+  "allSources": "બધા સ્ત્રોત",
+  "sourceValues": {
+    "MANUAL": "મેન્યુઅલ",
+    "POS": "POS",
+    "INVOICE": "ઇન્વૉઇસ",
+    "BULK_IMPORT": "જથ્થાબંધ અપલોડ",
+    "ONLINE": "ઓનલાઇન",
+    "IN_STORE": "ઇન-સ્ટોર",
+    "WHATSAPP": "WhatsApp",
+    "PHONE": "ફોન",
+    "QR_CATALOG": "QR કેટલોગ"
+  },
   "download": "ડાઉનલોડ કરો",
   "export": "ગ્રાહકો નિકાસ કરો",
   "downloadCustomers": "ગ્રાહકો ડાઉનલોડ કરો",
@@ -151,5 +164,6 @@
   "fileTooLarge": "ફાઇલનું કદ 5MB કરતા ઓછું હોવું જોઈએ.",
   "pleaseSelectFile": "કૃપા કરીને અપલોડ કરવા માટે ફાઇલ પસંદ કરો.",
   "uploadSuccess": "ગ્રાહકો જથ્થાબંધ સફળતાપૂર્વક અપલોડ થયા!",
-  "sampleDownloaded": "નમૂના ફાઇલ ડાઉનલોડ થઈ રહી છે..."
+  "sampleDownloaded": "નમૂના ફાઇલ ડાઉનલોડ થઈ રહી છે...",
+  "emptyDescription": "તમારી પાસે હજી સુધી કોઈ ગ્રાહક નથી. તેમના ઓર્ડર અને પસંદગીઓને ટ્રૅક કરવાનું શરૂ કરવા માટે તમારા પ્રથમ ગ્રાહકને ઉમેરો!"
 }

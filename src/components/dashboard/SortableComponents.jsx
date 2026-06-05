@@ -74,7 +74,7 @@ export const SortableMetricCard = ({
         <div
             ref={setNodeRef}
             style={style}
-            className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 hover:shadow-lg transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30 relative group"
+            className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30 relative group"
         >
             <div
                 {...attributes}
@@ -119,7 +119,11 @@ export const AnalyticsCard = ({ title, icon: Icon, iconColor, children, linkTo }
                 </h2>
             </div>
             {linkTo && (
-                <Link href={linkTo} className="flex items-center text-sm font-medium text-[rgb(var(--color-primary))] hover:brightness-110 transition-all group">
+                <Link 
+                    href={linkTo} 
+                    prefetch={false}
+                    className="flex items-center text-sm font-medium text-[rgb(var(--color-primary))] hover:brightness-110 transition-all group"
+                >
                     Details
                     <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
                 </Link>

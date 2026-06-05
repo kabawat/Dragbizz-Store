@@ -7,11 +7,12 @@ import { SignatureDrawer } from "@/components/common";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchSignatures, addSignature, removeSignature } from "@/store/slices/signaturesSlice";
-import { signatureService } from "@/service";
+import { signatureService, utilityService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 
 import SignatureDeleteModal from "./SignatureDeleteModal";
+import styles from "./SignatureSettings.module.css";
 
 const SignatureSettings = () => {
     const { t } = useTranslation();
@@ -55,6 +56,13 @@ const SignatureSettings = () => {
         );
 
         if (result?.success) {
+            // If the signature was stored in S3, delete the file as well
+            if (signatureToDelete.method === "upload" || signatureToDelete.method === "draw") {
+                utilityService.deleteFile(signatureToDelete.content).catch(err => {
+                    console.error("Failed to delete signature image from S3", err);
+                });
+            }
+
             dispatch(removeSignature(id));
             showToast(t("settings.signatureDeleted") || "Signature deleted successfully", "success");
             setSignatureToDelete(null);
@@ -64,7 +72,7 @@ const SignatureSettings = () => {
     };
 
     return (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center gap-2">
@@ -75,11 +83,7 @@ const SignatureSettings = () => {
                         {t("settings.signatureDescription") || "Manage your digital signatures for invoices and documents."}
                     </p>
                 </div>
-                <Button
-                    onClick={() => setShowDrawer(true)}
-                    leftIcon={Plus}
-                    variant="primary"
-                >
+                <Button onClick={() => setShowDrawer(true)} leftIcon={Plus} variant="primary" >
                     {t("common.addNew") || "Add New"}
                 </Button>
             </div>
@@ -94,10 +98,7 @@ const SignatureSettings = () => {
                         {signatures.map((sig) => {
                             const id = sig.id || sig._id;
                             return (
-                                <div
-                                    key={id}
-                                    className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/70 p-4 relative group flex flex-col h-full"
-                                >
+                                <div key={id} className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/70 p-4 relative group flex flex-col h-full">
                                     <div className="flex items-center justify-between mb-3 border-b border-[rgb(var(--color-border-primary))]/20 pb-3">
                                         <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
                                             <span className="w-2 h-2 rounded-full bg-green-500"></span>
@@ -113,13 +114,30 @@ const SignatureSettings = () => {
                                     </div>
 
                                     <div className="flex-1 flex items-center justify-center min-h-[100px] bg-[rgb(var(--color-bg-secondary))]/30 rounded-lg p-4 mb-2">
-                                        <div className="relative w-full h-24">
-                                            <Image
-                                                src={sig.content}
-                                                alt="Signature"
-                                                fill
-                                                className={`object-contain ${themeVariant === 'dark' ? 'invert' : ''}`}
-                                            />
+                                        <div className="relative w-full h-24 flex items-center justify-center">
+                                            {(sig.method === "upload" || sig.method === "draw") ? (
+                                                <Image
+                                                    src={sig.content}
+                                                    alt="Signature"
+                                                    fill
+                                                    className={`object-contain ${themeVariant === 'dark' ? 'invert' : ''}`}
+                                                />
+                                            ) : sig.method === "type" ? (
+                                                <span
+                                                    style={{ fontFamily: sig.config?.fontFamily || "'Dancing Script', cursive" }}
+                                                    className={`text-4xl text-[rgb(var(--color-text-primary))] select-none ${sig.config?.bold ? 'font-bold' : ''} ${sig.config?.italic ? 'italic' : ''}`}
+                                                >
+                                                    {sig.content}
+                                                </span>
+                                            ) : sig.method === "identity" ? (
+                                                <div className="text-center text-[rgb(var(--color-primary))]">
+                                                    <Fingerprint className="w-6 h-6 mx-auto mb-1 opacity-70" />
+                                                    <p className="font-bold tracking-widest text-lg">{sig.content}</p>
+                                                    <p className="text-[10px] uppercase font-black opacity-50">
+                                                        {sig.verificationDetails?.idType || "Verified ID"}
+                                                    </p>
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </div>
 

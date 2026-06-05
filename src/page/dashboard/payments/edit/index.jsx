@@ -9,10 +9,9 @@ import {
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Modal } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import {
   billService,
   paymentService,
@@ -29,6 +28,8 @@ import { PaymentMethodItem } from "./components/PaymentMethodItem";
 
 const EditPayment = ({ paymentId: propPaymentId }) => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("payments.editPayment"), t("payments.updatePaymentInformationAndDetails"));
   const router = useRouter();
   const params = useParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -149,13 +150,6 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
     if (selectedStore?.storeId) fetchSuppliers();
   }, [selectedStore?.storeId, fetchSuppliers]);
 
-  // --- Handlers ---
-  const handleStoreChange = () => {
-    fetchedIdRef.current = null;
-    setStatus(prev => ({ ...prev, fetching: true }));
-    setErrors(prev => ({ ...prev, fetch: null }));
-  };
-
   const handleInputChange = (field, value) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
@@ -251,107 +245,95 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
     );
 
     if (result?.success) {
-      // Redux slice update happens optimistically via component dispatches normally, but here we just show modal
       setShowSuccessModal(true);
     } else {
       setErrors(prev => ({ ...prev, update: result?.message || t("errors.failedToUpdate") }));
     }
   };
 
-  // --- Render ---
   if (status.fetching) {
     return (
-      <div className="flex h-screen w-full relative overflow-hidden">
-        <Sidebar /><div className="min-h-screen w-full flex flex-col items-center justify-center"><div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div></div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (errors.fetch) {
     return (
-      <div className="flex h-screen w-full relative overflow-hidden">
-        <Sidebar />
-        <div className="p-6 w-full">
-          <Card className="p-6 text-center">
-            <h3 className="text-lg font-semibold text-red-600 mb-2">Error Loading Payment</h3>
-            <p className="mb-4">{errors.fetch}</p>
-            <Button onClick={() => router.push("/dashboard/payments")}>Back to Payments</Button>
-          </Card>
-        </div>
+      <div className="p-6">
+        <Card className="p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-600 mb-2">Error Loading Payment</h3>
+          <p className="mb-4">{errors.fetch}</p>
+          <Button onClick={() => router.push("/dashboard/payments")}>Back to Payments</Button>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen w-full relative overflow-hidden">
-      <Sidebar onStoreChange={handleStoreChange} />
-      <div className="min-h-screen w-full flex flex-col">
-        <Header title={t("payments.editPayment")} description={t("payments.updatePaymentInformationAndDetails")} />
+    <div className="p-6">
+      <div className="max-w-8xl mx-auto">
+        <Link href="/dashboard/payments" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] mb-6">
+          <ArrowLeft className="w-4 h-4" /><span>{t("payments.backToPayments")}</span>
+        </Link>
 
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto">
-            <Link href="/dashboard/payments" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] mb-6">
-              <ArrowLeft className="w-4 h-4" /><span>{t("payments.backToPayments")}</span>
-            </Link>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+          <div className="lg:col-span-2 flex flex-col h-full">
+            <div className="flex-1 pe-3 max-h-[calc(100vh-260px)]">
+              {(errors.update || errors.form.general) && (
+                <Card className="mb-6 p-4 bg-red-50 border-red-200 text-red-700">
+                  {errors.update || errors.form.general}
+                </Card>
+              )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
-                  {(errors.update || errors.form.general) && (
-                    <Card className="mb-6 p-4 bg-red-50 border-red-200 text-red-700">
-                      {errors.update || errors.form.general}
-                    </Card>
-                  )}
+              <BasicDetails
+                formData={formData}
+                handleInputChange={handleInputChange}
+                suppliers={suppliers}
+                suppliersLoading={suppliersLoading}
+                bills={bills}
+                billsLoading={billsLoading}
+                errors={errors.form}
+              />
 
-                  <BasicDetails
-                    formData={formData}
-                    handleInputChange={handleInputChange}
-                    suppliers={suppliers}
-                    suppliersLoading={suppliersLoading}
-                    bills={bills}
-                    billsLoading={billsLoading}
-                    errors={errors.form}
-                  />
-
-                  <Card className="mb-6 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold flex items-center"><CreditCard className="w-5 h-5 mr-2" /> Payment Methods</h3>
-                      <button type="button" onClick={addPaymentMethod} className="flex items-center gap-2 px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg">
-                        <Plus className="w-4 h-4" /><span>Add Method</span>
-                      </button>
-                    </div>
-
-                    <div className="mb-4 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 flex justify-between">
-                      <span className="font-medium">Total Amount:</span>
-                      <span className="font-bold">₹ {totalAmount.toLocaleString()}</span>
-                    </div>
-
-                    <div className="space-y-4">
-                      {formData.paymentMethods.map((method, index) => (
-                        <PaymentMethodItem
-                          key={index}
-                          index={index}
-                          method={method}
-                          errors={errors.form}
-                          onUpdate={handlePaymentMethodChange}
-                          onRemove={removePaymentMethod}
-                          showRemove={formData.paymentMethods.length > 1}
-                          t={t}
-                        />
-                      ))}
-                    </div>
-                  </Card>
+              <Card className="mb-6 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold flex items-center"><CreditCard className="w-5 h-5 mr-2" /> Payment Methods</h3>
+                  <button type="button" onClick={addPaymentMethod} className="flex items-center gap-2 px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg">
+                    <Plus className="w-4 h-4" /><span>Add Method</span>
+                  </button>
                 </div>
 
-                <div className="mt-6 flex justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] pt-4 border-t">
-                  <Button variant="outline" onClick={() => router.push("/dashboard/payments")} disabled={updating}>Cancel</Button>
-                  <Button variant="success" onClick={handleSubmit} disabled={updating} loading={updating} leftIcon={Save}>Update Payment</Button>
+                <div className="mb-4 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 flex justify-between">
+                  <span className="font-medium">Total Amount:</span>
+                  <span className="font-bold">₹ {totalAmount.toLocaleString()}</span>
                 </div>
-              </div>
 
-              <PaymentTipsSidebar />
+                <div className="space-y-4">
+                  {formData.paymentMethods.map((method, index) => (
+                    <PaymentMethodItem
+                      key={index}
+                      index={index}
+                      method={method}
+                      errors={errors.form}
+                      onUpdate={handlePaymentMethodChange}
+                      onRemove={removePaymentMethod}
+                      showRemove={formData.paymentMethods.length > 1}
+                      t={t}
+                    />
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            <div className="mt-6 flex justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] pt-4 border-t">
+              <Button variant="outline" onClick={() => router.push("/dashboard/payments")} disabled={updating}>Cancel</Button>
+              <Button variant="success" onClick={handleSubmit} disabled={updating} loading={updating} leftIcon={Save}>Update Payment</Button>
             </div>
           </div>
+
+          <PaymentTipsSidebar />
         </div>
       </div>
 

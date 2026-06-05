@@ -20,11 +20,15 @@ import settings from "./settings.json";
 import sidebar from "./sidebar.json";
 import success from "./success.json";
 import suppliers from "./suppliers.json";
-import suggestions from "./suggestions.json";
 import validation from "./validation.json";
+import suggestions from "./suggestions.json";
 import salesOrder from "./salesOrder.json";
 import shortcuts from "./shortcuts.json";
 import help from "./help.json";
+import limits from "./limits.json";
+import subscription from "./subscription.json";
+import pos from "./pos.json";
+import staff from "./staff.json";
 
 export default {
   auth,
@@ -42,6 +46,8 @@ export default {
   modals,
   notifications,
   payments,
+  pos,
+  staff,
   products,
   purchaseOrders,
   quota,
@@ -49,9 +55,11 @@ export default {
   sidebar,
   success,
   suppliers,
-  suggestions,
   validation,
+  suggestions,
   salesOrder,
   shortcuts,
-  help
+  help,
+  limits,
+  subscription
 };

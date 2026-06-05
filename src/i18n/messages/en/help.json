@@ -6,29 +6,48 @@
         },
         "multipleStores": {
             "q": "Can I manage multiple stores?",
-            "a": "Yes! Use the store switcher in the sidebar to create and manage multiple business stores from a single account."
+            "a": "Yes! Use the store switcher in the sidebar (top section) to create and manage multiple business stores from a single account. Each store has its own inventory and customers."
         },
         "voiceAI": {
             "q": "How does Voice AI work?",
-            "a": "Click on the microphone icon in Customer or Product pages (or use Alt+V). Speak the details naturally, and our AI will automatically fill the form fields for you."
+            "a": "Click on the microphone icon in Customer or Product pages (or use Alt+V). Speak the details naturally (e.g., 'Add a customer named Rahul from Delhi'), and our AI will automatically fill the form for you."
         },
         "exportData": {
             "q": "How do I export my data?",
-            "a": "Most list pages have a 'Download' button or Ctrl+D shortcut. You can export data to PDF or CSV based on the page."
+            "a": "Most list pages have a 'Download' button or Ctrl+D shortcut. You can export data to PDF, Excel, or CSV formats for your accounting needs."
+        },
+        "lowStock": {
+            "q": "How to track low stock?",
+            "a": "In the 'Stock' management section, you can see products highlighted in red if they fall below your set minimum quantity. You can also generate a low-stock report."
+        },
+        "gstReports": {
+            "q": "Where can I find GST reports?",
+            "a": "Navigate to 'Analytics' > 'GST Analytics'. Here you can view your tax liabilities and download GSTR reports."
         }
     },
     "steps": {
         "completeProfile": "Complete your business profile",
         "configureStore": "Configure your first store",
         "addProducts": "Add your initial products to inventory",
-        "createInvoice": "Create your first professional invoice"
+        "createInvoice": "Create your first professional invoice",
+        "addUPI": "Add your UPI ID for payments",
+        "tryVoiceAI": "Try the Voice AI feature"
     },
     "ui": {
-        "docsTitle": "Detailed Documentation",
-        "docsDesc": "Step-by-step guides on how to use every feature of DragBizz Pro.",
-        "contactTitle": "Contact Support",
-        "contactDesc": "Need direct help? Our support team is available via chat and email 24/7.",
-        "faqTitle": "Frequently Asked Questions",
-        "checklistTitle": "Quick Start Checklist"
+        "docsTitle": "Feature Guides",
+        "docsDesc": "Step-by-step documentation for every feature.",
+        "contactTitle": "Direct Support",
+        "contactDesc": "Talk to our team for personalized assistance.",
+        "faqTitle": "Popular Questions",
+        "checklistTitle": "Quick Setup",
+        "searchPlaceholder": "Search for topics, features, or questions...",
+        "quickAccess": "Quick Access",
+        "sendMessage": "Send Message"
+    },
+    "links": {
+        "pos": "POS Terminal",
+        "inventory": "Inventory",
+        "analytics": "Analytics",
+        "settings": "Settings"
     }
 }

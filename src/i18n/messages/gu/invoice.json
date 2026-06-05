@@ -2,6 +2,7 @@
   "createInvoice": "ઇન્વૉઇસ બનાવો",
   "createInvoiceDescription": "નવું ગ્રાહક ઇન્વૉઇસ બનાવો",
   "backToInvoices": "ઇન્વૉઇસ પર પાછા જાઓ",
+  "barcodeProductNotFound": "આ બારકોડ માટે કોઈ પ્રોડક્ટ મળ્યું નથી: {code}",
   "selectProduct": "ઉત્પાદન પસંદ કરો",
   "quantity": "જથ્થો",
   "addItem": "આઇટમ ઉમેરો",
@@ -18,7 +19,9 @@
   "item": "આઇટમ",
   "items": "આઇટમ્સ",
   "createInvoiceButton": "ઇન્વૉઇસ બનાવો",
-  "noItemsAdded": "હજુ સુધી કોઈ આઇટમ ઉમેરવામાં આવી નથી. આઇટમ ઉમેરવા માટે ઉપરથી ઉત્પાદન અને જથ્થો પસંદ કરો.",
+  "createNewInvoice": "નવું ઇન્વૉઇસ બનાવો",
+  "noItemsTile": "કોઈ આઇટમ્સ ઉમેરાઈ નથી.",
+  "noItemsdisc": "ઉપરથી કોઈ પ્રોડક્ટ અને ક્વોન્ટિટી પસંદ કરો.",
   "loadingCustomers": "ગ્રાહકો લોડ થઈ રહ્યા છે...",
   "selectProductPlaceholder": "ઉત્પાદન પસંદ કરો",
   "pleaseSelectProduct": "કૃપા કરીને ઉત્પાદન પસંદ કરો",
@@ -214,5 +217,8 @@
   "cannotEditNonDraft": "ફક્ત ડ્રાફ્ટ ઇન્વૉઇસ જ સંપાદિત કરી શકાય છે. બહાર પાડવામાં આવેલા અથવા રદ કરાયેલા ઇન્વૉઇસમાં ફેરફાર કરી શકાતો નથી.",
   "grossTotal": "કુલ જ્યોત",
   "netTaxable": "ચોખ્ખી કરપાત્ર",
-  "totalGST": "કુલ GST"
+  "totalGST": "કુલ GST",
+  "emptyDescription": "તમે હજી સુધી કોઈ ઇન્વોઇસ બનાવ્યું નથી. તમારું પ્રથમ ઇન્વોઇસ બનાવીને શરૂ કરો!",
+  "notFoundTitle": "ઇન્વોઇસ મળ્યું નથી",
+  "notFoundDescription": "તમે જે ઇન્વોઇસ શોધી રહ્યા છો તે કદાચ કાઢી નાખવામાં આવ્યું હશે અથવા અસ્તિત્વમાં નથી."
 }

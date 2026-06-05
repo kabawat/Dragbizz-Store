@@ -3,22 +3,8 @@ import Cookies from "js-cookie";
 import { useAppDispatch } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
-
-// Helper function to redirect to main domain
-const redirectToMainDomain = () => {
-  const { protocol, host } = window.location;
-  const hostParts = host.split(".");
-
-  // If on subdomain (e.g., store.example.com), redirect to main domain (example.com)
-  if (hostParts.length > 2) {
-    // Remove subdomain and redirect to main domain
-    const mainDomain = hostParts.slice(-2).join(".");
-    window.location.href = `${protocol}//${mainDomain}`;
-  } else {
-    // Already on main domain, just go to home
-    window.location.href = "/";
-  }
-};
+import fcmService from "@/service/utility/fcm.service";
+import { isLocalhost, getMainDomain, redirectToMainDomain } from "@/utils/helper/domain";
 
 export function useLogout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,6 +23,12 @@ export function useLogout() {
   const confirmLogout = async () => {
     try {
       setIsLoggingOut(true);
+      try {
+        await fcmService.deleteToken();
+      } catch (err) {
+        // Ignore FCM deletion error on logout
+      }
+      
       // 1. Call backend logout (deletes HttpOnly cookies)
       await authService.logout();
 
@@ -47,11 +39,9 @@ export function useLogout() {
       sessionStorage.clear();
 
       // 4. Clear tenant cookie (must match domain/path used when setting)
-      const hostname = typeof window !== "undefined" ? window.location.hostname : "";
-      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
       Cookies.remove("tenant", {
         path: "/",
-        domain: isLocalhost ? undefined : `.${hostname.split(".").slice(-2).join(".")}`,
+        domain: isLocalhost() ? undefined : `.${getMainDomain()}`,
       });
 
       // 5. Redirect to main domain (not subdomain)
@@ -59,11 +49,9 @@ export function useLogout() {
     } catch (_error) {
       // Even if API fails, clear local state and redirect
       dispatch(clearAuth());
-      const hostname = typeof window !== "undefined" ? window.location.hostname : "";
-      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
       Cookies.remove("tenant", {
         path: "/",
-        domain: isLocalhost ? undefined : `.${hostname.split(".").slice(-2).join(".")}`,
+        domain: isLocalhost() ? undefined : `.${getMainDomain()}`,
       });
       redirectToMainDomain();
     } finally {

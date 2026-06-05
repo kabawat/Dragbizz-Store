@@ -1,9 +1,12 @@
 {
   "title": "Purchase Orders",
-  "description": "Manage purchase orders",
+  "description": "Create and manage your purchase orders for suppliers",
+  "emptyDescription": "Create your first purchase order to start requesting inventory from your suppliers and tracking orders.",
+  "noResultsDescription": "We couldn't find any purchase orders matching your search or filters. Try adjusting them.",
   "createPO": "Create PO",
   "createPODescription": "Add a new purchase order for suppliers",
   "viewPODescription": "View detailed information about this purchase order",
+  "managePODescription": "Manage purchase order details",
   "editPO": "Edit Purchase Order",
   "deletePO": "Delete Purchase Order",
   "poNumber": "PO Number",
@@ -82,6 +85,9 @@
   "addPayment": "Add Payment",
   "addedPayments": "Added Payments",
   "removePayment": "Remove payment",
+  "ordered": "Ordered",
+  "received": "Received",
+  "pending": "Pending",
   "searchSelectProduct": "Search and select product...",
   "add": "Add",
   "addNewItem": "Add new item",
@@ -116,6 +122,8 @@
   "selectProduct": "Select Product",
   "addNewProduct": "Add New Product",
   "totalItems": "Total Items",
+  "pendingItems": "Pending Items",
+  "completion": "Completion",
   "qty": "Qty",
   "selectedProduct": "Selected Product",
   "upiTransactionIdPlaceholder": "UPI123456789",
@@ -127,5 +135,7 @@
   "bankTransfer": "Bank Transfer",
   "cheque": "Cheque",
   "createBill": "Create Bill",
-  "loadingMore": "Loading more purchase orders..."
+  "loadingMore": "Loading more purchase orders...",
+  "noItemsTile": "No items added yet.",
+  "noItemsdisc": "Select a product and quantity above to add items."
 }

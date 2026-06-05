@@ -1,19 +1,10 @@
-"use client";
+import DashboardPage from "@/page/dashboard";
 
-import dynamic from "next/dynamic";
+export const metadata = {
+  title: "Dashboard - DragBizz Store",
+  description: "View your store's performance, metrics, and recent activity",
+};
 
-const DashboardPage = dynamic(() => import("@/page/dashboard"), {
-  ssr: false,
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-[rgb(var(--color-text-secondary))]">
-          Loading Dashboard...
-        </p>
-      </div>
-    </div>
-  ),
-});
-
-export default DashboardPage;
+export default function DashboardPageRoute() {
+  return <DashboardPage />;
+}

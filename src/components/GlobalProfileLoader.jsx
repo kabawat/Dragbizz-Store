@@ -12,12 +12,6 @@ import {
 } from "@/store/slices/profileSlice";
 import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
 
-const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
-
-function isAuthPath(pathname) {
-  if (!pathname) return true;
-  return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
 
 export default function GlobalProfileLoader() {
   const pathname = usePathname();
@@ -33,10 +27,13 @@ export default function GlobalProfileLoader() {
   const hasFetchedStaffRef = useRef(false);
 
   useEffect(() => {
-    const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
 
-    if (isAuth && !hasSessionCookie) { dispatch(setInitialized(true)); return; }
+    // If no session cookie, we know we're not logged in.
+    if (!hasSessionCookie) {
+      dispatch(setInitialized(true));
+      return;
+    }
 
     const load = async () => {
       try {
@@ -50,17 +47,26 @@ export default function GlobalProfileLoader() {
           } catch (_) { }
         }
 
-        // If first refresh API failed, do not call the 2 profile APIs (getAuthProfile, getRetailerDetails)
+        // If first refresh API failed, do not call the profile APIs
         if (!refreshSucceededRef.current) {
           dispatch(setInitialized(true));
           return;
         }
 
+        const promises = [];
         if (!hasFetchedAuthRef.current) {
           hasFetchedAuthRef.current = true;
-          try {
-            await dispatch(getAuthProfile()).unwrap();
-          } catch (_) { }
+          promises.push(dispatch(getAuthProfile()));
+        }
+
+        // If we have a session but haven't fetched retailer details, do it in parallel
+        if (!hasFetchedRetailerRef.current && !user && !agency) {
+          hasFetchedRetailerRef.current = true;
+          promises.push(dispatch(getRetailerDetails()));
+        }
+
+        if (promises.length > 0) {
+          await Promise.allSettled(promises);
         }
       } catch (_) { }
     };
@@ -72,9 +78,7 @@ export default function GlobalProfileLoader() {
   useEffect(() => {
     if (!authProfile || !authProfile.agencyId) return;
 
-    const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
-    if (isAuth && !hasSessionCookie) return;
 
     const hasRetailerData = !!user || !!agency || (stores && stores.length > 0);
     if (hasRetailerData || hasFetchedRetailerRef.current) return;

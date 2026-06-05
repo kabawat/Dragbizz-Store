@@ -3,12 +3,12 @@
 import Accordion, { AccordionItem } from "./Accordion";
 import ActionMenu from "./ActionMenu";
 import AddActionButton from "./AddActionButton";
-import AIButton from "./AIButton";
 import Alert from "./Alert";
 import AnimatedBackground from "./AnimatedBackground";
 import AnimatedGridPattern from "./AnimatedGridPattern";
 import Badge, { BadgeGroup, NotificationBadge, StatusBadge } from "./Badge";
 import Button from "./Button";
+import BulkTemplateDownloadButton from "./BulkTemplateDownloadButton";
 import Card, {
   CardActions,
   CardBody,
@@ -21,7 +21,7 @@ import Card, {
 import Checkbox, { CheckboxGroup } from "./Checkbox";
 import Divider from "./Divider";
 import Dropdown from "./Dropdown";
-import ErrorModal from "./ErrorModal";
+import EmptyState from "./EmptyState";
 import FileUpload from "./FileUpload";
 import IconButton from "./IconButton";
 import Input from "./Input";
@@ -37,13 +37,13 @@ import LogoutModal from "./LogoutModal";
 import Modal, { ModalBody, ModalFooter, ModalHeader } from "./Modal";
 import MultiSelect from "./MultiSelect";
 import Pagination from "./Pagination";
+import PageLoader from "./PageLoader";
 import RichTextEditor from "./RichTextEditor";
 import Select from "./Select";
 import SendMenu from "./SendMenu";
 import SideDrawer from "./SideDrawer";
 import StepProgress from "./StepProgress";
 import StockInDrawer from "./StockInDrawer";
-import SVGBackground from "./SVGBackground";
 import Table, {
   TableBody,
   TableCell,
@@ -54,7 +54,7 @@ import Table, {
 import Tabs, { TabPanel } from "./Tabs";
 import TagInput from "./TagInput";
 import Textarea from "./Textarea";
-import SettingsPanel from "./ThemeSelector";
+import SettingsPanel, { SettingsButton, SettingsDrawer } from "./ThemeSelector";
 import Toast from "./Toast";
 import ToastContainer from "./ToastContainer";
 import Toggle, { ViewToggle } from "./Toggle";
@@ -62,7 +62,7 @@ import Toggle, { ViewToggle } from "./Toggle";
 // Named exports
 export {
   Button,
-  AIButton,
+  BulkTemplateDownloadButton,
   Input,
   Checkbox,
   CheckboxGroup,
@@ -100,12 +100,13 @@ export {
   AccordionItem,
   AnimatedBackground,
   AnimatedGridPattern,
-  SVGBackground,
   SettingsPanel,
+  SettingsButton,
+  SettingsDrawer,
   Dropdown,
   Pagination,
+  PageLoader,
   Toggle,
-  ViewToggle,
   FileUpload,
   MultiSelect,
   TagInput,
@@ -124,14 +125,14 @@ export {
   TableCell,
   Toast,
   ToastContainer,
-  ErrorModal,
   IconButton,
+  EmptyState,
 };
 
 // Default export
 export default {
   Button,
-  AIButton,
+  BulkTemplateDownloadButton,
   Input,
   Checkbox,
   CheckboxGroup,
@@ -169,12 +170,13 @@ export default {
   AccordionItem,
   AnimatedBackground,
   AnimatedGridPattern,
-  SVGBackground,
   SettingsPanel,
+  SettingsButton,
+  SettingsDrawer,
   Dropdown,
   Pagination,
+  PageLoader,
   Toggle,
-  ViewToggle,
   FileUpload,
   MultiSelect,
   TagInput,
@@ -193,6 +195,6 @@ export default {
   TableCell,
   Toast,
   ToastContainer,
-  ErrorModal,
   IconButton,
+  EmptyState,
 };

@@ -7,8 +7,14 @@ import {
   updateNotificationSettings,
   resetNotificationSettings
 } from "@/store/slices/notificationSettingsSlice";
-import authService from "@/service/auth/auth.service";
+import { useFcmContext } from "@/contexts/FcmContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import {
+  getNotificationPermissionState,
+  getPermissionMessageKey,
+  registerPushNotifications,
+  unregisterPushNotifications,
+} from "@/firebase/notification";
 import { Bell, Mail, MessageSquare, Smartphone, Shield, ShoppingCart, Percent, CreditCard, User, RotateCcw, Loader2 } from "lucide-react";
 
 const WhatsAppIcon = ({ className }) => (
@@ -29,6 +35,10 @@ const NotificationsSettings = () => {
 
   const settings = useAppSelector((state) => state.notificationSettings?.settings);
   const loading = useAppSelector((state) => state.notificationSettings?.loading);
+  const { permission: fcmPermission } = useFcmContext();
+  const pushPermission = getNotificationPermissionState();
+  const effectivePushPermission =
+    pushPermission !== "default" ? pushPermission : fcmPermission;
 
   const [isUpdating, setIsUpdating] = useState(false);
   const hasFetchedRef = useRef(false);
@@ -76,14 +86,41 @@ const NotificationsSettings = () => {
     }
   };
 
-  const toggleChannel = (channel) => {
+  const toggleChannel = async (channel) => {
     if (!settings) return;
+
+    const willEnable = !settings.channels[channel];
+
+    if (channel === "push") {
+      if (willEnable) {
+        setIsUpdating(true);
+        const result = await registerPushNotifications();
+        setIsUpdating(false);
+
+        if (!result.success) {
+          const messageKey =
+            result.message || getPermissionMessageKey(result.permission);
+          const translated = t(`settings.notifications.${messageKey}`, {
+            defaultValue: "",
+          });
+          showError(translated || t("settings.notifications.pushEnableFailed"));
+          return;
+        }
+        showSuccess(t("settings.notifications.pushEnabledSuccess"));
+      } else {
+        setIsUpdating(true);
+        await unregisterPushNotifications();
+        setIsUpdating(false);
+        showSuccess(t("settings.notifications.pushDisabledSuccess"));
+      }
+    }
+
     const updated = {
       ...settings,
       channels: {
         ...settings.channels,
-        [channel]: !settings.channels[channel]
-      }
+        [channel]: willEnable,
+      },
     };
     handleUpdate(updated);
   };
@@ -162,7 +199,7 @@ const NotificationsSettings = () => {
               className={`group p-4 rounded-lg border transition-all backdrop-blur-sm bg-[rgb(var(--color-bg-primary))]/20 ${isEnabled
                 ? "border-[rgb(var(--color-primary))]/30"
                 : "border-[rgb(var(--color-border-primary))]/50"
-                }`}
+                } ${channel === "push" && effectivePushPermission === "denied" ? "md:col-span-2 lg:col-span-4" : ""}`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -179,6 +216,20 @@ const NotificationsSettings = () => {
                   disabled={isUpdating}
                 />
               </div>
+              {channel === "push" &&
+                (effectivePushPermission === "denied" ||
+                  effectivePushPermission === "default") && (
+                  <p
+                    className={`mt-3 text-xs leading-relaxed ${effectivePushPermission === "denied"
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-[rgb(var(--color-text-secondary))]"
+                      }`}
+                  >
+                    {t(
+                      `settings.notifications.${getPermissionMessageKey(effectivePushPermission)}`
+                    )}
+                  </p>
+                )}
             </div>
           ))}
         </div>

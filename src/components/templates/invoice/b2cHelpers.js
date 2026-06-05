@@ -6,6 +6,30 @@ export const fmt = (amount) =>
         maximumFractionDigits: 2,
     })}`;
 
+/** Format address object or string */
+export const formatAddress = (addr) => {
+    if (!addr) return "";
+    if (typeof addr === "string") return addr;
+
+    const { line1, line2, city, state, pincode, country, location, ...rest } = addr || {};
+    const getVal = (val) => (typeof val === "string" || typeof val === "number" ? val : null);
+
+    const parts = [
+        getVal(line1),
+        getVal(line2),
+        getVal(city),
+        getVal(state),
+        getVal(pincode),
+        getVal(country),
+    ].filter(Boolean);
+
+    const extra = Object.values(rest || {})
+        .map(getVal)
+        .filter(Boolean);
+
+    return [...parts, ...extra].join(", ");
+};
+
 // Compute B2C totals from invoiceData and items.
 export function computeB2CTotals(invoiceData) {
     const items = invoiceData.items || [];

@@ -1,6 +1,8 @@
 {
     "viewOrder": "View Sell Order",
     "orderListDescription": "Orders from your shared catalogs will appear here.",
+    "emptyDescription": "When a customer places an order from your digital catalogs or storefront, it will appear here for processing.",
+    "noResultsDescription": "We couldn't find any orders matching your current filters. Try resetting them or check your search term.",
     "orderListSubtitle": "Manage and track all customer orders from catalogs",
     "backToOrders": "Back to Orders",
     "customerShippingInfo": "Customer & Shipping Info",
@@ -22,9 +24,12 @@
     "decline": "Decline",
     "markAsProcessing": "Mark as Processing",
     "markAsShipped": "Mark as Shipped",
+    "markAsReady": "Mark as Ready",
     "markAsInTransit": "Mark as In Transit",
     "markAsOutForDelivery": "Mark as Out for Delivery",
     "markAsDelivered": "Mark as Delivered",
+    "markAsServed": "Mark as Served",
+    "storeLocation": "In-Store Location",
     "noFurtherActions": "No further actions available for this {status} order.",
     "termsConditions": "Terms & Conditions",
     "standardTerms": "Standard store terms apply. Please contact support for any billing discrepancies.",
@@ -52,6 +57,8 @@
         "paid": "Paid",
         "unpaid": "Unpaid",
         "partial": "Partial",
-        "refunded": "Refunded"
+        "refunded": "Refunded",
+        "ready": "Order Ready",
+        "served": "Served"
     }
 }

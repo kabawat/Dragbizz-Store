@@ -12,11 +12,10 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Input, Select, Textarea } from "@/components/ui";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import {
   billService,
   paymentService,
@@ -27,6 +26,8 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const CreatePayment = () => {
   const { t } = useTranslation();
+
+    useDashboardHeader(t("payments.createNewPayment"), t("payments.createNewPaymentDescription"));
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -425,15 +426,12 @@ const CreatePayment = () => {
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
       {/* Sidebar */}
-      <Sidebar />
+      
 
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header
-          title={t("payments.createNewPayment")}
-          description={t("payments.createNewPaymentDescription")}
-        />
+        
 
         {/* Main Content */}
         <div className="flex-1 p-6">

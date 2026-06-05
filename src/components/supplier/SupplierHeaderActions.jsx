@@ -17,7 +17,6 @@ const SupplierHeaderActions = ({
     viewMode,
     onViewModeChange,
     onDownloadClick,
-    onVoiceAIClick,
     onAddSupplierClick,
 }) => {
     const { t } = useTranslation();
@@ -86,8 +85,8 @@ const SupplierHeaderActions = ({
                             <button
                                 onClick={() => onViewModeChange("table")}
                                 className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                                        ? "bg-[rgb(var(--color-primary))] text-white"
-                                        : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                    ? "bg-[rgb(var(--color-primary))] text-white"
+                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                     }`}
                             >
                                 <List className="w-4 h-4" />
@@ -96,8 +95,8 @@ const SupplierHeaderActions = ({
                             <button
                                 onClick={() => onViewModeChange("card")}
                                 className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                                        ? "bg-[rgb(var(--color-primary))] text-white"
-                                        : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                    ? "bg-[rgb(var(--color-primary))] text-white"
+                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                     }`}
                             >
                                 <Grid3X3 className="w-4 h-4" />
@@ -111,13 +110,6 @@ const SupplierHeaderActions = ({
                         leftIcon={Download}
                     >
                         {t("common.download")}
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={onVoiceAIClick}
-                        leftIcon={Mic}
-                    >
-                        {t("customers.voiceAI")}
                     </Button>
                     <Button variant="primary" onClick={onAddSupplierClick} leftIcon={Plus}>
                         {t("suppliers.addSupplier")}

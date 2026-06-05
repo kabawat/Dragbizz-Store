@@ -3,38 +3,43 @@ import { Plus, Save } from "lucide-react";
 import { useState } from "react";
 import { FormDrawer } from "@/components/common";
 import storeService from "@/service/retailer/store.service";
+import useApiResponse from "@/hooks/useApiResponse";
 import StoreEditForm from "./StoreEditForm";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
+import { VALIDATION_REGEX } from "@/utils/validators";
+import { useAppSelector } from "@/store/hooks";
 
-const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: {
-      street: "",
-      line1: "",
-      city: "",
-      state: "",
-      pincode: "",
-      landmark: "",
-    },
-    category: "",
-    hasExpiryDate: false,
-    gst: "",
-    gstDetail: null,
-    pan: "",
-    catalogId: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [isCreating, setIsCreating] = useState(false);
+const INITIAL_FORM = {
+  name: "",
+  phone: "",
+  email: "",
+  address: {
+    street: "",
+    line1: "",
+    city: "",
+    state: "",
+    pincode: "",
+    landmark: "",
+  },
+  category: "",
+  hasExpiryDate: false,
+  gst: "",
+  gstDetail: null,
+  pan: "",
+  catalogId: "",
+};
+
+const StoreAddDrawer = ({ isOpen, onClose, onSuccess, onError }) => {
+  const { agency } = useAppSelector((state) => state.profile);
+  const [form, setForm] = useState(INITIAL_FORM);
+  const { execute, loading: isCreating, fieldErrors: errors, setFieldErrors: setErrors } = useApiResponse();
 
   // Hook for GST verification
   const {
     isVerifyingGst,
     isGstVerified,
-    handleVerifyGst: verifyGst,
-    resetGstVerification
+    handleVerifyGst: verifyGstNumber,
+    resetGstVerification,
   } = useGstVerification(setForm);
 
   // Handle GST Verification
@@ -43,7 +48,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
       setErrors((prev) => ({ ...prev, gst: "Please enter a valid GST number" }));
       return;
     }
-    await verifyGst(form.gst);
+    await verifyGstNumber(form.gst);
   };
 
   // Handle form field changes
@@ -93,9 +98,8 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
     if (!form.phone?.trim()) {
       newErrors.phone = "Phone number is required";
     } else {
-      const phoneRegex = /^[+]?[\d\s\-()]{10,}$/;
       const cleanPhone = form.phone.replace(/\D/g, "");
-      if (!phoneRegex.test(form.phone) || cleanPhone.length < 10) {
+      if (!VALIDATION_REGEX.PHONE.test(form.phone) || cleanPhone.length < 10) {
         newErrors.phone = "Please enter a valid phone number";
       }
     }
@@ -104,20 +108,15 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
       newErrors["address.city"] = "City is required";
     }
 
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    if (form.email && !VALIDATION_REGEX.EMAIL.test(form.email)) {
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (
-      form.gst &&
-      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-        form.gst
-      )
-    ) {
+    if (form.gst && !VALIDATION_REGEX.GST.test(form.gst)) {
       newErrors.gst = "Please enter a valid GST number";
     }
 
-    if (form.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan)) {
+    if (form.pan && !VALIDATION_REGEX.PAN.test(form.pan)) {
       newErrors.pan = "Please enter a valid PAN number";
     }
 
@@ -136,82 +135,52 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
       return;
     }
 
-    try {
-      setIsCreating(true);
-      setErrors({});
+    setErrors({});
 
-      // Prepare payload according to API structure
-      const payload = {
-        name: form.name.trim(),
-        phone: form.phone.trim(),
-        email: form.email?.trim() || "",
-        address: {
-          street: form.address.street || form.address.line1 || "",
-          city: form.address.city,
-          state: form.address.state || "",
-          pincode: form.address.pincode || "",
-          landmark: form.address.landmark || "",
+    const payload = {
+      name: form.name.trim(),
+      agency: agency.agencyId,
+      phone: form.phone.trim(),
+      email: form.email?.trim() || "",
+      address: {
+        line1: form.address.street || form.address.line1 || "",
+        line2: "", // Not collected in form
+        city: form.address.city,
+        state: form.address.state || "",
+        country: "India", // Default to India
+        pincode: form.address.pincode || "",
+        landmark: form.address.landmark || "",
+        location: {
+          type: "Point",
+          coordinates: [0, 0], // Default location as it's not collected in form yet
         },
-        category: form.category || "",
-        hasExpiryDate: form.hasExpiryDate === true,
+      },
+      category: form.category || "",
+      subCategories: [],
+      tags: [],
+      hasExpiryDate: form.hasExpiryDate === true,
+      gst: form.gst?.trim() || "",
+      gstDetail: form.gstDetail || null,
+      pan: form.pan?.trim() || "",
+      catalogId: form.catalogId?.trim() || null,
+      status: "active",
+      metadata: {
         gst: form.gst?.trim() || "",
-        gstDetail: form.gstDetail || null,
-        pan: form.pan?.trim() || "",
-        catalogId: form.catalogId?.trim() || null,
-        agency: agency.agencyId,
-      };
+        owner: agency.userId || "",
+      },
+    };
 
-      const result = await storeService.createStore(payload);
+    const result = await execute(storeService.createStore(payload), { showToast: false });
 
-      if (result?.success) {
-        onSuccess?.(result.message || "Store created successfully!");
-        handleCancel();
-      } else {
-        // Handle field errors from API
-        if (result?.error?.data?.fields) {
-          setErrors(result.error.data.fields);
-        } else {
-          onError?.(
-            result?.message || "Failed to create store. Please try again."
-          );
-        }
-      }
-    } catch (error) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "An unexpected error occurred. Please try again.";
-      onError?.(errorMessage);
-
-      // Handle field errors from API
-      if (error?.response?.data?.fields) {
-        setErrors(error.response.data.fields);
-      }
-    } finally {
-      setIsCreating(false);
+    if (result?.success) {
+      onSuccess?.(result.message || "Store created successfully!");
+      handleCancel();
     }
   };
 
   // Handle cancel
   const handleCancel = () => {
-    setForm({
-      name: "",
-      phone: "",
-      email: "",
-      address: {
-        street: "",
-        line1: "",
-        city: "",
-        state: "",
-        pincode: "",
-        landmark: "",
-      },
-      category: "",
-      hasExpiryDate: false,
-      gst: "",
-      pan: "",
-      catalogId: "",
-    });
+    setForm(INITIAL_FORM);
     setErrors({});
     onClose?.();
   };

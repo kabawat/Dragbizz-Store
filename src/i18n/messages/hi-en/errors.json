@@ -26,5 +26,8 @@
   "addNewSupplier": "+ Naya Supplier add karo",
   "addNewPurchaseOrder": "+ Naya Purchase Order add karo",
   "loading": "Load ho raha hai...",
-  "notesCannotExceed500Chars": "Notes 500 characters se zyada nahi ho sakte"
+  "notesCannotExceed500Chars": "Notes 500 characters se zyada nahi ho sakte",
+  "pageNotFound": "404 - Page Nahi Mila",
+  "pageNotFoundDescription": "Jis link ka aapne peecha kiya hai wo broken ho sakta hai, ya page ko hata diya gaya ho sakta hai.",
+  "backToDashboard": "Dashboard par wapas jayein"
 }

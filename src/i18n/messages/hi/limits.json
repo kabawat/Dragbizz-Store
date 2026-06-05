@@ -1,0 +1,56 @@
+{
+    "title": "Plan Usage & Limits",
+    "description": "Monitor your feature consumption and quotas",
+    "modules": {
+        "billing": "Billing Cycles",
+        "invoice": "Sales Invoices",
+        "product": "Inventory Products",
+        "customer": "Customer Profiles",
+        "supplier": "Supplier Profiles",
+        "purchase_order": "Purchase Orders",
+        "expense": "Expenses Tracking"
+    },
+    "resourceMonitor": {
+        "title": "Resource Monitor",
+        "description": "System-wide feature quota status",
+        "activeMonitoring": "Active Monitoring"
+    },
+    "stats": {
+        "consumed": "Consumed",
+        "unlimitedAccess": "Unlimited",
+        "utilizedPercentage": "{percentage}% Utilized",
+        "unlimitedPlan": "Unlimited Plan",
+        "detailsBtn": "Details",
+        "notIncluded": "Not Included"
+    },
+    "autoReset": {
+        "title": "Auto-Reset Quotas",
+        "description": "All monthly limits reset every 30 days automatically.",
+        "nextReset": "Next Reset",
+        "date": "April 01, 2026"
+    },
+    "upgrade": {
+        "title": "Upgrade Intelligence",
+        "description": "Need custom quotas for your enterprise scale? Talk to our sales team for bespoke limits.",
+        "btnText": "Custom Inquiry"
+    },
+    "insights": {
+        "title": "Usage Insights",
+        "description": "Historical usage tracking is currently under development. You'll soon see trends for each service."
+    },
+    "updates": {
+        "title": "Service Updates",
+        "message1": "Infrastructure optimized for faster invoice generation.",
+        "message2": "New dynamic quota allocation available for Enterprise."
+    },
+    "details": {
+        "title": "{feature} Details",
+        "usageTitle": "Usage Overview",
+        "remaining": "Remaining Quota",
+        "analytics": "Advanced Analytics",
+        "type": "Quota Policy",
+        "active": "Active",
+        "inactive": "Locked",
+        "unlimited": "Unlimited"
+    }
+}

@@ -1,19 +1,33 @@
-import { getContextualErrorMessage } from "./errorHandling";
+const DEFAULT_ERROR_MESSAGE = "An error occurred. Please try again.";
 
-export const handleApiError = (error, context = "general") => {
-  return getContextualErrorMessage(error, context);
-};
+function getApiErrorMessage(error) {
+  if (!error) return DEFAULT_ERROR_MESSAGE;
+
+  const errorData = error.response?.data || error.error || error;
+
+  return (
+    errorData?.details?.title ||
+    errorData?.details?.detail ||
+    errorData?.message ||
+    errorData?.error ||
+    error?.message ||
+    DEFAULT_ERROR_MESSAGE
+  );
+}
+
+export const handleApiError = (error) => getApiErrorMessage(error);
 
 export const handleApiSuccess = (
   response,
   defaultMessage = "Operation successful"
 ) => {
+  const body = response?.data ?? response;
   const result = {
     success: true,
-    data: response?.data?.data || response?.data || response,
-    token: response?.data?.token || response?.token,
-    message: response?.data?.message || response?.message || defaultMessage,
-    meta: response?.data?.meta || response?.meta,
+    data: body?.data ?? body,
+    token: body?.token ?? response?.token,
+    message: body?.message ?? response?.message ?? defaultMessage,
+    meta: body?.meta ?? response?.meta,
   };
 
   if (response?.nextCursor) {
@@ -31,20 +45,15 @@ export const handleApiSuccess = (
   return result;
 };
 
-export const handleApiErrorResponse = (error, context = "general") => {
-  const backendMessage = error.response?.data?.message || error.response?.data?.error;
+export const handleApiErrorResponse = (error) => {
+  const backendMessage =
+    error.response?.data?.message || error.response?.data?.error;
   const statusCode = error.response?.status;
 
   return {
     success: false,
     error: error.response?.data || error.message,
-    message: backendMessage || getContextualErrorMessage(error, context),
-    statusCode: statusCode,
+    message: backendMessage || getApiErrorMessage(error),
+    statusCode,
   };
-};
-
-export default {
-  handleApiError,
-  handleApiSuccess,
-  handleApiErrorResponse,
 };

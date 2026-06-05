@@ -56,9 +56,7 @@ const ExpenseDetailsTemplate = ({ expenseData, selectedStore }) => {
                 <tr>
                   <td className={styles.label}>Status:</td>
                   <td>
-                    {expenseData?.status
-                      ? getStatusLabel(expenseData.status)
-                      : "N/A"}
+                    {expenseData?.status ? getStatusLabel(expenseData.status) : "N/A"}
                   </td>
                 </tr>
               </tbody>
@@ -74,27 +72,19 @@ const ExpenseDetailsTemplate = ({ expenseData, selectedStore }) => {
                 <tr>
                   <td className={styles.label}>Category:</td>
                   <td>
-                    {expenseData?.category?.name || expenseData?.category
-                      ? getCategoryLabel(
-                          expenseData.category?.name || expenseData.category
-                        )
-                      : "N/A"}
+                    {expenseData?.category?.name ? getCategoryLabel(expenseData.category?.name) : "N/A"}
                   </td>
                 </tr>
                 <tr>
                   <td className={styles.label}>Vendor:</td>
                   <td>
-                    {expenseData?.vendor?.name ||
-                      expenseData?.vendor ||
-                      "N/A"}
+                    {expenseData?.vendor?.name || "N/A"}
                   </td>
                 </tr>
                 <tr>
                   <td className={styles.label}>Payment Method:</td>
                   <td>
-                    {expenseData?.paymentMethod
-                      ? getPaymentMethodLabel(expenseData.paymentMethod)
-                      : "N/A"}
+                    {expenseData?.paymentMethod ? getPaymentMethodLabel(expenseData.paymentMethod) : "N/A"}
                   </td>
                 </tr>
               </tbody>

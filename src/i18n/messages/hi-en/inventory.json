@@ -1,6 +1,8 @@
 {
   "title": "Inventory",
-  "description": "Inventory ko manage karo",
+  "description": "Apne store inventory aur stock levels ko manage karein",
+  "emptyDescription": "Inventory tracking aur sales shuru karne ke liye apne products mein stock add karein.",
+  "noResultsDescription": "Humein aapki search se match hone wala koi inventory item nahi mila. Apna search term adjust karke try karein.",
   "addStock": "Stock add karo",
   "adjustStock": "Stock adjust karo",
   "stockIn": "Stock In",

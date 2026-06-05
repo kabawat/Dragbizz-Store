@@ -162,5 +162,6 @@
     "noPaymentMethodData": "No payment method data available",
     "metric": "Metric",
     "value": "Value"
-  }
+  },
+  "emptyDescription": "Keep track of your business costs. Start by adding your first expense to see your spending patterns and manage your budget effectively!"
 }

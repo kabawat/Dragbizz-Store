@@ -1,17 +1,29 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search, Upload } from "lucide-react";
+import { Download, Grid3X3, List, Mic, Plus, Search, Upload, Crown } from "lucide-react";
 import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuppliers, setViewMode } from "@/store/slices/supplier/supplierSlice";
-import { AddSupplierDrawer, VoiceAISupplier } from "@/components/supplier";
+import { AddSupplierDrawer } from "@/components/supplier";
 import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
 import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
-const SupplierListHeader = () => {
+const SupplierListHeader = ({
+    searchValue,
+    setSearchValue,
+    accountStatus,
+    setAccountStatus,
+    riskLevel,
+    setRiskLevel,
+    isActive,
+    setIsActive,
+    showAddSupplierDrawer,
+    setShowAddSupplierDrawer
+}) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
 
@@ -20,25 +32,29 @@ const SupplierListHeader = () => {
     const storeId = useMemo(() => selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "",
         [selectedStore]);
 
-    const [searchValue, setSearchValue] = useState("");
-    const [accountStatus, setAccountStatus] = useState("");
-    const [riskLevel, setRiskLevel] = useState("");
-    const [isActive, setIsActive] = useState("");
-
-    // Drawers
-    const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
-    const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
+    // Internal Drawers
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     const { can, loading } = useModulePermissions("supplier");
+    const { hasAccess, withAccess } = useSubscriptionAccess();
+
     const canCreate = can("create");
-    const canDownload = can("report") || can("read");
+    // Button is shown if user has report OR read permission
+    const canSeeDownload = can("report") || can("read");
+    // Check if subscription blocks reports
+    const isReportLocked = !hasAccess("supplier", false, true);
+
+    const handleDownloadClick = withAccess(
+        "supplier",
+        () => setShowDownloadDrawer(true),
+        false,
+        true
+    );
 
     useEffect(() => {
         if (!canCreate) {
             setShowAddSupplierDrawer(false);
-            setShowVoiceAIDrawer(false);
             setShowBulkUploadDrawer(false);
         }
     }, [canCreate]);
@@ -100,15 +116,13 @@ const SupplierListHeader = () => {
         onNew: canCreate ? () => setShowAddSupplierDrawer(true) : undefined,
         onClose: () => {
             if (showAddSupplierDrawer) setShowAddSupplierDrawer(false);
-            if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
             if (showDownloadDrawer) setShowDownloadDrawer(false);
             if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
-        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
-        onVoiceAI: canCreate ? () => setShowVoiceAIDrawer(true) : undefined,
+        onDownload: canSeeDownload ? handleDownloadClick : undefined,
     });
 
     const handleSupplierSuccess = useCallback(() => {
@@ -119,7 +133,7 @@ const SupplierListHeader = () => {
     if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 <div className="w-100">
                     <Input
@@ -210,26 +224,24 @@ const SupplierListHeader = () => {
                         </Button>
                     )}
 
-                    {canDownload && (
+                    {canSeeDownload && (
                         <Button
                             variant="secondary"
-                            onClick={() => setShowDownloadDrawer(true)}
-                            leftIcon={Download}
+                            onClick={handleDownloadClick}
+                            className="flex items-center gap-2 h-9 relative"
                         >
+                            <Download className="w-4 h-4" />
                             {t("common.download")}
+                            {isReportLocked && (
+                                <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                                    <Crown size={8} className="fill-white/20" />
+                                </div>
+                            )}
                         </Button>
                     )}
 
                     {canCreate && (
                         <>
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowVoiceAIDrawer(true)}
-                                leftIcon={Mic}
-                            >
-                                {t("customers.voiceAI")}
-                            </Button>
-
                             <Button
                                 variant="primary"
                                 onClick={() => setShowAddSupplierDrawer(true)}
@@ -247,26 +259,6 @@ const SupplierListHeader = () => {
                 onClose={() => setShowAddSupplierDrawer(false)}
                 onSuccess={handleSupplierSuccess}
             />
-
-            <SideDrawer
-                isOpen={showVoiceAIDrawer}
-                onClose={() => setShowVoiceAIDrawer(false)}
-                title="Create Supplier with Voice AI"
-                icon={Mic}
-                description="Chat with AI to create a supplier naturally"
-                width="w-full md:w-2/3 lg:w-1/2"
-            >
-                <div className="h-full">
-                    <VoiceAISupplier
-                        storeId={storeId}
-                        onSuccess={() => {
-                            handleSupplierSuccess();
-                            setShowVoiceAIDrawer(false);
-                        }}
-                        onCancel={() => setShowVoiceAIDrawer(false)}
-                    />
-                </div>
-            </SideDrawer>
 
             <SupplierDownloadDrawer
                 isOpen={showDownloadDrawer}

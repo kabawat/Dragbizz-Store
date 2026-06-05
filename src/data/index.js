@@ -9,7 +9,6 @@ import {
   PRODUCT_VISIBILITY_OPTIONS,
 } from "./enums/productStatus.js";
 import { UOM_OPTIONS } from "./enums/productUOM.js";
-import { PRODUCT_CATEGORY_OPTIONS } from "./selectOptions/categories.js";
 
 // Named exports
 export { CURRENCY_OPTIONS } from "./constants/currencies.js";
@@ -22,7 +21,6 @@ export {
   PRODUCT_VISIBILITY_OPTIONS,
 } from "./enums/productStatus.js";
 export { UOM_OPTIONS } from "./enums/productUOM.js";
-export { PRODUCT_CATEGORY_OPTIONS } from "./selectOptions/categories.js";
 
 // Default export for convenience
 export default {
@@ -33,6 +31,5 @@ export default {
   PRODUCT_STATUS,
   PRODUCT_STATUS_OPTIONS,
   PRODUCT_VISIBILITY_OPTIONS,
-  getProductStatusColor,
-  PRODUCT_CATEGORY_OPTIONS,
+  getProductStatusColor
 };

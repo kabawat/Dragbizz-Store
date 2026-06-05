@@ -76,6 +76,19 @@
   "editMore": "और संपादित करें",
   "activeCustomer": "सक्रिय ग्राहक",
   "memberSince": "सदस्यता से",
+  "source": "स्रोत",
+  "allSources": "सभी स्रोत",
+  "sourceValues": {
+    "MANUAL": "मैन्युअल",
+    "POS": "POS",
+    "INVOICE": "चालान",
+    "BULK_IMPORT": "थोक अपलोड",
+    "ONLINE": "ऑनलाइन",
+    "IN_STORE": "इन-स्टोर",
+    "WHATSAPP": "WhatsApp",
+    "PHONE": "फ़ोन",
+    "QR_CATALOG": "QR कैटलॉग"
+  },
   "download": "डाउनलोड",
   "export": "ग्राहक निर्यात करें",
   "downloadCustomers": "ग्राहक डाउनलोड करें",
@@ -162,5 +175,6 @@
   "done": "हो गया",
   "partialSuccess": "थोक अपलोड आंशिक रूप से सफल",
   "bulkUploadSuccess": "थोक अपलोड सफलतापूर्वक पूरा हुआ",
-  "rowData": "डेटा"
+  "rowData": "डेटा",
+  "emptyDescription": "आपके पास अभी तक कोई ग्राहक नहीं है। उनके ऑर्डर और प्राथमिकताओं को ट्रैक करना शुरू करने के लिए अपना पहला ग्राहक जोड़ें!"
 }

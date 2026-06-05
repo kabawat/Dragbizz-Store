@@ -67,6 +67,7 @@ export const ThemeProvider = ({ children }) => {
     );
   };
 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const value = {
     currentTheme,
     currentVariant,
@@ -76,6 +77,8 @@ export const ThemeProvider = ({ children }) => {
     toggleVariant,
     getCurrentThemeConfig,
     themeConfig: getCurrentThemeConfig(),
+    isSettingsOpen,
+    setIsSettingsOpen,
   };
 
   return (

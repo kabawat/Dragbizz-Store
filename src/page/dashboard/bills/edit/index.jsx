@@ -1,12 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { Button } from "@/components/ui";
 
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { billService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { useApiResponse } from "@/hooks/useApiResponse";
@@ -18,10 +17,12 @@ import { ArrowLeft, Receipt } from "lucide-react";
 
 const EditBill = ({ billId }) => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("bills.editBill"), t("bills.updateBillInformationAndDetails"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  const [fetchError, setFetchError] = useState(null);
+  const fetchedBillRef = useRef(null);
 
   const [formData, setFormData] = useState({
     supplier: "",
@@ -33,45 +34,41 @@ const EditBill = ({ billId }) => {
   });
 
   const [errors, setErrors] = useState({});
-  const hasFetched = useRef(false);
 
   const { showError } = useGlobalToast();
-  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeFetch, data: fetchedBill, loading: fetching, error: fetchError } = useApiResponse();
   const { execute: executeUpdate, loading: isUpdating } = useApiResponse();
 
-  // Fetch existing bill data
+  // Populate form when data arrives natively
   useEffect(() => {
-    const fetchBillData = async () => {
-      if (!billId || !selectedStore?.storeId || hasFetched.current) return;
-      hasFetched.current = true;
+    if (fetchedBill) {
+      setFormData({
+        supplier: fetchedBill.supplier?._id || "",
+        purchaseOrder: fetchedBill.purchaseOrder?._id || "",
+        dueDate: fetchedBill.dueDate ? new Date(fetchedBill.dueDate).toISOString().split("T")[0] : "",
+        notes: fetchedBill.notes || "",
+        goodsReceived: fetchedBill.goodsReceived ?? true,
+        items: (fetchedBill.items || []).map(item => ({
+          product: item.product,
+          productName: item.productName || "",
+          quantity: item.quantity || 1,
+          purchasePrice: item.unitPrice || 0,
+        })),
+      });
+    }
+  }, [fetchedBill]);
 
-      const result = await executeFetch(
+  // Fetch API seamlessly
+  useEffect(() => {
+    if (billId && selectedStore?.storeId && fetchedBillRef.current !== billId) {
+      fetchedBillRef.current = billId;
+      executeFetch(
         billService.getBills({ store: selectedStore.storeId, id: billId }),
         { showToast: false }
       );
+    }
+  }, [billId, selectedStore?.storeId, executeFetch]);
 
-      if (result?.success && result.data) {
-        const billData = result.data;
-        setFormData({
-          supplier: billData.supplier?._id || "",
-          purchaseOrder: billData.purchaseOrder?._id || "",
-          dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split("T")[0] : "",
-          notes: billData.notes || "",
-          goodsReceived: billData.goodsReceived ?? true,
-          items: (billData.items || []).map(item => ({
-            product: item.product,
-            productName: item.productName || "",
-            quantity: item.quantity || 1,
-            purchasePrice: item.unitPrice || 0,
-          })),
-        });
-      } else {
-        setFetchError(result?.message || t("errors.failedToFetchData", { item: t("common.bill") }));
-      }
-    };
-
-    fetchBillData();
-  }, [billId, selectedStore?.storeId, t, executeFetch]);
 
   // Handle input changes
   const handleInputChange = useCallback((field, value) => {
@@ -187,15 +184,12 @@ const EditBill = ({ billId }) => {
 
   if (fetching) {
     return (
-      <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <Sidebar />
-        <div className="min-h-screen w-full flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t("modals.loadingData", { item: t("common.bill") })}
-            </h2>
-          </div>
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+            {t("modals.loadingData", { item: t("common.bill") })}
+          </h2>
         </div>
       </div>
     );
@@ -203,47 +197,36 @@ const EditBill = ({ billId }) => {
 
   if (fetchError) {
     return (
-      <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <Sidebar />
-        <div className="min-h-screen w-full flex items-center justify-center">
-          <div className="text-center max-w-md p-8 bg-[rgb(var(--color-bg-primary))] rounded-xl shadow-sm">
-            <Receipt className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2">{fetchError}</h2>
-            <Button variant="outline" onClick={() => router.push("/dashboard/bills")} className="mt-4">
-              {t("common.backTo", { item: t("common.bills") })}
-            </Button>
-          </div>
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="text-center max-w-md p-8 bg-[rgb(var(--color-bg-primary))] rounded-xl shadow-sm border border-[rgb(var(--color-border-primary))]">
+          <Receipt className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2">{fetchError}</h2>
+          <Button variant="outline" onClick={() => router.push("/dashboard/bills")} className="mt-4">
+            {t("common.backTo", { item: t("common.bills") })}
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen relative w-full overflow-hidden">
-      <Sidebar />
-      <div className="h-screen w-full flex flex-col">
-        <Header title={t("bills.editBill")} description={t("bills.updateBillInformationAndDetails")} />
-
-        <div className="flex-1 min-h-0 p-6 overflow-hidden">
-          <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
-            <div className="mb-4">
-              <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t("common.backTo", { item: t("common.bills") })}</span>
-              </Link>
+    <div className="overflow-hidden">
+      <div className="max-w-8xl mx-auto w-full">
+        <div className="p-5">
+          <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">{t("common.backTo", { item: t("common.bills") })}</span>
+          </Link>
+        </div>
+        <div className="h-[calc(100vh-150px)] overflow-y-auto px-5 pb-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                {memoizedBillItemsSection}
+              </form>
             </div>
 
-            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 flex flex-col min-h-0">
-                <div className="flex-1 pe-3 min-h-0">
-                  <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="h-full">
-                    {memoizedBillItemsSection}
-                  </form>
-                </div>
-              </div>
-
-              {memoizedBillSidebar}
-            </div>
+            {memoizedBillSidebar}
           </div>
         </div>
       </div>

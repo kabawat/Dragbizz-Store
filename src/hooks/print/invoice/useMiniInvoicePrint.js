@@ -5,20 +5,6 @@ export const useMiniInvoicePrint = (fetching, invoiceData, skipAutoPrint = false
     const { showError } = useGlobalToast();
     const [isPrinting, setIsPrinting] = useState(false);
 
-    useEffect(() => {
-        if (skipAutoPrint) return;
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const shouldPrint = urlParams.get("print") === "true";
-
-        if (shouldPrint && !fetching && invoiceData) {
-            // Wait for rendering to complete
-            setTimeout(() => {
-                window.print();
-            }, 800);
-        }
-    }, [fetching, invoiceData, skipAutoPrint]);
-
     const handlePrint = () => {
         try {
             window.print();
@@ -95,7 +81,7 @@ export const useMiniInvoicePrint = (fetching, invoiceData, skipAutoPrint = false
             pdf.addImage(imgData, "PNG", 0, 0, pdfWidthMm, pdfHeightMm);
             pdf.save(`thermal-invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
         } catch (_error) {
-            
+
             showError("Failed to download PDF. Please try again.");
         } finally {
             setIsPrinting(false);

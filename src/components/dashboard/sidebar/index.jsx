@@ -23,12 +23,12 @@ import {
 const Sidebar = ({ onStoreChange }) => {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const { 
-    selectedStore, 
-    authProfile, 
-    authProfileLoading, 
-    staffProfile, 
-    staffProfileLoading 
+  const {
+    selectedStore,
+    authProfile,
+    authProfileLoading,
+    staffProfile,
+    staffProfileLoading
   } = useAppSelector((state) => state.profile);
   const isCollapsed = useAppSelector((state) => state.ui.isSidebarCollapsed);
 

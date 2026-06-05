@@ -31,6 +31,7 @@ export const useApiResponse = () => {
         const { showToast = true } = options;
 
         setData(null);
+        setFieldErrors(result.fields || {});
 
         // Intercept Subscription / Quota limits globally
         if (result.code === "SUBSCRIPTION_REQUIRED" || result.code === "FEATURE_NOT_AVAILABLE") {

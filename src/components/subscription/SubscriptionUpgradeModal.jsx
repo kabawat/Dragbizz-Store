@@ -20,7 +20,7 @@ const ArrowIcon = () => (
 const Particles = ({ isQuota }) => {
     const dots = Array.from({ length: 18 });
     return (
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", borderRadius: "inherit" }}>
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", borderRadius: "inherit" }}>
             {dots.map((_, i) => {
                 const size = 3 + Math.random() * 4;
                 const x = Math.random() * 100;
@@ -59,16 +59,24 @@ const SubscriptionUpgradeModal = ({
     const [mounted, setMounted] = useState(false);
     const [visible, setVisible] = useState(false);
     const isQuota = type === "QUOTA";
+    const isInfo = type === "INFO";
 
     useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+
         if (isOpen) {
             setMounted(true);
+            window.addEventListener("keydown", handleEscape);
             requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
         } else {
             setVisible(false);
+            window.removeEventListener("keydown", handleEscape);
             const t = setTimeout(() => setMounted(false), 350);
             return () => clearTimeout(t);
         }
+        return () => window.removeEventListener("keydown", handleEscape);
     }, [isOpen]);
 
     if (!mounted) return null;
@@ -87,6 +95,9 @@ const SubscriptionUpgradeModal = ({
         >
             <div
                 className={styles.sumCard}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="upgrade-modal-title"
                 style={{
                     background: gradientBg,
                     border: `1px solid rgb(var(--color-border-primary))`,
@@ -95,7 +106,7 @@ const SubscriptionUpgradeModal = ({
                 }}
             >
                 {/* Particles */}
-                <Particles isQuota={isQuota} />
+                {!isInfo && <Particles isQuota={isQuota} />}
 
                 {/* Noise texture overlay */}
                 <div style={{
@@ -113,26 +124,28 @@ const SubscriptionUpgradeModal = ({
                     {/* Badge */}
                     <div
                         className={styles.sumBadge}
-                        style={{ background: `rgba(var(--color-primary-rgb, 99, 102, 241), 0.1)`, border: `1px solid rgba(var(--color-primary-rgb, 99, 102, 241), 0.2)` }}
+                        style={{ background: isInfo ? `rgba(var(--color-warning-rgb, 245, 158, 11), 0.1)` : `rgba(var(--color-primary-rgb, 99, 102, 241), 0.1)`, border: isInfo ? `1px solid rgba(var(--color-warning-rgb, 245, 158, 11), 0.2)` : `1px solid rgba(var(--color-primary-rgb, 99, 102, 241), 0.2)` }}
                     >
-                        <div className={styles.sumBadgeRing} style={{ borderColor: primaryColor }} />
-                        <span style={{ fontSize: "2rem" }}>{isQuota ? "⚡" : "✦"}</span>
+                        <div className={styles.sumBadgeRing} style={{ borderColor: isInfo ? "rgb(var(--color-warning))" : primaryColor }} />
+                        <span style={{ fontSize: "2rem" }} role="img" aria-hidden="true">{isQuota ? "⚡" : isInfo ? "ℹ️" : "✦"}</span>
                     </div>
 
                     {/* Heading */}
-                    <h3 className={styles.sumTitle}>
-                        {isQuota ? "You've hit the limit" : "Unlock the full power"}
+                    <h3 className={styles.sumTitle} id="upgrade-modal-title">
+                        {isQuota ? "You've hit the limit" : isInfo ? "Access Restricted" : "Unlock the full power"}
                     </h3>
 
                     <p className={styles.sumDesc}>
                         {message || (isQuota
                             ? "You've used up your quota for this period. Upgrade now to continue without interruptions."
-                            : "Premium features are waiting for you. Upgrade your plan and get access to everything."
+                            : isInfo
+                                ? "This feature is restricted in the current plan."
+                                : "Premium features are waiting for you. Upgrade your plan and get access to everything."
                         )}
                     </p>
 
                     {/* Feature chips */}
-                    {!isQuota && (
+                    {!isQuota && !isInfo && (
                         <div className={`${styles.sumFeatures} w-full`}>
                             {[["∞", "Unlimited usage"], ["⚡", "Priority speed"], ["🔒", "Advanced access"]].map(([icon, label]) => (
                                 <div className={styles.sumFeat} key={label}>
@@ -146,16 +159,25 @@ const SubscriptionUpgradeModal = ({
                     <div className={styles.sumDivider} />
 
                     {/* CTA */}
-                    <button
-                        className={styles.sumBtnPrimary}
-                        onClick={() => {
-                            onClose();
-                            redirectToMainDomain("/packages");
-                        }}
-                    >
-                        {isQuota ? "Upgrade & Continue" : "Upgrade My Plan"}
-                        <span className={styles.sumArrow}><ArrowIcon /></span>
-                    </button>
+                    {isInfo ? (
+                        <button
+                            className={styles.sumBtnPrimary}
+                            onClick={onClose}
+                        >
+                            Got it
+                        </button>
+                    ) : (
+                        <button
+                            className={styles.sumBtnPrimary}
+                            onClick={() => {
+                                onClose();
+                                redirectToMainDomain("/pricing");
+                            }}
+                        >
+                            {isQuota ? "Upgrade & Continue" : "Upgrade My Plan"}
+                            <span className={styles.sumArrow}><ArrowIcon /></span>
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

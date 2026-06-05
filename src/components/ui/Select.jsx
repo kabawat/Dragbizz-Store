@@ -296,7 +296,7 @@ const Select = ({
                       return (
                         <div
                           key={`${String(option.value)}-${index}`}
-                          className={`group px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${isHighlighted || isSelected
+                          className={`group relative px-4 py-2 cursor-pointer transition-colors duration-150 ${isHighlighted || isSelected
                             ? "bg-[rgba(var(--color-primary)/0.12)]"
                             : ""
                             } hover:bg-[rgba(var(--color-primary)/0.12)]`}
@@ -305,12 +305,12 @@ const Select = ({
                           onMouseLeave={() => setHighlightedIndex(-1)}
                         >
                           <span
-                            className={`${isHighlighted || isSelected ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"} group-hover:text-[rgb(var(--color-primary))] transition-colors duration-150`}
+                            className={`block truncate pr-6 ${isHighlighted || isSelected ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"} group-hover:text-[rgb(var(--color-primary))] transition-colors duration-150`}
                           >
                             {option.label}
                           </span>
-                          {(isHighlighted || isSelected) && (
-                            <Check className="w-4 h-4 text-[rgb(var(--color-primary))] transition-transform duration-200" />
+                          {isSelected && (
+                            <Check className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-primary))] pointer-events-none" />
                           )}
                         </div>
                       );

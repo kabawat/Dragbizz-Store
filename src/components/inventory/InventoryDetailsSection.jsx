@@ -3,7 +3,6 @@ import { ArrowUp, Calculator, Package, Warehouse } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardBody, Input, Select } from "@/components/ui";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
-import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { productService, supplierService } from "@/service/retailer";
 import { useApiResponse } from "@/hooks/useApiResponse";
@@ -15,9 +14,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
 
   const { execute: fetchProductsApi, loading: productsLoading } = useApiResponse();
   const { execute: fetchSuppliersApi, loading: suppliersLoading } = useApiResponse();
-
-  // Hook to fetch subscription info if needed for other purposes
-  const { isLoading: featuresLoading } = useFeatureAccess();
 
   const fetchProducts = useCallback(async () => {
     if (!formData?.store) return;
@@ -151,7 +147,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             placeholder={t("inventory.searchAndSelectSupplierOptional")}
             error={!!errors["batchData.supplier"]}
             errorMessage={errors["batchData.supplier"]}
-            disabled={suppliersLoading || featuresLoading}
+            disabled={suppliersLoading}
           />
         </div>
       </div>

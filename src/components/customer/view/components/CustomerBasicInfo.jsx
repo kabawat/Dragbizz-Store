@@ -1,5 +1,6 @@
 "use client";
-import { Mail, Phone, User } from "lucide-react";
+import { Mail, Phone, User, MapPin } from "lucide-react";
+import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const CustomerBasicInfo = ({ customerData }) => {
@@ -14,21 +15,21 @@ const CustomerBasicInfo = ({ customerData }) => {
           </div>
           <div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-              Customer Information
+              {t("customers.customerInformation")}
             </h2>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-              Basic customer details
+              {t("customers.enterBasicDetails")}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-xl overflow-hidden">
           <User className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
           <div className="relative z-10">
             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-              Customer Name
+              {t("customers.customerName")}
             </p>
             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
               {customerData.name || t("common.na")}
@@ -40,7 +41,7 @@ const CustomerBasicInfo = ({ customerData }) => {
           <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
           <div className="relative z-10">
             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-              Phone Number
+              {t("customers.customerPhone")}
             </p>
             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
               {customerData.phone || t("common.na")}
@@ -52,11 +53,21 @@ const CustomerBasicInfo = ({ customerData }) => {
           <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
           <div className="relative z-10">
             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-              Email Address
+              {t("customers.customerEmail")}
             </p>
             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] break-all">
               {customerData.email || t("common.na")}
             </p>
+          </div>
+        </div>
+
+        <div className="relative p-4 bg-gradient-to-br from-teal-50/15 to-teal-100/10 dark:from-teal-900/5 dark:to-teal-800/3 rounded-xl overflow-hidden">
+          <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-teal-500/35 dark:!text-teal-400 dark:opacity-40" />
+          <div className="relative z-10">
+            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+              {t("customers.source")}
+            </p>
+            <CustomerSourceBadge source={customerData.source} />
           </div>
         </div>
       </div>

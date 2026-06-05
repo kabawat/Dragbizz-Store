@@ -43,6 +43,112 @@
   "accountPreferencesUpdatedSuccess": "Account preferences updated successfully!",
   "appearanceSettings": "Appearance Settings",
   "customizeThemeAndAppearance": "Apne theme aur appearance ko customize karein",
+  "interfaceMode": "Interface Mode",
+  "accentThemes": "Accent Themes",
+  "livePreview": "Live Preview",
+  "warmCategory": "Warm",
+  "coolCategory": "Cool",
+  "greenCategory": "Green",
+  "vibrantCategory": "Vibrant",
+  "neutralCategory": "Neutral",
+  "appearanceDescription": "Personalize your workspace with themes and display modes.",
+  "resetToDefaults": "Reset to Defaults",
+  "lightModeDescription": "Perfect for bright environments",
+  "darkModeDescription": "Easy on the eyes in low light",
+  "mainButton": "MAIN BUTTON",
+  "secondaryButton": "SECONDARY",
+  "activeNow": "ACTIVE NOW",
+  "appearanceNote": "Appearance settings are applied instantly across all devices. Your session will remain synchronized.",
+  "themes": {
+    "default": {
+      "name": "Default",
+      "description": "Clean and professional"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Calm and refreshing"
+    },
+    "forest": {
+      "name": "Forest",
+      "description": "Natural and organic"
+    },
+    "sunset": {
+      "name": "Sunset",
+      "description": "Warm and vibrant"
+    },
+    "rose": {
+      "name": "Rose",
+      "description": "Soft and elegant"
+    },
+    "violet": {
+      "name": "Violet",
+      "description": "Royal look"
+    },
+    "indigo": {
+      "name": "Indigo",
+      "description": "Deep and mysterious"
+    },
+    "purple": {
+      "name": "Purple",
+      "description": "Elegant and creative"
+    },
+    "blue": {
+      "name": "Classic Blue",
+      "description": "Stable and professional"
+    },
+    "sapphire": {
+      "name": "Sapphire",
+      "description": "Bright look"
+    },
+    "midnight": {
+      "name": "Midnight",
+      "description": "Deep and modern"
+    },
+    "emerald": {
+      "name": "Emerald",
+      "description": "Rich vibrant green"
+    },
+    "green": {
+      "name": "Nature Green",
+      "description": "Fresh and organic"
+    },
+    "teal": {
+      "name": "Teal",
+      "description": "Calm and professional"
+    },
+    "lime": {
+      "name": "Lime",
+      "description": "Energetic and bright"
+    },
+    "amber": {
+      "name": "Amber",
+      "description": "Warm glowing feel"
+    },
+    "coral": {
+      "name": "Coral",
+      "description": "Friendly and lively"
+    },
+    "pink": {
+      "name": "Pink",
+      "description": "Soft and playful"
+    },
+    "sky": {
+      "name": "Sky Blue",
+      "description": "Light and refreshing"
+    },
+    "cyan": {
+      "name": "Cyan",
+      "description": "Modern and clean"
+    },
+    "slate": {
+      "name": "Slate",
+      "description": "Balanced and neutral"
+    },
+    "zinc": {
+      "name": "Zinc",
+      "description": "Industrial and sleek"
+    }
+  },
   "languageSettings": "Language Settings",
   "customizeLanguage": "Application ke liye apni preferred language choose karein.",
   "chooseLanguage": "Language select karein",
@@ -70,12 +176,28 @@
     "masterChannels": "Master Channels",
     "activityCategories": "Activity Categories",
     "configureCategory": "Configure karein aapko notifications kaise milenge",
-    "loadingPreferences": "Aapki preferences load ho rahi hain..."
+    "loadingPreferences": "Aapki preferences load ho rahi hain...",
+    "pushPermissionDenied": "Browser ne push notifications block kar diye hain. Site settings se allow karein, phir dubara push ON karein.",
+    "pushPermissionDefault": "Background notifications ke liye push channel ON karein — browser permission maangega.",
+    "pushNotSupported": "Is browser mein push notifications supported nahi hain.",
+    "pushEnabledSuccess": "Push notifications enable ho gaye",
+    "pushDisabledSuccess": "Push notifications disable ho gaye",
+    "pushEnableFailed": "Push notifications enable nahi ho paye",
+    "fcmTokenUnavailable": "Device token nahi mila. Notifications allow hain ya nahi check karein.",
+    "fcmSaveFailed": "Server par notification token save nahi hua",
+    "fcmRegisterFailed": "Push register karne mein error aaya"
   },
   "securitySettings": "Security Settings",
   "manageAccountSecurity": "Manage your account security",
   "changePassword": "Change Password",
   "updatePassword": "Update your password",
+  "updatePasswordDescription": "Apne account ko ek strong password ke saath protect karein",
+  "passwordUpdatedSuccess": "Password successfully update ho gaya",
+  "passwordUpdateFailed": "Password update karne mein fail",
+  "passwordUpdateError": "Password update karte waqt error aaya",
+  "oldPasswordRequired": "Current password required hai",
+  "passwordMinLength": "Naya password kam se kam 8 characters ka hona chahiye",
+  "passwordsDoNotMatch": "Passwords match nahi kar rahe hain",
   "currentPassword": "Current Password",
   "enterCurrentPassword": "Enter current password",
   "newPassword": "New Password",

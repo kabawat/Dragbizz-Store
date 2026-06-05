@@ -1,89 +1,91 @@
-import { useState } from "react";
+"use client";
+import { useEffect, useRef } from "react";
 import storeService from "@/service/retailer/store.service";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
 
-/**
- * GST verification logic across the application.
- * Supports legacy setForm function or an options object.
- */
+function applyGstToForm(setForm, gstData) {
+  const street = [
+    gstData.address?.buildingName,
+    gstData.address?.floor,
+    gstData.address?.street,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  setForm((prev) => ({
+    ...prev,
+    name: gstData.legalName || prev.name,
+    pan: gstData.panNumber || prev.pan,
+    gstDetail: gstData._id,
+    address: {
+      ...prev.address,
+      street: street || prev.address?.street || "",
+      ...(Object.hasOwn(prev.address ?? {}, "line1") && {
+        line1: street || prev.address.line1,
+      }),
+      city: gstData.address?.location || prev.address?.city || "",
+      pincode: gstData.address?.pincode || prev.address?.pincode || "",
+      state: gstData.state || prev.address?.state || "",
+      district: gstData.address?.district || prev.address?.district || "",
+    },
+  }));
+}
+
 export const useGstVerification = (config) => {
-    const [isVerifyingGst, setIsVerifyingGst] = useState(false);
-    const [isGstVerified, setIsGstVerified] = useState(false);
-    const { showSuccess, showError } = useGlobalToast();
+  const { showError } = useGlobalToast();
+  const { execute, loading, data, clearAll } = useApiResponse();
 
-    // Determine if config is a function (legacy) or an object
-    const isLegacy = typeof config === "function";
-    const setForm = isLegacy ? config : null;
-    const onNameAutoFill = config?.onNameAutoFill;
-    const ongstDetailChange = config?.ongstDetailChange;
+  const setForm = typeof config === "function" ? config : null;
+  const onNameAutoFill =
+    typeof config === "function" ? null : (config?.onNameAutoFill ?? null);
+  const ongstDetailChange =
+    typeof config === "function" ? null : (config?.ongstDetailChange ?? null);
 
-    const handleVerifyGst = async (gstNumber) => {
-        if (!gstNumber || gstNumber.length < 15) {
-            showError("Please enter a valid 15-digit GST number");
-            return;
-        }
+  const callbacksRef = useRef({ setForm, onNameAutoFill, ongstDetailChange });
+  callbacksRef.current = { setForm, onNameAutoFill, ongstDetailChange };
 
-        setIsVerifyingGst(true);
-        try {
-            const result = await storeService.verifyGst(gstNumber);
-            if (result?.success && result.data) {
-                const gstData = result.data;
+  const isVerifyingRef = useRef(false);
 
-                // Handle legacy setForm approach
-                if (isLegacy && setForm) {
-                    const street = [
-                        gstData.address?.buildingName,
-                        gstData.address?.floor,
-                        gstData.address?.street
-                    ].filter(Boolean).join(", ");
+  useEffect(() => {
+    if (!data) return;
 
-                    setForm((prev) => ({
-                        ...prev,
-                        name: gstData.legalName || prev.name,
-                        pan: gstData.panNumber || prev.pan,
-                        gstDetail: gstData._id,
-                        address: {
-                            ...prev.address,
-                            street: street || prev.address.street || "",
-                            ...(prev.address.hasOwnProperty("line1") && { line1: street || prev.address.line1 }),
-                            city: gstData.address?.location || gstData.address?.city || prev.address.city || "",
-                            pincode: gstData.address?.pincode || prev.address.pincode || "",
-                            state: gstData.state || prev.address.state || "",
-                            district: gstData.address?.district || prev.address.district || "",
-                        },
-                    }));
-                } else {
-                    // Handle new callbacks approach
-                    if (onNameAutoFill) onNameAutoFill(gstData.legalName || gstData.tradeName);
-                    if (ongstDetailChange) ongstDetailChange(gstData._id);
-                }
+    const callbacks = callbacksRef.current;
 
-                setIsGstVerified(true);
-                showSuccess("GST Verified Successfully!");
-                return true;
-            } else {
-                showError(result?.error?.message || "Invalid GST number");
-                return false;
-            }
-        } catch (error) {
-            showError("Failed to verify GST. Please try again.");
-            return false;
-        } finally {
-            setIsVerifyingGst(false);
-        }
-    };
+    if (callbacks.setForm) {
+      applyGstToForm(callbacks.setForm, data);
+      return;
+    }
 
-    const resetGstVerification = () => {
-        setIsGstVerified(false);
-    };
+    callbacks.onNameAutoFill?.(data.legalName || data.tradeName);
+    callbacks.ongstDetailChange?.(data._id);
+  }, [data]);
 
-    return {
-        isVerifyingGst,
-        isGstVerified,
-        gstVerified: isGstVerified,
-        setIsGstVerified,
-        handleVerifyGst,
-        verifyGst: handleVerifyGst,
-        resetGstVerification,
-    };
+  const handleVerifyGst = async (gstNumber) => {
+    const normalizedGst = String(gstNumber || "").trim().toUpperCase();
+
+    if (normalizedGst.length < 15) {
+      showError("Please enter a valid 15-digit GST number");
+      return;
+    }
+
+    if (isVerifyingRef.current) return;
+
+    isVerifyingRef.current = true;
+    try {
+      clearAll();
+      await execute(storeService.verifyGst(normalizedGst), {
+        message: "GST Verified Successfully!",
+      });
+    } finally {
+      isVerifyingRef.current = false;
+    }
+  };
+
+  return {
+    isVerifyingGst: loading,
+    isGstVerified: Boolean(data),
+    handleVerifyGst,
+    resetGstVerification: clearAll,
+  };
 };

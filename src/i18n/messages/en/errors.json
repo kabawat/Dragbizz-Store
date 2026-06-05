@@ -26,5 +26,8 @@
   "addNewSupplier": "+ Add New Supplier",
   "addNewPurchaseOrder": "+ Add New Purchase Order",
   "loading": "Loading...",
-  "notesCannotExceed500Chars": "Notes cannot exceed 500 characters"
+  "notesCannotExceed500Chars": "Notes cannot exceed 500 characters",
+  "pageNotFound": "404 - Page Not Found",
+  "pageNotFoundDescription": "The link you followed may be broken, or the page may have been removed.",
+  "backToDashboard": "Back to Dashboard"
 }

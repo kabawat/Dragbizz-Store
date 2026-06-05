@@ -1,6 +1,6 @@
 "use client";
 import { Download } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -17,6 +17,7 @@ import {
   getDateRangePreview,
   transformCustomerData,
 } from "./utils";
+import { getCustomerSourceOptions } from "@/utils/customer/customerSource.util";
 
 const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -29,6 +30,9 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const [customEndDate, setCustomEndDate] = useState("");
   const [downloadFormat, setDownloadFormat] = useState("xlsx");
   const [sortOrder, setSortOrder] = useState("nameAsc");
+  const [sourceFilter, setSourceFilter] = useState("");
+
+  const sourceOptions = useMemo(() => getCustomerSourceOptions(t), [t]);
 
   const availableFields = [
     { key: "storeName", label: t("customers.fieldStoreName"), default: true },
@@ -156,7 +160,8 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         storeId,
         dateRange.startDate,
         dateRange.endDate,
-        selectedFields
+        selectedFields,
+        sourceFilter
       );
 
       const result = await execute(
@@ -213,7 +218,8 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         storeId,
         dateRange.startDate,
         dateRange.endDate,
-        selectedFields
+        selectedFields,
+        sourceFilter
       );
 
       const result = await execute(
@@ -245,6 +251,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     setSelectedDownloadPeriod("");
     setCustomStartDate("");
     setCustomEndDate("");
+    setSourceFilter("");
     setSortOrder("nameAsc");
     setSelectedFields(
       availableFields.filter((field) => field.default).map((field) => field.key)
@@ -282,6 +289,19 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
 
           {selectedDownloadPeriod && (
             <>
+              <div>
+                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                  {t("customers.source")}
+                </label>
+                <Select
+                  placeholder={t("customers.allSources")}
+                  options={sourceOptions}
+                  value={sourceFilter}
+                  onChange={setSourceFilter}
+                  clearable
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                   {t("customers.downloadFormat")}

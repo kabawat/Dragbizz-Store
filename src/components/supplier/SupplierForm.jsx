@@ -78,6 +78,7 @@ const SupplierForm = ({
                 formData.gstNumber?.length >= 15 && (
                   <button
                     type="button"
+                    onMouseDown={(event) => event.preventDefault()}
                     onClick={() => handleVerifyGst(formData.gstNumber)}
                     disabled={isVerifyingGst || isGstVerified}
                     className={`p-1.5 rounded-md transition-all disabled:opacity-70 ${isGstVerified

@@ -2,6 +2,7 @@
   "createInvoice": "Create Invoice",
   "createInvoiceDescription": "Create a new customer invoice",
   "backToInvoices": "Back to Invoices",
+  "barcodeProductNotFound": "No product found for barcode: {code}",
   "selectProduct": "Select Product",
   "quantity": "Quantity",
   "addItem": "Add Item",
@@ -18,7 +19,9 @@
   "item": "Item",
   "items": "Items",
   "createInvoiceButton": "Create Invoice",
-  "noItemsAdded": "No items added yet. Select a product and quantity above to add items.",
+  "createNewInvoice": "Create New Invoice",
+  "noItemsTile": "No items added yet.",
+  "noItemsdisc": "Select a product and quantity above to add items.",
   "loadingCustomers": "Loading customers...",
   "selectProductPlaceholder": "Select Product",
   "pleaseSelectProduct": "Please select a product",
@@ -214,5 +217,8 @@
   "cannotEditNonDraft": "Only draft invoices can be edited. Released or cancelled invoices are immutable.",
   "grossTotal": "Gross Total",
   "netTaxable": "Net Taxable",
-  "totalGST": "Total GST"
+  "totalGST": "Total GST",
+  "notFoundTitle": "Invoice Not Found",
+  "notFoundDescription": "The invoice you are looking for might have been deleted or does not exist.",
+  "emptyDescription": "You haven't created any invoices yet. Start by creating your first one!"
 }

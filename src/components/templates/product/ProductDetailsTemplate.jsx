@@ -121,13 +121,6 @@ const ProductDetailsTemplate = ({ productData, selectedStore }) => {
                       <td>{productData.gstInfo.gstRate}%</td>
                     </tr>
                   )}
-                  {productData.gstInfo.gstRate &&
-                    productData.gstInfo.gstType && (
-                      <tr>
-                        <td className={styles.label}>GST Type:</td>
-                        <td>{productData.gstInfo.gstType}</td>
-                      </tr>
-                    )}
                   {productData.gstInfo.hsnCode && (
                     <tr>
                       <td className={styles.label}>HSN Code:</td>

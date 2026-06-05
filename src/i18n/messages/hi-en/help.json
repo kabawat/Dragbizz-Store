@@ -1,34 +1,53 @@
 {
     "faqs": {
         "createInvoice": {
-            "q": "Naya invoice kaise banayein?",
-            "a": "Invoices page par jayein aur 'Add Invoice' par click karein ya fir Shift+N shortcut use karein. Client details fill karein aur save karein."
+            "q": "Main naya invoice kaise banau?",
+            "a": "Invoices page par jayein aur 'Add Invoice' par click karein ya kahin se bhi Shift+N shortcut use karein. Client aur items ki details bharein, phir save karein."
         },
         "multipleStores": {
             "q": "Kya main multiple stores manage kar sakta hoon?",
-            "a": "Haan! Sidebar mein store switcher use karke aap ek hi account se multiple stores chala sakte hain."
+            "a": "Haan! Ek hi account se kai business stores banane aur manage karne ke liye sidebar (top section) mein store switcher ka use karein. Har store ki apni inventory aur customers hote hain."
         },
         "voiceAI": {
             "q": "Voice AI kaise kaam karta hai?",
-            "a": "Customer ya Product pages par microphone icon click karein (ya Alt+V use karein). Details boliye aur AI apne aap form fill kar dega."
+            "a": "Customer ya Product page par microphone icon par click karein (ya Alt+V use karein). Details normal tareeke se bole (jaise, 'Add a customer Rahul from Delhi'), aur hamara AI aapke liye form fill kar dega."
         },
         "exportData": {
-            "q": "Data export kaise karein?",
-            "a": "Zyadatar pages par 'Download' button ya Ctrl+D shortcut hai. Aap PDF ya CSV mein data export kar sakte hain."
+            "q": "Main apna data export kaise karu?",
+            "a": "Zyadatar list pages par 'Download' button ya Ctrl+D shortcut hota hai. Aap apne requirements ke hisaab se data ko PDF, Excel ya CSV format mein export kar sakte hain."
+        },
+        "lowStock": {
+            "q": "Low stock kaise track karein?",
+            "a": "'Stock' section mein, aap un products ko red highlight mein dekh sakte hain jo aapke set kiye gaye minimum quantity se kam hain."
+        },
+        "gstReports": {
+            "q": "GST reports kaha milenge?",
+            "a": "'Analytics' > 'GST Analytics' par jayein. Yahan aap apni tax liabilities dekh sakte hain aur GSTR reports download kar sakte hain."
         }
     },
     "steps": {
-        "completeProfile": "Apna business profile pura karein",
+        "completeProfile": "Apna business profile complete karein",
         "configureStore": "Apna pehla store configure karein",
-        "addProducts": "Inventory mein products add karein",
-        "createInvoice": "Pehla professional invoice banayein"
+        "addProducts": "Inventory mein initial products add karein",
+        "createInvoice": "Apna pehla professional invoice banayein",
+        "addUPI": "Payments ke liye UPI ID add karein",
+        "tryVoiceAI": "Voice AI feature try karein"
     },
     "ui": {
-        "docsTitle": "Detailed Documentation",
-        "docsDesc": "DragBizz Pro ke har feature ko use karne ke liye step-by-step guides.",
-        "contactTitle": "Support se contact karein",
-        "contactDesc": "Direct help chahiye? Humari support team 24/7 chat aur email par available hai.",
-        "faqTitle": "Frequently Asked Questions (FAQ)",
-        "checklistTitle": "Quick Start Checklist"
+        "docsTitle": "Feature Guides",
+        "docsDesc": "Har feature ke liye step-by-step documentation.",
+        "contactTitle": "Direct Support",
+        "contactDesc": "Personalized help ke liye humari team se baat karein.",
+        "faqTitle": "Popular Questions",
+        "checklistTitle": "Quick Setup",
+        "searchPlaceholder": "Topics, features ya questions search karein...",
+        "quickAccess": "Quick Access",
+        "sendMessage": "Send Message"
+    },
+    "links": {
+        "pos": "POS Terminal",
+        "inventory": "Inventory",
+        "analytics": "Analytics",
+        "settings": "Settings"
     }
 }

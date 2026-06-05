@@ -49,13 +49,17 @@ const Input = forwardRef(
       const inputValue = e.target.value;
 
       if (type === "number") {
+        if (!/^-?\d*\.?\d*$/.test(inputValue)) {
+          return;
+        }
+
         if (inputValue === "" || inputValue === "-") {
           onChange?.(inputValue);
           return;
         }
 
         const numValue = parseFloat(inputValue);
-        if (Number.isNaN(numValue)) {
+        if (isNaN(numValue)) {
           return;
         }
 

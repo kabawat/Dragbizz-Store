@@ -11,16 +11,17 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/sidebar";
 import InventoryForm from "@/components/inventory/InventoryForm";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppSelector } from "@/store/hooks";
 
 const AddInventoryPage = () => {
   const { t } = useTranslation();
+
+    useDashboardHeader(t("inventory.addNewInventory"), t("inventory.addNewInventoryDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
@@ -188,15 +189,12 @@ const AddInventoryPage = () => {
     <>
       <div className="flex h-screen relative overflow-hidden">
         {/* Sidebar */}
-        <Sidebar />
+        
 
         {/* Main Content */}
         <div className="flex-1 min-h-screen flex flex-col">
           {/* Header */}
-          <Header
-            title={t("inventory.addNewInventory")}
-            description={t("inventory.addNewInventoryDescription")}
-          />
+          
 
           {/* Main Content */}
           <div className="flex-1 p-6">

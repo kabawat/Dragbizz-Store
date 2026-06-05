@@ -3,6 +3,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 const nextConfig = {
+  assetPrefix: '/_store_assets',
   reactStrictMode: true,
   compiler: {
     removeConsole:
@@ -13,6 +14,7 @@ const nextConfig = {
         : false,
   },
   images: {
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -27,6 +29,16 @@ const nextConfig = {
         hostname: "storage.dragbizz.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "**.r2.dev",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "pub-2ac937fb88dc45dc8e2bb65bbb522b93.r2.dev",
+        pathname: "/**",
+      },
     ],
   },
   experimental: {
@@ -35,10 +47,27 @@ const nextConfig = {
       "@dnd-kit/core",
       "@dnd-kit/sortable",
       "@dnd-kit/utilities",
+      "recharts",
+      "axios",
+      "firebase/app",
+      "firebase/messaging",
     ],
   },
   async headers() {
     return [
+      {
+        source: "/firebase-messaging-sw.js",
+        headers: [
+          {
+            key: "Service-Worker-Allowed",
+            value: "/",
+          },
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+        ],
+      },
       {
         source: "/_next/webpack-hmr",
         headers: [

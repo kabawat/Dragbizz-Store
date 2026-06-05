@@ -1,8 +1,8 @@
 "use client";
-import { useRef, useState, useCallback, useEffect } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload } from "lucide-react";
-import { Button, Input, SideDrawer } from "@/components/ui";
-import { CreateCustomer, VoiceAICustomer } from "@/components/customer";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { Download, Grid3X3, List, Plus, RotateCcw, Search, Upload, Crown, Users } from "lucide-react";
+import { Button, Input, Select, SideDrawer } from "@/components/ui";
+import { CreateCustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
 import CustomerBulkUploadDrawer from "@/components/customer/CustomerBulkUploadDrawer";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -10,31 +10,54 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomers, setViewMode } from "@/store/slices/customers/customerSlice";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
+import { getCustomerSourceOptions } from "@/utils/customer/customerSource.util";
+import {
+    buildCustomerListParams,
+    getCustomerListFetchKey,
+} from "@/utils/customer/customerList.util";
 
 const CustomerListHeader = ({
+    searchValue,
+    setSearchValue,
+    isActive,
+    setIsActive,
+    source,
+    setSource,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
     onSuccess,
-    onSearchChange, // optional: notify parent if needed
 }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
-    // viewMode, selectedStore & customers come from Redux directly
     const { viewMode, customers } = useAppSelector((state) => state.customers);
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = useMemo(
+        () => selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "",
+        [selectedStore]
+    );
 
     const hasCustomers = customers.length > 0;
 
     const { can, loading } = useModulePermissions("customer");
-    const canCreate = can("create");
-    const canDownload = can("report") || can("read");
+    const { hasAccess, withAccess } = useSubscriptionAccess();
 
-    // search state lives here
-    const [searchValue, setSearchValue] = useState("");
+    const canCreate = can("create");
+    const canSeeDownload = can("report") || can("read");
+    const isReportLocked = !hasAccess("customer", false, true);
+
+    const handleDownloadClick = withAccess(
+        "customer",
+        () => setShowDownloadDrawer(true),
+        false,
+        true
+    );
 
     const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
-    const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     useEffect(() => {
@@ -42,11 +65,102 @@ const CustomerListHeader = ({
     }, [canCreate]);
 
     const searchInputRef = useRef(null);
+    const lastFetchRef = useRef(null);
+    const listFilters = { search: searchValue, isActive, source, startDate, endDate };
+    const hasFetchedRef = useRef({
+        fetched: false,
+        storeId: null,
+        search: null,
+        active: null,
+        source: null,
+        startDate: null,
+        endDate: null,
+    });
 
-    const handleSearchChange = (value) => {
-        setSearchValue(value);
-        onSearchChange?.(value);
+    const sourceOptions = useMemo(() => getCustomerSourceOptions(t), [t]);
+    const hasActiveFilters = Boolean(isActive || source || startDate || endDate);
+
+    useEffect(() => {
+        lastFetchRef.current = null;
+        hasFetchedRef.current = {
+            fetched: false,
+            storeId: null,
+            search: null,
+            active: null,
+            source: null,
+            startDate: null,
+            endDate: null,
+        };
+    }, [storeId]);
+
+    const handleClearFilters = () => {
+        setIsActive("");
+        setSource("");
+        setStartDate("");
+        setEndDate("");
     };
+
+    const fetchCustomers = useCallback(async () => {
+        if (!storeId) return;
+
+        const fetchKey = getCustomerListFetchKey(storeId, listFilters);
+        if (lastFetchRef.current === fetchKey) return;
+
+        const last = hasFetchedRef.current;
+        if (
+            last.fetched &&
+            last.storeId === storeId &&
+            last.search === searchValue &&
+            last.active === isActive &&
+            last.source === source &&
+            last.startDate === startDate &&
+            last.endDate === endDate
+        ) {
+            return;
+        }
+
+        lastFetchRef.current = fetchKey;
+
+        const params = buildCustomerListParams({
+            storeId,
+            ...listFilters,
+            isFreshLoad: true,
+        });
+
+        try {
+            await dispatch(getCustomers(params));
+            hasFetchedRef.current = {
+                fetched: true,
+                storeId,
+                search: searchValue,
+                active: isActive,
+                source,
+                startDate,
+                endDate,
+            };
+        } catch {
+            lastFetchRef.current = null;
+        }
+    }, [dispatch, storeId, searchValue, isActive, source, startDate, endDate]);
+
+    useEffect(() => {
+        if (!storeId) return;
+        const last = hasFetchedRef.current;
+        if (
+            last.fetched &&
+            last.storeId === storeId &&
+            last.search === searchValue &&
+            last.active === isActive &&
+            last.source === source &&
+            last.startDate === startDate &&
+            last.endDate === endDate
+        ) {
+            return;
+        }
+
+        const timer = setTimeout(() => fetchCustomers(), 350);
+        return () => clearTimeout(timer);
+    }, [storeId, searchValue, isActive, source, startDate, endDate, fetchCustomers]);
 
     const handleViewModeChange = (mode) => {
         dispatch(setViewMode(mode));
@@ -56,46 +170,106 @@ const CustomerListHeader = ({
     const handleCustomerSuccess = (customerData) => {
         setShowCustomerDrawer(false);
         onSuccess?.(customerData);
+        fetchCustomers();
     };
 
     const handleBulkUploadSuccess = useCallback(() => {
-        if (!storeId) return;
-        dispatch(getCustomers({ store: storeId, limit: 20, isFreshLoad: true }));
-    }, [dispatch, storeId]);
+        fetchCustomers();
+    }, [fetchCustomers]);
 
     useCommonHotkeys({
         onNew: canCreate ? () => setShowCustomerDrawer(true) : undefined,
-        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
+        onDownload: canSeeDownload ? handleDownloadClick : undefined,
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
-        onVoiceAI: () => setShowVoiceAIDrawer(true),
         onClose: () => {
             if (showCustomerDrawer) setShowCustomerDrawer(false);
             else if (showDownloadDrawer) setShowDownloadDrawer(false);
-            else if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
             else if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
     });
 
-    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
+    if (loading) {
+        return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
+    }
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                <div className="w-100">
-                    <Input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder={`${t("common.search")} ${t("customers.title").toLowerCase()}...`}
-                        value={searchValue}
-                        onChange={handleSearchChange}
-                        leftIcon={Search}
-                        className="w-100"
-                    />
+                <div className="flex flex-1 flex-wrap items-center gap-3 min-w-0">
+                    <div className="flex-1 min-w-[200px] max-w-md">
+                        <Input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder={`${t("common.search")} ${t("customers.title").toLowerCase()}...`}
+                            value={searchValue}
+                            onChange={setSearchValue}
+                            leftIcon={Search}
+                            className="w-full"
+                        />
+                    </div>
+                    <div className="min-w-[140px]">
+                        <Select
+                            placeholder={t("common.status") || "Status"}
+                            value={isActive}
+                            onChange={setIsActive}
+                            options={[
+                                { value: "", label: t("common.allStatus") },
+                                { value: "true", label: t("common.active") },
+                                { value: "false", label: t("common.inactive") },
+                            ]}
+                            clearable
+                        />
+                    </div>
+                    <div className="min-w-[160px]">
+                        <Select
+                            placeholder={t("customers.source")}
+                            value={source}
+                            onChange={setSource}
+                            options={sourceOptions}
+                            clearable
+                        />
+                    </div>
+                    <div className="w-[140px]">
+                        <Input
+                            type={startDate ? "date" : "text"}
+                            onFocus={(e) => (e.target.type = "date")}
+                            onBlur={(e) => {
+                                if (!e.target.value) e.target.type = "text";
+                            }}
+                            value={startDate}
+                            onChange={setStartDate}
+                            max={endDate || undefined}
+                            placeholder={t("common.startDate")}
+                        />
+                    </div>
+                    <div className="w-[140px]">
+                        <Input
+                            type={endDate ? "date" : "text"}
+                            onFocus={(e) => (e.target.type = "date")}
+                            onBlur={(e) => {
+                                if (!e.target.value) e.target.type = "text";
+                            }}
+                            value={endDate}
+                            onChange={setEndDate}
+                            min={startDate || undefined}
+                            placeholder={t("common.endDate")}
+                        />
+                    </div>
+                    {hasActiveFilters && (
+                        <Button
+                            variant="ghost"
+                            onClick={handleClearFilters}
+                            className="h-10 px-3 text-sm font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] flex items-center gap-2"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            {t("common.clearFilters")}
+                        </Button>
+                    )}
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-shrink-0">
                     {hasCustomers && (
                         <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                             <button
@@ -121,14 +295,19 @@ const CustomerListHeader = ({
                         </div>
                     )}
 
-                    {canDownload && (
+                    {canSeeDownload && (
                         <Button
                             variant="secondary"
-                            onClick={() => setShowDownloadDrawer(true)}
-                            className="flex items-center gap-2 h-9"
+                            onClick={handleDownloadClick}
+                            className="flex items-center gap-2 h-9 relative"
                         >
                             <Download className="w-4 h-4" />
                             {t("customers.download")}
+                            {isReportLocked && (
+                                <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                                    <Crown size={8} className="fill-white/20" />
+                                </div>
+                            )}
                         </Button>
                     )}
 
@@ -144,15 +323,6 @@ const CustomerListHeader = ({
                             </Button>
 
                             <Button
-                                variant="secondary"
-                                onClick={() => setShowVoiceAIDrawer(true)}
-                                className="flex items-center gap-2 h-9"
-                            >
-                                <Mic className="w-4 h-4" />
-                                {t("customers.voiceAI")}
-                            </Button>
-
-                            <Button
                                 variant="primary"
                                 onClick={() => setShowCustomerDrawer(true)}
                                 leftIcon={Plus}
@@ -164,7 +334,6 @@ const CustomerListHeader = ({
                 </div>
             </div>
 
-            {/* Create Customer Drawer */}
             <SideDrawer
                 isOpen={showCustomerDrawer}
                 onClose={() => setShowCustomerDrawer(false)}
@@ -183,7 +352,6 @@ const CustomerListHeader = ({
                 </div>
             </SideDrawer>
 
-            {/* Download Drawer */}
             {showDownloadDrawer && (
                 <CustomerDownloadDrawer
                     isOpen={showDownloadDrawer}
@@ -191,7 +359,6 @@ const CustomerListHeader = ({
                 />
             )}
 
-            {/* Bulk Upload Drawer */}
             {showBulkUploadDrawer && (
                 <CustomerBulkUploadDrawer
                     isOpen={showBulkUploadDrawer}
@@ -199,26 +366,6 @@ const CustomerListHeader = ({
                     onSuccess={handleBulkUploadSuccess}
                 />
             )}
-
-            {/* Voice AI Drawer */}
-            <SideDrawer
-                isOpen={showVoiceAIDrawer}
-                onClose={() => setShowVoiceAIDrawer(false)}
-                title={t("customers.createWithVoiceAI")}
-                icon={Mic}
-                description={t("customers.voiceAIDescription")}
-                width="w-full md:w-2/3 lg:w-1/2"
-            >
-                <div className="h-full">
-                    <VoiceAICustomer
-                        onSuccess={(customerData) => {
-                            onSuccess?.(customerData);
-                            setShowVoiceAIDrawer(false);
-                        }}
-                        onCancel={() => setShowVoiceAIDrawer(false)}
-                    />
-                </div>
-            </SideDrawer>
         </div>
     );
 };

@@ -1,19 +1,10 @@
-"use client";
+import SupportPage from "@/page/dashboard/support";
 
-import dynamic from "next/dynamic";
+export const metadata = {
+    title: "Support - DragBizz Store",
+    description: "Get help, share ideas, and master shortcuts",
+};
 
-const SupportPage = dynamic(() => import("@/page/dashboard/support"), {
-    ssr: false,
-    loading: () => (
-        <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">
-            <div className="text-center">
-                <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-[rgb(var(--color-text-secondary))]">
-                    Loading Support Center...
-                </p>
-            </div>
-        </div>
-    ),
-});
-
-export default SupportPage;
+export default function SupportPageRoute() {
+    return <SupportPage />;
+}
