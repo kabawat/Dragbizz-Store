@@ -38,6 +38,18 @@ class ProductService extends BaseService {
 
     return this.uploadAxios.post(url, formData);
   }
+
+  // Save product image metadata
+  saveProductImage(imageData, params = {}) {
+    const url = `${this.endpoint}/image`;
+    return this.post(url, imageData, params);
+  }
+
+  // Delete product image by ID
+  deleteProductImage(imageId, storeId = null) {
+    const url = this.buildResourceUrl(`${this.endpoint}/image`, imageId, storeId);
+    return this.delete(url);
+  }
 }
 
 // Create and export a singleton instance

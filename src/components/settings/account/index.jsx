@@ -73,7 +73,7 @@ const AccountSettings = () => {
         width="w-full md:w-2/3 lg:w-1/2"
         onSave={handleSave}
         onCancel={handleCancel}
-        saveLabel={isSaving ? t("common.saving") : t("common.saveChanges")}
+        saveLabel={isSaving ? t("common.saving") : t("common.save")}
         cancelLabel={t("common.cancel")}
         isSaving={isSaving}
         saveIcon={Save}

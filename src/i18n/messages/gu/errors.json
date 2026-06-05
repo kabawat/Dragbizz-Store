@@ -26,5 +26,8 @@
   "addNewSupplier": "+ નવો સપ્લાયર ઉમેરો",
   "addNewPurchaseOrder": "+ નવો પર્ચેઝ ઓર્ડર ઉમેરો",
   "loading": "લોડ થઈ રહ્યું છે...",
-  "notesCannotExceed500Chars": "નોંધો 500 અક્ષરો કરતાં વધારે નહીં હોઈ શકે"
+  "notesCannotExceed500Chars": "નોંધો 500 અક્ષરો કરતાં વધારે નહીં હોઈ શકે",
+  "pageNotFound": "404 - પૃષ્ઠ મળ્યું નથી",
+  "pageNotFoundDescription": "તમે જે લિંકને અનુસરી છે તે કદાચ તૂટેલી હોઈ શકે છે, અથવા પૃષ્ઠને દૂર કરવામાં આવ્યું હોઈ શકે છે.",
+  "backToDashboard": "ડેશબોર્ડ પર પાછા જાવ"
 }

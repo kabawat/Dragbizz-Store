@@ -324,6 +324,6 @@ const profileSlice = createSlice({
 });
 
 export const { clearAuth, setSelectedStore, setInitialized } = profileSlice.actions;
-export { getAuthProfile, getRetailerDetails }; // Exporting getRetailerDetails as well if not already exported properly.
+export { getAuthProfile, getRetailerDetails };
 
 export default profileSlice.reducer;

@@ -1,6 +1,7 @@
 "use client";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const MultiSelect = ({
   options = [],
@@ -36,8 +37,8 @@ const MultiSelect = ({
   // Filter options based on search term
   const filteredOptions = searchable
     ? options.filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      (option.label || "").toLowerCase().includes((searchTerm || "").toLowerCase())
+    )
     : options;
 
   // Get selected options
@@ -66,13 +67,14 @@ const MultiSelect = ({
 
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
+    if (searchable && isOpen) {
+      searchRef.current?.focus();
+    }
+
     if (!isOpen) {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         setIsOpen(true);
-        if (searchable) {
-          setTimeout(() => searchRef.current?.focus(), 0);
-        }
       }
       return;
     }
@@ -120,21 +122,42 @@ const MultiSelect = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
+      const isClickInsideSelect = selectRef.current?.contains(event.target);
+      const isClickInsideDropdown = event.target.closest(".select-dropdown-portal");
+
+      if (!isClickInsideSelect && !isClickInsideDropdown) {
         setIsOpen(false);
         setSearchTerm("");
         setHighlightedIndex(-1);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isOpen]);
 
   // Reset highlighted index when options change
   useEffect(() => {
     setHighlightedIndex(-1);
-  }, []);
+  }, [filteredOptions]);
+
+  // Calculate dropdown position for portal
+  const getDropdownPosition = () => {
+    if (!isOpen || !selectRef.current) return null;
+
+    const rect = selectRef.current.getBoundingClientRect();
+    return {
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX,
+      width: rect.width,
+    };
+  };
+
+  const dropdownPosition = getDropdownPosition();
 
   return (
     <div className={`relative ${className}`}>
@@ -153,12 +176,11 @@ const MultiSelect = ({
         ref={selectRef}
         className={`
           relative cursor-pointer border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent
-          ${
-            error
-              ? "border-red-500 focus:ring-red-500"
-              : isOpen
-                ? "border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
-                : "border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]"
+          ${error
+            ? "border-red-500 focus:ring-red-500"
+            : isOpen
+              ? "border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
+              : "border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]"
           } 
           ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed opacity-50" : "bg-[rgb(var(--color-bg-primary))]"}
         `}
@@ -219,75 +241,97 @@ const MultiSelect = ({
 
             {/* Dropdown Arrow */}
             <ChevronDown
-              className={`${size === "sm" ? "w-4 h-4" : size === "lg" ? "w-5 h-5" : "w-4 h-4"} text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 flex-shrink-0 ${
-                isOpen ? "rotate-180" : ""
-              }`}
+              className={`${size === "sm" ? "w-4 h-4" : size === "lg" ? "w-5 h-5" : "w-4 h-4"} text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 flex-shrink-0 ${isOpen ? "rotate-180" : ""
+                }`}
             />
           </div>
         </div>
 
-        {/* Dropdown Options */}
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg max-h-60 overflow-hidden">
-            {/* Search Input */}
-            {searchable && (
-              <div className="p-2 border-b border-[rgb(var(--color-border-primary))]">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                  <input
-                    ref={searchRef}
-                    type="text"
-                    placeholder="Search options..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-9 pr-2.5 py-1.5 text-xs border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
-                  />
+        {/* Dropdown Options - Portal */}
+        {isOpen &&
+          dropdownPosition &&
+          createPortal(
+            <div
+              style={{
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+                width: dropdownPosition.width,
+              }}
+              className="select-dropdown-portal fixed z-[999999] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Search Input */}
+              {searchable && (
+                <div
+                  className="p-2 border-b border-[rgb(var(--color-border-primary))]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                    <input
+                      ref={searchRef}
+                      type="text"
+                      placeholder="Search options..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if (e.key === "Escape") {
+                          setIsOpen(false);
+                          setSearchTerm("");
+                          setHighlightedIndex(-1);
+                        }
+                      }}
+                      className="w-full pl-9 pr-2.5 py-1.5 text-xs border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Options List */}
-            <div className="max-h-48 overflow-y-auto">
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map((option, index) => {
-                  const isSelected = value.includes(option.value);
-                  const isHighlighted = index === highlightedIndex;
-                  const isDisabled =
-                    maxSelections &&
-                    value.length >= maxSelections &&
-                    !isSelected;
+              {/* Options List */}
+              <div className="max-h-48 overflow-y-auto">
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option, index) => {
+                    const isSelected = value.includes(option.value);
+                    const isHighlighted = index === highlightedIndex;
+                    const isDisabled =
+                      maxSelections &&
+                      value.length >= maxSelections &&
+                      !isSelected;
 
-                  return (
-                    <div
-                      key={option.value}
-                      className={`
-                        px-3 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between text-xs
+                    return (
+                      <div
+                        key={option.value}
+                        className={`
+                        relative px-3 py-2 cursor-pointer transition-colors duration-150 text-xs
                         ${isHighlighted ? "bg-[rgb(var(--color-primary))]/10" : ""}
                         ${isSelected ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]" : "hover:bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))]"}
                         ${isDisabled ? "opacity-50 cursor-not-allowed text-[rgb(var(--color-text-tertiary))]" : ""}
                       `}
-                      onClick={() => !isDisabled && handleSelect(option)}
-                      onMouseEnter={() =>
-                        !isDisabled && setHighlightedIndex(index)
-                      }
-                    >
-                      <span className="truncate">
-                        {option.label}
-                      </span>
-                      {isSelected && (
-                        <Check className="w-4 h-4 text-[rgb(var(--color-primary))] flex-shrink-0 ml-2" />
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="px-4 py-3 text-xs text-[rgb(var(--color-text-secondary))] text-center">
-                  No options found
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+                        onClick={() => !isDisabled && handleSelect(option)}
+                        onMouseEnter={() =>
+                          !isDisabled && setHighlightedIndex(index)
+                        }
+                      >
+                        <span className="block truncate pr-6">
+                          {option.label}
+                        </span>
+                        {isSelected && (
+                          <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-primary))] pointer-events-none" />
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="px-4 py-3 text-xs text-[rgb(var(--color-text-secondary))] text-center">
+                    No options found
+                  </div>
+                )}
+              </div>
+            </div>,
+            document.body
+          )}
       </div>
 
       {/* Helper Text / Error Message */}

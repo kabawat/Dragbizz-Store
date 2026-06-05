@@ -5,6 +5,8 @@ import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui";
 import staffService from "@/service/retailer/staff.service";
 import useApiResponse from "@/hooks/useApiResponse";
+import { useAppSelector } from "@/store/hooks";
+import MultiSelect from "@/components/ui/MultiSelect";
 
 const MODULES = [
     { key: "billing", label: "Billing", description: "Create & manage bills" },
@@ -38,11 +40,11 @@ const PRESET_ROLES = [
     },
     {
         label: "Cashier",
-        description: "Billing & invoices only",
+        description: "Invoices only",
         permissions: [
-            { module: "billing", create: true, read: true, edit: true, delete: false, report: false, analytics: false },
-            { module: "invoice", create: true, read: true, edit: false, delete: false, report: false, analytics: false },
+            { module: "invoice", create: true, read: true, edit: true, delete: true, report: true, analytics: false },
             { module: "customer", create: false, read: true, edit: false, delete: false, report: false, analytics: false },
+            { module: "product", create: false, read: true, edit: false, delete: false, report: false, analytics: false },
         ],
     },
     {
@@ -51,6 +53,11 @@ const PRESET_ROLES = [
         permissions: [
             { module: "product", create: false, read: true, edit: true, delete: false, report: false, analytics: false },
             { module: "inventory", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "supplier", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "purchase_order", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "sales_order", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "expense", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+            { module: "reports", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
         ],
     },
 ];
@@ -64,10 +71,18 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
     const [email, setEmail] = useState("");
     const [roleName, setRoleName] = useState("");
     const [permissions, setPermissions] = useState([]);
+    const [managedStoreIds, setManagedStoreIds] = useState(storeId ? [storeId] : []);
     const [expandedModules, setExpandedModules] = useState({});
     const [error, setError] = useState(null);
     const [selectedPreset, setSelectedPreset] = useState(null);
     const { execute, loading: isLoading } = useApiResponse();
+
+    const { stores: allStores } = useAppSelector((state) => state.profile);
+
+    const storeOptions = allStores?.filter(s => s).map(s => ({
+        label: s.storeName || s.name || s.storeId || "Unnamed Store",
+        value: s.storeId || s._id || s.id
+    })) || [];
 
     const toggleModule = (moduleKey) => {
         const existing = permissions.find((p) => p.module === moduleKey);
@@ -100,8 +115,8 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!storeId) {
-            setError("Store ID is missing. Please select a store first.");
+        if (!managedStoreIds || managedStoreIds.length === 0) {
+            setError("At least one store must be selected.");
             return;
         }
 
@@ -112,7 +127,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
 
         setError(null);
 
-        const data = { stores: [storeId], name, email, roleName, permissions };
+        const data = { stores: managedStoreIds, name, email, roleName, permissions };
 
         const result = await execute(
             staffService.inviteStaff(data),
@@ -164,7 +179,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                     {/* Role Name */}
                     <div>
                         <Input
-                            label="Role"
+                            label="Role Title"
                             type="text"
                             value={roleName}
                             onChange={(val) => { setRoleName(val); setSelectedPreset(null); }}
@@ -174,6 +189,23 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                         />
                     </div>
 
+                </div>
+
+                {/* Store Selection */}
+                <div className="bg-[rgb(var(--color-bg-secondary))]/50 p-4 rounded-xl border border-[rgb(var(--color-border-primary))]">
+                    <label className="block text-xs font-semibold text-[rgb(var(--color-text-secondary))] mb-2 uppercase tracking-wide">
+                        Store Access Assignment
+                    </label>
+                    <MultiSelect
+                        options={storeOptions}
+                        value={managedStoreIds}
+                        onChange={(vals) => setManagedStoreIds(vals)}
+                        placeholder="Select stores the staff can manage..."
+                        required
+                    />
+                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-2 italic">
+                        * Staff will be able to switch between these stores after login.
+                    </p>
                 </div>
 
                 {/* Quick Presets */}
@@ -187,7 +219,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                                 key={preset.label}
                                 type="button"
                                 onClick={() => applyPreset(preset)}
-                                className={`p-3 rounded-lg border text-left transition-all ${selectedPreset === preset.label
+                                className={`p-3 rounded-xl border text-left transition-all ${selectedPreset === preset.label
                                     ? "border-[rgb(var(--color-primary))] bg-[rgba(var(--color-primary),0.05)]"
                                     : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 bg-[rgb(var(--color-bg-secondary))]"
                                     }`}
@@ -264,7 +296,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                                                         key={action.key}
                                                         type="button"
                                                         onClick={() => toggleAction(mod.key, action.key)}
-                                                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${perms[action.key]
+                                                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all ${perms[action.key]
                                                             ? "bg-[rgb(var(--color-primary))] text-white"
                                                             : "bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/50"
                                                             }`}
@@ -284,7 +316,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
 
                 {/* Error */}
                 {error && (
-                    <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
                         <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
                         <p className="text-xs text-red-500">{error}</p>
                     </div>

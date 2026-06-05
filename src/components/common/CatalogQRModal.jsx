@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Check, Copy, ExternalLink, ShoppingBag, Download, Printer } from "lucide-react";
-import { Modal, Button } from "@/components/ui";
+import { Modal, Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -57,14 +57,28 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
     const { showSuccess, showError } = useGlobalToast();
     const [qrWithLogoUrl, setQrWithLogoUrl] = useState(null);
     const [copied, setCopied] = useState(false);
+    const [inStoreLocation, setInStoreLocation] = useState("");
 
     const catalogId = store?.catalogId || propCatalogId;
-    const catalogUrl = catalogId
-        ? `${typeof window !== "undefined" ? window.location.origin : ""}/c/${catalogId}`
-        : "";
-    const displayUrl = catalogId
-        ? `${typeof window !== "undefined" ? window.location.host : ""}/c/${catalogId}`
-        : "";
+
+    // Compute dynamic URLs with in-store location param if provided
+    let catalogUrl = "";
+    let displayUrl = "";
+
+    if (catalogId) {
+        const host = typeof window !== "undefined" ? window.location.host : "";
+        const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+        catalogUrl = `${origin}/c/${catalogId}`;
+        displayUrl = `${host}/c/${catalogId}`;
+
+        if (inStoreLocation.trim().length > 0) {
+            const query = `?mode=in_store&location=${encodeURIComponent(inStoreLocation.trim())}`;
+            catalogUrl += query;
+            displayUrl += query;
+        }
+    }
+
     const qrCodeUrl = catalogId
         ? `https://api.qrserver.com/v1/create-qr-code/?size=${QR_SIZE}x${QR_SIZE}&ecc=H&data=${encodeURIComponent(catalogUrl)}`
         : "";
@@ -202,7 +216,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
             doc.save(`${store?.name?.replace(/\s+/g, '-').toLowerCase() || 'catalog'}-qr.pdf`);
             showSuccess("PDF generated successfully");
         } catch (error) {
-            
+
             showError("Failed to generate PDF. Please try again.");
         }
     };
@@ -216,7 +230,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                 <head>
                     <title>Print QR Code - ${store?.name || 'Catalog'}</title>
                     <style>
-                        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; text-align: center; }
+                        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
                         img { width: 350px; height: 350px; border: 1px solid #eee; padding: 10px; border-radius: 10px; }
                         h1 { color: #1f2937; margin-bottom: 5px; font-size: 28px; }
                         h2 { color: #4b5563; margin-top: 5px; margin-bottom: 20px; font-size: 20px; font-weight: normal; }
@@ -276,9 +290,21 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                     {/* Marketing & Link Section */}
                     <div className="w-full space-y-5">
                         <div className="text-center md:text-left space-y-2">
-                            <p className="text-base text-[rgb(var(--color-text-primary))]">
-                                Scan to browse & order products online
+                            <p className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                                {t("settings.catalogMarketingDescription", "Generate a QR code for your public store catalog. Customers can scan to browse and order directly.")}
                             </p>
+                        </div>
+
+                        {/* Optional In-Store Location Field */}
+                        <div>
+                            <Input
+                                label="In-Store Dining Location (Optional)"
+                                placeholder="e.g. Table 4, Counter A"
+                                value={inStoreLocation}
+                                onChange={setInStoreLocation}
+                                hint="If you enter an in-store location, the QR code will act as an in-store ordering code (No delivery/OTP required)."
+                                className="w-full"
+                            />
                         </div>
 
                         {/* Shareable Link Box */}
@@ -293,11 +319,10 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                             </div>
                             <button
                                 onClick={handleCopy}
-                                className={`flex-shrink-0 p-2.5 rounded-lg transition-colors active:scale-95 ${
-                                    copied
-                                        ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                                        : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white"
-                                }`}
+                                className={`flex-shrink-0 p-2.5 rounded-lg transition-colors active:scale-95 ${copied
+                                    ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                                    : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white"
+                                    }`}
                                 title={copied ? t("settings.upi.copied", "Copied") : t("common.copyLink")}
                             >
                                 {copied ? (

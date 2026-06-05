@@ -3,12 +3,11 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/sidebar";
-import { AIProductExtract, ProductForm } from "@/components/product";
-import { AIButton, Button } from "@/components/ui";
+import { ProductForm } from "@/components/product";
+import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -17,6 +16,8 @@ import logger from "@/utils/logger";
 
 const AddProductPage = () => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("products.addNewProduct"), t("products.addNewProductDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
@@ -29,7 +30,6 @@ const AddProductPage = () => {
     }
   }, [can, permissionsLoading, router]);
 
-  const [showAIModal, setShowAIModal] = useState(false);
   const {
     execute,
     loading,
@@ -44,15 +44,19 @@ const AddProductPage = () => {
     brand: "",
     category: "",
     barcode: "",
+    images: [],
     basePrice: "",
+
     mrp: "",
     sellingPrice: "",
     currency: "INR",
     uom: "PCS",
     gstInfo: {
       gstRate: "",
-      gstType: "CGST_SGST",
+      gstCategory: "TAXABLE",
       hsnCode: "",
+      sacCode: "",
+      cessRate: 0,
       isGstIncluded: true,
     },
     content: {
@@ -60,12 +64,6 @@ const AddProductPage = () => {
       tags: [],
       features: [],
       specifications: [],
-    },
-    openingStock: {
-      quantity: 0,
-      purchasePrice: 0,
-      supplier: "",
-      expiryDate: "",
     },
     showInCatalog: true,
   });
@@ -101,6 +99,9 @@ const AddProductPage = () => {
     setFormData((prevData) => {
       const newData = { ...prevData };
 
+      // Helper function to resolve the new value if it's a function
+      const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
+
       // Handle nested fields (e.g., 'content.specifications', 'gstInfo.gstRate')
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
@@ -109,11 +110,11 @@ const AddProductPage = () => {
         }
         newData[parent] = {
           ...newData[parent],
-          [child]: value,
+          [child]: getNewValue(newData[parent][child]),
         };
       } else {
         // Handle top-level fields
-        newData[fieldName] = value;
+        newData[fieldName] = getNewValue(newData[fieldName]);
       }
 
       return newData;
@@ -124,8 +125,20 @@ const AddProductPage = () => {
   const handleSaveAndPublish = async () => {
     clearFieldErrors();
 
-    // Calculate discount percentage based on MRP and sellingPrice
-    const payload = { ...formData };
+    // Sanitize images array: extract uploadedUrl from File objects or use string URLs
+    const sanitizedImages = (formData.images || [])
+      .map(img => {
+        if (typeof img === "string") return img;
+        if (img instanceof File) return img.uploadedUrl;
+        return null;
+      })
+      .filter(Boolean);
+
+    const payload = {
+      ...formData,
+      images: sanitizedImages
+    };
+
     const mrp = parseFloat(payload.mrp) || 0;
     const sellingPrice = parseFloat(payload.sellingPrice) || 0;
 
@@ -158,211 +171,43 @@ const AddProductPage = () => {
     router.push("/dashboard/products");
   };
 
-  // Handle AI extraction success - Pre-fill form with extracted data
-  const handleAIExtractSuccess = (extractedData) => {
-    if (!extractedData) return;
-
-    try {
-      const updatedFormData = { ...formData };
-
-      // Map extracted data to form fields
-      // Basic fields
-      if (extractedData.name) updatedFormData.name = extractedData.name;
-      if (extractedData.brand) updatedFormData.brand = extractedData.brand;
-      if (extractedData.category)
-        updatedFormData.category = extractedData.category;
-      if (extractedData.subcategory)
-        updatedFormData.subcategory = extractedData.subcategory;
-      if (extractedData.barcode)
-        updatedFormData.barcode = extractedData.barcode;
-      if (extractedData.sku) updatedFormData.sku = extractedData.sku;
-
-      // Pricing fields
-      if (extractedData.mrp !== undefined && extractedData.mrp !== null) {
-        updatedFormData.mrp = String(extractedData.mrp);
-      }
-      if (
-        extractedData.sellingPrice !== undefined &&
-        extractedData.sellingPrice !== null
-      ) {
-        updatedFormData.sellingPrice = String(extractedData.sellingPrice);
-      }
-      if (
-        extractedData.basePrice !== undefined &&
-        extractedData.basePrice !== null
-      ) {
-        updatedFormData.basePrice = String(extractedData.basePrice);
-      }
-      if (
-        extractedData.discount !== undefined &&
-        extractedData.discount !== null
-      ) {
-        updatedFormData.discount = String(extractedData.discount);
-      }
-      if (extractedData.currency)
-        updatedFormData.currency = extractedData.currency;
-      if (extractedData.uom) updatedFormData.uom = extractedData.uom;
-
-      // GST Info
-      if (extractedData.gstInfo) {
-        updatedFormData.gstInfo = {
-          ...updatedFormData.gstInfo,
-          isGstIncluded:
-            extractedData.gstInfo.isGstIncluded !== undefined
-              ? extractedData.gstInfo.isGstIncluded
-              : (extractedData.isGstIncluded !== undefined ? extractedData.isGstIncluded : updatedFormData.gstInfo.isGstIncluded),
-          gstRate:
-            extractedData.gstInfo.gstRate !== undefined &&
-              extractedData.gstInfo.gstRate !== null
-              ? String(extractedData.gstInfo.gstRate)
-              : updatedFormData.gstInfo.gstRate,
-          gstType:
-            extractedData.gstInfo.gstType || updatedFormData.gstInfo.gstType,
-          hsnCode:
-            extractedData.gstInfo.hsnCode || updatedFormData.gstInfo.hsnCode,
-          sacCode:
-            extractedData.gstInfo.sacCode || updatedFormData.gstInfo.sacCode,
-          cessRate:
-            extractedData.gstInfo.cessRate !== undefined &&
-              extractedData.gstInfo.cessRate !== null
-              ? String(extractedData.gstInfo.cessRate)
-              : updatedFormData.gstInfo.cessRate,
-        };
-      }
-
-      // Content fields
-      if (extractedData.content) {
-        updatedFormData.content = {
-          ...updatedFormData.content,
-          shortDescription:
-            extractedData.content.shortDescription ||
-            updatedFormData.content.shortDescription,
-          longDescription:
-            extractedData.content.longDescription ||
-            updatedFormData.content.longDescription,
-          tags:
-            extractedData.content.tags &&
-              Array.isArray(extractedData.content.tags)
-              ? [
-                ...(updatedFormData.content.tags || []),
-                ...extractedData.content.tags,
-              ].filter((tag, index, self) => self.indexOf(tag) === index)
-              : updatedFormData.content.tags,
-          features:
-            extractedData.content.features &&
-              Array.isArray(extractedData.content.features)
-              ? [
-                ...(updatedFormData.content.features || []),
-                ...extractedData.content.features,
-              ].filter(
-                (feature, index, self) => self.indexOf(feature) === index
-              )
-              : updatedFormData.content.features,
-          specifications:
-            extractedData.content.specifications &&
-              Array.isArray(extractedData.content.specifications)
-              ? [
-                ...(updatedFormData.content.specifications || []),
-                ...extractedData.content.specifications,
-              ]
-              : updatedFormData.content.specifications,
-        };
-      }
-
-      // Update form data
-      setFormData(updatedFormData);
-      setShowAIModal(false);
-      showSuccess(t("products.aiExtractSuccess"));
-    } catch (error) {
-      logger.error("Error pre-filling form:", error);
-      showError(t("products.aiExtractError"));
-    }
-  };
-
   return (
-    <div className="flex h-screen relative overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="overflow-hidden">
+      <div className="max-w-8xl mx-auto w-full">
+        <div className="p-5 w-full mx-auto">
+          <Link href="/dashboard/products" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {t("products.backToProducts")}
+            </span>
+          </Link>
+        </div>
 
-      {/* Main Content */}
-      <div className="flex-1 min-h-screen flex flex-col">
-        {/* Header */}
-        <Header
-          title={t("products.addNewProduct")}
-          description={t("products.addNewProductDescription")}
-        />
-
-        {permissionsLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-[rgb(var(--color-text-secondary))] animate-pulse font-medium">{t("common.loadingData")}</p>
+        <div className="overflow-hidden">
+          <div className="h-[calc(100vh-210px)] overflow-y-auto px-5">
+            <ProductForm
+              formData={formData}
+              onChange={handleFormDataChange}
+              fieldErrors={fieldErrors}
+              storeId={storeId}
+              productId={null}
+            />
           </div>
-        ) : (
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto">
-              <div className="mb-6 flex items-center justify-between">
-                <Link
-                  href="/dashboard/products"
-                  className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    {t("products.backToProducts")}
-                  </span>
-                </Link>
-                <div className="flex items-center space-x-3">
-                  <AIButton onClick={() => setShowAIModal(true)} size="sm">
-                    {t("products.aiExtract")}
-                  </AIButton>
-                </div>
-              </div>
 
-              <div className="overflow-hidden">
-                <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
-                  <ProductForm
-                    formData={formData}
-                    onChange={handleFormDataChange}
-                    fieldErrors={fieldErrors}
-                    storeId={storeId}
-                  />
-                </div>
-
-                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3 ml-auto">
-                      <Button
-                        variant="outline"
-                        onClick={handleCancel}
-                        disabled={loading}
-                      >
-                        {t("common.cancel")}
-                      </Button>
-                      <Button
-                        variant="success"
-                        onClick={handleSaveAndPublish}
-                        disabled={loading}
-                        loading={loading}
-                        leftIcon={Save}
-                      >
-                        {t("products.saveAndPublish")}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+          <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 ml-auto">
+                <Button variant="outline" onClick={handleCancel} disabled={loading} >
+                  {t("common.cancel")}
+                </Button>
+                <Button variant="success" onClick={handleSaveAndPublish} disabled={loading} loading={loading} leftIcon={Save} >
+                  {t("products.saveAndPublish")}
+                </Button>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
-
-      {/* AI Product Extract Modal */}
-      {showAIModal && (
-        <AIProductExtract
-          storeId={storeId}
-          onExtractSuccess={handleAIExtractSuccess}
-          onCancel={() => setShowAIModal(false)}
-        />
-      )}
     </div>
   );
 };

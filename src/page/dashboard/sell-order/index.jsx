@@ -1,9 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setViewMode } from "@/store/slices/salesOrdersSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -11,22 +10,28 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 // Modularized Sales Order Components
 import SalesOrderListHeader from "@/components/salesOrder/list/SalesOrderListHeader";
-import SalesOrderEmptyState from "@/components/salesOrder/list/SalesOrderEmptyState";
+import { Package, Search } from "lucide-react";
+import { EmptyState, PageLoader } from "@/components/ui";
 import SalesOrderListContent from "@/components/salesOrder/list/SalesOrderListContent";
 
 const SalesOrdersPage = () => {
     const { t } = useTranslation();
+    useDashboardHeader(t("sidebar.sellOrders"), t("salesOrder.orderListSubtitle"));
     const router = useRouter();
     const dispatch = useAppDispatch();
 
     // Smooth deterministic tracking using global Redux Architecture
     const { list: orders, isLoading, error } = useAppSelector((state) => state.salesOrders);
-    const { 
-        can, 
-        create: canCreate, 
-        edit: canEdit, 
-        delete: canDelete, 
-        loading: permissionsLoading 
+    const [searchValue, setSearchValue] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [orderSourceFilter, setOrderSourceFilter] = useState("all");
+
+    const {
+        can,
+        create: canCreate,
+        edit: canEdit,
+        delete: canDelete,
+        loading: permissionsLoading
     } = useModulePermissions("sales_order");
 
     useEffect(() => {
@@ -48,45 +53,43 @@ const SalesOrdersPage = () => {
     });
 
     return (
-        <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-            <Sidebar />
-
-            <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-                <Header
-                    title={t("sidebar.sellOrders")}
-                    description={t("salesOrder.orderListSubtitle")}
+        <div className="overflow-hidden">
+            <div className="max-w-8xl mx-auto">
+                <SalesOrderListHeader
+                    canCreate={canCreate}
+                    searchValue={searchValue}
+                    setSearchValue={setSearchValue}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    orderSourceFilter={orderSourceFilter}
+                    setOrderSourceFilter={setOrderSourceFilter}
                 />
+                <div className="px-5">
+                    {/* Loading State Wrapper */}
+                    {(isLoading || permissionsLoading) && orders.length === 0 && !error && (<PageLoader />)}
 
-                <div className="flex-1 p-5">
-                    <div className="max-w-8xl mx-auto">
+                    {/* Completely Empty State Fallback */}
+                    {!isLoading && orders.length === 0 && (
+                        <EmptyState
+                            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                            title={t("common.noResults")}
+                            description={searchValue || statusFilter !== "all"
+                                ? t("salesOrder.noResultsDescription")
+                                : t("salesOrder.emptyDescription")}
+                            icon={searchValue || statusFilter !== "all" ? Search : Package}
+                        />
+                    )}
 
-                        {/* Modular Header Logic */}
-                        <SalesOrderListHeader canCreate={canCreate} />
-
-                        {/* Loading State Wrapper */}
-                        {(isLoading || permissionsLoading) && orders.length === 0 && !error && (
-                            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
-                                <div className="text-center">
-                                    <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                                    <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Completely Empty State Fallback */}
-                        {!(isLoading || permissionsLoading) && orders.length === 0 && <SalesOrderEmptyState />}
-
-                        {/* Hydrated Container Mapping */}
-                        {orders.length > 0 && (
-                            <SalesOrderListContent 
-                                canCreate={canCreate}
-                                canEdit={canEdit}
-                                canDelete={canDelete}
-                            />
-                        )}
-
-                    </div>
+                    {/* Hydrated Container Mapping */}
+                    {orders.length > 0 && (
+                        <SalesOrderListContent
+                            canCreate={canCreate}
+                            canEdit={canEdit}
+                            canDelete={canDelete}
+                        />
+                    )}
                 </div>
+
             </div>
         </div>
     );

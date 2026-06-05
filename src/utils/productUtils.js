@@ -20,11 +20,9 @@ const transformProductData = (apiProduct) => {
     uom: apiProduct.pricing?.uom || "PCS",
 
     // GST information
-    gst:
-      apiProduct.gstInfo?.gstRate || apiProduct.gst || apiProduct.gstRate || 0,
-    gstType: apiProduct.gstInfo?.gstType || apiProduct.gstType || "CGST_SGST",
-    hsnCode:
-      apiProduct.gstInfo?.hsnCode || apiProduct.hsnCode || apiProduct.hsn || "",
+    gst: apiProduct.gstInfo?.gstRate || apiProduct.gst || apiProduct.gstRate || 0,
+    gstCategory: apiProduct.gstInfo?.gstCategory || "TAXABLE",
+    hsnCode: apiProduct.gstInfo?.hsnCode || apiProduct.hsnCode || apiProduct.hsn || "",
     isGstIncluded: apiProduct.gstInfo?.isGstIncluded === true,
 
     // Status and catalog
@@ -41,9 +39,9 @@ const transformProductData = (apiProduct) => {
       ? formatLastUpdated(apiProduct.timestamps.updatedAt)
       : "Unknown",
 
-    // Additional fields for display
     slug: apiProduct.slug || "",
-    image: apiProduct.image || "/api/placeholder/300/300",
+    // Use first image URL from array or fallback
+    image: (typeof apiProduct.images?.[0] === 'object' ? apiProduct.images[0].url : apiProduct.images?.[0]) || "https://placehold.co/600x600?text=No+Image",
 
     // Stock information (if available)
     stock: apiProduct.stock || 0,

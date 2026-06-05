@@ -18,7 +18,9 @@
   "item": "Item",
   "items": "Items",
   "createInvoiceButton": "Invoice create karo",
-  "noItemsAdded": "Abhi tak koi items add nahi kiye. Items add karne ke liye upar se product aur quantity select karo.",
+  "createNewInvoice": "Naya Invoice create karo",
+  "noItemsTile": "Abhi tak koi items add nahi kiye",
+  "noItemsdisc": "Items add karne ke liye upar se product aur quantity select karo.",
   "loadingCustomers": "Customers load ho rahe hain...",
   "selectProductPlaceholder": "Product select karo",
   "pleaseSelectProduct": "Kripya ek product select karo",
@@ -212,5 +214,8 @@
   "cannotEditNonDraft": "Sirf draft invoices ko edit kiya ja sakta hai. Released ya cancelled invoices immutable hote hain.",
   "grossTotal": "Gross Total",
   "netTaxable": "Net Taxable",
-  "totalGST": "Total GST"
+  "totalGST": "Total GST",
+  "emptyDescription": "You haven't created any invoices yet. Start by creating your first one!",
+  "notFoundTitle": "Invoice Not Found",
+  "notFoundDescription": "The invoice you are looking for might have been deleted or does not exist."
 }

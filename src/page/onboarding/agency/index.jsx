@@ -92,7 +92,7 @@ export default function AgencyCreation() {
   };
 
   const handleBack = () => {
-    router.push("/register");
+    window.location.href = "/register";
   };
 
   const _handleContinueToStore = () => {

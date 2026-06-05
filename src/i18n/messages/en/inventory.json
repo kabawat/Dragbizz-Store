@@ -1,6 +1,8 @@
 {
   "title": "Inventory",
-  "description": "Manage inventory",
+  "description": "Manage your store inventory and stock levels",
+  "emptyDescription": "Add stock to your products to start tracking inventory and selling.",
+  "noResultsDescription": "We couldn't find any inventory items matching your search. Try adjusting your search term.",
   "addStock": "Add Stock",
   "adjustStock": "Adjust Stock",
   "stockIn": "Stock In",

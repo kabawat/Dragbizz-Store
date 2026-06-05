@@ -10,7 +10,15 @@ import { getSalesOrders, setViewMode } from "@/store/slices/salesOrdersSlice";
 import { CatalogQRModal } from "@/components/common";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
+const SalesOrderListHeader = ({
+    canCreate: canCreateProp,
+    searchValue,
+    setSearchValue,
+    statusFilter,
+    setStatusFilter,
+    orderSourceFilter,
+    setOrderSourceFilter
+}) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -22,29 +30,27 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
     const { can, loading } = useModulePermissions("sales_order");
     const canCreate = canCreateProp ?? can("create");
 
-    const [searchValue, setSearchValue] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
     const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
-    const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null, statusFilter: null });
+    const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null });
 
     // Reset fetch refs when store changes
     useEffect(() => {
         lastFetchRef.current = null;
-        hasFetchedRef.current = { fetched: false, storeId: null, searchValue: null, statusFilter: null };
+        hasFetchedRef.current = { fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null };
     }, [storeId]);
 
     // Fetch Orders with debounce + deduplication
     const fetchSalesOrders = useCallback(async () => {
         if (!storeId) return;
 
-        const fetchKey = `${storeId}-${searchValue}-${statusFilter}`;
+        const fetchKey = `${storeId}-${searchValue}-${statusFilter}-${orderSourceFilter}`;
         if (lastFetchRef.current === fetchKey) return;
 
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter) return;
+        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter) return;
 
         lastFetchRef.current = fetchKey;
 
@@ -54,26 +60,27 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
             limit: 20,
             cursor: null,
             isFreshLoad: true,
-            status: statusFilter !== "all" ? statusFilter : undefined
+            status: statusFilter !== "all" ? statusFilter : undefined,
+            orderSource: orderSourceFilter !== "all" ? orderSourceFilter : undefined
         };
 
         try {
             await dispatch(getSalesOrders(params));
-            hasFetchedRef.current = { fetched: true, storeId, searchValue, statusFilter };
+            hasFetchedRef.current = { fetched: true, storeId, searchValue, statusFilter, orderSourceFilter };
         } catch {
             lastFetchRef.current = null;
         }
-    }, [dispatch, storeId, searchValue, statusFilter]);
+    }, [dispatch, storeId, searchValue, statusFilter, orderSourceFilter]);
 
     // Debounce hook replacement
     useEffect(() => {
         if (!storeId) return;
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter) return;
+        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter) return;
 
         const timer = setTimeout(() => fetchSalesOrders(), 350);
         return () => clearTimeout(timer);
-    }, [storeId, searchValue, statusFilter, fetchSalesOrders]);
+    }, [storeId, searchValue, statusFilter, orderSourceFilter, fetchSalesOrders]);
 
     const handleViewModeChange = useCallback((mode) => {
         dispatch(setViewMode(mode));
@@ -89,7 +96,7 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
     });
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 <div className="w-100">
                     <Input
@@ -103,7 +110,20 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                     />
                 </div>
 
-                <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex flex-wrap gap-3 items-center mt-3 lg:mt-0">
+                    <div className="min-w-[140px]">
+                        <Select
+                            placeholder={t("common.type", { defaultValue: "All Types" })}
+                            value={orderSourceFilter}
+                            onChange={setOrderSourceFilter}
+                            options={[
+                                { value: "all", label: "All Sources" },
+                                { value: "ONLINE", label: "Online" },
+                                { value: "IN_STORE", label: "In-Store" }
+                            ]}
+                        />
+                    </div>
+
                     <div className="min-w-[160px]">
                         <Select
                             placeholder={t("common.allStatus")}
@@ -111,10 +131,12 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                             onChange={setStatusFilter}
                             options={[
                                 { value: "all", label: t("common.allStatus") },
-                                { value: "PENDING", label: t("common.pending") },
-                                { value: "CONFIRMED", label: t("salesOrder.confirm") },
-                                { value: "DELIVERED", label: t("salesOrder.markAsDelivered") },
-                                { value: "CANCELLED", label: t("salesOrder.cancelOrder") },
+                                { value: "PENDING", label: t("salesOrder.status.pending") },
+                                { value: "CONFIRMED", label: t("salesOrder.status.confirmed") },
+                                { value: "PROCESSING", label: t("salesOrder.status.processing") },
+                                { value: "SHIPPED", label: t("salesOrder.status.shipped") },
+                                { value: "DELIVERED", label: t("salesOrder.status.delivered") },
+                                { value: "CANCELLED", label: t("salesOrder.status.cancelled") },
                             ]}
                         />
                     </div>
@@ -123,8 +145,8 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                         <button
                             onClick={() => handleViewModeChange("table")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <List className="w-4 h-4" />
@@ -133,8 +155,8 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                         <button
                             onClick={() => handleViewModeChange("card")}
                             className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
                         >
                             <Grid3X3 className="w-4 h-4" />
@@ -152,7 +174,7 @@ const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
                             >
                                 {t("settings.publicCatalog")}
                             </Button>
- 
+
                             <CatalogQRModal
                                 isOpen={isCatalogModalOpen}
                                 onClose={() => setIsCatalogModalOpen(false)}

@@ -7,6 +7,11 @@ class InvoiceService extends BaseService {
     this.endpoint = API_CONFIG?.RETAILER?.INVOICE;
   }
 
+  // Preview totals & GST breakup (transaction-level, no persist)
+  calculateInvoicePreview(payload, params = {}) {
+    return this.post(`${this.endpoint}/calculate`, payload, params);
+  }
+
   // Create Draft Invoice
   createDraftInvoice(invoiceData) {
     return this.post(this.endpoint, invoiceData);
@@ -52,12 +57,17 @@ class InvoiceService extends BaseService {
     invoiceId,
     paymentStatus = "PAID",
     storeId = null,
-    paidAmount = null
+    paidAmount = null,
+    paymentMode = null
   ) {
     const payload = {
       id: invoiceId,
       paymentStatus,
     };
+
+    if (paymentMode) {
+      payload.paymentMode = paymentMode;
+    }
 
     if (paidAmount !== null && paidAmount !== undefined) {
       payload.paidAmount = paidAmount;
@@ -84,12 +94,6 @@ class InvoiceService extends BaseService {
     return this.delete(url);
   }
 
-  // Public Invoice (unauthenticated)
-  getPublicInvoice(publicId) {
-    return this.unauthPost("/retailer/public/invoices", {
-      id: publicId,
-    });
-  }
 }
 
 // Create and export a singleton instance

@@ -76,6 +76,19 @@
   "editMore": "Edit More",
   "activeCustomer": "Active Customer",
   "memberSince": "Member Since",
+  "source": "Source",
+  "allSources": "All Sources",
+  "sourceValues": {
+    "MANUAL": "Manual",
+    "POS": "POS",
+    "INVOICE": "Invoice",
+    "BULK_IMPORT": "Bulk Import",
+    "ONLINE": "Online",
+    "IN_STORE": "In-Store",
+    "WHATSAPP": "WhatsApp",
+    "PHONE": "Phone",
+    "QR_CATALOG": "QR Catalog"
+  },
   "download": "Download",
   "export": "Export Customers",
   "downloadCustomers": "Download Customers",
@@ -162,5 +175,6 @@
   "done": "Done",
   "partialSuccess": "Bulk upload partially successful",
   "bulkUploadSuccess": "Bulk upload completed successfully",
-  "rowData": "Data"
+  "rowData": "Data",
+  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!"
 }

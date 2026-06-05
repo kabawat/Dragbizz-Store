@@ -1,41 +1,43 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
-import { updateSubdomain } from "@/utils/helper/domain";
+import { ensureSubdomain } from "@/utils/helper/domain";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
+import Sidebar from "@/components/dashboard/sidebar";
+import Header from "@/components/dashboard/header";
+import { HeaderProvider } from "@/contexts/HeaderContext";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
-  // Get profile state
-  const { redirectTo, agency, stores, isLoading, isAuthenticated, authProfile, authProfileLoading, staffProfileLoading } = useAppSelector((state) => state.profile);
-
-  // Subscription context
-  const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
+  const {
+    redirectTo,
+    agency,
+    stores,
+    isLoading,
+    isAuthenticated,
+    authProfile,
+    authProfileLoading,
+    staffProfileLoading
+  } = useAppSelector((state) => state.profile);
 
   const isProfileLoading = isLoading || authProfileLoading || staffProfileLoading;
 
-  // Handle redirects and missing data checks
   useEffect(() => {
-    // Don't redirect while loading
-    if (isProfileLoading || subscriptionLoading) {
+    if (isProfileLoading) {
       return;
     }
 
-    // Don't redirect if not authenticated (handled by parent layout)
     if (!isAuthenticated) {
       return;
     }
 
-    // Handle explicit redirects
     if (redirectTo) {
       router.push(redirectTo);
       return;
     }
 
-    // Check for missing data and redirect accordingly
     if (!agency) {
       router.push("/onboarding/agency");
       return;
@@ -45,26 +47,16 @@ export default function DashboardLayout({ children }) {
       router.push("/onboarding/store");
       return;
     }
-  }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isProfileLoading, agency, stores, router]);
+  }, [isAuthenticated, redirectTo, isProfileLoading, agency, stores, router]);
 
-  // Redirect to correct tenant subdomain (also handles wrong subdomain)
   useEffect(() => {
-    const tenant = authProfile?.tenant;
-    if (!tenant || typeof window === "undefined") return;
-
-    const hostname = window.location.hostname;
-    const parts = hostname.split(".");
-    const currentSubdomain = parts.length > 2 ? parts[0] : null;
-
-    // If no subdomain OR wrong subdomain → redirect to correct one
-    if (currentSubdomain !== tenant) {
-      const domain = updateSubdomain(window.location.href, tenant);
-      window.location.replace(domain.url);
+    if (authProfile?.tenant) {
+      ensureSubdomain(authProfile.tenant);
     }
   }, [authProfile?.tenant]);
 
-  // Show loading while checking data
-  if (isProfileLoading || subscriptionLoading) {
+
+  if (isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">
@@ -80,7 +72,6 @@ export default function DashboardLayout({ children }) {
     );
   }
 
-  // Don't render children if redirecting or no subscription
   if (redirectTo || !agency || (agency && (!stores || stores.length === 0))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
@@ -98,10 +89,22 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] relative">
-      <PermissionGuard>
-        {children}
-      </PermissionGuard>
-    </div>
+    <HeaderProvider>
+      <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
+        <PermissionGuard>
+          <div className="no-print">
+            <Sidebar />
+          </div>
+          <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+            <div className="no-print">
+              <Header />
+            </div>
+            <main className="flex-1 overflow-y-auto custom-scrollbar">
+              {children}
+            </main>
+          </div>
+        </PermissionGuard>
+      </div>
+    </HeaderProvider>
   );
 }

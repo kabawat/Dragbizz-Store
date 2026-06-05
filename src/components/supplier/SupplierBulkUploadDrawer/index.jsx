@@ -1,7 +1,7 @@
 "use client";
-import { AlertCircle, CheckCircle2, FileDown, FileJson, FileSpreadsheet, FileText, Upload, X, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileJson, FileSpreadsheet, FileText, Upload, X, ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import { Button, SideDrawer } from "@/components/ui";
+import { Button, BulkTemplateDownloadButton, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { supplierService } from "@/service/retailer/supplier.service";
@@ -120,10 +120,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const handleDownloadSample = () => {
-    // Mock sample download
-    showSuccess(t("suppliers.sampleDownloaded", "Sample file downloading..."));
-  };
+
 
   const getFileIcon = (fileName) => {
     if (fileName.endsWith(".csv")) return <FileText className="w-8 h-8 text-blue-500" />;
@@ -287,14 +284,11 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                   <li>{t("suppliers.instruction2", "Maximum allowed file size is 5MB. ")}</li>
                   <li>{t("suppliers.instruction3", "Make sure required fields (e.g., name) are present.")}</li>
                 </ul>
-                <Button
-                  size="sm"
-                  onClick={handleDownloadSample}
-                  className="flex items-center gap-2"
-                >
-                  <FileDown className="w-4 h-4" />
-                  {t("suppliers.downloadSample", "Download Sample File")}
-                </Button>
+                <BulkTemplateDownloadButton
+                  module="supplier"
+                  fileName="supplier_bulk_upload_template.xlsx"
+                  sheetName="Suppliers"
+                />
               </div>
 
               {/* Upload Area */}

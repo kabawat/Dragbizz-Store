@@ -1,9 +1,12 @@
 {
   "title": "Purchase Orders",
-  "description": "Purchase orders ko manage karo",
+  "description": "Suppliers ke liye apne purchase orders create aur manage karein",
+  "emptyDescription": "Suppliers se inventory request karne aur orders track karne ke liye apna pehla purchase order create karein.",
+  "noResultsDescription": "Humein aapki search ya filters se match hone wala koi purchase order nahi mila. Unhe adjust karke try karein.",
   "createPO": "PO create karo",
   "createPODescription": "Suppliers ke liye naya purchase order add karo",
   "viewPODescription": "Is purchase order ki details yahan dekhein",
+  "managePODescription": "Purchase order ko manage karein",
   "noPurchaseOrders": "Koi purchase orders nahi mile",
   "advancePaid": "Advance Paid",
   "purchaseOrderDetails": "Purchase Order Details",
@@ -70,6 +73,9 @@
   "addPayment": "Add Payment",
   "addedPayments": "Added Payments",
   "removePayment": "Remove payment",
+  "ordered": "Ordered",
+  "received": "Received",
+  "pending": "Pending",
   "searchSelectProduct": "Search and select product...",
   "add": "Add",
   "addNewItem": "Add new item",
@@ -104,6 +110,8 @@
   "selectProduct": "Select Product",
   "addNewProduct": "Add New Product",
   "totalItems": "Total Items",
+  "pendingItems": "Pending Items",
+  "completion": "Completion",
   "qty": "Qty",
   "selectedProduct": "Selected Product",
   "upiTransactionIdPlaceholder": "UPI123456789",
@@ -127,5 +135,7 @@
   "total": "Total",
   "deleteConfirm": "Are you sure you want to delete this purchase order?",
   "deleteSuccess": "Purchase order deleted successfully",
-  "errorLoading": "Error loading purchase orders"
+  "errorLoading": "Error loading purchase orders",
+  "noItemsTile": "Abhi tak koi items add nahi kiye",
+  "noItemsdisc": "Items add karne ke liye upar se product aur quantity select karo."
 }

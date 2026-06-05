@@ -83,7 +83,7 @@ const BillListContent = () => {
   const handleMenuToggle = useCallback((id) => {
     setOpenMenuId((prev) => (prev === id ? null : id));
   }, []);
-  
+
   const handleDelete = useCallback((bill) => {
     setBillToDelete(bill);
     setShowDeleteModal(true);
@@ -137,8 +137,8 @@ const BillListContent = () => {
 
   return (
     <>
-      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-        <div className="h-[calc(100vh-200px)] overflow-y-auto">
+      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
+        <div className="h-[calc(100vh-210px)] overflow-y-auto">
           {viewMode === "table" ? (
             <BillTable
               bills={bills}

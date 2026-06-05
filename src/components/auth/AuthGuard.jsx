@@ -3,14 +3,13 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
-// AuthGuard - Protects routes that require authentication.
+// Protects authenticated routes and handles redirects
 export default function AuthGuard({ children }) {
     const router = useRouter();
     const pathname = usePathname();
     const [isChecking, setIsChecking] = useState(true);
 
     const {
-        authProfile,
         isAuthenticated,
         isLoading,
         agency,
@@ -20,22 +19,29 @@ export default function AuthGuard({ children }) {
     } = useAppSelector((state) => state.profile);
 
     useEffect(() => {
-        // Wait for auth verification and initial data loading
+        // Wait for auth & data load
         if (!isInitialized) return;
 
-        // 1. Check basic authentication
-        if (!authProfile || !isAuthenticated) {
+        // Basic auth check
+        if (!isAuthenticated) {
             if (!pathname.startsWith("/login")) {
                 const searchParams = new URLSearchParams();
                 searchParams.set("redirect", pathname);
-                router.replace(`/login?${searchParams.toString()}`);
+                window.location.href = `/login?${searchParams.toString()}`;
             }
             return;
         }
 
-        // 2. Check onboarding status (only if we are not on an onboarding page or we are going to the wrong one)
+        // Handle redirections
         if (!isLoading) {
-            // Logic for Onboarding Redirection
+            // Priority 1: Force redirect
+            if (redirectTo && pathname !== redirectTo && !pathname.startsWith(redirectTo)) {
+                router.replace(redirectTo);
+                setIsChecking(false);
+                return;
+            }
+
+            // Priority 2: Agency onboarding
             if (!agency) {
                 if (pathname !== "/onboarding/agency") {
                     router.replace("/onboarding/agency");
@@ -44,7 +50,8 @@ export default function AuthGuard({ children }) {
                 return;
             }
 
-            if (!stores || stores.length === 0) {
+            // Priority 3: Store onboarding
+            if (stores.length === 0) {
                 if (pathname !== "/onboarding/store") {
                     router.replace("/onboarding/store");
                 }
@@ -52,36 +59,27 @@ export default function AuthGuard({ children }) {
                 return;
             }
 
-            // If everything is fine but we land on onboarding, go to dashboard
-            if (pathname.startsWith("/onboarding") && agency && stores?.length > 0) {
+            // Priority 4: Dashboard redirect
+            if (pathname.startsWith("/onboarding") && agency && stores.length > 0) {
                 router.replace("/dashboard");
-                return;
-            }
-
-            // Explicit redirectTo from slice (like force onboarding)
-            if (redirectTo && pathname !== redirectTo && !pathname.startsWith(redirectTo)) {
-                router.replace(redirectTo);
-                setIsChecking(false);
                 return;
             }
 
             setIsChecking(false);
         }
     }, [
-        authProfile,
         isAuthenticated,
         isLoading,
         agency,
-        stores,
+        stores.length,
         redirectTo,
         pathname,
         router,
         isInitialized,
     ]);
 
-    const isDataLoading = isLoading && !agency; // Only show data loading if we don't have an agency yet
-
-    if (!isInitialized || isChecking || isDataLoading) {
+    // Show loader
+    if (!isInitialized || isChecking || (isLoading && !agency)) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
                 <div className="text-center">
@@ -97,6 +95,7 @@ export default function AuthGuard({ children }) {
         );
     }
 
-    // If we reach here, user is authenticated and data is present (or we are on the correct onboarding page)
     return <>{children}</>;
 }
+
+

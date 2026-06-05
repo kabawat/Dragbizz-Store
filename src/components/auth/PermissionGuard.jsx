@@ -1,133 +1,108 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Crown } from "lucide-react";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
-
+import { getModuleFromPath, getActionFromPath } from "@/data/config/moduleRegistry";
 export const PermissionGuard = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
-    const { 
-        authProfile, 
-        authProfileLoading, 
-        staffProfile, 
+    const {
+        authProfile,
+        authProfileLoading,
+        staffProfile,
         staffProfileLoading,
-        isAuthenticated 
+        isAuthenticated
     } = useAppSelector((state) => state.profile);
-    
+
+    const { subscription, isLoading: subscriptionLoading } = useSubscription();
+
     const [hasAccess, setHasAccess] = useState(true);
+    const [isSubscriptionRestricted, setIsSubscriptionRestricted] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
-        // 1. Determine if we are still loading credentials
-        const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile);
-        
-        if (isLoading) {
-            setIsChecking(true);
-            return;
-        }
+        const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile) || subscriptionLoading;
+        if (isLoading) return setIsChecking(true);
 
-        // 2. If not authenticated after loading, let AuthGuard handle it
         if (!isAuthenticated || !authProfile) {
             setIsChecking(false);
-            setHasAccess(true); // Don't show restricted screen for unauth users
+            setHasAccess(true);
             return;
         }
 
-        // 3. Store Owner has full access
-        if (authProfile?.role === ROLES.OWNER) {
+        const moduleName = getModuleFromPath(pathname);
+
+        // 1. Subscription Check
+        if (moduleName) {
+            const action = getActionFromPath(pathname);
+            const feature = (subscription?.features || []).find(f => f.module === moduleName);
+            const isModuleActive = feature && (feature.usageType === "UNLIMITED" || (feature.maxLimit && feature.maxLimit > 0));
+
+            if (!isModuleActive) {
+                setHasAccess(false);
+                setIsSubscriptionRestricted(true);
+                setIsChecking(false);
+                return;
+            }
+
+            // Sub-feature check (Analytics/Reports)
+            if (action === "analytics" && !feature.analytics) {
+                setIsSubscriptionRestricted(true);
+                setHasAccess(false);
+                setIsChecking(false);
+                return;
+            }
+
+            if (action === "report" && !feature.report) {
+                setIsSubscriptionRestricted(true);
+                setHasAccess(false);
+                setIsChecking(false);
+                return;
+            }
+        }
+
+        setIsSubscriptionRestricted(false);
+
+        // 2. Owner bypass
+        if (authProfile.role === ROLES.OWNER) {
             setHasAccess(true);
             setIsChecking(false);
             return;
         }
 
-        // 4. Staff logic starts here
-        const permissions = staffProfile?.permissions || [];
-
-        // Always allowed paths for staff
-        const ALLOWED_EXACT_PATHS = [
-            "/dashboard",
-            "/dashboard/support",
-            "/dashboard/settings"
-        ];
-
-        if (ALLOWED_EXACT_PATHS.includes(pathname)) {
+        // 3. Staff logic
+        const ALLOWED_PATHS = ["/dashboard", "/dashboard/support", "/dashboard/settings"];
+        if (ALLOWED_PATHS.includes(pathname)) {
             setHasAccess(true);
             setIsChecking(false);
             return;
         }
 
-        // Staff can never access management features (Staff, Subscription, Plan limits)
-        if (pathname === "/dashboard/management" || pathname.startsWith("/dashboard/management/")) {
+        if (pathname.startsWith("/dashboard/management")) {
             setHasAccess(false);
             setIsChecking(false);
             return;
         }
 
-        // Route to module mapping
-        const ROUTE_MODULE_MAP = {
-            "/dashboard/customers": "customer",
-            "/dashboard/invoices": "invoice",
-            "/dashboard/invoices/create": "invoice",
-            "/dashboard/expenses": "expense",
-            "/dashboard/sales-order": "sales_order",
-            "/dashboard/products": "product",
-            "/dashboard/products/create": "product",
-            "/dashboard/stock": "inventory",
-            "/dashboard/suppliers": "supplier",
-            "/dashboard/purchase-orders": "purchase_order",
-            "/dashboard/bills": "billing",
-            "/dashboard/payments": "billing",
-            "/dashboard/analytics": "analytics",
-            "/dashboard/reports": "reports",
-        };
-
-        // Detect module from path
-        const getModuleFromPath = (path) => {
-            for (const [route, module] of Object.entries(ROUTE_MODULE_MAP)) {
-                if (path === route || path.startsWith(route + "/")) {
-                    return module;
-                }
-            }
-            return null;
-        };
-
-        // Detect action from path
-        const getActionFromPath = (path) => {
-            if (path.includes("/create")) return "create";
-            if (path.includes("/edit")) return "edit";
-            if (path.includes("/analytics")) return "analytics";
-            if (path.includes("/report")) return "report";
-            return "read";
-        };
-
-        const moduleName = getModuleFromPath(pathname);
-        const action = getActionFromPath(pathname);
-
-        // Route not in map → allow by default
         if (!moduleName) {
             setHasAccess(true);
             setIsChecking(false);
             return;
         }
 
+        const action = getActionFromPath(pathname);
+        const permissions = staffProfile?.permissions || [];
         const modulePermission = permissions.find((p) => p.module === moduleName);
 
-        // Module permission not assigned at all → deny
-        if (!modulePermission) {
-            setHasAccess(false);
-            setIsChecking(false);
-            return;
-        }
-
-        // Check exact action permission
-        setHasAccess(modulePermission[action] === true);
+        setHasAccess(modulePermission?.[action] === true);
         setIsChecking(false);
 
-    }, [pathname, authProfile, staffProfile, authProfileLoading, staffProfileLoading, isAuthenticated]);
+    }, [pathname, authProfile, staffProfile, authProfileLoading, staffProfileLoading, subscription, subscriptionLoading, isAuthenticated]);
 
     // Show nothing (or a subtle loader) while checking permissions
     if (isChecking) {
@@ -136,7 +111,7 @@ export const PermissionGuard = ({ children }) => {
 
     if (!hasAccess) {
         return (
-            <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
+            <div className="flex w-full bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
                 <Sidebar />
 
                 <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
@@ -171,17 +146,21 @@ export const PermissionGuard = ({ children }) => {
                                                 style={{ animationDuration: "2.5s" }}
                                             />
                                             {/* Icon container */}
-                                            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-red-500/25 to-red-700/10 border border-red-500/30 shadow-xl shadow-red-500/20 flex items-center justify-center">
-                                                <ShieldAlert className="w-11 h-11 text-red-500 drop-shadow-sm" />
+                                            <div className={`relative w-24 h-24 rounded-full bg-gradient-to-br ${isSubscriptionRestricted ? 'from-[#f59e0b]/25 to-[#f59e0b]/10 border-[#f59e0b]/30 shadow-[#f59e0b]/20' : 'from-red-500/25 to-red-700/10 border-red-500/30 shadow-red-500/20'} border shadow-xl flex items-center justify-center`}>
+                                                {isSubscriptionRestricted ? (
+                                                    <Crown className="w-11 h-11 text-[#f59e0b] drop-shadow-sm" role="img" aria-label="Premium feature crown" />
+                                                ) : (
+                                                    <ShieldAlert className="w-11 h-11 text-red-500 drop-shadow-sm" role="img" aria-label="Access denied shield" />
+                                                )}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Pulsing status pill below 403 */}
-                                <span className="mt-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 px-4 py-1.5 rounded-full">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                    Permission Denied
+                                <span className={`mt-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest ${isSubscriptionRestricted ? 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' : 'text-red-500 bg-red-500/10 border-red-500/20'} px-4 py-1.5 rounded-full`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${isSubscriptionRestricted ? 'bg-[#f59e0b]' : 'bg-red-500'} animate-pulse`} />
+                                    {isSubscriptionRestricted ? "Plan Limited" : "Permission Denied"}
                                 </span>
                             </div>
 
@@ -191,36 +170,62 @@ export const PermissionGuard = ({ children }) => {
                             {/* Right — text + button */}
                             <div className="flex flex-col items-start max-w-sm">
                                 <h1 className="text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-3 leading-tight">
-                                    Access <span className="text-red-500">Restricted</span>
+                                    {isSubscriptionRestricted ? (
+                                        <>Plan <span className="text-[#f59e0b]">Restricted</span></>
+                                    ) : (
+                                        <>Access <span className="text-red-500">Restricted</span></>
+                                    )}
                                 </h1>
 
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-2">
-                                    You don&apos;t have the required permissions to view this section.
-                                </p>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                                    Please contact your{" "}
-                                    <span className="text-[rgb(var(--color-primary))] font-semibold">store owner</span>{" "}
-                                    to request access.
-                                </p>
+                                {isSubscriptionRestricted ? (
+                                    <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
+                                        Your current plan does not include this module. Please upgrade your subscription or contact your store admin to access this feature.
+                                    </p>
+                                ) : (
+                                    <>
+                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-2">
+                                            You don&apos;t have the required permissions to view this section.
+                                        </p>
+                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
+                                            Please contact your{" "}
+                                            <span className="text-[rgb(var(--color-primary))] font-semibold">store owner</span>{" "}
+                                            to request access.
+                                        </p>
+                                    </>
+                                )}
 
                                 {/* Divider */}
                                 <div className="w-full h-px bg-[rgb(var(--color-border-primary))]/40 mb-8" />
 
-                                {/* Return button */}
-                                <button
-                                    onClick={() => router.push("/dashboard")}
-                                    className="group flex items-center gap-2.5 px-6 py-3 bg-[rgb(var(--color-primary))] text-white font-semibold rounded-xl hover:bg-[rgb(var(--color-primary))]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[rgb(var(--color-primary))]/25"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
-                                        fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" strokeWidth={2.5}
+                                {/* Return / Upgrade button */}
+                                {isSubscriptionRestricted && authProfile?.role === ROLES.OWNER ? (
+                                    <button
+                                        onClick={() => {
+                                            const { redirectToMainDomain } = require("@/utils/helper/domain");
+                                            redirectToMainDomain("/pricing");
+                                        }}
+                                        className="cursor-pointer group flex items-center gap-2.5 px-6 py-3 bg-[#f59e0b] text-white font-semibold rounded-xl hover:bg-[#f59e0b]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[#f59e0b]/25"
                                     >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                                    </svg>
-                                    Return to Dashboard
-                                </button>
+                                        <Crown className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" role="img" aria-hidden="true" />
+                                        Upgrade Plan Now
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => router.push("/dashboard")}
+                                        className="group flex items-center gap-2.5 px-6 py-3 bg-[rgb(var(--color-primary))] text-white font-semibold rounded-xl hover:bg-[rgb(var(--color-primary))]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[rgb(var(--color-primary))]/25"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
+                                            fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" strokeWidth={2.5}
+                                            role="img" aria-hidden="true"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                        </svg>
+                                        Return to Dashboard
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

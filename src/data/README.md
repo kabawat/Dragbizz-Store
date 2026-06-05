@@ -49,7 +49,7 @@ src/data/
 
 ### Import Individual Constants
 ```javascript
-import { CURRENCY_OPTIONS, UOM_OPTIONS } from '../../data';
+import { CURRENCY_OPTIONS, UOM_OPTIONS } from '@/data';
 ```
 
 ### Import All Constants
@@ -59,12 +59,12 @@ import {
   GST_RATE_OPTIONS, 
   PRODUCT_STATUS_OPTIONS,
   UOM_OPTIONS 
-} from '../../data';
+} from '@/data';
 ```
 
 ### Import Default Object
 ```javascript
-import dataConstants from '../../data';
+import dataConstants from '@/data';
 // Access: dataConstants.CURRENCY_OPTIONS
 ```
 
@@ -73,27 +73,19 @@ import dataConstants from '../../data';
 1. **Centralized Management**: All static data in one place
 2. **Reusability**: Same data used across multiple components
 3. **Maintainability**: Easy to update values in one location
-4. **Type Safety**: Consistent data structure
-5. **Documentation**: Well-documented with descriptions
-6. **Utilities**: Helper functions for common operations
+4. **Consistency**: Standardized data structure for UI components
 
 ## Adding New Constants
 
-1. Create new file in appropriate folder (`constants/` or `enums/`)
+1. Create a new file in the appropriate folder (`constants/` or `enums/`)
 2. Export the constant/function
 3. Add to `index.js` for centralized export
-4. Update this README with description
+4. Update this README with a description
 
 ## Example Usage in Components
 
 ```javascript
-// Before (hardcoded)
-const currencyOptions = [
-  { value: 'INR', label: 'Indian Rupee (₹)' },
-  { value: 'USD', label: 'US Dollar (₹)' }
-];
-
-// After (imported)
-import { CURRENCY_OPTIONS } from '../../data';
+// Imported for standardized Select options
+import { CURRENCY_OPTIONS } from '@/data';
 const currencyOptions = CURRENCY_OPTIONS;
 ```

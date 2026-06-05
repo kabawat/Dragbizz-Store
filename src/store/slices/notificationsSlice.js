@@ -16,8 +16,11 @@ const notificationsSlice = createSlice({
                 time: "Just now",
                 ...action.payload,
             };
-            state.notifications = [newNotification, ...state.notifications];
-            state.unreadCount = state.notifications.filter(n => n.unread).length;
+            const exists = state.notifications.some(n => n.id === newNotification.id);
+            if (!exists) {
+                state.notifications = [newNotification, ...state.notifications];
+                state.unreadCount = state.notifications.filter(n => n.unread).length;
+            }
         },
         markAsRead: (state, action) => {
             const notification = state.notifications.find(n => n.id === action.payload);

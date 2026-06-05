@@ -1,18 +1,11 @@
+import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
+
 export const getCustomDateRangePreview = (customStartDate, customEndDate) => {
   if (!customStartDate || !customEndDate) return null;
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
   return {
-    start: formatDate(customStartDate),
-    end: formatDate(customEndDate),
+    start: formatDateDash(customStartDate),
+    end: formatDateDash(customEndDate),
     startDate: customStartDate,
     endDate: customEndDate,
   };
@@ -46,17 +39,9 @@ export const getDateRangePreview = (period) => {
 
   startDate.setHours(0, 0, 0, 0);
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
   return {
-    start: formatDate(startDate),
-    end: formatDate(endDate),
+    start: formatDateDash(startDate),
+    end: formatDateDash(endDate),
     startDate: startDate.toISOString().split("T")[0],
     endDate: endDate.toISOString().split("T")[0],
   };
@@ -82,14 +67,14 @@ export const sortCustomers = (customers, sortOrder) => {
       });
     case "dateAsc":
       return sortedCustomers.sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        const dateA = getRecordCreatedAt(a) ? new Date(getRecordCreatedAt(a)).getTime() : 0;
+        const dateB = getRecordCreatedAt(b) ? new Date(getRecordCreatedAt(b)).getTime() : 0;
         return dateA - dateB;
       });
     case "dateDesc":
       return sortedCustomers.sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        const dateA = getRecordCreatedAt(a) ? new Date(getRecordCreatedAt(a)).getTime() : 0;
+        const dateB = getRecordCreatedAt(b) ? new Date(getRecordCreatedAt(b)).getTime() : 0;
         return dateB - dateA;
       });
     default:
@@ -118,14 +103,12 @@ export const transformCustomerData = (
     email: (customer) => ({ Email: customer.email || t("common.na") }),
     address: (customer) => ({ Address: customer.address || t("common.na") }),
     createdAt: (customer) => ({
-      "Created At": customer.createdAt
-        ? new Date(customer.createdAt).toLocaleDateString("en-IN")
-        : t("common.na"),
+      "Created At": formatDateDash(getRecordCreatedAt(customer)),
     }),
     updatedAt: (customer) => ({
-      "Updated At": customer.updatedAt
-        ? new Date(customer.updatedAt).toLocaleDateString("en-IN")
-        : t("common.na"),
+      "Updated At": formatDateDash(
+        customer.updatedAt || customer.timestamps?.updatedAt
+      ),
     }),
   };
 
@@ -144,7 +127,8 @@ export const buildDownloadParams = (
   storeId,
   startDate,
   endDate,
-  selectedFields
+  selectedFields,
+  source = ""
 ) => {
   const fieldMapping = {
     storeName: "storeName",
@@ -167,5 +151,6 @@ export const buildDownloadParams = (
     downloadAll: true,
     limit: 10000,
     fields: backendFields,
+    ...(source ? { source } : {}),
   };
 };

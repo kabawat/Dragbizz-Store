@@ -43,6 +43,112 @@
   "accountPreferencesUpdatedSuccess": "Account preferences updated successfully!",
   "appearanceSettings": "Appearance Settings",
   "customizeThemeAndAppearance": "Customize your theme and appearance",
+  "interfaceMode": "Interface Mode",
+  "accentThemes": "Accent Themes",
+  "livePreview": "Live Preview",
+  "warmCategory": "Warm",
+  "coolCategory": "Cool",
+  "greenCategory": "Green",
+  "vibrantCategory": "Vibrant",
+  "neutralCategory": "Neutral",
+  "appearanceDescription": "Personalize your workspace with themes and display modes.",
+  "resetToDefaults": "Reset to Defaults",
+  "lightModeDescription": "Perfect for bright environments",
+  "darkModeDescription": "Easy on the eyes in low light",
+  "mainButton": "MAIN BUTTON",
+  "secondaryButton": "SECONDARY",
+  "activeNow": "ACTIVE NOW",
+  "appearanceNote": "Appearance settings are applied instantly across all devices. Your session will remain synchronized.",
+  "themes": {
+    "default": {
+      "name": "Default",
+      "description": "Clean and professional"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Calm and refreshing"
+    },
+    "forest": {
+      "name": "Forest",
+      "description": "Natural and organic"
+    },
+    "sunset": {
+      "name": "Sunset",
+      "description": "Warm and vibrant"
+    },
+    "rose": {
+      "name": "Rose",
+      "description": "Soft and elegant"
+    },
+    "violet": {
+      "name": "Violet",
+      "description": "Royal and majestic"
+    },
+    "indigo": {
+      "name": "Indigo",
+      "description": "Deep and mysterious"
+    },
+    "purple": {
+      "name": "Purple",
+      "description": "Elegant and creative"
+    },
+    "blue": {
+      "name": "Classic Blue",
+      "description": "Stable and professional"
+    },
+    "sapphire": {
+      "name": "Sapphire",
+      "description": "Bright and sophisticated"
+    },
+    "midnight": {
+      "name": "Midnight",
+      "description": "Deep and modern"
+    },
+    "emerald": {
+      "name": "Emerald",
+      "description": "Rich and vibrant"
+    },
+    "green": {
+      "name": "Nature Green",
+      "description": "Fresh and organic"
+    },
+    "teal": {
+      "name": "Teal",
+      "description": "Calm and professional"
+    },
+    "lime": {
+      "name": "Lime",
+      "description": "Energetic and bright"
+    },
+    "amber": {
+      "name": "Amber",
+      "description": "Warm and glowing"
+    },
+    "coral": {
+      "name": "Coral",
+      "description": "Friendly and lively"
+    },
+    "pink": {
+      "name": "Pink",
+      "description": "Soft and playful"
+    },
+    "sky": {
+      "name": "Sky Blue",
+      "description": "Light and refreshing"
+    },
+    "cyan": {
+      "name": "Cyan",
+      "description": "Modern and clean"
+    },
+    "slate": {
+      "name": "Slate",
+      "description": "Balanced and neutral"
+    },
+    "zinc": {
+      "name": "Zinc",
+      "description": "Industrial and sleek"
+    }
+  },
   "languageSettings": "Language Settings",
   "customizeLanguage": "Choose your preferred language for the application.",
   "chooseLanguage": "Select Language",
@@ -70,12 +176,28 @@
     "masterChannels": "Master Channels",
     "activityCategories": "Activity Categories",
     "configureCategory": "Configure how you get notified for",
-    "loadingPreferences": "Loading your preferences..."
+    "loadingPreferences": "Loading your preferences...",
+    "pushPermissionDenied": "Push notifications are blocked in your browser. Enable them in site settings, then turn push on again.",
+    "pushPermissionDefault": "Turn push on to allow notifications when the app is in the background.",
+    "pushNotSupported": "Push notifications are not supported in this browser.",
+    "pushEnabledSuccess": "Push notifications enabled",
+    "pushDisabledSuccess": "Push notifications disabled",
+    "pushEnableFailed": "Could not enable push notifications",
+    "fcmTokenUnavailable": "Could not get a device token. Check that notifications are allowed.",
+    "fcmSaveFailed": "Could not save notification token to the server",
+    "fcmRegisterFailed": "Failed to register for push notifications"
   },
   "securitySettings": "Security Settings",
   "manageAccountSecurity": "Manage your account security",
   "changePassword": "Change Password",
   "updatePassword": "Update your password",
+  "updatePasswordDescription": "Protect your account with a strong password",
+  "passwordUpdatedSuccess": "Password updated successfully",
+  "passwordUpdateFailed": "Failed to update password",
+  "passwordUpdateError": "An error occurred while updating password",
+  "oldPasswordRequired": "Current password is required",
+  "passwordMinLength": "New password must be at least 8 characters",
+  "passwordsDoNotMatch": "Passwords do not match",
   "currentPassword": "Current Password",
   "enterCurrentPassword": "Enter current password",
   "newPassword": "New Password",

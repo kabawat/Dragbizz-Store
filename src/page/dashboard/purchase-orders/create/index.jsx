@@ -20,6 +20,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
 
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 
 const formInit = {
   supplier: "",
@@ -39,7 +40,7 @@ const CreatePurchaseOrder = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const { can, loading: permissionsLoading } = useModulePermissions("purchase_order");
-
+  useDashboardHeader(t("purchaseOrders.createPO"), t("purchaseOrders.createPODescription"));
   useEffect(() => {
     if (!permissionsLoading && !can("create")) {
       router.push("/dashboard/purchase-orders");
@@ -210,81 +211,76 @@ const CreatePurchaseOrder = () => {
   };
 
   return (
-    <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <Sidebar />
-      <div className="min-h-screen w-full flex flex-col">
-        <Header title={t("purchaseOrders.createPO")} description={t("purchaseOrders.createPODescription")} />
-        <div className="flex-1 p-6">
-          <div className="w-full">
-            <div className="mb-4 w-full mx-auto">
-              <Link href="/dashboard/purchase-orders" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t("purchaseOrders.backToPurchaseOrders")}</span>
-              </Link>
-            </div>
-
-            <div className="flex flex-col h-[calc(100vh-208px)]">
-              <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
-                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-                  <div className="w-full mx-auto">
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                      <div className="space-y-6">
-                        <BasicInfoCard
-                          t={t}
-                          formData={formData}
-                          handleInputChange={handleInputChange}
-                          suppliers={suppliers}
-                          suppliersLoading={suppliersLoading}
-                          errors={errors}
-                        />
-
-                        <AddressCard
-                          t={t}
-                          formData={formData}
-                          setFormData={setFormData}
-                          selectedStore={selectedStore}
-                        />
-
-                        <AdvancePaymentCard
-                          t={t}
-                          formData={formData}
-                          setFormData={setFormData}
-                        />
-
-                        {createError && (
-                          <div className="p-6 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
-                            <div className="flex items-center text-red-600 bg-red-50 border border-red-200 rounded-lg p-4">
-                              <span className="text-sm font-medium">{createError}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div>
-                        <ItemsSection
-                          t={t}
-                          formData={formData}
-                          setFormData={setFormData}
-                          products={products}
-                          productsLoading={productsLoading}
-                          errors={errors}
-                          setErrors={setErrors}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            <POActions
-              t={t}
-              formData={formData}
-              isCreating={isCreating}
-              handleSaveDraft={() => setShowSaveDraftModal(true)}
-              handleSubmit={handleSubmit}
-            />
+    <>
+      <div className="overflow-hidden">
+        <div className="max-w-8xl mx-auto w-full">
+          <div className="p-5 w-full mx-auto">
+            <Link href="/dashboard/purchase-orders" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">{t("purchaseOrders.backToPurchaseOrders")}</span>
+            </Link>
           </div>
+
+          <div className="overflow-hidden">
+            <div className="h-[calc(100vh-210px)] overflow-y-auto px-5 pb-5">
+
+              <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  <div className="space-y-6">
+                    <BasicInfoCard
+                      t={t}
+                      formData={formData}
+                      handleInputChange={handleInputChange}
+                      suppliers={suppliers}
+                      suppliersLoading={suppliersLoading}
+                      errors={errors}
+                    />
+
+                    <AddressCard
+                      t={t}
+                      formData={formData}
+                      setFormData={setFormData}
+                      selectedStore={selectedStore}
+                    />
+
+                    <AdvancePaymentCard
+                      t={t}
+                      formData={formData}
+                      setFormData={setFormData}
+                    />
+
+                    {createError && (
+                      <div className="p-6 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
+                        <div className="flex items-center text-red-600 bg-red-50 border border-red-200 rounded-lg p-4">
+                          <span className="text-sm font-medium">{createError}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <ItemsSection
+                      t={t}
+                      formData={formData}
+                      setFormData={setFormData}
+                      products={products}
+                      productsLoading={productsLoading}
+                      errors={errors}
+                      setErrors={setErrors}
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <POActions
+            t={t}
+            formData={formData}
+            isCreating={isCreating}
+            handleSaveDraft={() => setShowSaveDraftModal(true)}
+            handleSubmit={handleSubmit}
+          />
         </div>
       </div>
 
@@ -303,7 +299,7 @@ const CreatePurchaseOrder = () => {
           setShowSaveDraftModal(false);
         }}
       />
-    </div>
+    </>
   );
 };
 

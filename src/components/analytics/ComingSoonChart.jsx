@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import dynamic from 'next/dynamic';
 import {
     ResponsiveContainer,
     LineChart,
@@ -24,25 +25,24 @@ import {
     Radar
 } from 'recharts';
 
-const ComingSoonChart = ({ type = 'line' }) => {
-    // Mock data with more points for smoother look
-    const data = [
-        { name: 'Day 1', value: 400, value2: 240 },
-        { name: 'Day 2', value: 300, value2: 139 },
-        { name: 'Day 3', value: 600, value2: 980 },
-        { name: 'Day 4', value: 800, value2: 390 },
-        { name: 'Day 5', value: 500, value2: 480 },
-        { name: 'Day 6', value: 900, value2: 380 },
-        { name: 'Day 7', value: 1100, value2: 430 },
-    ];
+const ChartLayer = ({ type, data, colors }) => {
+    const containerRef = React.useRef(null);
+    const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
 
-    const colors = {
-        primary: '#8884d8',
-        secondary: '#82ca9d',
-        tertiary: '#ffc658',
-        profit: '#10b981',
-        revenue: '#3b82f6',
-    };
+    React.useEffect(() => {
+        if (!containerRef.current) return;
+
+        const observer = new ResizeObserver((entries) => {
+            if (!entries[0]) return;
+            const { width, height } = entries[0].contentRect;
+            if (width > 0 && height > 0) {
+                setDimensions({ width, height });
+            }
+        });
+
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
+    }, []);
 
     const renderChart = () => {
         switch (type) {
@@ -162,13 +162,49 @@ const ComingSoonChart = ({ type = 'line' }) => {
     };
 
     return (
-        <div className="relative w-full h-full min-h-[inherit] overflow-hidden rounded-xl bg-[rgb(var(--color-bg-secondary))]/10 border border-[rgb(var(--color-border-primary))]/10">
-            {/* Background Chart */}
-            <div className="absolute inset-0 z-0 opacity-20 blur-[0.5px]">
-                <ResponsiveContainer width="100%" height="100%">
+        <div ref={containerRef} className="flex-grow w-full h-full min-h-[inherit]">
+            {dimensions.width > 0 && dimensions.height > 0 && (
+                <ResponsiveContainer width={dimensions.width} height={dimensions.height} minWidth={0} minHeight={0}>
                     {renderChart()}
                 </ResponsiveContainer>
+            )}
+        </div>
+    );
+};
+
+const DynamicChartLayer = dynamic(() => Promise.resolve(ChartLayer), {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />
+});
+
+
+const ComingSoonChart = ({ type = 'line' }) => {
+    // Mock data with more points for smoother look
+    const data = [
+        { name: 'Day 1', value: 400, value2: 240 },
+        { name: 'Day 2', value: 300, value2: 139 },
+        { name: 'Day 3', value: 600, value2: 980 },
+        { name: 'Day 4', value: 800, value2: 390 },
+        { name: 'Day 5', value: 500, value2: 480 },
+        { name: 'Day 6', value: 900, value2: 380 },
+        { name: 'Day 7', value: 1100, value2: 430 },
+    ];
+
+    const colors = {
+        primary: '#8884d8',
+        secondary: '#82ca9d',
+        tertiary: '#ffc658',
+        profit: '#10b981',
+        revenue: '#3b82f6',
+    };
+
+    return (
+        <div className="relative w-full h-full flex-grow min-h-[100px] overflow-hidden rounded-xl bg-[rgb(var(--color-bg-secondary))]/10 border border-[rgb(var(--color-border-primary))]/10">
+            {/* Background Chart */}
+            <div className="absolute inset-0 z-0 opacity-20 blur-[0.5px] w-full h-full flex flex-col items-stretch">
+                <DynamicChartLayer type={type} data={data} colors={colors} />
             </div>
+
 
             {/* Animated Overlay Elements */}
             <div className="absolute top-4 left-4 flex gap-2 z-10 opacity-30">

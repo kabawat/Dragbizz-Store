@@ -3,8 +3,6 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import BillDetailsTemplate from "@/components/templates/bill/BillDetailsTemplate";
 import { billService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -12,6 +10,7 @@ import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDate, formatDateTime } from "@/utils/dateFormatter";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import BillActions from "./components/BillActions";
 import BillBatches from "./components/BillBatches";
@@ -27,6 +26,8 @@ import { useBillDetailsPrint } from "./hooks/useBillDetailsPrint";
 
 const ViewBillPage = ({ billId }) => {
   const { t } = useTranslation();
+
+    useDashboardHeader(t("bills.viewBill"), t("bills.viewBillDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -36,36 +37,24 @@ const ViewBillPage = ({ billId }) => {
   const canDelete = can("delete");
   const canRead = can("read");
 
-  const [error, setError] = useState(null);
-  const [billData, setBillData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedBillNumber, setDeletedBillNumber] = useState("");
-  const hasFetched = useRef(false);
+  const fetchedBillRef = useRef(null);
 
-  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeFetch, data: billData, loading: fetching, error: activeError } = useApiResponse();
   const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   const { handleDownloadPDF } = useBillDetailsPrint(fetching, billData);
 
   useEffect(() => {
-    const fetchBillData = async () => {
-      if (!billId || !storeId || hasFetched.current) return;
-      hasFetched.current = true;
-
-      const result = await executeFetch(
+    if (billId && storeId && fetchedBillRef.current !== billId) {
+      fetchedBillRef.current = billId;
+      executeFetch(
         billService.getBills({ store: storeId, id: billId }),
         { showToast: false }
       );
-
-      if (result?.success && result.data) {
-        setBillData(result.data);
-      } else {
-        setError(result?.message || "Failed to fetch bill data");
-      }
-    };
-
-    fetchBillData();
+    }
   }, [billId, storeId, executeFetch]);
 
   const handleEditBill = () => {
@@ -89,7 +78,6 @@ const ViewBillPage = ({ billId }) => {
       setShowDeleteSuccessModal(true);
       setShowDeleteModal(false);
     } else {
-      setError(result?.message || "Failed to delete bill");
       setShowDeleteModal(false);
     }
   };
@@ -109,12 +97,9 @@ const ViewBillPage = ({ billId }) => {
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
-      <Sidebar />
+      
       <div className="h-screen w-full flex flex-col overflow-hidden">
-        <Header
-          title={t("bills.viewBill")}
-          description={t("bills.viewBillDescription")}
-        />
+        
         <div className="flex-1 p-6 overflow-hidden">
           <div className="">
             <div className="mb-6">
@@ -127,9 +112,9 @@ const ViewBillPage = ({ billId }) => {
               </Link>
             </div>
 
-            {error && <ErrorState error={error} />}
+            {activeError && <ErrorState error={activeError} />}
 
-            {!error && billData && (
+            {!activeError && billData && (
               <>
                 <div
                   id="bill-details-report-area"

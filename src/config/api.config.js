@@ -1,8 +1,4 @@
-// src/config/api.config.js
-// API endpoints and service configuration
-
 const API_CONFIG = {
-  // Base API Configuration
   BASE: {
     URL: process.env.NEXT_PUBLIC_API_URL || "",
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
@@ -12,20 +8,10 @@ const API_CONFIG = {
   // Authentication Endpoints
   AUTH: {
     BASE_URL: "/auth",
-    LOGIN: "/auth/login",
-    LOGIN_VERIFY: "/auth/login",
     REFRESH: "/auth/refresh",
     LOGOUT: "/auth/logout",
-    REGISTER: "/auth/register",
-    VERIFY_OTP: "/auth/register",
-    FORGOT_PASSWORD: "/auth/forgot-password",
-    RESET_PASSWORD: "/auth/reset-password",
-    VERIFY_EMAIL: "/auth/verify-email",
-    RESEND_VERIFICATION: "/auth/resend-verification",
     PROFILE: "/auth/profile",
     NOTIFICATION_SETTINGS: "/auth/settings/notification",
-    UPLOAD_INIT: "/auth/upload/init",
-    UPLOAD_STATUS: "/auth/upload/status",
   },
   RETAILER: {
     INVENTORY: "/retailer/inventory",
@@ -50,7 +36,7 @@ const API_CONFIG = {
     GST_VERIFY: "/retailer/gst/verify",
     PUBLIC_CATALOG: "/retailer/public/products",
     PUBLIC_CATEGORIES: "/retailer/public/categories",
-    PUBLIC_SALES_ORDER: "/retailer/public/sales-order",
+    PUBLIC_TEMPLATES: "/retailer/public/templates",
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
@@ -58,25 +44,20 @@ const API_CONFIG = {
     SUBSCRIPTION: "/retailer/subscription",
   },
 
-  // Utility Service Endpoints
   UTILITY: {
     BASE_URL: "/utility",
     SOCKET: "/utility/socket.io",
-  },
-
-  // Voice AI Service Endpoints
-  VOICE_AI: {
-    CUSTOMER_CHAT: "/voice-ai/api/v1/customer/chat",
-    SUPPLIER_CHAT: "/voice-ai/api/v1/supplier/chat",
-    PRODUCT_EXTRACT: "/voice-ai/api/v1/product/extract-from-image",
+    UPLOAD_URL: "/utility/v1/storage/upload-url",
+    DELETE_URL: "/utility/v1/storage/file",
+    FCM_SAVE_TOKEN: "/utility/v1/fcm/save-token",
+    FCM_DELETE_TOKEN: "/utility/v1/fcm/token",
+    FCM_SEND: "/utility/v1/fcm/send",
   },
 
   // Subscription Service Endpoints
   SUBSCRIPTION: {
-    PACKAGES: "/plans/packages",
-    CHECKOUT: "/plans/checkout",
-    PAYMENT: "/plans/payment",
-    WEBHOOKS: "/plans/webhooks",
+    SUBSCRIPTIONS: "/plans/subscription",
+    USAGE: "/plans/usage",
   },
 
   // External Services

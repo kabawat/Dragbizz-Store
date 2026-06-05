@@ -25,7 +25,17 @@ const getSortOptions = (t) => [
     { value: "price_desc", label: t("products.priceDesc") },
 ];
 
-const ProductListHeader = ({ canCreate = false }) => {
+const ProductListHeader = ({
+    canCreate = false,
+    searchValue,
+    setSearchValue,
+    sortBy,
+    setSortBy,
+    showInCatalog,
+    setShowInCatalog,
+    category,
+    setCategory
+}) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -37,10 +47,6 @@ const ProductListHeader = ({ canCreate = false }) => {
         [selectedStore?.storeId]
     );
 
-    const [searchValue, setSearchValue] = useState("");
-    const [sortBy, setSortBy] = useState("");
-    const [showInCatalog, setShowInCatalog] = useState("");
-    const [category, setCategory] = useState("");
     const [categories, setCategories] = useState([]);
     const { execute: executeCategories, loading: categoriesLoading } = useApiResponse();
 
@@ -140,7 +146,7 @@ const ProductListHeader = ({ canCreate = false }) => {
     });
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 {/* Search */}
                 <div className="flex">

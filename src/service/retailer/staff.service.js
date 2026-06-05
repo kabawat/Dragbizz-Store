@@ -1,3 +1,4 @@
+"use client";
 import { BaseService } from "@/service/base/BaseService";
 import { API_CONFIG } from "@/config";
 
@@ -27,6 +28,11 @@ class StaffService extends BaseService {
         return this.delete(`${this.endpoint}/temp/${staffId}`);
     }
 
+    // Resend a pending staff invitation
+    async resendStaffInvite(staffId) {
+        return this.post(`${this.endpoint}/resend/${staffId}`);
+    }
+
     // Remove an active staff member (marks as REMOVED)
     async removeStaff(staffId) {
         return this.delete(`${this.endpoint}/${staffId}`);
@@ -37,11 +43,6 @@ class StaffService extends BaseService {
         return this.put(`${this.endpoint}/${staffId}`, data);
     }
 
-
-    // Verify staff account using token from email
-    async verifyStaff(token) {
-        return this.unauthPost(`${this.endpoint}/verify`, { token });
-    }
 }
 
 const staffService = new StaffService();

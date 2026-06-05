@@ -18,8 +18,8 @@ const StoreList = ({
     selectedStore?._id || selectedStore?.id || selectedStore || null;
 
   // Handle edit store - open edit drawer
-  const handleEditStore = (storeId) => {
-    onEditStore?.(storeId);
+  const handleEditStore = (store) => {
+    onEditStore?.(store);
   };
 
   // Handle delete store - open delete modal
@@ -95,7 +95,7 @@ const StoreList = ({
               {/* Action Buttons */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => handleEditStore(storeId)}
+                  onClick={() => handleEditStore(store)}
                   className="w-8 h-8 flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors cursor-pointer"
                 >
                   <Edit2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />

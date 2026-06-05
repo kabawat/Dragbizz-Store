@@ -43,6 +43,112 @@
   "accountPreferencesUpdatedSuccess": "खाता प्राथमिकताएं सफलतापूर्वक अपडेट हो गईं!",
   "appearanceSettings": "दिखावट सेटिंग्स",
   "customizeThemeAndAppearance": "अपनी थीम और दिखावट को अनुकूलित करें",
+  "interfaceMode": "इंटरफ़ेस मोड",
+  "accentThemes": "एक्सेंट थीम्स",
+  "livePreview": "लाइव प्रीव्यू",
+  "warmCategory": "वॉर्म",
+  "coolCategory": "कूल",
+  "greenCategory": "ग्रीन",
+  "vibrantCategory": "वाइब्रेंट",
+  "neutralCategory": "न्यूट्रल",
+  "appearanceDescription": "थीम और डिस्प्ले मोड के साथ अपने वर्कस्पेस को निजीकृत करें।",
+  "resetToDefaults": "डिफ़ॉल्ट पर रीसेट करें",
+  "lightModeDescription": "उज्ज्वल वातावरण के लिए उत्तम",
+  "darkModeDescription": "कम रोशनी में आंखों के लिए आसान",
+  "mainButton": "मुख्य बटन",
+  "secondaryButton": "द्वितीयक",
+  "activeNow": "अभी सक्रिय",
+  "appearanceNote": "अपीयरेंस सेटिंग्स सभी डिवाइसों पर तुरंत लागू हो जाती हैं। आपका सत्र सिंक्रनाइज़ रहेगा।",
+  "themes": {
+    "default": {
+      "name": "डिफ़ॉल्ट",
+      "description": "साफ और प्रोफेशनल"
+    },
+    "ocean": {
+      "name": "ओशन (ओशियन)",
+      "description": "शांत और ताजा"
+    },
+    "forest": {
+      "name": "फॉरेस्ट",
+      "description": "प्राकृतिक और जैविक"
+    },
+    "sunset": {
+      "name": "सनसेट",
+      "description": "गर्म और जीवंत"
+    },
+    "rose": {
+      "name": "रोज़",
+      "description": "कोमल और सुंदर"
+    },
+    "violet": {
+      "name": "वॉयलेट",
+      "description": "शाही और राजसी"
+    },
+    "indigo": {
+      "name": "इंडिगो",
+      "description": "गहरा और रहस्यमय"
+    },
+    "purple": {
+      "name": "पर्पल",
+      "description": "शानदार और रचनात्मक"
+    },
+    "blue": {
+      "name": "क्लासिक ब्लू",
+      "description": "स्थिर और प्रोफेशनल"
+    },
+    "sapphire": {
+      "name": "सफायर (नीलम)",
+      "description": "चमकदार और परिष्कृत"
+    },
+    "midnight": {
+      "name": "मिडनाइट",
+      "description": "गहरा और आधुनिक"
+    },
+    "emerald": {
+      "name": "एमराल्ड (पन्ना)",
+      "description": "समृद्ध और जीवंत"
+    },
+    "green": {
+      "name": "नेचर ग्रीन",
+      "description": "ताजा और जैविक"
+    },
+    "teal": {
+      "name": "टील",
+      "description": "शांत और प्रोफेशनल"
+    },
+    "lime": {
+      "name": "लाइम",
+      "description": "ऊर्जावान और चमकदार"
+    },
+    "amber": {
+      "name": "एम्बर",
+      "description": "गर्म और चमकता हुआ"
+    },
+    "coral": {
+      "name": "कोरल",
+      "description": "मित्रवत और जीवंत"
+    },
+    "pink": {
+      "name": "पिंक",
+      "description": "कोमल और चंचल"
+    },
+    "sky": {
+      "name": "स्काई ब्लू",
+      "description": "हल्का और ताज़गी भरा"
+    },
+    "cyan": {
+      "name": "सयान",
+      "description": "आधुनिक और साफ"
+    },
+    "slate": {
+      "name": "स्लेट",
+      "description": "संतुलित और तटस्थ"
+    },
+    "zinc": {
+      "name": "ज़िंक",
+      "description": "औद्योगिक और आकर्षक"
+    }
+  },
   "languageSettings": "भाषा सेटिंग्स",
   "customizeLanguage": "एप्लिकेशन के लिए अपनी पसंदीदा भाषा चुनें।",
   "chooseLanguage": "भाषा चुनें",
@@ -70,12 +176,28 @@
     "masterChannels": "मुख्य चैनल",
     "activityCategories": "गतिविधि श्रेणियां",
     "configureCategory": "कॉन्फ़िगर करें कि आपको सूचनाएं कैसे मिलेंगी",
-    "loadingPreferences": "आपकी प्राथमिकताएं लोड हो रही हैं..."
+    "loadingPreferences": "आपकी प्राथमिकताएं लोड हो रही हैं...",
+    "pushPermissionDenied": "ब्राउज़र में पुश सूचनाएं ब्लॉक हैं। साइट सेटिंग्स में अनुमति दें, फिर पुश चालू करें।",
+    "pushPermissionDefault": "पृष्ठभूमि में सूचनाओं के लिए पुश चैनल चालू करें — ब्राउज़र अनुमति माँगेगा।",
+    "pushNotSupported": "इस ब्राउज़र में पुश सूचनाएं समर्थित नहीं हैं।",
+    "pushEnabledSuccess": "पुश सूचनाएं सक्षम हो गईं",
+    "pushDisabledSuccess": "पुश सूचनाएं अक्षम हो गईं",
+    "pushEnableFailed": "पुश सूचनाएं सक्षम नहीं हो सकीं",
+    "fcmTokenUnavailable": "डिवाइस टोकन नहीं मिला। सूचना अनुमति जाँचें।",
+    "fcmSaveFailed": "सर्वर पर टोकन सहेजा नहीं जा सका",
+    "fcmRegisterFailed": "पुश पंजीकरण विफल"
   },
   "securitySettings": "सुरक्षा सेटिंग्स",
   "manageAccountSecurity": "अपनी खाता सुरक्षा प्रबंधित करें",
   "changePassword": "पासवर्ड बदलें",
   "updatePassword": "अपना पासवर्ड अपडेट करें",
+  "updatePasswordDescription": "अपने खाते को एक मजबूत पासवर्ड के साथ सुरक्षित रखें",
+  "passwordUpdatedSuccess": "पासवर्ड सफलतापूर्वक अपडेट किया गया",
+  "passwordUpdateFailed": "पासवर्ड अपडेट करने में विफल",
+  "passwordUpdateError": "पासवर्ड अपडेट करते समय एक त्रुटि हुई",
+  "oldPasswordRequired": "वर्तमान पासवर्ड आवश्यक है",
+  "passwordMinLength": "नया पासवर्ड कम से कम 8 अक्षर का होना चाहिए",
+  "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते",
   "currentPassword": "वर्तमान पासवर्ड",
   "enterCurrentPassword": "वर्तमान पासवर्ड दर्ज करें",
   "newPassword": "नया पासवर्ड",

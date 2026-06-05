@@ -17,11 +17,20 @@ const StoreSelector = ({ isCollapsed, onStoreChange }) => {
 
     // Handle store selection
     const handleStoreSelect = (store) => {
+        const currentStoreId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+        const newStoreId = store?._id || store?.id || store?.storeId;
+
+        if (currentStoreId === newStoreId) {
+            setIsStoreDropdownOpen(false);
+            return;
+        }
+
         dispatch(setSelectedStore(store));
         setIsStoreDropdownOpen(false);
         if (onStoreChange) {
             onStoreChange(store);
         }
+        window.location.reload();
     };
 
     // Close dropdown when sidebar collapses

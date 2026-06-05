@@ -46,6 +46,7 @@ export const SidebarFlyout = ({
                             <Link
                                 key={subItem.name}
                                 href={subItem.href}
+                                prefetch={false}
                                 onClick={onClose}
                                 className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${isSubActive
                                     ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
@@ -75,6 +76,7 @@ export const SidebarFlyout = ({
                     // Simple item (e.g. Dashboard) — single link
                     <Link
                         href={hoveredItem.item.href}
+                        prefetch={false}
                         onClick={onClose}
                         className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${pathname === hoveredItem.item.href
                             ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"

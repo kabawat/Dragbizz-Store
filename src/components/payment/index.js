@@ -1,5 +1,4 @@
 export { default as DeletePaymentModal } from "./DeletePaymentModal";
-export { default as PaymentEmptyState } from "./PaymentEmptyState";
 export { default as PaymentHeaderActions } from "./PaymentHeaderActions";
 export { default as PaymentTable } from "./PaymentTable";
 export { default as PaymentGrid } from "./PaymentGrid";

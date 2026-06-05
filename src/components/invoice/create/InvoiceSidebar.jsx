@@ -56,7 +56,7 @@ const InvoiceSidebar = ({
                 <div className="space-y-4">
 
                     {/* ── Customer Information ── */}
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                         <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                             <User className="w-4 h-4 mr-2" />
                             {t("invoice.customerInformation")}
@@ -91,7 +91,7 @@ const InvoiceSidebar = ({
                     </div>
 
                     {/* ── Invoice Summary with GST Breakdown ── */}
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                         <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                             <Receipt className="w-4 h-4 mr-2" />
                             {t("invoice.invoiceSummary")}
@@ -160,7 +160,7 @@ const InvoiceSidebar = ({
                     </div>
 
                     {/* ── Item Count ── */}
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                         <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
                             {t("invoice.itemCount")}
                         </h4>

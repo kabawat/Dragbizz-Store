@@ -1,117 +1,98 @@
 "use client";
 import { Loader2, Save, Store } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FormDrawer } from "@/components/common";
 import storeService from "@/service/retailer/store.service";
 import StoreEditForm from "./StoreEditForm";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
+import {
+  EMPTY_STORE_FORM,
+  mapStoreToForm,
+  resolveStoreId,
+} from "./storeForm.utils";
 
 const StoreEditDrawer = ({
   isOpen,
-  editingStoreId,
+  editingStore,
   onClose,
   onSuccess,
   onError,
-  showSuccess,
 }) => {
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: {
-      street: "",
-      line1: "",
-      city: "",
-      state: "",
-      pincode: "",
-      landmark: "",
-    },
-    category: "",
-    hasExpiryDate: false,
-    gst: "",
-    gstDetail: null,
-    pan: "",
-    catalogId: "",
-  });
+  const [form, setForm] = useState(EMPTY_STORE_FORM);
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingStore, setIsLoadingStore] = useState(false);
+  const onErrorRef = useRef(onError);
 
-  // Hook for GST verification
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
+  const editingStoreId = resolveStoreId(editingStore);
+
   const {
     isVerifyingGst,
-    isGstVerified,
-    handleVerifyGst: verifyGst,
-    resetGstVerification
+    isGstVerified: isGstVerifiedFromApi,
+    handleVerifyGst: verifyGstNumber,
+    resetGstVerification,
   } = useGstVerification(setForm);
 
-  // Fetch store data when drawer opens
+  const isGstVerified = isGstVerifiedFromApi || Boolean(form.gstDetail);
+  
   useEffect(() => {
-    if (isOpen && editingStoreId) {
-      const fetchStoreData = async () => {
-        try {
-          setIsLoadingStore(true);
-          setErrors({});
+    if (!isOpen || !editingStoreId) return;
 
-          // Fetch store details
-          const result = await storeService.getStore(editingStoreId);
+    if (editingStore) {
+      setForm(mapStoreToForm(editingStore));
+      setErrors({});
+      setIsLoadingStore(false);
+      return;
+    }
 
-          if (result?.success) {
-            const storeData = result.data?.data || result.data || {};
-            const address = storeData.address || {};
+    let cancelled = false;
 
-            // Format form data
-            setForm({
-              name: storeData.name || "",
-              phone: storeData.phone || "",
-              email: storeData.email || "",
-              address: {
-                street: address.line1 || "",
-                line1: address.line1 || "",
-                city: address.city || "",
-                state: address.state || "",
-                pincode: address.pincode || "",
-                landmark: address.landmark || "",
-              },
-              category: storeData.category || "",
-              hasExpiryDate: storeData.hasExpiryDate === true,
-              gst: storeData.gst || "",
-              gstDetail: storeData.gstDetail || null,
-              pan: storeData.pan || "",
-              catalogId: storeData.catalogId || "",
-            });
-          } else {
-            onError?.(result?.message || "Failed to fetch store details");
-          }
-        } catch (error) {
-          const errorMessage =
-            error?.response?.data?.message ||
-            error?.message ||
-            "An unexpected error occurred";
-          onError?.(errorMessage);
-        } finally {
+    const fetchStoreData = async () => {
+      try {
+        setIsLoadingStore(true);
+        setErrors({});
+
+        const response = await storeService.getStore(editingStoreId);
+        const result = handleSuccess(response);
+
+        if (cancelled) return;
+
+        setForm(mapStoreToForm(result.data || {}));
+      } catch (error) {
+        if (cancelled) return;
+        const result = handleError(error);
+        onErrorRef.current?.(result.message || "Failed to fetch store details");
+      } finally {
+        if (!cancelled) {
           setIsLoadingStore(false);
         }
-      };
+      }
+    };
 
-      fetchStoreData();
-    }
-  }, [isOpen, editingStoreId, onError]);
+    fetchStoreData();
 
-  // Handle GST Verification
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, editingStoreId, editingStore]);
+
   const handleVerifyGst = async () => {
     if (!form.gst || form.gst.length < 15) {
       setErrors((prev) => ({ ...prev, gst: "Please enter a valid GST number" }));
       return;
     }
-    await verifyGst(form.gst);
+    await verifyGstNumber(form.gst);
   };
 
-  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -120,7 +101,6 @@ const StoreEditDrawer = ({
       });
     }
 
-    // Handle nested address fields
     if (name.startsWith("address.")) {
       const field = name.split(".")[1];
       setForm((prev) => ({
@@ -128,7 +108,6 @@ const StoreEditDrawer = ({
         address: {
           ...prev.address,
           [field]: value,
-          // Also update line1 if it's street
           ...(field === "street" && { line1: value }),
         },
       }));
@@ -143,7 +122,6 @@ const StoreEditDrawer = ({
     }
   };
 
-  // Validate form
   const validateForm = () => {
     const newErrors = {};
 
@@ -171,9 +149,7 @@ const StoreEditDrawer = ({
 
     if (
       form.gst &&
-      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-        form.gst
-      )
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gst)
     ) {
       newErrors.gst = "Please enter a valid GST number";
     }
@@ -186,7 +162,6 @@ const StoreEditDrawer = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle save store
   const handleSave = async () => {
     if (!validateForm()) {
       return;
@@ -201,7 +176,6 @@ const StoreEditDrawer = ({
       setIsSaving(true);
       setErrors({});
 
-      // Prepare payload according to API structure
       const payload = {
         name: form.name.trim(),
         phone: form.phone.trim(),
@@ -223,59 +197,29 @@ const StoreEditDrawer = ({
         catalogId: form.catalogId?.trim() || null,
       };
 
-      const result = await storeService.updateStore(editingStoreId, payload);
+      const response = await storeService.updateStore(editingStoreId, payload);
+      const result = handleSuccess(response);
 
       if (result?.success) {
         onSuccess?.(result.message || "Store updated successfully!");
         handleCancel();
       } else {
-        // Handle field errors from API
-        if (result?.error?.data?.fields) {
-          setErrors(result.error.data.fields);
-        } else {
-          onError?.(
-            result?.message || "Failed to update store. Please try again."
-          );
-        }
+        onError?.(result.message || "Failed to update store. Please try again.");
       }
     } catch (error) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "An unexpected error occurred. Please try again.";
-      onError?.(errorMessage);
+      const result = handleError(error);
+      onError?.(result.message || "An unexpected error occurred. Please try again.");
 
-      // Handle field errors from API
-      if (error?.response?.data?.fields) {
-        setErrors(error.response.data.fields);
+      if (result.fields) {
+        setErrors(result.fields);
       }
     } finally {
       setIsSaving(false);
     }
   };
 
-
-
-  // Handle cancel
   const handleCancel = () => {
-    setForm({
-      name: "",
-      phone: "",
-      email: "",
-      address: {
-        street: "",
-        line1: "",
-        city: "",
-        state: "",
-        pincode: "",
-        landmark: "",
-      },
-      category: "",
-      hasExpiryDate: false,
-      gst: "",
-      pan: "",
-      catalogId: "",
-    });
+    setForm(EMPTY_STORE_FORM);
     setErrors({});
     onClose?.();
   };

@@ -4,11 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import Button from "./Button";
 import Input from "./Input";
 import Select from "./Select";
-import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { inventoryService, supplierService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useApiResponse } from "@/hooks/useApiResponse";
 
 const StockInDrawer = ({
@@ -29,11 +27,8 @@ const StockInDrawer = ({
   const { execute: fetchSuppliersApi, loading: suppliersLoading } = useApiResponse();
   const [suppliers, setSuppliers] = useState([]);
 
-  // Hook to fetch subscription info if needed for other purposes
-  const { isLoading: featuresLoading } = useFeatureAccess();
   const { showError } = useGlobalToast();
 
-  // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
     const storeId = selectedStore?.storeId;
     if (!storeId) return;
@@ -273,7 +268,7 @@ const StockInDrawer = ({
                 placeholder="Select supplier (optional)"
                 error={errors.supplier}
                 loading={suppliersLoading}
-                disabled={suppliersLoading || featuresLoading}
+                disabled={suppliersLoading}
                 helperText="Optional: Choose the supplier for this stock"
               />
             </div>

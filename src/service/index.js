@@ -1,18 +1,21 @@
-export { authService, uploadService } from "./auth";
+export { authService } from "./auth";
 export { authAxios, unauthAxios } from "./config/axiosConfig";
 export {
-  billService,
+  categoryService,
   customerService,
   expenseService,
+  inventoryService,
   invoiceService,
   productService,
   signatureService,
   storeService,
   suggestionService,
   supplierService,
+  billService,
 } from "./retailer";
-export { checkoutService, packageService } from "./subscription";
-export { voiceAIService } from "./voiceAI";
+export { utilityService } from "./utility/utility.service";
+export { fcmService } from "./utility/fcm.service";
+export { publicTemplateService } from "./public/template.service";
 
 // Default export
 import axiosConfig from "./config/axiosConfig";

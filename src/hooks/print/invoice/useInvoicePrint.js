@@ -4,18 +4,6 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 export const useInvoicePrint = (fetching, invoiceData, skipAutoPrint = false) => {
   const { showError } = useGlobalToast();
 
-  useEffect(() => {
-    if (skipAutoPrint) return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const shouldPrint = urlParams.get("print") === "true";
-
-    if (shouldPrint && !fetching && invoiceData) {
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    }
-  }, [fetching, invoiceData, skipAutoPrint]);
 
   const handlePrint = () => {
     try {
@@ -65,7 +53,7 @@ export const useInvoicePrint = (fetching, invoiceData, skipAutoPrint = false) =>
       pdf.addImage(imgData, "PNG", padding, padding, contentWidth, contentHeight);
       pdf.save(`invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
     } catch (_error) {
-      
+
       showError("Failed to download PDF. Please try again.");
     }
   };

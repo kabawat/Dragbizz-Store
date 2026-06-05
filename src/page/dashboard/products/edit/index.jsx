@@ -1,11 +1,9 @@
 "use client";
-import { ArrowLeft, Info, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/sidebar";
 import {
   ProductAddSuccessModal,
   ProductForm,
@@ -13,6 +11,7 @@ import {
 } from "@/components/product";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -20,6 +19,8 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
+
+  useDashboardHeader(t("products.editProduct"), t("products.editProductDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -41,9 +42,7 @@ const UpdateProductPage = ({ productId }) => {
     setFieldErrors,
   } = useApiResponse();
 
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [updatedProductName, setUpdatedProductName] = useState("");
   const [productNotFound, setProductNotFound] = useState(false);
 
   // Initial form data
@@ -58,19 +57,17 @@ const UpdateProductPage = ({ productId }) => {
     discount: "",
     currency: "",
     uom: "",
+    images: [],
     status: "",
+
     showInCatalog: true,
     featured: false,
     bestSeller: false,
     newArrival: false,
-    openingStock: {
-      openingQuantity: 0,
-      openingPurchasePrice: 0,
-    },
     stockQuantity: 0,
     gstInfo: {
       gstRate: "",
-      gstType: "CGST_SGST",
+      gstCategory: "TAXABLE",
       hsnCode: "",
       isGstIncluded: true,
     },
@@ -111,24 +108,20 @@ const UpdateProductPage = ({ productId }) => {
           discount: product?.discount || "",
           currency: product?.currency || "",
           uom: product?.uom || "",
+          images: Array.isArray(product?.images) ? product.images : (product?.image ? [product.image] : []),
           // Status and catalog
           status: product?.status || "",
+
           showInCatalog: product?.showInCatalog !== false,
           featured: product?.featured || false,
           bestSeller: product?.bestSeller || false,
           newArrival: product?.newArrival || false,
-          // Stock data
-          openingStock: {
-            openingQuantity: product?.openingStock?.openingQuantity || 0,
-            openingPurchasePrice:
-              product?.openingStock?.openingPurchasePrice || 0,
-          },
           stockQuantity: product?.stockQuantity || 0,
           // GST info from nested gstInfo object
           gstInfo: {
             isGstIncluded: product?.gstInfo?.isGstIncluded !== undefined ? product?.gstInfo?.isGstIncluded : (product?.gstInfo?.isGstApplicable || false),
             gstRate: product?.gstInfo?.gstRate || "",
-            gstType: product?.gstInfo?.gstType || "CGST_SGST",
+            gstCategory: product?.gstInfo?.gstCategory || "TAXABLE",
             hsnCode: product?.gstInfo?.hsnCode || "",
           },
           // Content data from nested content object
@@ -150,28 +143,22 @@ const UpdateProductPage = ({ productId }) => {
     if (productId && storeId) {
       fetchProductData();
     }
-  }, [productId, storeId, executeFetch]);
+  }, [productId, storeId, executeFetch, t]);
 
   // Update store ID when selectedStore changes
   useEffect(() => {
-    const currentStoreId =
-      selectedStore?.storeId;
-    if (currentStoreId) {
+    if (selectedStore?.storeId) {
       setFormData((prevData) => ({
         ...prevData,
-        store: currentStoreId,
+        store: selectedStore.storeId,
       }));
     }
   }, [selectedStore]);
 
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
-    // Ensure fieldName is a string
-    if (typeof fieldName !== "string") {
-      return;
-    }
+    if (typeof fieldName !== "string") return;
 
-    // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
@@ -182,21 +169,18 @@ const UpdateProductPage = ({ productId }) => {
 
     setFormData((prevData) => {
       const newData = { ...prevData };
+      const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
 
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
-        if (!newData[parent]) {
-          newData[parent] = {};
-        }
+        if (!newData[parent]) newData[parent] = {};
         newData[parent] = {
           ...newData[parent],
-          [child]: value,
+          [child]: getNewValue(newData[parent][child]),
         };
       } else {
-        // Handle top-level fields
-        newData[fieldName] = value;
+        newData[fieldName] = getNewValue(newData[fieldName]);
       }
-
       return newData;
     });
   };
@@ -205,7 +189,6 @@ const UpdateProductPage = ({ productId }) => {
   const handleSaveAndUpdate = async () => {
     setFieldErrors({});
 
-    // Calculate discount percentage based on MRP and sellingPrice
     const mrp = parseFloat(formData.mrp) || 0;
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
     let discountPercentage = "0";
@@ -216,8 +199,18 @@ const UpdateProductPage = ({ productId }) => {
       );
     }
 
+    const sanitizedImages = (formData.images || [])
+      .map(img => {
+        if (typeof img === "string") return img;
+        if (img instanceof File) return img.uploadedUrl;
+        if (img && typeof img === "object" && img.url) return img.url;
+        return null;
+      })
+      .filter(Boolean);
+
     const updateData = {
       ...formData,
+      images: sanitizedImages,
       pricing: {
         basePrice: formData.basePrice,
         mrp: formData.mrp,
@@ -234,8 +227,7 @@ const UpdateProductPage = ({ productId }) => {
     );
 
     if (result?.success) {
-      setUpdatedProductName(formData.name || "Product");
-      setShowSuccessModal(true);
+      router.push("/dashboard/products");
     }
   };
 
@@ -244,37 +236,23 @@ const UpdateProductPage = ({ productId }) => {
     router.push("/dashboard/products");
   };
 
-  // Success modal handlers
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    router.push("/dashboard/products");
-  };
-
   // Loading state
   if (initialLoading || permissionsLoading) {
     return (
-      <div className="flex h-screen relative overflow-hidden">
-        <Sidebar />
-
-        <div className="flex-1 min-h-screen flex flex-col">
-          <Header />
-
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto">
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Product...
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t("common.pleaseWaitWhileWeFetch", {
-                        item: t("common.product"),
-                      })}
-                    </p>
-                  </div>
-                </div>
+      <div className="p-6">
+        <div className="max-w-8xl mx-auto">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
+                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                  Loading Product...
+                </h2>
+                <p className="text-[rgb(var(--color-text-secondary))]">
+                  {t("common.pleaseWaitWhileWeFetch", {
+                    item: t("common.product"),
+                  })}
+                </p>
               </div>
             </div>
           </div>
@@ -284,34 +262,26 @@ const UpdateProductPage = ({ productId }) => {
   }
 
   // Product not found state
-
   if (productNotFound) {
     return (
-      <div className="flex h-screen relative overflow-hidden">
-        <Sidebar />
-
-        <div className="flex-1 min-h-screen flex flex-col">
-          <Header />
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto">
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t("modals.notFound", { item: t("common.product") })}
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-                      {t("modals.notFound", { item: t("common.product") })}
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      leftIcon={ArrowLeft}
-                    >
-                      {t("common.backTo", { item: t("common.products") })}
-                    </Button>
-                  </div>
-                </div>
+      <div className="p-6">
+        <div className="max-w-8xl mx-auto">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                  {t("modals.notFound", { item: t("common.product") })}
+                </h2>
+                <p className="text-[rgb(var(--color-text-secondary))] mb-4">
+                  {t("modals.notFound", { item: t("common.product") })}
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  leftIcon={ArrowLeft}
+                >
+                  {t("common.backTo", { item: t("common.products") })}
+                </Button>
               </div>
             </div>
           </div>
@@ -321,89 +291,55 @@ const UpdateProductPage = ({ productId }) => {
   }
 
   return (
-    <div className="flex h-screen relative overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="overflow-hidden">
+      <div className="max-w-8xl mx-auto w-full">
+        <div className="p-5 w-full mx-auto">
+          <Link
+            href="/dashboard/products"
+            className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {t("products.backToProducts")}
+            </span>
+          </Link>
+        </div>
 
-      {/* Main Content */}
-      <div className="flex-1 min-h-screen flex flex-col">
-        {/* Header */}
-        <Header
-          title={t("products.editProduct")}
-          description={t("products.editProductDescription")}
-        />
+        <div className="overflow-hidden">
+          <div className="h-[calc(100vh-210px)] overflow-y-auto px-5">
+            <ProductForm
+              formData={formData}
+              onChange={handleFormDataChange}
+              fieldErrors={fieldErrors}
+              storeId={storeId}
+              productId={productId}
+            />
+          </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto">
-            {/* Back Button */}
-            <div className="mb-6">
-              <Link
-                href="/dashboard/products"
-                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Products</span>
-              </Link>
-            </div>
-
-            {/* Form Container - Scrollable */}
-            <div className="overflow-hidden">
-              <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
-                <ProductForm
-                  formData={formData}
-                  onChange={handleFormDataChange}
-                  fieldErrors={fieldErrors}
-                  storeId={storeId}
-                />
-              </div>
-
-              {/* Fixed Action Bar */}
-              <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowInfoModal(true)}
-                    leftIcon={Info}
-                    className="text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                  >
-                    Info
-                  </Button>
-
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      disabled={loading}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="success"
-                      onClick={() => handleSaveAndUpdate(formData)}
-                      disabled={loading}
-                      loading={loading}
-                      leftIcon={Save}
-                    >
-                      Update Product
-                    </Button>
-                  </div>
-                </div>
+          <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 ml-auto">
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  variant="success"
+                  onClick={handleSaveAndUpdate}
+                  disabled={loading}
+                  loading={loading}
+                  leftIcon={Save}
+                >
+                  {t("products.updateProduct")}
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Success Modal */}
-      <ProductAddSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onContinue={handleContinue}
-        productName={updatedProductName}
-        title={t("products.updateSuccess")}
-        continueText={t("products.backToProducts")}
-      />
 
       {/* Info Modal */}
       <ProductInfoModal

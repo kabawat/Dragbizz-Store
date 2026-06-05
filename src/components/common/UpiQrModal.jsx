@@ -182,7 +182,7 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
         <head>
           <title>${t("settings.upi.upiQrCode")} - ${payeeName}</title>
           <style>
-            body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; font-family: sans-serif; text-align: center; }
+            body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; }
             img { width: 280px; height: 280px; border: 1px solid #eee; padding: 12px; border-radius: 12px; }
             h1 { color: #1f2937; margin-bottom: 8px; font-size: 22px; }
             p { color: #4b5563; font-family: monospace; font-size: 14px; margin-top: 16px; }

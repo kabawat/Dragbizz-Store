@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { ChevronDown, Crown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleExpandedMenu } from "@/store/slices/uiSlice";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 export const SidebarNavItem = ({
     item,
@@ -14,8 +15,10 @@ export const SidebarNavItem = ({
     isBottomItem = false,
 }) => {
     const dispatch = useAppDispatch();
+    const router = useRouter();
     const pathname = usePathname();
     const expandedMenus = useAppSelector((state) => state.ui.expandedMenus);
+    const { withAccess, hasAccess } = useSubscriptionAccess();
 
     const handleToggleSubMenu = (item, e) => {
         e?.preventDefault();
@@ -23,6 +26,7 @@ export const SidebarNavItem = ({
         dispatch(toggleExpandedMenu(item.key));
     };
     const Icon = item.icon;
+
 
     if (item.hasSubMenu && item.key) {
         const isExpanded = expandedMenus[item.key];
@@ -75,15 +79,25 @@ export const SidebarNavItem = ({
                                     <Link
                                         key={subItem.name}
                                         href={subItem.href}
+                                        prefetch={false}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            withAccess(subItem.module, () => router.push(subItem.href), subItem.requireAnalytics || false, false, true)();
+                                        }}
                                         className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${isSubActive
                                             ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
                                             : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                                            }`}
+                                            } ${subItem.module && !hasAccess(subItem.module, subItem.requireAnalytics) ? "opacity-75" : ""}`}
                                         title={subItem.shortcut ? `Alt+${subItem.shortcut.toUpperCase()}` : ""}
                                     >
-                                        <SubIcon className={`w-4 h-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
+                                        <div className="relative">
+                                            <SubIcon className={`w-4 h-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
+                                        </div>
                                         <span className="text-sm font-medium flex-1">{subItem.name}</span>
-                                        {subItem.shortcut && (
+                                        {subItem.module && !hasAccess(subItem.module, subItem.requireAnalytics) && (
+                                            <Crown size={12} className="absolute right-3 text-[#f59e0b] opacity-100 fill-[#f59e0b]/20" />
+                                        )}
+                                        {subItem.shortcut && !(subItem.module && !hasAccess(subItem.module, subItem.requireAnalytics)) && (
                                             <kbd className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none bg-[rgb(var(--color-bg-secondary))]">
                                                 ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
                                             </kbd>
@@ -116,15 +130,30 @@ export const SidebarNavItem = ({
         >
             <Link
                 href={item.href}
+                prefetch={false}
+                onClick={(e) => {
+                    e.preventDefault();
+                    withAccess(item.module, () => router.push(item.href), item.requireAnalytics || false, false, true)();
+                }}
                 className={`w-full flex items-center rounded-lg transition-all duration-300 cursor-pointer ${bottomSpecificClasses} ${isActive
                     ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
                     : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                    }`}
+                    } ${item.module && !hasAccess(item.module, item.requireAnalytics) ? "opacity-75" : ""}`}
                 title={isCollapsed && item.shortcut ? `${item.name}  ⌥${item.shortcut.toUpperCase()}` : isCollapsed ? item.name : ""}
             >
-                <Icon className={`transition-all duration-300 ${iconClasses}`} />
+                <div className="relative">
+                    <Icon className={`transition-all duration-300 ${iconClasses}`} />
+                    {isCollapsed && item.module && !hasAccess(item.module, item.requireAnalytics) && (
+                        <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+                            <Crown size={8} className="fill-white/30" />
+                        </div>
+                    )}
+                </div>
                 {!isCollapsed && (
-                    <span className={`font-medium ${isBottomItem ? "" : "text-sm"}`}>{item.name}</span>
+                    <span className={`font-medium ${isBottomItem ? "" : "text-sm"} ml-3 flex-1`}>{item.name}</span>
+                )}
+                {!isCollapsed && item.module && !hasAccess(item.module, item.requireAnalytics) && (
+                    <Crown size={14} className="absolute right-3 text-[#f59e0b] opacity-100 fill-[#f59e0b]/20" />
                 )}
             </Link>
         </div>

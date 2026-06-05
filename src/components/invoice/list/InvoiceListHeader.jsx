@@ -18,7 +18,7 @@ const InvoiceListHeader = () => {
     // Permission Management
     const { can, loading } = useModulePermissions("invoice");
     const canCreate = can("create");
-    const canDownload = can("report") || can("read");
+    const canDownload = can("report");
 
     const { viewMode, invoices, filters } = useAppSelector((state) => state.invoices);
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -68,7 +68,7 @@ const InvoiceListHeader = () => {
     if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center gap-3 flex-wrap">
                 {/* Left side - Filters */}
                 <div className="flex gap-3 flex-wrap">

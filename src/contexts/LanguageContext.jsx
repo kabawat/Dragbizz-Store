@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { defaultLocale, locales } from "@/i18n/config";
@@ -26,17 +27,27 @@ export const LanguageProvider = ({ children }) => {
 
   const loadMessages = useCallback(async (lang) => {
     try {
-      const { messages } = await import(`@/i18n`);
-      if (messages[lang]) {
-        setMessages(messages[lang]);
+      let module;
+      // Using specific paths for better tree-shaking and chunking
+      if (lang === "en") {
+        module = await import("@/i18n/messages/en");
+      } else if (lang === "hi") {
+        module = await import("@/i18n/messages/hi");
+      } else if (lang === "gu") {
+        module = await import("@/i18n/messages/gu");
+      } else if (lang === "hi-en") {
+        module = await import("@/i18n/messages/hi-en");
       } else {
-        setMessages(messages[defaultLocale]);
+        module = await import("@/i18n/messages/en");
       }
+
+      const messages = module.default;
+      setMessages(messages);
     } catch (error) {
       logger.error(`Failed to load messages for locale: ${lang}`, error);
-      // Fallback already handled above slightly, but safe fallback:
-      const { messages } = await import(`@/i18n`);
-      setMessages(messages[defaultLocale]);
+      // Fallback
+      const module = await import("@/i18n/messages/en");
+      setMessages(module.default);
     }
   }, []);
 
@@ -68,7 +79,7 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
-  const t = (key, params = {}) => {
+  const t = useCallback((key, params = {}) => {
     if (!messages) return key;
 
     const keys = key.split(".");
@@ -93,10 +104,17 @@ export const LanguageProvider = ({ children }) => {
     return value.replace(/\{(\w+)\}/g, (match, paramKey) => {
       return params[paramKey] !== undefined ? params[paramKey] : match;
     });
-  };
+  }, [messages]);
+
+  const value = useMemo(() => ({
+    locale,
+    changeLanguage,
+    t,
+    messages
+  }), [locale, changeLanguage, t, messages]);
 
   return (
-    <LanguageContext.Provider value={{ locale, changeLanguage, t, messages }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

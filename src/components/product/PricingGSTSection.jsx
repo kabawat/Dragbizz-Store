@@ -4,7 +4,7 @@ import { CURRENCY_OPTIONS, GST_RATE_OPTIONS, UOM_OPTIONS } from "@/data";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Input, Select, Toggle } from "../ui";
 import { useAppSelector } from "@/store/hooks";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { t } = useTranslation();
@@ -15,75 +15,55 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
     onChange(field, value);
   };
 
-  // GST Type options
-  const gstTypeOptions = (t) => [
-    {
-      value: "CGST_SGST",
-      label: t("products.cgstSgst"),
-      description: t("products.cgstSgstDescription"),
-    },
-    {
-      value: "IGST",
-      label: t("products.igst"),
-      description: t("products.igstDescription"),
-    },
-    {
-      value: "UTGST",
-      label: t("products.utgst"),
-      description: t("products.utgstDescription"),
-    },
-  ];
-
-  // Calculate GST amount based on include/exclude option
-  const calculateGSTAmount = () => {
+  // Memoize GST amount based on include/exclude option
+  const gstAmount = useMemo(() => {
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
     const gstRate = parseFloat(formData.gstInfo?.gstRate) || 0;
     const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
 
     if (isGstIncluded) {
-      // If GST is included, calculate GST from the selling price
-      // GST = (Selling Price * GST Rate) / (100 + GST Rate)
       return (sellingPrice * gstRate) / (100 + gstRate);
     } else {
-      // If GST is excluded, calculate GST on top of selling price
-      // GST = (Selling Price * GST Rate) / 100
       return (sellingPrice * gstRate) / 100;
     }
-  };
+  }, [formData.sellingPrice, formData.gstInfo?.gstRate, formData.gstInfo?.isGstIncluded]);
 
-  // Calculate base price (price without GST)
-  const calculateBasePrice = () => {
+  // Memoize base price (price without GST)
+  const basePrice = useMemo(() => {
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const gstAmount = calculateGSTAmount();
     const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
 
     if (isGstIncluded) {
-      // If GST is included, base price = selling price - GST
       return sellingPrice - gstAmount;
     } else {
-      // If GST is excluded, base price = selling price
       return sellingPrice;
     }
-  };
+  }, [formData.sellingPrice, formData.gstInfo?.isGstIncluded, gstAmount]);
 
-  // Calculate total price (selling price + GST if excluded)
-  const calculateTotalPrice = () => {
+  // Memoize total price (selling price + GST if excluded)
+  const totalPrice = useMemo(() => {
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const gstAmount = calculateGSTAmount();
     const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
 
     if (isGstIncluded) {
-      // If GST is included, total = selling price
       return sellingPrice;
     } else {
-      // If GST is excluded, total = selling price + GST
       return sellingPrice + gstAmount;
     }
-  };
+  }, [formData.sellingPrice, formData.gstInfo?.isGstIncluded, gstAmount]);
 
-  const gstAmount = calculateGSTAmount();
-  const basePrice = calculateBasePrice();
-  const totalPrice = calculateTotalPrice();
+  // Memoize savings
+  const savings = useMemo(() => {
+    const mrp = parseFloat(formData.mrp) || 0;
+    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
+    if (mrp > sellingPrice) {
+      return {
+        amount: mrp - sellingPrice,
+        percentage: Math.round(((mrp - sellingPrice) / mrp) * 100)
+      };
+    }
+    return { amount: 0, percentage: 0 };
+  }, [formData.mrp, formData.sellingPrice]);
 
   return (
     <>
@@ -228,19 +208,13 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
 
             {/* Right Column - Savings */}
             <div className="space-y-3">
-              {formData.mrp &&
-                formData.sellingPrice &&
-                parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
+              {savings.amount > 0 ? (
                 <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
                   <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
                     {t("products.youSave")}:
                   </span>
                   <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
-                    ₹
-                    {(
-                      parseFloat(formData.mrp) -
-                      parseFloat(formData.sellingPrice)
-                    ).toFixed(2)}
+                    ₹{savings.amount.toFixed(2)}
                   </span>
                 </div>
               ) : (
@@ -254,21 +228,13 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                 </div>
               )}
 
-              {formData.mrp &&
-                formData.sellingPrice &&
-                parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
+              {savings.percentage > 0 ? (
                 <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
                   <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
                     {t("products.discount")}:
                   </span>
                   <span className="text-sm font-bold text-green-600">
-                    {Math.round(
-                      ((parseFloat(formData.mrp) -
-                        parseFloat(formData.sellingPrice)) /
-                        parseFloat(formData.mrp)) *
-                      100
-                    )}
-                    %
+                    {savings.percentage}%
                   </span>
                 </div>
               ) : (
@@ -293,13 +259,16 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
           {t("products.gstInformation")}
         </h3>
 
-
-
         {/* GST Fields - Always show, but some parts conditional */}
         <>
-          {/* GST Rate, Type, and HSN Code - Single Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {/* GST Rate */}
+          <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-4 flex items-start gap-2">
+            <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span>
+              CGST/SGST vs IGST is calculated automatically when you bill, based on your store state and the customer&apos;s state.
+            </span>
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <Select
                 label={t("products.gstRate")}
@@ -317,24 +286,6 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
               />
             </div>
 
-            {/* GST Type */}
-            <div>
-              <Select
-                label={t("products.gstType")}
-                options={gstTypeOptions(t)}
-                value={formData.gstInfo?.gstType || "CGST_SGST"}
-                onChange={(value) =>
-                  handleFieldChange("gstInfo.gstType", value)
-                }
-                error={errors.gstType}
-                errorMessage={errors.gstType}
-                required={hasStoreGst}
-                searchable
-                placeholder={t("products.selectGstType")}
-              />
-            </div>
-
-            {/* HSN Code */}
             <div>
               <Input
                 label={t("products.hsnCode")}
@@ -422,31 +373,13 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
             </h4>
 
             {/* Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {/* Price Field */}
-
-
-              {/* GST Rate */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
                 <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
                   {t("products.gstRate")}
                 </span>
                 <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                   {(parseFloat(formData.gstInfo?.gstRate) || 0).toFixed(2)}%
-                </span>
-              </div>
-
-              {/* GST Type */}
-              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
-                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
-                  {t("products.gstType")}
-                </span>
-                <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate" title={gstTypeOptions(t).find(
-                  (type) => type.value === formData.gstInfo?.gstType
-                )?.label || formData.gstInfo?.gstType}>
-                  {gstTypeOptions(t).find(
-                    (type) => type.value === formData.gstInfo?.gstType
-                  )?.label || formData.gstInfo?.gstType}
                 </span>
               </div>
 
@@ -494,7 +427,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
             </div>
           </div>
         </>
-      </div >
+      </div>
     </>
   );
 };

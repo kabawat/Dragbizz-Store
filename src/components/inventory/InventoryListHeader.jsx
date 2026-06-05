@@ -9,7 +9,13 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInventories, setViewMode } from "@/store/slices/inventory/inventorySlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
-const InventoryListHeader = ({ showInventoryDrawer, setShowInventoryDrawer, canCreate = false }) => {
+const InventoryListHeader = ({
+    showInventoryDrawer,
+    setShowInventoryDrawer,
+    canCreate = false,
+    searchValue,
+    setSearchValue
+}) => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -17,8 +23,6 @@ const InventoryListHeader = ({ showInventoryDrawer, setShowInventoryDrawer, canC
     const { viewMode } = useAppSelector((state) => state.inventory);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || "";
-
-    const [searchValue, setSearchValue] = useState("");
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
@@ -78,14 +82,14 @@ const InventoryListHeader = ({ showInventoryDrawer, setShowInventoryDrawer, canC
     });
 
     return (
-        <div className="mb-3">
+        <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                 <div className="w-100 flex">
                     <Input
                         type="text"
                         placeholder={`${t("common.search")} ${t("inventory.title").toLowerCase()}...`}
                         value={searchValue}
-                        onChange={(e) => setSearchValue(e.target.value)}
+                        onChange={setSearchValue}
                         ref={searchInputRef}
                         leftIcon={Search}
                         className="w-100"

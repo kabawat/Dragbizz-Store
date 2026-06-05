@@ -10,77 +10,45 @@ import StoreEditDrawer from "./StoreEditDrawer";
 import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
 import { CatalogQRModal } from "@/components/common";
+import useApiResponse from "@/hooks/useApiResponse";
 
 const StoreSettings = () => {
   const dispatch = useAppDispatch();
   const {
-    stores: reduxStores,
     selectedStore,
     agency,
   } = useAppSelector((state) => state.profile);
-  const [stores, setStores] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { execute: fetchStoresApi, data, loading: isLoading } = useApiResponse();
+  const stores = data || [];
+
   const { showError, showSuccess } = useGlobalToast();
 
   // Drawer/Modal state
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
-  const [editingStoreId, setEditingStoreId] = useState(null);
+  const [editingStore, setEditingStore] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState(null);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [activeStore, setActiveStore] = useState(null);
-  const [isUpiDrawerOpen, setIsUpiDrawerOpen] = useState(false);
-  const [upiDrawerStore, setUpiDrawerStore] = useState(null);
 
   // Refs to prevent duplicate API calls
   const hasFetchedRef = useRef(false);
   const isFetchingRef = useRef(false);
 
   // Fetch stores from API
-  const fetchStores = useCallback(async () => {
-    // Prevent duplicate calls
+  const fetchStores = useCallback(() => {
     if (hasFetchedRef.current || isFetchingRef.current) {
       return;
     }
-
     isFetchingRef.current = true;
 
-    try {
-      setIsLoading(true);
-      const result = await storeService.getStores();
-
-      if (result?.success) {
-        const storesData = result.data?.data || result.data || [];
-        setStores(storesData);
+    fetchStoresApi(storeService.getStores(), { showToast: false })
+      .finally(() => {
+        isFetchingRef.current = false;
         hasFetchedRef.current = true;
-      } else {
-        if (reduxStores && reduxStores.length > 0) {
-          setStores(reduxStores);
-          hasFetchedRef.current = true;
-        } else {
-          showError(result?.message || "Failed to fetch stores");
-          setStores([]);
-        }
-      }
-    } catch (error) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "An unexpected error occurred";
-
-      if (reduxStores && reduxStores.length > 0) {
-        setStores(reduxStores);
-        hasFetchedRef.current = true;
-      } else {
-        showError(errorMessage);
-        setStores([]);
-      }
-    } finally {
-      setIsLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, [reduxStores, showError]);
+      });
+  }, [fetchStoresApi]);
 
   // Fetch stores on component mount (only once)
   useEffect(() => {
@@ -97,8 +65,8 @@ const StoreSettings = () => {
   };
 
   // Handle edit store - open drawer
-  const handleEditStore = (storeId) => {
-    setEditingStoreId(storeId);
+  const handleEditStore = (store) => {
+    setEditingStore(store);
     setIsEditDrawerOpen(true);
   };
 
@@ -107,7 +75,7 @@ const StoreSettings = () => {
     if (!store) return;
 
     // Frontend guard: don't allow deleting the only store
-    if (stores.filter((s) => s.status !== "DELETED").length <= 1) {
+    if (stores?.length <= 1) {
       showError(
         "You must have at least one active store. The last store cannot be deleted."
       );
@@ -129,7 +97,6 @@ const StoreSettings = () => {
     showSuccess(message);
     hasFetchedRef.current = false;
     fetchStores();
-    // Refresh global retailer profile so Redux stores/selectedStore stay in sync
     dispatch(getRetailerDetails({ forceRefresh: true }));
   };
 
@@ -145,14 +112,13 @@ const StoreSettings = () => {
     showSuccess(message);
     hasFetchedRef.current = false;
     fetchStores();
-    // Refresh global retailer profile after store delete
     dispatch(getRetailerDetails({ forceRefresh: true }));
   };
 
   return (
     <div className="space-y-6">
       <StoreHeader
-        storesCount={stores.length}
+        storesCount={stores?.length}
         isLoading={isLoading}
         onAddStore={handleAddStore}
       />
@@ -169,7 +135,6 @@ const StoreSettings = () => {
 
       <StoreAddDrawer
         isOpen={isAddDrawerOpen}
-        agency={agency}
         onClose={() => setIsAddDrawerOpen(false)}
         onSuccess={handleAddSuccess}
         onError={showError}
@@ -177,10 +142,10 @@ const StoreSettings = () => {
 
       <StoreEditDrawer
         isOpen={isEditDrawerOpen}
-        editingStoreId={editingStoreId}
+        editingStore={editingStore}
         onClose={() => {
           setIsEditDrawerOpen(false);
-          setEditingStoreId(null);
+          setEditingStore(null);
         }}
         onSuccess={handleEditSuccess}
         onError={showError}

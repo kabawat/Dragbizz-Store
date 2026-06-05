@@ -10,8 +10,15 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { Users } from "lucide-react";
+import { buildCustomerListParams } from "@/utils/customer/customerList.util";
 
-const CustomerListContent = () => {
+const CustomerListContent = ({
+    searchValue = "",
+    isActive = "",
+    source = "",
+    startDate = "",
+    endDate = "",
+}) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -24,6 +31,9 @@ const CustomerListContent = () => {
     const { can } = useModulePermissions("customer");
     const canEdit = can("edit");
     const canDelete = can("delete");
+
+    const filtersRef = useRef({ searchValue, isActive, source, startDate, endDate });
+    filtersRef.current = { searchValue, isActive, source, startDate, endDate };
 
     // ─── Refs for stable IntersectionObserver callback ───────────────────────
     const sentinelRef = useRef(null);
@@ -48,12 +58,21 @@ const CustomerListContent = () => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && !isFetchingMoreRef.current && storeIdRef.current) {
+                    const { searchValue: search, isActive: active, source: src, startDate: start, endDate: end } =
+                        filtersRef.current;
                     dispatch(
-                        getCustomers({
-                            store: storeIdRef.current,
-                            nextCursor: paginationRef.current.nextCursor,
-                            isFreshLoad: false,
-                        })
+                        getCustomers(
+                            buildCustomerListParams({
+                                storeId: storeIdRef.current,
+                                search,
+                                isActive: active,
+                                source: src,
+                                startDate: start,
+                                endDate: end,
+                                nextCursor: paginationRef.current.nextCursor,
+                                isFreshLoad: false,
+                            })
+                        )
                     );
                 }
             },
@@ -74,8 +93,8 @@ const CustomerListContent = () => {
 
     return (
         <>
-            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
+                <div className="h-[calc(100vh-210px)] overflow-y-auto">
                     {viewMode === "table" ? (
                         <div className="h-auto">
                             <CustomerTable

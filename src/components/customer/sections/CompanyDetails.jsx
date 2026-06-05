@@ -133,6 +133,7 @@ const CompanyDetails = ({
                                 formData.companyDetails?.gstin?.length >= 15 && (
                                     <button
                                         type="button"
+                                        onMouseDown={(event) => event.preventDefault()}
                                         onClick={() => handleVerifyGst(formData.companyDetails?.gstin)}
                                         disabled={isVerifyingGst || isGstVerified}
                                         className={`p-1.5 rounded-md transition-all disabled:opacity-70 ${isGstVerified

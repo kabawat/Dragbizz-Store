@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { IconButton } from "../ui";
 
-const StatusBadge = ({ status }) => {
+const StatusBadge = ({ order, statusField = 'status' }) => {
+    const status = order[statusField];
     const { t } = useTranslation();
     const styles = {
         // Delivery Statuses - Using opacity for better dark mode compatibility
@@ -42,6 +43,13 @@ const StatusBadge = ({ status }) => {
         if (s === "PENDING") return t("common.pending");
         if (s === "PAID") return t("common.paid");
         if (s === "UNPAID") return t("common.paymentStatus");
+
+        // Handle IN_STORE order terminology overrides
+        if (order.orderSource === 'IN_STORE') {
+            if (s === "SHIPPED" || s === "IN_TRANSIT" || s === "OUT_FOR_DELIVERY") return t("salesOrder.status.ready", { defaultValue: "ORDER READY" });
+            if (s === "DELIVERED") return t("salesOrder.status.served", { defaultValue: "SERVED" });
+        }
+
         return t(`salesOrder.status.${key}`, { defaultValue: s });
     };
 
@@ -138,7 +146,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
 
                 {/* Status Overlay */}
                 <div className="absolute bottom-3 left-3 status-badge-container">
-                    <StatusBadge status={order.status} />
+                    <StatusBadge order={order} statusField="status" />
                 </div>
 
                 {/* Action Menu */}
@@ -209,14 +217,14 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-black text-[rgb(var(--color-primary))]">₹{(order.financials?.totalAmount || order.totalAmount || 0).toLocaleString()}</span>
                             <div className="mt-1">
-                                <StatusBadge status={order.paymentStatus} />
+                                <StatusBadge order={order} statusField="paymentStatus" />
                             </div>
                         </div>
                     </div>
                 </div>
 
             </div>
-        </div >
+        </div>
     );
 };
 

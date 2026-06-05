@@ -43,6 +43,112 @@
   "accountPreferencesUpdatedSuccess": "એકાઉન્ટ પસંદગીઓ સફળતાપૂર્વક અપડેટ થઈ!",
   "appearanceSettings": "દેખાવ સેટિંગ્સ",
   "customizeThemeAndAppearance": "તમારી થીમ અને દેખાવને કસ્ટમાઇઝ કરો",
+  "interfaceMode": "ઇન્ટરફેસ મોડ",
+  "accentThemes": "એક્સેંટ થીમ્સ",
+  "livePreview": "લાઇવ પ્રીવ્યૂ",
+  "warmCategory": "વોર્મ",
+  "coolCategory": "કૂલ",
+  "greenCategory": "ગ્રીન",
+  "vibrantCategory": "વાઇબ્રન્ટ",
+  "neutralCategory": "ન્યુટ્રલ",
+  "appearanceDescription": "થીમ્સ અને ડિસ્પ્લે મોડ્સ સાથે તમારા વર્કસ્પેસને વ્યક્તિગત કરો.",
+  "resetToDefaults": "ડિફોલ્ટ પર રીસેટ કરો",
+  "lightModeDescription": "તેજસ્વી વાતાવરણ માટે ઉત્તમ",
+  "darkModeDescription": "ઓછી રોશનીમાં આંખો માટે સરળ",
+  "mainButton": "મુખ્ય બટન",
+  "secondaryButton": "ગૌણ",
+  "activeNow": "અત્યારે સક્રિય",
+  "appearanceNote": "દેખાવ સેટિંગ્સ બધા ઉપકરણો પર તરત જ લાગુ થાય છે. તમારું સત્ર સિંક્રનાઇઝ રહેશે.",
+  "themes": {
+    "default": {
+      "name": "ડિફોલ્ટ",
+      "description": "સ્વચ્છ અને વ્યાવસાયિક"
+    },
+    "ocean": {
+      "name": "ઓશન",
+      "description": "શાંત અને તાજગી આપનારું"
+    },
+    "forest": {
+      "name": "ફોરેસ્ટ",
+      "description": "કુદરતી અને જૈવિક"
+    },
+    "sunset": {
+      "name": "સનસેટ",
+      "description": "વોર્મ અને વાઇબ્રન્ટ"
+    },
+    "rose": {
+      "name": "રોઝ",
+      "description": "નરમ અને ભવ્ય"
+    },
+    "violet": {
+      "name": "વાયોલેટ",
+      "description": "શાહી અને ભવ્ય"
+    },
+    "indigo": {
+      "name": "ઇન્ડિગો",
+      "description": "ઊંડું અને રહસ્યમય"
+    },
+    "purple": {
+      "name": "પર્પલ",
+      "description": "ભવ્ય અને સર્જનાત્મક"
+    },
+    "blue": {
+      "name": "ક્લાસિક બ્લૂ",
+      "description": "સ્થિર અને વ્યાવસાયિક"
+    },
+    "sapphire": {
+      "name": "સેફાયર (નીલમ)",
+      "description": "તેજસ્વી અને અત્યાધુનિક"
+    },
+    "midnight": {
+      "name": "મિડનાઇટ",
+      "description": "ઊંડું અને આધુનિક"
+    },
+    "emerald": {
+      "name": "એમરાલ્ડ (પન્ના)",
+      "description": "સમૃદ્ધ અને જીવંત"
+    },
+    "green": {
+      "name": "નેચર ગ્રીન",
+      "description": "તાજું અને જૈવિક"
+    },
+    "teal": {
+      "name": "ટીલ",
+      "description": "શાંત અને વ્યાવસાયિક"
+    },
+    "lime": {
+      "name": "લાઇમ",
+      "description": "ઊર્જાસભર અને તેજસ્વી"
+    },
+    "amber": {
+      "name": "એમ્બર",
+      "description": "હૂંફાળું અને ચમકતું"
+    },
+    "coral": {
+      "name": "કોરલ",
+      "description": "મૈત્રીપૂર્ણ અને જીવંત"
+    },
+    "pink": {
+      "name": "પિંક",
+      "description": "નરમ અને રમતિયાળ"
+    },
+    "sky": {
+      "name": "સ્કાય બ્લૂ",
+      "description": "હલકું અને તાજગીભર્યું"
+    },
+    "cyan": {
+      "name": "સ્યાન",
+      "description": "આધુનિક અને સ્વચ્છ"
+    },
+    "slate": {
+      "name": "સ્લેટ",
+      "description": "સંતુલિત અને તટસ્થ"
+    },
+    "zinc": {
+      "name": "ઝિંક",
+      "description": "ઔદ્યોગિક અને આકર્ષક"
+    }
+  },
   "languageSettings": "ભાષા સેટિંગ્સ",
   "customizeLanguage": "એપ્લિકેશન માટે તમારી પસંદગીની ભાષા પસંદ કરો.",
   "chooseLanguage": "ભાષા પસંદ કરો",
@@ -70,12 +176,28 @@
     "masterChannels": "મુખ્ય ચેનલો",
     "activityCategories": "પ્રવૃત્તિ કેટેગરીઝ",
     "configureCategory": "રૂપરેખાંકિત કરો કે તમને કેવી રીતે જાણ કરવામાં આવશે",
-    "loadingPreferences": "તમારી પસંદગીઓ લોડ થઈ રહી છે..."
+    "loadingPreferences": "તમારી પસંદગીઓ લોડ થઈ રહી છે...",
+    "pushPermissionDenied": "બ્રાઉઝરમાં પુશ સૂચનાઓ બ્લૉક છે. સાઇટ સેટિંગ્સમાં મંજૂરી આપો, પછી પુશ ચાલુ કરો.",
+    "pushPermissionDefault": "બેકગ્રાઉન્ડ સૂચનાઓ માટે પુશ ચેનલ ચાલુ કરો — બ્રાઉઝર પરવાનગી માંગશે.",
+    "pushNotSupported": "આ બ્રાઉઝરમાં પુશ સૂચનાઓ સપોર્ટેડ નથી.",
+    "pushEnabledSuccess": "પુશ સૂચનાઓ સક્ષમ થઈ",
+    "pushDisabledSuccess": "પુશ સૂચનાઓ અક્ષમ થઈ",
+    "pushEnableFailed": "પુશ સૂચનાઓ સક્ષમ થઈ શક્યા નહીં",
+    "fcmTokenUnavailable": "ડિવાઇસ ટોકન મળ્યો નહીં. સૂચના પરવાનગી તપાસો.",
+    "fcmSaveFailed": "સર્વર પર ટોકન સાચવી શકાયું નહીં",
+    "fcmRegisterFailed": "પુશ નોંધણી નિષ્ફળ"
   },
   "securitySettings": "સુરક્ષા સેટિંગ્સ",
   "manageAccountSecurity": "તમારી એકાઉન્ટ સુરક્ષા સંચાલિત કરો",
   "changePassword": "પાસવર્ડ બદલો",
   "updatePassword": "તમારો પાસવર્ડ અપડેટ કરો",
+  "updatePasswordDescription": "તમારા એકાઉન્ટને મજબૂત પાસવર્ડ સાથે સુરક્ષિત કરો",
+  "passwordUpdatedSuccess": "પાસવર્ડ સફળતાપૂર્વક અપડેટ થયો",
+  "passwordUpdateFailed": "પાસવર્ડ અપડેટ કરવામાં નિષ્ફળ",
+  "passwordUpdateError": "પાસવર્ડ અપડેટ કરતી વખતે ભૂલ આવી",
+  "oldPasswordRequired": "વર્તમાન પાસવર્ડ જરૂરી છે",
+  "passwordMinLength": "નવો પાસવર્ડ ઓછામાં ઓછો 8 અક્ષરનો હોવો જોઈએ",
+  "passwordsDoNotMatch": "પાસવર્ડ મેળ ખાતા નથી",
   "currentPassword": "વર્તમાન પાસવર્ડ",
   "enterCurrentPassword": "વર્તમાન પાસવર્ડ દાખલ કરો",
   "newPassword": "નવો પાસવર્ડ",

@@ -1,9 +1,12 @@
 {
   "title": "खरीद आदेश",
-  "description": "खरीद आदेश प्रबंधित करें",
+  "description": "आपूर्तिकर्ताओं के लिए अपने खरीद आदेश बनाएं और प्रबंधित करें",
+  "emptyDescription": "आपूर्तिकर्ताओं से इन्वेंट्री का अनुरोध शुरू करने और ऑर्डर ट्रैक करने के लिए अपना पहला खरीद आदेश बनाएं।",
+  "noResultsDescription": "हमें आपकी खोज या फ़िल्टर से मेल खाने वाला कोई खरीद आदेश नहीं मिला। उन्हें समायोजित करने का प्रयास करें।",
   "createPO": "PO बनाएं",
   "createPODescription": "आपूर्तिकर्ताओं के लिए एक नया खरीद आदेश जोड़ें",
   "viewPODescription": "इस खरीद आदेश के बारे में विस्तृत जानकारी देखें",
+  "managePODescription": "खरीद आदेश प्रबंधित करें",
   "editPO": "खरीद आदेश संपादित करें",
   "deletePO": "खरीद आदेश हटाएं",
   "poNumber": "PO संख्या",
@@ -78,6 +81,9 @@
   "addPayment": "भुगतान जोड़ें",
   "addedPayments": "जोड़े गए भुगतान",
   "removePayment": "भुगतान हटाएं",
+  "ordered": "ऑर्डर किया गया",
+  "received": "प्राप्त",
+  "pending": "लंबित",
   "searchSelectProduct": "उत्पाद खोजें और चुनें...",
   "add": "जोड़ें",
   "addNewItem": "नया आइटम जोड़ें",
@@ -112,6 +118,8 @@
   "selectProduct": "उत्पाद चुनें",
   "addNewProduct": "नया उत्पाद जोड़ें",
   "totalItems": "कुल आइटम",
+  "pendingItems": "लंबित आइटम",
+  "completion": "पूर्णता",
   "qty": "मात्रा",
   "selectedProduct": "चयनित उत्पाद",
   "upiTransactionIdPlaceholder": "UPI123456789",
@@ -127,5 +135,7 @@
   "cash": "नकद",
   "upi": "UPI",
   "bankTransfer": "बैंक ट्रांसफर",
-  "cheque": "चेक"
+  "cheque": "चेक",
+  "noItemsTile": "कोई आइटम जोड़ा नहीं गया।",
+  "noItemsdisc": "ऊपर से कोई उत्पाद और मात्रा चुनें।"
 }
