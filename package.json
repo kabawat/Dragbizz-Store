@@ -1,5 +1,6 @@
 {
   "name": "dragbizz-store-fe",
+  "main": "electron/main.js",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,9 +8,12 @@
     "predev": "node scripts/generate-firebase-sw.cjs",
     "prebuild": "node scripts/generate-firebase-sw.cjs",
     "dev": "next dev --turbopack -H 0.0.0.0 -p 3001",
+    "electron": "electron . --no-sandbox",
+    "dev:electron": "concurrently \"yarn dev\" \"wait-on http-get://localhost:3001 && yarn electron\"",
     "dev:wildcard": "HOSTNAME=0.0.0.0 next dev --turbopack -H 0.0.0.0 -p 3001",
     "dev:localhost": "next dev --turbopack -p 3001",
     "build": "next build --turbopack",
+    "build:electron": "next build && electron-builder",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start -p 3001",
     "lint": "biome check",
@@ -24,7 +28,10 @@
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
     "canvas-confetti": "^1.9.3",
+    "concurrently": "^10.0.3",
     "dompurify": "^3.3.1",
+    "electron-builder": "^26.8.1",
+    "electron-serve": "^3.0.1",
     "exceljs": "^4.4.0",
     "firebase": "^11.6.0",
     "html2canvas": "^1.4.1",
@@ -45,6 +52,7 @@
     "reselect": "^5.1.1",
     "sass": "^1.96.0",
     "socket.io-client": "^4.8.3",
+    "wait-on": "^9.0.10",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -52,6 +60,7 @@
     "@next/bundle-analyzer": "^16.1.4",
     "@tailwindcss/postcss": "^4",
     "baseline-browser-mapping": "^2.9.19",
+    "electron": "^42.3.3",
     "tailwindcss": "^4"
   }
 }

@@ -3,7 +3,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 const nextConfig = {
-  assetPrefix: '/_store_assets',
+  trailingSlash: true,
   reactStrictMode: true,
   compiler: {
     removeConsole:
@@ -13,6 +13,7 @@ const nextConfig = {
         }
         : false,
   },
+  output: "export",
   images: {
     unoptimized: true,
     formats: ["image/avif", "image/webp"],
