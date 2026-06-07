@@ -26,6 +26,8 @@ import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { authService } from "@/service";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 export default function StoreCreation() {
   const router = useRouter();
@@ -228,41 +230,36 @@ export default function StoreCreation() {
         location: userLocation,
       };
 
-      const result = await storeService.createStore(storeData);
+      const response = await storeService.createStore(storeData);
+      const result = handleSuccess(response);
 
-      if (result?.success) {
-        try {
-          const userProfile = await authService.refreshToken();
+      try {
+        const userProfile = await authService.refreshToken();
 
-          const subdomain = userProfile.data?.tenant;
+        const subdomain = userProfile.data?.tenant;
 
-          if (subdomain) {
-            const { host, protocol } = window.location;
-            window.location.href = `${protocol}//${subdomain}.${host}/dashboard`;
-            // Intentionally not setting isSubmitting=false so the loader spins until navigation completes
-            return;
-          }
-        } catch (refreshError) {
-          // Don't throw, just proceed to show success screen so user isn't stuck
+        if (subdomain) {
+          const { host, protocol } = window.location;
+          window.location.href = `${protocol}//${subdomain}.${host}/dashboard`;
+          // Intentionally not setting isSubmitting=false so the loader spins until navigation completes
+          return;
         }
-
-        setShowSuccessScreen(true);
-        setIsSubmitting(false); // Can set it to false here because we're showing a different screen
-      } else {
-        if (result?.error?.data?.fields) {
-          setFieldErrors(result.error.data.fields);
-        } else {
-          // Show general error if no specific field errors
-          setErrors({
-            general: result?.message || result?.error?.message || "Failed to create store",
-          });
-        }
-        setIsSubmitting(false);
+      } catch (_refreshError) {
+        // Don't throw, just proceed to show success screen so user isn't stuck
       }
-    } catch (_error) {
-      setErrors({
-        general: "An error occurred while creating store. Please try again.",
-      });
+
+      setShowSuccessScreen(true);
+      setIsSubmitting(false);
+    } catch (error) {
+      const result = handleError(error);
+
+      if (result?.fields) {
+        setFieldErrors(result.fields);
+      } else {
+        setErrors({
+          general: result?.message || "An error occurred while creating store. Please try again.",
+        });
+      }
       setIsSubmitting(false);
     }
   };

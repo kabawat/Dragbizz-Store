@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import storeService from "@/service/retailer/store.service";
+import { handleError } from "@/utils/responseHandler/error";
+import { handleSuccess } from "@/utils/responseHandler/success";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -14,7 +16,7 @@ const ManageUpiSettings = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { showError, showSuccess } = useGlobalToast();
-  const { stores: reduxStores } = useAppSelector((state) => state.profile);
+  const { stores: reduxStores, selectedStore } = useAppSelector((state) => state.profile);
 
   const [stores, setStores] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +29,14 @@ const ManageUpiSettings = () => {
   const hasFetchedRef = useRef(false);
   const isFetchingRef = useRef(false);
 
-  const storeId = stores[0]?._id || stores[0]?.id;
+  const storeId =
+    selectedStore?._id ||
+    selectedStore?.id ||
+    selectedStore?.storeId ||
+    stores[0]?._id ||
+    stores[0]?.id ||
+    reduxStores[0]?._id ||
+    reduxStores[0]?.id;
   const agencyKey = storeId ? `agency_${storeId}` : null;
   const upiData = useAppSelector((state) =>
     agencyKey ? state.storeUpi?.byStoreId?.[agencyKey] : null
@@ -43,30 +52,17 @@ const ManageUpiSettings = () => {
     isFetchingRef.current = true;
     try {
       setIsLoading(true);
-      const result = await storeService.getStores();
-      if (result?.success) {
-        const storesData = result.data?.data || result.data || [];
-        setStores(Array.isArray(storesData) ? storesData : []);
-        hasFetchedRef.current = true;
-      } else {
-        if (reduxStores?.length > 0) {
-          setStores(reduxStores);
-          hasFetchedRef.current = true;
-        } else {
-          showError(result?.message || "Failed to fetch stores");
-          setStores([]);
-        }
-      }
+      const response = await storeService.getStores();
+      const result = handleSuccess(response);
+      const storesData = result.data || [];
+      setStores(Array.isArray(storesData) ? storesData : []);
+      hasFetchedRef.current = true;
     } catch (error) {
       if (reduxStores?.length > 0) {
         setStores(reduxStores);
         hasFetchedRef.current = true;
       } else {
-        showError(
-          error?.response?.data?.message ||
-          error?.message ||
-          "Failed to fetch stores"
-        );
+        showError(handleError(error).message || "Failed to fetch stores");
         setStores([]);
       }
     } finally {
@@ -95,7 +91,7 @@ const ManageUpiSettings = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleSuccess = (message) => {
+  const handleMutationSuccess = (message) => {
     showSuccess(message);
     hasFetchedRef.current = false;
     fetchStores();
@@ -149,7 +145,7 @@ const ManageUpiSettings = () => {
         storeId={storeId}
         stores={activeStores}
         onClose={() => setIsAddDrawerOpen(false)}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
 
@@ -162,7 +158,7 @@ const ManageUpiSettings = () => {
           setIsEditDrawerOpen(false);
           setEditingUpi(null);
         }}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
 
@@ -174,7 +170,7 @@ const ManageUpiSettings = () => {
           setIsDeleteModalOpen(false);
           setUpiToDelete(null);
         }}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
     </div>

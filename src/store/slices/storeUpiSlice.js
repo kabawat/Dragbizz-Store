@@ -1,12 +1,44 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import storeService from "@/service/retailer/store.service";
+import { handleError } from "@/utils/responseHandler/error";
+import { handleSuccess } from "@/utils/responseHandler/success";
+
+function normalizeUpiRecord(data = {}) {
+  const id = data.id ?? data._id ?? null;
+  return {
+    id,
+    upiId: data.upiId,
+    label: data.label || null,
+    storeIds: data.storeIds || [],
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
+}
+
+function normalizeUpiListPayload(payload) {
+  if (Array.isArray(payload)) {
+    return { upiIds: payload };
+  }
+  return {
+    store: payload.store,
+    agency: payload.agency,
+    upiIds: payload.upiIds || [],
+    createdAt: payload.createdAt,
+    updatedAt: payload.updatedAt,
+  };
+}
+
+function sameUpiId(record, targetId) {
+  const recordId = record?.id ?? record?._id;
+  return String(recordId ?? "") === String(targetId ?? "");
+}
 
 // Fetch store UPI - scope: 'store' (default) or 'agency' (all agency UPIs for management)
 export const getStoreUpi = createAsyncThunk(
   "storeUpi/getStoreUpi",
   async (
     { storeId, scope = "store", forceRefresh = false },
-    { rejectWithValue, getState }
+    { rejectWithValue, getState },
   ) => {
     try {
       const currentState = getState();
@@ -23,119 +55,74 @@ export const getStoreUpi = createAsyncThunk(
         };
       }
 
-      const result = await storeService.getStoreUpi(storeId, {
+      const response = await storeService.getStoreUpi(storeId, {
         scope: scope === "agency" ? "agency" : undefined,
       });
-      if (!result?.success) {
-        return rejectWithValue(result?.message || "Failed to fetch UPI IDs");
-      }
+      const result = handleSuccess(response);
+      const data = normalizeUpiListPayload(result.data || {});
 
-      const data = result?.data?.data || result?.data || {};
       return {
         success: true,
-        data: {
-          store: data.store,
-          agency: data.agency,
-          upiIds: data.upiIds || [],
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-        },
+        data,
         storeId,
         scope,
         cacheKey,
         message: result.message || "Store UPI IDs fetched successfully",
       };
     } catch (error) {
-      return rejectWithValue(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Failed to fetch UPI IDs"
-      );
+      return rejectWithValue(handleError(error).message || "Failed to fetch UPI IDs");
     }
-  }
+  },
 );
 
 export const createStoreUpi = createAsyncThunk(
   "storeUpi/createStoreUpi",
   async ({ storeId, payload }, { rejectWithValue }) => {
     try {
-      const result = await storeService.createStoreUpi(storeId, payload);
-      if (!result?.success) {
-        return rejectWithValue(result?.message || "Failed to add UPI");
-      }
-      const data = result?.data?.data || result?.data || {};
+      const response = await storeService.createStoreUpi(storeId, payload);
+      const result = handleSuccess(response);
       return {
         storeId,
-        data: {
-          id: data.id,
-          upiId: data.upiId,
-          label: data.label || null,
-          storeIds: data.storeIds || [],
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-        },
+        data: normalizeUpiRecord(result.data || {}),
       };
     } catch (error) {
-      return rejectWithValue(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Failed to add UPI ID"
-      );
+      return rejectWithValue(handleError(error).message || "Failed to add UPI ID");
     }
-  }
+  },
 );
 
 export const updateStoreUpi = createAsyncThunk(
   "storeUpi/updateStoreUpi",
   async ({ storeId, upiId, payload }, { rejectWithValue }) => {
     try {
-      const result = await storeService.updateStoreUpi(storeId, upiId, payload);
-      if (!result?.success) {
-        return rejectWithValue(result?.message || "Failed to update UPI");
-      }
-      const data = result?.data?.data || result?.data || {};
+      const response = await storeService.updateStoreUpi(storeId, upiId, payload);
+      const result = handleSuccess(response);
       return {
         storeId,
-        data: {
-          id: data.id,
-          upiId: data.upiId,
-          label: data.label || null,
-          storeIds: data.storeIds || [],
-          updatedAt: data.updatedAt,
-        },
+        data: normalizeUpiRecord(result.data || {}),
       };
     } catch (error) {
-      return rejectWithValue(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Failed to update UPI ID"
-      );
+      return rejectWithValue(handleError(error).message || "Failed to update UPI ID");
     }
-  }
+  },
 );
 
 export const deleteStoreUpi = createAsyncThunk(
   "storeUpi/deleteStoreUpi",
   async ({ storeId, upiId }, { rejectWithValue }) => {
     try {
-      const result = await storeService.deleteStoreUpi(storeId, upiId);
-      if (!result?.success) {
-        return rejectWithValue(result?.message || "Failed to delete UPI");
-      }
-      const data = result?.data?.data || result?.data || {};
+      const response = await storeService.deleteStoreUpi(storeId, upiId);
+      const result = handleSuccess(response);
+      const data = result.data || {};
       return {
         storeId,
         upiId,
-        data: data.id ? { id: data.id } : { id: upiId },
+        data: { id: data.id ?? data._id ?? upiId },
       };
     } catch (error) {
-      return rejectWithValue(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Failed to delete UPI ID"
-      );
+      return rejectWithValue(handleError(error).message || "Failed to delete UPI ID");
     }
-  }
+  },
 );
 
 const initialState = {
@@ -172,7 +159,8 @@ const storeUpiSlice = createSlice({
         state.loadingStoreId = null;
         state.error = null;
         const { data, cacheKey, storeId } = action.payload;
-        const key = cacheKey || (action.meta?.arg?.scope === "agency" ? `agency_${storeId}` : storeId);
+        const key =
+          cacheKey || (action.meta?.arg?.scope === "agency" ? `agency_${storeId}` : storeId);
         if (key && data) {
           state.byStoreId[key] = data;
         }
@@ -185,7 +173,11 @@ const storeUpiSlice = createSlice({
       .addCase(createStoreUpi.fulfilled, (state, action) => {
         const { storeId, data } = action.payload;
         const agencyKey = `agency_${storeId}`;
-        if (state.byStoreId[agencyKey]?.upiIds) {
+        if (!state.byStoreId[agencyKey]) {
+          state.byStoreId[agencyKey] = { upiIds: [] };
+        }
+        const exists = state.byStoreId[agencyKey].upiIds.some((u) => sameUpiId(u, data.id));
+        if (!exists) {
           state.byStoreId[agencyKey].upiIds = [data, ...state.byStoreId[agencyKey].upiIds];
         }
         state.error = null;
@@ -194,9 +186,12 @@ const storeUpiSlice = createSlice({
         const { storeId, data } = action.payload;
         const agencyKey = `agency_${storeId}`;
         if (state.byStoreId[agencyKey]?.upiIds) {
-          const idx = state.byStoreId[agencyKey].upiIds.findIndex((u) => u.id === data.id);
+          const idx = state.byStoreId[agencyKey].upiIds.findIndex((u) => sameUpiId(u, data.id));
           if (idx >= 0) {
-            state.byStoreId[agencyKey].upiIds[idx] = { ...state.byStoreId[agencyKey].upiIds[idx], ...data };
+            state.byStoreId[agencyKey].upiIds[idx] = {
+              ...state.byStoreId[agencyKey].upiIds[idx],
+              ...data,
+            };
           }
         }
         state.error = null;
@@ -206,7 +201,7 @@ const storeUpiSlice = createSlice({
         const agencyKey = `agency_${storeId}`;
         if (state.byStoreId[agencyKey]?.upiIds) {
           state.byStoreId[agencyKey].upiIds = state.byStoreId[agencyKey].upiIds.filter(
-            (u) => u.id !== upiId && u.id?.toString?.() !== upiId
+            (u) => !sameUpiId(u, upiId),
           );
         }
         state.error = null;

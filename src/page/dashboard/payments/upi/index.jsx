@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import storeService from "@/service/retailer/store.service";
+import { handleError } from "@/utils/responseHandler/error";
+import { handleSuccess } from "@/utils/responseHandler/success";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -19,10 +21,10 @@ import {
 const ManageUpiPage = () => {
   const { t } = useTranslation();
 
-    useDashboardHeader(t("payments.manageUpiIds"), t("settings.upi.manageUpiDescription"));
+  useDashboardHeader(t("payments.manageUpiIds"), t("settings.upi.manageUpiDescription"));
   const dispatch = useAppDispatch();
   const { showError, showSuccess } = useGlobalToast();
-  const { stores: reduxStores } = useAppSelector((state) => state.profile);
+  const { stores: reduxStores, selectedStore } = useAppSelector((state) => state.profile);
 
   const [stores, setStores] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +37,14 @@ const ManageUpiPage = () => {
   const hasFetchedRef = useRef(false);
   const isFetchingRef = useRef(false);
 
-  const storeId = stores[0]?._id || stores[0]?.id;
+  const storeId =
+    selectedStore?._id ||
+    selectedStore?.id ||
+    selectedStore?.storeId ||
+    stores[0]?._id ||
+    stores[0]?.id ||
+    reduxStores[0]?._id ||
+    reduxStores[0]?.id;
   const agencyKey = storeId ? `agency_${storeId}` : null;
   const upiData = useAppSelector((state) =>
     agencyKey ? state.storeUpi?.byStoreId?.[agencyKey] : null
@@ -51,30 +60,17 @@ const ManageUpiPage = () => {
     isFetchingRef.current = true;
     try {
       setIsLoading(true);
-      const result = await storeService.getStores();
-      if (result?.success) {
-        const storesData = result.data?.data || result.data || [];
-        setStores(Array.isArray(storesData) ? storesData : []);
-        hasFetchedRef.current = true;
-      } else {
-        if (reduxStores?.length > 0) {
-          setStores(reduxStores);
-          hasFetchedRef.current = true;
-        } else {
-          showError(result?.message || "Failed to fetch stores");
-          setStores([]);
-        }
-      }
+      const response = await storeService.getStores();
+      const result = handleSuccess(response);
+      const storesData = result.data || [];
+      setStores(Array.isArray(storesData) ? storesData : []);
+      hasFetchedRef.current = true;
     } catch (error) {
       if (reduxStores?.length > 0) {
         setStores(reduxStores);
         hasFetchedRef.current = true;
       } else {
-        showError(
-          error?.response?.data?.message ||
-          error?.message ||
-          "Failed to fetch stores"
-        );
+        showError(handleError(error).message || "Failed to fetch stores");
         setStores([]);
       }
     } finally {
@@ -103,7 +99,7 @@ const ManageUpiPage = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleSuccess = (message) => {
+  const handleMutationSuccess = (message) => {
     showSuccess(message);
     hasFetchedRef.current = false;
     fetchStores();
@@ -115,46 +111,40 @@ const ManageUpiPage = () => {
   const activeStores = stores.filter((s) => s.status !== "DELETED");
 
   return (
-    
-      
-
-      
-        
-
-        <div className="flex-1 p-5 overflow-auto">
-          <div className="max-w-6xl mx-auto">
-            {isLoading && stores.length === 0 ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
-              </div>
-            ) : stores.length === 0 ? (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-12 text-center">
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                  {t("settings.noStoresFound")}
-                </h3>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t("settings.getStartedByAddingFirstStore")}
-                </p>
-              </div>
-            ) : (
-              <>
-                <UpiHeader
-                  upiCount={upiIds.length}
-                  isLoading={isUpiLoading}
-                  onAddUpi={handleAddUpi}
-                />
-                <UpiList
-                  upiIds={upiIds}
-                  stores={activeStores}
-                  isLoading={isUpiLoading}
-                  onAddUpi={handleAddUpi}
-                  onEditUpi={handleEditUpi}
-                  onDeleteUpi={handleDeleteUpi}
-                  showSuccess={showSuccess}
-                />
-              </>
-            )}
-          </div>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 p-5 overflow-auto">
+        <div className="max-w-6xl mx-auto">
+          {isLoading && stores.length === 0 ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
+            </div>
+          ) : stores.length === 0 ? (
+            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-12 text-center">
+              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                {t("settings.noStoresFound")}
+              </h3>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                {t("settings.getStartedByAddingFirstStore")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <UpiHeader
+                upiCount={upiIds.length}
+                isLoading={isUpiLoading}
+                onAddUpi={handleAddUpi}
+              />
+              <UpiList
+                upiIds={upiIds}
+                stores={activeStores}
+                isLoading={isUpiLoading}
+                onAddUpi={handleAddUpi}
+                onEditUpi={handleEditUpi}
+                onDeleteUpi={handleDeleteUpi}
+                showSuccess={showSuccess}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -163,7 +153,7 @@ const ManageUpiPage = () => {
         storeId={storeId}
         stores={activeStores}
         onClose={() => setIsAddDrawerOpen(false)}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
 
@@ -176,7 +166,7 @@ const ManageUpiPage = () => {
           setIsEditDrawerOpen(false);
           setEditingUpi(null);
         }}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
 
@@ -188,7 +178,7 @@ const ManageUpiPage = () => {
           setIsDeleteModalOpen(false);
           setUpiToDelete(null);
         }}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
     </div>
