@@ -217,5 +217,8 @@
   "totalGST": "कुल जीएसटी",
   "emptyDescription": "आपने अभी तक कोई चालान नहीं बनाया है। अपना पहला चालान बनाकर शुरू करें!",
   "notFoundTitle": "चालान नहीं मिला",
-  "notFoundDescription": "जिस चालान को आप ढूंढ रहे हैं वह शायद हटा दिया गया है या मौजूद नहीं है।"
+  "notFoundDescription": "जिस चालान को आप ढूंढ रहे हैं वह शायद हटा दिया गया है या मौजूद नहीं है।",
+  "barcodeProductNotFound": "बारकोड के लिए कोई उत्पाद नहीं मिला: {code}",
+  "selectTimePeriod": "समय अवधि चुनें",
+  "selectATimePeriod": "एक समय अवधि चुनें"
 }

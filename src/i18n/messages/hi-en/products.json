@@ -376,5 +376,8 @@
   "uploading": "Uploading...",
   "upload": "Upload File",
   "done": "Done",
-  "uploadAnother": "Upload Another"
+  "uploadAnother": "Upload Another",
+  "basicInformationDescriptionDetail": "Listing ke liye zaroori product details",
+  "pricingInformationDescriptionDetail": "Product pricing aur tax configuration",
+  "contentSeoDescriptionDetail": "Detailed product information aur marketing content"
 }

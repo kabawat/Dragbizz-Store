@@ -217,5 +217,8 @@
   "totalGST": "Total GST",
   "emptyDescription": "You haven't created any invoices yet. Start by creating your first one!",
   "notFoundTitle": "Invoice Not Found",
-  "notFoundDescription": "The invoice you are looking for might have been deleted or does not exist."
+  "notFoundDescription": "The invoice you are looking for might have been deleted or does not exist.",
+  "barcodeProductNotFound": "Barcode ke liye koi product nahi mila: {code}",
+  "selectTimePeriod": "Time Period Select Karo",
+  "selectATimePeriod": "Ek time period select karo"
 }

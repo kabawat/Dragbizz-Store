@@ -163,5 +163,12 @@
   "selected": "selected",
   "gst": "GST",
   "scrollToLoadMore": "और लोड करने के लिए स्क्रॉल करें",
-  "additionalInformation": "अतिरिक्त जानकारी"
+  "additionalInformation": "अतिरिक्त जानकारी",
+  "updated": "अपडेट किया गया",
+  "downloadSample": "सैंपल डाउनलोड करें",
+  "bulkUpload": {
+    "templateFetchError": "टेम्प्लेट संरचना हल करने में विफल।",
+    "templateDownloaded": "{format} टेम्प्लेट सफलतापूर्वक डाउनलोड हो गया!",
+    "downloadError": "टेम्प्लेट फ़ाइल बनाने में त्रुटि।"
+  }
 }

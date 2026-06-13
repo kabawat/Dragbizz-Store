@@ -314,5 +314,6 @@
   "createSignaturePrompt": "Apne invoices aur documents par use karne ke liye digital signature banayein.",
   "createSignature": "Signature Banayein",
   "deleteSignature": "Signature Delete karein",
-  "signatureAddedTitle": "Signature Add ho gaya"
+  "signatureAddedTitle": "Signature Add ho gaya",
+  "generalInformation": "General Information"
 }

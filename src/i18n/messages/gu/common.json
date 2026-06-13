@@ -163,5 +163,12 @@
   "selected": "પસંદ કરેલ",
   "gst": "GST",
   "scrollToLoadMore": "વધુ લોડ કરવા માટે સ્ક્રોલ કરો",
-  "additionalInformation": "વધારાની માહિતી"
+  "additionalInformation": "વધારાની માહિતી",
+  "updated": "અપડેટ કરેલ",
+  "downloadSample": "સેમ્પલ ડાઉનલોડ કરો",
+  "bulkUpload": {
+    "templateFetchError": "ટેમ્પલેટ માળખું મેળવવામાં નિષ્ફળ.",
+    "templateDownloaded": "{format} ટેમ્પલેટ સફળતાપૂર્વક ડાઉનલોડ થયું!",
+    "downloadError": "ટેમ્પલેટ ફાઇલ બનાવવામાં ભૂલ."
+  }
 }

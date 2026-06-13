@@ -314,5 +314,6 @@
   "createSignaturePrompt": "તમારા ચલણ અને દસ્તાવેજો પર ઉપયોગ કરવા માટે ડિજિટલ સહી બનાવો.",
   "createSignature": "સહી બનાવો",
   "deleteSignature": "સહી કાઢી નાખો",
-  "signatureAddedTitle": "સહી ઉમેરવામાં આવી"
+  "signatureAddedTitle": "સહી ઉમેરવામાં આવી",
+  "generalInformation": "સામાન્ય માહિતી"
 }

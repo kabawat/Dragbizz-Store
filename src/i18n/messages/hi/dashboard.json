@@ -30,5 +30,11 @@
   "stockAnalytics": "स्टॉक विश्लेषण",
   "supplierAnalytics": "आपूर्तिकर्ता विश्लेषण",
   "billAnalytics": "बिल विश्लेषण",
-  "expenseAnalytics": "व्यय विश्लेषण"
+  "expenseAnalytics": "व्यय विश्लेषण",
+  "totalProfit": "कुल लाभ",
+  "totalProducts": "कुल उत्पाद",
+  "stockValue": "स्टॉक मूल्य",
+  "outOfStock": "स्टॉक में नहीं",
+  "totalPayables": "कुल देय राशि",
+  "storesSummary": "स्टोर का सारांश"
 }

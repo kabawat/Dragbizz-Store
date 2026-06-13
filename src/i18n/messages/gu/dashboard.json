@@ -30,5 +30,11 @@
   "stockAnalytics": "સ્ટોક વિશ્લેષણ",
   "supplierAnalytics": "સપ્લાયર વિશ્લેષણ",
   "billAnalytics": "બિલ વિશ્લેષણ",
-  "expenseAnalytics": "ખર્ચ વિશ્લેષણ"
+  "expenseAnalytics": "ખર્ચ વિશ્લેષણ",
+  "totalProfit": "કુલ નફો",
+  "totalProducts": "કુલ ઉત્પાદનો",
+  "stockValue": "સ્ટોક મૂલ્ય",
+  "outOfStock": "સ્ટોક ખતમ",
+  "totalPayables": "કુલ દેવાની રકમ",
+  "storesSummary": "સ્ટોર્સનો સારાંશ"
 }

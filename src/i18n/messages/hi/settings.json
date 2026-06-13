@@ -317,5 +317,6 @@
   "createSignaturePrompt": "अपने चालान और दस्तावेजों पर उपयोग करने के लिए डिजिटल हस्ताक्षर बनाएं।",
   "createSignature": "हस्ताक्षर बनाएं",
   "deleteSignature": "हस्ताक्षर हटाएं",
-  "signatureAddedTitle": "हस्ताक्षर जोड़ा गया"
+  "signatureAddedTitle": "हस्ताक्षर जोड़ा गया",
+  "generalInformation": "सामान्य जानकारी"
 }
