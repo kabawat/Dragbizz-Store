@@ -13,6 +13,7 @@ import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import logger from "@/utils/logger";
+import { fromProductForm } from "@/utils/productUtils";
 
 const AddProductPage = () => {
   const { t } = useTranslation();
@@ -126,31 +127,10 @@ const AddProductPage = () => {
     clearFieldErrors();
 
     // Sanitize images array: extract uploadedUrl from File objects or use string URLs
-    const sanitizedImages = (formData.images || [])
-      .map(img => {
-        if (typeof img === "string") return img;
-        if (img instanceof File) return img.uploadedUrl;
-        return null;
-      })
-      .filter(Boolean);
-
-    const payload = {
+    const payload = fromProductForm({
       ...formData,
-      images: sanitizedImages
-    };
-
-    const mrp = parseFloat(payload.mrp) || 0;
-    const sellingPrice = parseFloat(payload.sellingPrice) || 0;
-
-    if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
-      const discountPercentage =
-        Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100;
-      payload.discount = String(discountPercentage);
-    } else if (payload.discount) {
-      payload.discount = String(payload.discount);
-    } else {
-      payload.discount = "0";
-    }
+      store: storeId,
+    });
 
     const result = await execute(
       productService.createProduct(payload),

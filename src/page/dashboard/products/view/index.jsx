@@ -15,6 +15,7 @@ import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useProductDetailsPrint } from "./hooks/useProductDetailsPrint";
+import { normalizeProductRecord } from "@/utils/productUtils";
 
 const ViewProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -64,7 +65,13 @@ const ViewProductPage = ({ productId }) => {
         }
 
         if (product) {
-          setProductData(product);
+          setProductData({
+            ...normalizeProductRecord(product),
+            id: product.id ?? product._id,
+            timestamps: product.timestamps,
+            createdAt: product.createdAt ?? product.timestamps?.createdAt,
+            updatedAt: product.updatedAt ?? product.timestamps?.updatedAt,
+          });
         } else {
           setError(t("errors.failedToFetchData", { item: t("common.product") }));
         }

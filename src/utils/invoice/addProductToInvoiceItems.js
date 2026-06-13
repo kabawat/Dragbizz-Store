@@ -1,4 +1,5 @@
 import { getProductId } from "@/utils/product/findProductByScanCode";
+import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 /**
  * Add or increment a product line on an invoice draft.
@@ -7,11 +8,11 @@ export function addProductToInvoiceItems(items, product, quantityToAdd = 1) {
   const productId = getProductId(product);
   if (!productId) return { items, added: false };
 
-  const productPrice = product.pricing?.sellingPrice ?? product.sellingPrice ?? 0;
+  const productPrice = resolveProductUnitPrice(product);
   const quantity = parseInt(quantityToAdd, 10) || 1;
   const gstRate = product.gstInfo?.gstRate || 0;
   const isInclusive = product.gstInfo?.isGstIncluded ?? false;
-  const uom = product.pricing?.uom || product.uom || "Unit";
+  const uom = product.uom || "Unit";
 
   const existingItemIndex = items.findIndex((item) => item.product === productId);
 
