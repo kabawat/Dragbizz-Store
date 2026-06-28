@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { productService } from "@/service/retailer";
 import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
+import { isValidStoreId } from "@/utils/store.util";
 
 const initialState = {
     products: [],
@@ -30,6 +31,9 @@ export const getProducts = createAsyncThunk(
     },
     {
         condition: (params, { getState }) => {
+            if (!isValidStoreId(String(params?.store ?? ""))) {
+                return false;
+            }
             const { isLoading, isFetchingMore } = getState().products;
             if (params?.isFreshLoad && isLoading) return false;
             if (!params?.isFreshLoad && isFetchingMore) return false;

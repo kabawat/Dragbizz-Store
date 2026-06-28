@@ -7,6 +7,7 @@ import { Input, MultiSelect } from "@/components/ui";
 import { createStoreUpi, getStoreUpi } from "@/store/slices/storeUpiSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { pickStoreId } from "@/utils/store.util";
 
 const UPI_ID_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
 
@@ -53,9 +54,9 @@ const UpiAddDrawer = ({ isOpen, storeId, stores = [], onClose, onSuccess, onErro
     onClose?.();
   };
 
-  const storeOptions = (stores || []).map((s) => ({
-    label: s.name || s._id || s.id || String(s._id || s.id),
-    value: String(s._id || s.id),
+  const storeOptions = stores.map((store) => ({
+    label: store.storeName,
+    value: pickStoreId(store),
   }));
 
   return (

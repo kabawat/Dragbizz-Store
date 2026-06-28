@@ -4,6 +4,11 @@ import { storeService } from "@/service/retailer";
 import staffService from "@/service/retailer/staff.service";
 import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
+import {
+  isValidStoreId,
+  normalizeStoreSummary,
+  pickStoreId,
+} from "@/utils/store.util";
 
 const SELECTED_STORE_STORAGE_KEY = "dragbizz_selected_store_id";
 
@@ -20,13 +25,25 @@ const getStoredStoreId = () => {
 const setStoredStoreId = (id) => {
   try {
     if (typeof window !== "undefined") {
-      if (id != null && id !== "") {
-        localStorage.setItem(SELECTED_STORE_STORAGE_KEY, String(id));
+      const normalized = pickStoreId(id);
+      if (isValidStoreId(normalized)) {
+        localStorage.setItem(SELECTED_STORE_STORAGE_KEY, normalized);
       } else {
         localStorage.removeItem(SELECTED_STORE_STORAGE_KEY);
       }
     }
   } catch { }
+};
+
+const normalizeStores = (stores = []) =>
+  (Array.isArray(stores) ? stores : [])
+    .map((store) => normalizeStoreSummary(store))
+    .filter(Boolean);
+
+const findStoreById = (stores, storeId) => {
+  const target = pickStoreId(storeId);
+  if (!target) return null;
+  return stores.find((store) => pickStoreId(store) === target) ?? null;
 };
 
 export const getRetailerDetails = createAsyncThunk(
@@ -196,10 +213,9 @@ const profileSlice = createSlice({
       state.isInitialized = action.payload ?? true;
     },
     setSelectedStore: (state, action) => {
-      state.selectedStore = action.payload;
-      const id =
-        action.payload?._id || action.payload?.id || action.payload?.storeId;
-      setStoredStoreId(id || null);
+      const normalized = normalizeStoreSummary(action.payload);
+      state.selectedStore = normalized;
+      setStoredStoreId(pickStoreId(normalized));
     },
   },
   extraReducers: (builder) => {
@@ -224,33 +240,21 @@ const profileSlice = createSlice({
         }
 
         if (data.stores) {
-          const prevSelectedId =
-            state.selectedStore?._id ||
-            state.selectedStore?.id ||
-            state.selectedStore?.storeId ||
-            getStoredStoreId() ||
-            null;
+          const normalizedStores = normalizeStores(data.stores);
+          state.stores = normalizedStores;
 
-          state.stores = data.stores;
+          if (normalizedStores.length > 0) {
+            const prevSelectedId =
+              pickStoreId(state.selectedStore) ||
+              pickStoreId(getStoredStoreId()) ||
+              null;
 
-          if (data.stores.length > 0) {
-            if (prevSelectedId) {
-              const prevIdStr = String(prevSelectedId);
-              const matchingStore =
-                data.stores.find(
-                  (s) =>
-                    String(s._id || s.id || s.storeId) === prevIdStr
-                ) || null;
+            const matchingStore =
+              (prevSelectedId && findStoreById(normalizedStores, prevSelectedId)) ||
+              normalizedStores[0];
 
-              state.selectedStore = matchingStore || data.stores[0];
-            } else {
-              state.selectedStore = data.stores[0];
-            }
-            const finalId =
-              state.selectedStore?._id ||
-              state.selectedStore?.id ||
-              state.selectedStore?.storeId;
-            setStoredStoreId(finalId || null);
+            state.selectedStore = matchingStore;
+            setStoredStoreId(pickStoreId(matchingStore));
           } else {
             state.selectedStore = null;
             setStoredStoreId(null);

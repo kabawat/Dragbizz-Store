@@ -20,7 +20,7 @@ const UpiDeleteModal = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    const upiDocId = upiToDelete?.id || upiToDelete?._id;
+    const upiDocId = upiToDelete?.id;
     if (!storeId || !upiDocId) return;
 
     try {

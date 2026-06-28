@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAppSelector } from "@/store/hooks";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { ensureSubdomain } from "@/utils/helper/domain";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
 import Sidebar from "@/components/dashboard/sidebar";
@@ -22,6 +23,7 @@ export default function DashboardLayout({ children }) {
     staffProfileLoading
   } = useAppSelector((state) => state.profile);
 
+  const { ready: storeReady } = useSelectedStoreId();
   const isProfileLoading = isLoading || authProfileLoading || staffProfileLoading;
 
   useEffect(() => {
@@ -56,16 +58,18 @@ export default function DashboardLayout({ children }) {
   }, [authProfile?.tenant]);
 
 
-  if (isProfileLoading) {
+  if (isProfileLoading || !storeReady) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            Verifying Profile...
+            {isProfileLoading ? "Verifying Profile..." : "Loading Store..."}
           </h2>
           <p className="text-[rgb(var(--color-text-secondary))]">
-            Checking your retailer information
+            {isProfileLoading
+              ? "Checking your retailer information"
+              : "Preparing your store workspace"}
           </p>
         </div>
       </div>

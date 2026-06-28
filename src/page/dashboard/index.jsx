@@ -31,6 +31,7 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 // Extracted Dashboard Components
 import {
@@ -52,9 +53,10 @@ const formatPercentChange = (value) => {
 export default function Dashboard() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedStore: storeFromRedux, authProfile, staffProfile } = useAppSelector(
+  const { authProfile, staffProfile } = useAppSelector(
     (state) => state.profile
   );
+  const { storeId: activeStoreId, ready: storeReady } = useSelectedStoreId();
 
   const isStaff = authProfile?.role === ROLES.STAFF;
 
@@ -183,10 +185,9 @@ export default function Dashboard() {
   }, [t, execute]);
 
   useEffect(() => {
-    const storeId = storeFromRedux?._id || storeFromRedux?.id || storeFromRedux?.storeId;
-    if (!storeId) return;
-    loadDashboardMetrics(storeId);
-  }, [storeFromRedux?._id, storeFromRedux?.id, storeFromRedux?.storeId, loadDashboardMetrics]);
+    if (!storeReady || !activeStoreId) return;
+    loadDashboardMetrics(activeStoreId);
+  }, [storeReady, activeStoreId, loadDashboardMetrics]);
 
   // Load saved layout
   useEffect(() => {

@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createAccount } from "@/store/slices/accountsSlice";
 import { getSuppliers } from "@/store/slices/supplier/supplierSlice";
 import logger from "@/utils/logger";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const CreateAccount = () => {
   useDashboardHeader("Create Supplier Account", "Create a new supplier account with credit limits");
@@ -22,7 +23,7 @@ const CreateAccount = () => {
   const dispatch = useAppDispatch();
   const { suppliers } = useAppSelector((state) => state.suppliers);
   const { isCreating, error } = useAppSelector((state) => state.accounts);
-  const { selectedStore } = useAppSelector((state) => state.profile);
+  const { storeId, ready: storeReady } = useSelectedStoreId();
 
   const [formData, setFormData] = useState({
     supplierId: "",
@@ -45,10 +46,10 @@ const CreateAccount = () => {
 
   // Fetch suppliers on component mount
   useEffect(() => {
-    if (selectedStore?.id) {
-      dispatch(getSuppliers({ store: selectedStore.id }));
+    if (storeReady && storeId) {
+      dispatch(getSuppliers({ store: storeId }));
     }
-  }, [dispatch, selectedStore]);
+  }, [dispatch, storeReady, storeId]);
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -126,7 +127,7 @@ const CreateAccount = () => {
       const accountData = {
         ...formData,
         status: isDraft ? "draft" : formData.accountStatus,
-        storeId: selectedStore?.id,
+        storeId: storeId,
       };
 
       const result = await dispatch(createAccount(accountData));

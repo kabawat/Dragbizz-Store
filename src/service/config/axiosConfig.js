@@ -1,6 +1,11 @@
 // src/service/config/axiosConfig.js
 import axios from "axios";
 import API_CONFIG from "@/config/api.config";
+import {
+  hasValidStoreOnConfig,
+  markPendingStoreIdToastSuppress,
+  urlNeedsStoreParam,
+} from "@/utils/bootstrapStoreGuard";
 
 // Base config
 const BASE_URL = API_CONFIG.BASE.URL;
@@ -57,7 +62,10 @@ const setupAuthInterceptors = (instance) => {
   // Request interceptor
   instance.interceptors.request.use(
     (config) => {
-      // Cookies handled by browser
+      const url = String(config?.url || "");
+      if (urlNeedsStoreParam(url) && !hasValidStoreOnConfig(config)) {
+        config.__bootstrapBadStore = true;
+      }
       return config;
     },
     (error) => {
@@ -70,6 +78,14 @@ const setupAuthInterceptors = (instance) => {
       return response;
     },
     async (error) => {
+      const errMsg =error?.response?.data?.message || error?.response?.data?.error || "";
+      if (
+        /invalid or missing store id/i.test(String(errMsg)) &&
+        error?.config?.__bootstrapBadStore
+      ) {
+        markPendingStoreIdToastSuppress();
+      }
+
       if (axios.isCancel(error)) {
         return Promise.reject(error);
       }

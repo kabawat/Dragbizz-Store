@@ -2,11 +2,11 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import storeService from "@/service/retailer/store.service";
 import { handleError } from "@/utils/responseHandler/error";
 import { handleSuccess } from "@/utils/responseHandler/success";
+import { isValidStoreId } from "@/utils/store.util";
 
 function normalizeUpiRecord(data = {}) {
-  const id = data.id ?? data._id ?? null;
   return {
-    id,
+    id: data.id,
     upiId: data.upiId,
     label: data.label || null,
     storeIds: data.storeIds || [],
@@ -41,6 +41,10 @@ export const getStoreUpi = createAsyncThunk(
     { rejectWithValue, getState },
   ) => {
     try {
+      if (!isValidStoreId(String(storeId ?? ""))) {
+        return rejectWithValue("Store not ready");
+      }
+
       const currentState = getState();
       const cacheKey = scope === "agency" ? `agency_${storeId}` : storeId;
       const cached = currentState.storeUpi?.byStoreId?.[cacheKey];
@@ -73,6 +77,9 @@ export const getStoreUpi = createAsyncThunk(
       return rejectWithValue(handleError(error).message || "Failed to fetch UPI IDs");
     }
   },
+  {
+    condition: ({ storeId }) => isValidStoreId(String(storeId ?? "")),
+  }
 );
 
 export const createStoreUpi = createAsyncThunk(

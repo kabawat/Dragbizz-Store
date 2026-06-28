@@ -1,12 +1,28 @@
 "use client";
 import { createContext, useCallback, useContext, useState } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { isValidStoreId, pickStoreId } from "@/utils/store.util";
+import {
+  consumePendingStoreIdToastSuppress,
+  shouldSuppressStoreIdToast,
+} from "@/utils/bootstrapStoreGuard";
 
+const STORE_ID_ERROR = /invalid or missing store id/i;
 const ToastContext = createContext();
 
 let toastIdCounter = 0;
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const { isInitialized, isLoading, selectedStore, stores } = useAppSelector(
+    (state) => state.profile
+  );
+  const storeBootstrapReady =
+    isInitialized &&
+    !isLoading &&
+    isValidStoreId(pickStoreId(selectedStore)) &&
+    Array.isArray(stores) &&
+    stores.length > 0;
 
   const showToast = useCallback(
     (message, type = "error", duration = 5000, position = "bottom-center") => {
@@ -31,9 +47,18 @@ export const ToastProvider = ({ children }) => {
 
   const showError = useCallback(
     (message, duration = 5000) => {
+      const isStoreIdError = STORE_ID_ERROR.test(String(message || ""));
+      if (
+        isStoreIdError &&
+        shouldSuppressStoreIdToast({ storeBootstrapReady })
+      ) {
+        consumePendingStoreIdToastSuppress();
+        return -1;
+      }
+
       return showToast(message, "error", duration, "bottom-center");
     },
-    [showToast]
+    [showToast, storeBootstrapReady]
   );
 
   const showSuccess = useCallback(

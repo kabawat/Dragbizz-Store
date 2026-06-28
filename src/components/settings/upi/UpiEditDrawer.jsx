@@ -10,6 +10,7 @@ import {
 } from "@/store/slices/storeUpiSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { pickStoreId } from "@/utils/store.util";
 
 const UPI_ID_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
 
@@ -58,7 +59,7 @@ const UpiEditDrawer = ({
   };
 
   const handleSave = async () => {
-    const upiDocId = editingUpi?.id || editingUpi?._id;
+    const upiDocId = editingUpi?.id;
     if (!validateForm() || !storeId || !upiDocId) return;
 
     try {
@@ -94,9 +95,9 @@ const UpiEditDrawer = ({
     onClose?.();
   };
 
-  const storeOptions = (stores || []).map((s) => ({
-    label: s.name || s._id || s.id || String(s._id || s.id),
-    value: String(s._id || s.id),
+  const storeOptions = stores.map((store) => ({
+    label: store.storeName,
+    value: pickStoreId(store),
   }));
 
   return (
