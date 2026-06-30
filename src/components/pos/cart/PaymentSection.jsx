@@ -7,6 +7,8 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import PaymentConfirmModal from "../PaymentConfirmModal";
+import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
+import { pickStoreId } from "@/utils/store.util";
 
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 const generateBillNo = () => `POS-${Date.now().toString().slice(-6)}`;
@@ -30,9 +32,17 @@ const PaymentSection = ({
     const { showError } = useGlobalToast();
     const { execute } = useApiResponse();
 
+    const storeId = pickStoreId(selectedStore);
+    const {
+        defaultUpi,
+        isLoading: upiLoading,
+        missingDefault,
+        noUpiConfigured,
+    } = useStoreDefaultUpi(storeId, { enabled: showPaymentModal });
+
     const handleCheckout = async () => {
         if (cart.length === 0) return;
-        const storeId = selectedStore?.storeId || selectedStore?._id;
+        const storeId = pickStoreId(selectedStore);
         if (!storeId) return showError("Store not found. Please select a store.");
 
         const invoiceData = {
@@ -71,7 +81,7 @@ const PaymentSection = ({
     const handlePaymentConfirm = async ({ paidAmount, paymentMode }) => {
         if (!tempBill?.invoiceId) return;
         const modeMapping = { cash: "CASH", upi: "UPI", card: "CREDIT_CARD" };
-        const storeId = selectedStore?.storeId || selectedStore?._id;
+        const storeId = pickStoreId(selectedStore);
 
         setIsReleasing(true);
         try {
@@ -121,6 +131,11 @@ const PaymentSection = ({
                 onConfirm={handlePaymentConfirm}
                 grandTotal={grandTotal}
                 loading={isReleasing}
+                defaultUpi={defaultUpi}
+                storeName={selectedStore?.storeName}
+                upiLoading={upiLoading}
+                missingDefault={missingDefault}
+                noUpiConfigured={noUpiConfigured}
             />
         </>
     );

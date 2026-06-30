@@ -1,7 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { CheckCircle2, Wallet, Banknote, CreditCard, ChevronRight, X } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Wallet, Banknote, CreditCard, ChevronRight, X, Loader2 } from "lucide-react";
 import { Button, Input, Modal, ModalFooter } from "@/components/ui";
+import { UpiPaymentQr } from "@/components/common";
 
 const PAYMENT_METHODS = [
     { id: "cash", icon: Banknote, label: "Cash" },
@@ -11,7 +13,18 @@ const PAYMENT_METHODS = [
 
 const formatAmount = (n) => `₹${Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-const PaymentConfirmModal = ({ isOpen, onClose, onConfirm, grandTotal, loading }) => {
+const PaymentConfirmModal = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    grandTotal,
+    loading,
+    defaultUpi,
+    storeName,
+    upiLoading = false,
+    missingDefault = false,
+    noUpiConfigured = false,
+}) => {
     const [paidAmount, setPaidAmount] = useState(grandTotal);
     const [mode, setMode] = useState("cash");
 
@@ -24,6 +37,8 @@ const PaymentConfirmModal = ({ isOpen, onClose, onConfirm, grandTotal, loading }
 
     const changeDue = mode === "cash" ? Math.max(0, paidAmount - grandTotal) : 0;
     const canConfirm = paidAmount >= grandTotal || mode !== "cash";
+    const upiBlocked = mode === "upi" && (upiLoading || missingDefault || noUpiConfigured);
+    const showUpiQr = mode === "upi" && defaultUpi?.upiId && paidAmount > 0 && !upiBlocked;
 
     return (
         <Modal
@@ -114,6 +129,37 @@ const PaymentConfirmModal = ({ isOpen, onClose, onConfirm, grandTotal, loading }
                             </span>
                         </div>
                     )}
+
+                    {mode === "upi" && upiLoading && (
+                        <div className="flex items-center justify-center gap-2 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Loading UPI...
+                        </div>
+                    )}
+
+                    {mode === "upi" && !upiLoading && (missingDefault || noUpiConfigured) && (
+                        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800 dark:text-amber-200">
+                            <p className="font-medium mb-1">
+                                {noUpiConfigured
+                                    ? "No UPI ID configured for this store."
+                                    : "No default UPI is set for this store."}
+                            </p>
+                            <Link
+                                href="/dashboard/settings?tab=payment"
+                                className="text-[rgb(var(--color-primary))] underline text-xs font-medium"
+                            >
+                                Configure in Settings
+                            </Link>
+                        </div>
+                    )}
+
+                    {showUpiQr && (
+                        <UpiPaymentQr
+                            upiId={defaultUpi.upiId}
+                            payeeName={storeName || defaultUpi.label || "Merchant"}
+                            amount={paidAmount}
+                        />
+                    )}
                 </div>
             </div>
 
@@ -125,7 +171,7 @@ const PaymentConfirmModal = ({ isOpen, onClose, onConfirm, grandTotal, loading }
                     variant="primary"
                     size="sm"
                     onClick={() => onConfirm({ paidAmount, paymentMode: mode })}
-                    disabled={!canConfirm}
+                    disabled={!canConfirm || upiBlocked}
                     loading={loading}
                     rightIcon={ChevronRight}
                 >

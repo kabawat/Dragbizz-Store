@@ -106,6 +106,11 @@ const UpiList = ({
                       {item.label}
                     </span>
                   )}
+                  {item.isDefault && (
+                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] flex-shrink-0">
+                      {t("settings.upi.defaultBadge")}
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <button

@@ -304,7 +304,9 @@
     "upiQrCode": "UPI QR Code",
     "scanToPay": "UPI se pay karne ke liye scan karein",
     "qrDownloaded": "QR code successfully download ho gaya",
-    "qrDownloadFailed": "QR code download karne mein fail"
+    "qrDownloadFailed": "QR code download karne mein fail",
+    "setAsDefault": "Default UPI set karein",
+    "defaultBadge": "Default"
   },
   "digitalSignatures": "Digital Signatures",
   "signatureDescription": "Invoice aur documents ke liye apne digital signatures manage karein.",

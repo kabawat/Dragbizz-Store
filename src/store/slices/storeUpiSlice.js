@@ -9,6 +9,7 @@ function normalizeUpiRecord(data = {}) {
     id: data.id,
     upiId: data.upiId,
     label: data.label || null,
+    isDefault: Boolean(data.isDefault),
     storeIds: data.storeIds || [],
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
@@ -33,7 +34,6 @@ function sameUpiId(record, targetId) {
   return String(recordId ?? "") === String(targetId ?? "");
 }
 
-// Fetch store UPI - scope: 'store' (default) or 'agency' (all agency UPIs for management)
 export const getStoreUpi = createAsyncThunk(
   "storeUpi/getStoreUpi",
   async (
@@ -183,9 +183,16 @@ const storeUpiSlice = createSlice({
         if (!state.byStoreId[agencyKey]) {
           state.byStoreId[agencyKey] = { upiIds: [] };
         }
-        const exists = state.byStoreId[agencyKey].upiIds.some((u) => sameUpiId(u, data.id));
+        const upiIds = state.byStoreId[agencyKey].upiIds;
+        const exists = upiIds.some((u) => sameUpiId(u, data.id));
         if (!exists) {
-          state.byStoreId[agencyKey].upiIds = [data, ...state.byStoreId[agencyKey].upiIds];
+          state.byStoreId[agencyKey].upiIds = [normalizeUpiRecord(data), ...upiIds];
+        }
+        if (data.isDefault) {
+          state.byStoreId[agencyKey].upiIds = state.byStoreId[agencyKey].upiIds.map((u) => ({
+            ...u,
+            isDefault: sameUpiId(u, data.id),
+          }));
         }
         state.error = null;
       })
@@ -195,10 +202,16 @@ const storeUpiSlice = createSlice({
         if (state.byStoreId[agencyKey]?.upiIds) {
           const idx = state.byStoreId[agencyKey].upiIds.findIndex((u) => sameUpiId(u, data.id));
           if (idx >= 0) {
-            state.byStoreId[agencyKey].upiIds[idx] = {
+            state.byStoreId[agencyKey].upiIds[idx] = normalizeUpiRecord({
               ...state.byStoreId[agencyKey].upiIds[idx],
               ...data,
-            };
+            });
+          }
+          if (data.isDefault) {
+            state.byStoreId[agencyKey].upiIds = state.byStoreId[agencyKey].upiIds.map((u) => ({
+              ...u,
+              isDefault: sameUpiId(u, data.id),
+            }));
           }
         }
         state.error = null;

@@ -3,7 +3,7 @@
 import { Loader2, Save, Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 import { FormDrawer } from "@/components/common";
-import { Input, MultiSelect } from "@/components/ui";
+import { Input, MultiSelect, Toggle } from "@/components/ui";
 import {
   updateStoreUpi,
   getStoreUpi,
@@ -29,6 +29,7 @@ const UpiEditDrawer = ({
     upiId: "",
     label: "",
     storeIds: [],
+    isDefault: false,
   });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
@@ -39,6 +40,7 @@ const UpiEditDrawer = ({
         upiId: editingUpi.upiId || "",
         label: editingUpi.label || "",
         storeIds: editingUpi.storeIds?.map((id) => String(id)) || [],
+        isDefault: Boolean(editingUpi.isDefault),
       });
       setErrors({});
     }
@@ -71,6 +73,7 @@ const UpiEditDrawer = ({
         storeIds: form.storeIds.map((id) =>
           typeof id === "string" ? id : id?.toString?.() || id
         ),
+        isDefault: form.isDefault,
       };
       await dispatch(
         updateStoreUpi({ storeId, upiId: upiDocId, payload })
@@ -90,7 +93,7 @@ const UpiEditDrawer = ({
   };
 
   const handleCancel = () => {
-    setForm({ upiId: "", label: "", storeIds: [] });
+    setForm({ upiId: "", label: "", storeIds: [], isDefault: false });
     setErrors({});
     onClose?.();
   };
@@ -145,6 +148,11 @@ const UpiEditDrawer = ({
           error={!!errors.storeIds}
           errorMessage={errors.storeIds}
           clearable={false}
+        />
+        <Toggle
+          label={t("settings.upi.setAsDefault")}
+          checked={form.isDefault}
+          onChange={(checked) => setForm((p) => ({ ...p, isDefault: checked }))}
         />
       </div>
     </FormDrawer>

@@ -309,7 +309,9 @@
     "upiQrCode": "UPI QR Code",
     "scanToPay": "Scan to pay via UPI",
     "qrDownloaded": "QR code downloaded successfully",
-    "qrDownloadFailed": "Failed to download QR code"
+    "qrDownloadFailed": "Failed to download QR code",
+    "setAsDefault": "Set as default UPI",
+    "defaultBadge": "Default"
   },
   "digitalSignatures": "Digital Signatures",
   "signatureDescription": "Manage your digital signatures for invoices and documents.",

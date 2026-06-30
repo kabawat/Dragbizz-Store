@@ -304,7 +304,9 @@
     "upiQrCode": "UPI QR કોડ",
     "scanToPay": "UPI દ્વારા ચુકવણી માટે સ્કેન કરો",
     "qrDownloaded": "QR કોડ સફળતાપૂર્વક ડાઉનલોડ થયો",
-    "qrDownloadFailed": "QR કોડ ડાઉનલોડ કરવામાં નિષ્ફળ"
+    "qrDownloadFailed": "QR કોડ ડાઉનલોડ કરવામાં નિષ્ફળ",
+    "setAsDefault": "ડિફૉલ્ટ UPI તરીકે સેટ કરો",
+    "defaultBadge": "ડિફૉલ્ટ"
   },
   "digitalSignatures": "ડિજિટલ સહી",
   "signatureDescription": "ચલણ અને દસ્તાવેજો માટે તમારી ડિજિટલ સહીઓ મેનેજ કરો.",

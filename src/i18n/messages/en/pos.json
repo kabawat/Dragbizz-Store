@@ -1,4 +1,10 @@
 {
   "title": "POS",
-  "description": "Point of Sale — fast billing at your fingertips"
+  "description": "Point of Sale — fast billing at your fingertips",
+  "upiQr": {
+    "scanToPay": "Scan to pay via UPI",
+    "amount": "Amount",
+    "noDefaultUpi": "No default UPI is set for this store.",
+    "configureInSettings": "Configure in Settings"
+  }
 }
