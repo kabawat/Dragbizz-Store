@@ -1,6 +1,6 @@
 "use client";
 
-import { GATEWAY_MODES, GATEWAY_CREDENTIAL_UI, buildCredentialsPayload, } from "@/constants/paymentGateway.config";
+import { GATEWAY_MODES, GATEWAY_CREDENTIAL_UI, buildCredentialsPayload, isMaskedCredentialField, } from "@/constants/paymentGateway.config";
 import { updateStorePaymentGateway, getStorePaymentGateways, } from "@/store/slices/storePaymentGatewaySlice";
 import { Input, MultiSelect, Select, Toggle } from "@/components/ui";
 import { CreditCard, Save } from "lucide-react";
@@ -10,6 +10,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
 import GatewayCredentialFields, { validateGatewayCredentials } from "./GatewayCredentialFields";
+import GatewayWebhookSetup from "./GatewayWebhookSetup";
 
 const emptyCredentialsForType = (gatewayType) => {
   const fields = GATEWAY_CREDENTIAL_UI[gatewayType]?.fields || [];
@@ -43,10 +44,12 @@ const GatewayEditDrawer = ({
 
   useEffect(() => {
     if (isOpen && editingGateway) {
+      const config = GATEWAY_CREDENTIAL_UI[editingGateway.gatewayType];
       const credValues = emptyCredentialsForType(editingGateway.gatewayType);
       const maskedFields = editingGateway.credentials?.fields || {};
-      for (const key of Object.keys(credValues)) {
-        if (maskedFields[key]) credValues[key] = maskedFields[key];
+      for (const field of config?.fields || []) {
+        if (isMaskedCredentialField(field)) continue;
+        if (maskedFields[field.key]) credValues[field.key] = maskedFields[field.key];
       }
       setForm({
         label: editingGateway.label || "",
@@ -177,6 +180,9 @@ const GatewayEditDrawer = ({
           onChange={(credentials) => setForm((p) => ({ ...p, credentials }))}
           isEdit
         />
+        {editingGateway?.webhookSetup && (
+          <GatewayWebhookSetup webhookSetup={editingGateway.webhookSetup} compact />
+        )}
       </div>
     </FormDrawer>
   );

@@ -348,6 +348,7 @@
     "fieldRequired": "આ ફીલ્ડ જરૂરી છે",
     "leaveBlankToKeep": "હાલનું રાખવા માટે ખાલી છોડો",
     "enterSecret": "સિક્રેટ દાખલ કરો",
+    "enterValue": "મૂલ્ય દાખલ કરો",
     "types": {
       "RAZORPAY": "Razorpay",
       "PAYTM": "Paytm",

@@ -15,6 +15,7 @@ function normalizeGatewayRecord(data = {}) {
     status: data.status,
     storeIds: data.storeIds || [],
     credentials: data.credentials || null,
+    webhookSetup: data.webhookSetup || null,
     connectedBy: data.connectedBy || null,
     lastVerifiedAt: data.lastVerifiedAt || null,
     createdAt: data.createdAt,

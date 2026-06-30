@@ -3,6 +3,7 @@
 import { CreditCard, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
+import { maskCredentialDisplay } from "@/constants/paymentGateway.config";
 
 const GatewayList = ({
   gateways = [],
@@ -32,12 +33,12 @@ const GatewayList = ({
 
   const getMaskedIdentifier = (gateway) => {
     const fields = gateway.credentials?.fields || {};
-    return (
-      fields.keyId ||
-      fields.merchantId ||
-      fields.appId ||
-      t("settings.paymentGateway.credentialsConfigured")
-    );
+    const raw = fields.keyId || fields.merchantId || fields.appId;
+    if (raw) return maskCredentialDisplay(raw);
+    if ((gateway.credentials?.secretsConfigured?.length ?? 0) > 0) {
+      return t("settings.paymentGateway.credentialsConfigured");
+    }
+    return t("settings.paymentGateway.credentialsConfigured");
   };
 
   if (isLoading) {

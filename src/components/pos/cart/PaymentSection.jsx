@@ -1,14 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Receipt, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import PaymentConfirmModal from "../PaymentConfirmModal";
 import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
 import { pickStoreId } from "@/utils/store.util";
+import { useRazorpayCheckout } from "@/hooks/payment/useRazorpayCheckout";
+import { getStorePaymentGateways } from "@/store/slices/storePaymentGatewaySlice";
 
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 const generateBillNo = () => `POS-${Date.now().toString().slice(-6)}`;
@@ -28,9 +30,12 @@ const PaymentSection = ({
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [tempBill, setTempBill] = useState(null);
 
+    const dispatch = useAppDispatch();
     const { selectedStore } = useAppSelector((state) => state.profile);
+    const { byStoreId } = useAppSelector((state) => state.storePaymentGateway);
     const { showError } = useGlobalToast();
     const { execute } = useApiResponse();
+    const { startCheckout } = useRazorpayCheckout();
 
     const storeId = pickStoreId(selectedStore);
     const {
@@ -39,6 +44,19 @@ const PaymentSection = ({
         missingDefault,
         noUpiConfigured,
     } = useStoreDefaultUpi(storeId, { enabled: showPaymentModal });
+
+    const onlineGatewayAvailable = useMemo(() => {
+        const gateways = byStoreId?.[storeId]?.gateways || [];
+        return gateways.some(
+            (gateway) => gateway.gatewayType === "RAZORPAY" && gateway.isActive && gateway.isDefault,
+        );
+    }, [byStoreId, storeId]);
+
+    useEffect(() => {
+        if (showPaymentModal && storeId) {
+            dispatch(getStorePaymentGateways({ storeId, scope: "store" }));
+        }
+    }, [dispatch, showPaymentModal, storeId]);
 
     const handleCheckout = async () => {
         if (cart.length === 0) return;
@@ -100,6 +118,31 @@ const PaymentSection = ({
         }
     };
 
+    const handleOnlinePay = async () => {
+        if (!tempBill?.invoiceId || !storeId) return;
+        setIsReleasing(true);
+        try {
+            await startCheckout({
+                storeId,
+                invoiceId: tempBill.invoiceId,
+                amount: grandTotal,
+                storeName: selectedStore?.storeName,
+                customerName: tempBill.customer,
+                onSuccess: () => {
+                    setShowPaymentModal(false);
+                    window.location.assign(`/dashboard/invoices/${tempBill.invoiceId}?autoPrint=true&redirect=pos`);
+                },
+                onFailure: (error) => {
+                    showError(error?.message || "Online payment failed");
+                },
+            });
+        } catch (error) {
+            showError(error?.message || "Online payment failed");
+        } finally {
+            setIsReleasing(false);
+        }
+    };
+
     return (
         <>
             <div className="p-4 pt-0">
@@ -129,6 +172,7 @@ const PaymentSection = ({
                 isOpen={showPaymentModal}
                 onClose={() => setShowPaymentModal(false)}
                 onConfirm={handlePaymentConfirm}
+                onOnlinePay={handleOnlinePay}
                 grandTotal={grandTotal}
                 loading={isReleasing}
                 defaultUpi={defaultUpi}
@@ -136,6 +180,7 @@ const PaymentSection = ({
                 upiLoading={upiLoading}
                 missingDefault={missingDefault}
                 noUpiConfigured={noUpiConfigured}
+                onlineGatewayAvailable={onlineGatewayAvailable}
             />
         </>
     );

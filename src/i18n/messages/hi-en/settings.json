@@ -348,6 +348,7 @@
     "fieldRequired": "Yeh field required hai",
     "leaveBlankToKeep": "Existing rakhne ke liye blank chhod dein",
     "enterSecret": "Secret enter karein",
+    "enterValue": "Value enter karein",
     "types": {
       "RAZORPAY": "Razorpay",
       "PAYTM": "Paytm",

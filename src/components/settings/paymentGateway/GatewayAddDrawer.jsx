@@ -9,6 +9,7 @@ import {
   GATEWAY_MODES,
   GATEWAY_CREDENTIAL_UI,
   buildCredentialsPayload,
+  gatewaySupportsWebhookSetup,
 } from "@/constants/paymentGateway.config";
 import {
   createStorePaymentGateway,
@@ -18,8 +19,8 @@ import { useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
 import GatewayCredentialFields, {
-  validateGatewayCredentials,
-} from "./GatewayCredentialFields";
+  validateGatewayCredentials, } from "./GatewayCredentialFields";
+import GatewayWebhookSetup from "./GatewayWebhookSetup";
 
 const emptyCredentialValues = (gatewayType) => {
   const values = {};
@@ -48,6 +49,9 @@ const GatewayAddDrawer = ({
   });
   const [errors, setErrors] = useState({});
   const [isCreating, setIsCreating] = useState(false);
+  const [createdWebhookSetup, setCreatedWebhookSetup] = useState(null);
+
+  const showingWebhookSetup = Boolean(createdWebhookSetup);
 
   const gatewayTypeOptions = PAYMENT_GATEWAY_V1_TYPES.map((type) => ({
     label: t(`settings.paymentGateway.types.${type}`, type),
@@ -133,20 +137,38 @@ const GatewayAddDrawer = ({
     <FormDrawer
       isOpen={isOpen}
       onClose={handleCancel}
-      title={t("settings.paymentGateway.addGateway")}
+      title={
+        showingWebhookSetup
+          ? t("settings.paymentGateway.webhookSetupTitle")
+          : t("settings.paymentGateway.addGateway")
+      }
       icon={Plus}
-      description={t("settings.paymentGateway.manageDescription")}
+      description={
+        showingWebhookSetup
+          ? t("settings.paymentGateway.webhookSetupDescription")
+          : t("settings.paymentGateway.manageDescription")
+      }
       width="w-full md:w-[420px]"
       onSave={handleSave}
       onCancel={handleCancel}
-      saveLabel={isCreating ? "Adding..." : t("settings.paymentGateway.addGateway")}
-      cancelLabel={t("common.cancel")}
+      saveLabel={
+        showingWebhookSetup
+          ? t("settings.paymentGateway.webhookSetupDone")
+          : isCreating
+            ? "Adding..."
+            : t("settings.paymentGateway.addGateway")
+      }
+      cancelLabel={showingWebhookSetup ? undefined : t("common.cancel")}
       isSaving={isCreating}
       saveIcon={Save}
       saveVariant="primary"
     >
       <div className="space-y-4">
-        <Select
+        {showingWebhookSetup ? (
+          <GatewayWebhookSetup webhookSetup={createdWebhookSetup} showSecret />
+        ) : (
+          <>
+            <Select
           label={t("settings.paymentGateway.gatewayType")}
           options={gatewayTypeOptions}
           value={form.gatewayType}
@@ -187,6 +209,13 @@ const GatewayAddDrawer = ({
           errors={errors}
           onChange={(credentials) => setForm((p) => ({ ...p, credentials }))}
         />
+        {gatewaySupportsWebhookSetup(form.gatewayType) && (
+          <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+            {t("settings.paymentGateway.webhookSecretAutoGenerateHint")}
+          </p>
+        )}
+          </>
+        )}
       </div>
     </FormDrawer>
   );

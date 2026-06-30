@@ -351,6 +351,7 @@
     "fieldRequired": "यह फ़ील्ड आवश्यक है",
     "leaveBlankToKeep": "मौजूदा रखने के लिए खाली छोड़ें",
     "enterSecret": "सीक्रेट दर्ज करें",
+    "enterValue": "मान दर्ज करें",
     "types": {
       "RAZORPAY": "Razorpay",
       "PAYTM": "Paytm",

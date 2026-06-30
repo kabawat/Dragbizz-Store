@@ -29,6 +29,7 @@ const API_CONFIG = {
     PAYMENT: "/retailer/supplier-account/payments",
     BILL: "/retailer/supplier-account/bills",
     INVOICE: "/retailer/invoices",
+    PAYMENTS: "/retailer/payments",
     EXPENSE: "/retailer/expense",
     DASHBOARD: "/retailer/dashboard",
     ANALYTICS: "/retailer/analytics",

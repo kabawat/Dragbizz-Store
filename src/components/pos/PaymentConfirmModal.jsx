@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Wallet, Banknote, CreditCard, ChevronRight, X, Loader2 } from "lucide-react";
+import { CheckCircle2, Wallet, Banknote, CreditCard, ChevronRight, X, Loader2, Globe } from "lucide-react";
 import { Button, Input, Modal, ModalFooter } from "@/components/ui";
 import { UpiPaymentQr } from "@/components/common";
 
@@ -9,6 +10,7 @@ const PAYMENT_METHODS = [
     { id: "cash", icon: Banknote, label: "Cash" },
     { id: "upi", icon: Wallet, label: "UPI" },
     { id: "card", icon: CreditCard, label: "Card" },
+    { id: "online", icon: Globe, label: "Online" },
 ];
 
 const formatAmount = (n) => `₹${Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -17,6 +19,7 @@ const PaymentConfirmModal = ({
     isOpen,
     onClose,
     onConfirm,
+    onOnlinePay,
     grandTotal,
     loading,
     defaultUpi,
@@ -24,9 +27,15 @@ const PaymentConfirmModal = ({
     upiLoading = false,
     missingDefault = false,
     noUpiConfigured = false,
+    onlineGatewayAvailable = false,
 }) => {
     const [paidAmount, setPaidAmount] = useState(grandTotal);
     const [mode, setMode] = useState("cash");
+
+    const visibleMethods = useMemo(
+        () => PAYMENT_METHODS.filter((method) => method.id !== "online" || onlineGatewayAvailable),
+        [onlineGatewayAvailable],
+    );
 
     useEffect(() => {
         if (isOpen) {
@@ -36,9 +45,18 @@ const PaymentConfirmModal = ({
     }, [grandTotal, isOpen]);
 
     const changeDue = mode === "cash" ? Math.max(0, paidAmount - grandTotal) : 0;
-    const canConfirm = paidAmount >= grandTotal || mode !== "cash";
+    const canConfirm = mode === "online" || paidAmount >= grandTotal || mode !== "cash";
     const upiBlocked = mode === "upi" && (upiLoading || missingDefault || noUpiConfigured);
     const showUpiQr = mode === "upi" && defaultUpi?.upiId && paidAmount > 0 && !upiBlocked;
+    const confirmLabel = mode === "online" ? "Pay with Razorpay" : "Release Invoice";
+
+    const handleConfirm = () => {
+        if (mode === "online") {
+            onOnlinePay?.();
+            return;
+        }
+        onConfirm({ paidAmount, paymentMode: mode });
+    };
 
     return (
         <Modal
@@ -87,8 +105,8 @@ const PaymentConfirmModal = ({
                         <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                             Method
                         </p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {PAYMENT_METHODS.map((m) => {
+                        <div className={`grid gap-2 ${visibleMethods.length === 4 ? "grid-cols-4" : "grid-cols-3"}`}>
+                            {visibleMethods.map((m) => {
                                 const Icon = m.icon;
                                 const active = mode === m.id;
                                 return (
@@ -109,17 +127,25 @@ const PaymentConfirmModal = ({
                         </div>
                     </div>
 
-                    <Input
-                        type="number"
-                        label="Amount Collected"
-                        size="sm"
-                        min={0}
-                        precision={2}
-                        value={paidAmount}
-                        onChange={setPaidAmount}
-                        autoFocus
-                        className="[&_input]:font-semibold [&_input]:tabular-nums"
-                    />
+                    {mode !== "online" && (
+                        <Input
+                            type="number"
+                            label="Amount Collected"
+                            size="sm"
+                            min={0}
+                            precision={2}
+                            value={paidAmount}
+                            onChange={setPaidAmount}
+                            autoFocus
+                            className="[&_input]:font-semibold [&_input]:tabular-nums"
+                        />
+                    )}
+
+                    {mode === "online" && (
+                        <div className="rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] p-3 text-sm text-[rgb(var(--color-text-secondary))]">
+                            Customer will pay via Razorpay. Invoice releases automatically after payment confirmation.
+                        </div>
+                    )}
 
                     {mode === "cash" && paidAmount > grandTotal && (
                         <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-green-500/5 border border-green-500/15 text-sm">
@@ -170,12 +196,12 @@ const PaymentConfirmModal = ({
                 <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => onConfirm({ paidAmount, paymentMode: mode })}
+                    onClick={handleConfirm}
                     disabled={!canConfirm || upiBlocked}
                     loading={loading}
                     rightIcon={ChevronRight}
                 >
-                    Release Invoice
+                    {confirmLabel}
                 </Button>
             </ModalFooter>
         </Modal>

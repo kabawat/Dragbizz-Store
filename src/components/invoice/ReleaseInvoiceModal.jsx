@@ -8,7 +8,10 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
+import { getStorePaymentGateways } from "@/store/slices/storePaymentGatewaySlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { useRazorpayCheckout } from "@/hooks/payment/useRazorpayCheckout";
+import { pickStoreId } from "@/utils/store.util";
 
 const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
   const { t } = useTranslation();
@@ -17,9 +20,23 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
   const { execute, loading } = useApiResponse();
+  const { startCheckout } = useRazorpayCheckout();
   const [paymentStatus, setPaymentStatus] = useState("PAID");
   const [paidAmount, setPaidAmount] = useState("");
   const [errors, setErrors] = useState({});
+  const [onlinePayLoading, setOnlinePayLoading] = useState(false);
+
+  const storeId = pickStoreId(selectedStore);
+  const { byStoreId } = useAppSelector((state) => state.storePaymentGateway);
+  const onlineGatewayAvailable = (byStoreId?.[storeId]?.gateways || []).some(
+    (gateway) => gateway.gatewayType === "RAZORPAY" && gateway.isActive && gateway.isDefault,
+  );
+
+  useEffect(() => {
+    if (invoice && storeId) {
+      dispatch(getStorePaymentGateways({ storeId, scope: "store" }));
+    }
+  }, [dispatch, invoice, storeId]);
 
   const totalAmount = invoice?.totalAmount || 0;
   const invoiceNumber =
@@ -57,6 +74,40 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
     }
     setPaidAmount(value);
     setErrors({});
+  };
+
+  const handleOnlinePay = async () => {
+    const invoiceId = invoice.id || invoice._id;
+    if (!storeId || !invoiceId) return;
+
+    setOnlinePayLoading(true);
+    try {
+      await startCheckout({
+        storeId,
+        invoiceId,
+        amount: totalAmount,
+        storeName: selectedStore?.storeName,
+        onSuccess: async () => {
+          const refreshParams = {
+            store: storeId,
+            limit: 20,
+            cursor: null,
+            isFreshLoad: true,
+          };
+          await dispatch(getInvoices(refreshParams));
+          onSuccess?.(invoiceId);
+          onClose();
+          router.push(`/dashboard/invoices/${invoiceId}`);
+        },
+        onFailure: (error) => {
+          showError(error?.message || "Online payment failed");
+        },
+      });
+    } catch (error) {
+      showError(error?.message || "Online payment failed");
+    } finally {
+      setOnlinePayLoading(false);
+    }
   };
 
   const handleConfirm = async () => {
@@ -194,18 +245,29 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
         )}
 
         <div className="flex space-x-3">
+          {onlineGatewayAvailable && (
+            <Button
+              onClick={handleOnlinePay}
+              variant="outline"
+              className="flex-1"
+              disabled={loading || onlinePayLoading}
+              loading={onlinePayLoading}
+            >
+              Pay Online
+            </Button>
+          )}
           <Button
             onClick={onClose}
             variant="outline"
             className="flex-1"
-            disabled={loading}
+            disabled={loading || onlinePayLoading}
           >
             {t("common.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
             className="flex-1"
-            disabled={loading}
+            disabled={loading || onlinePayLoading}
             loading={loading}
           >
             {loading ? t("invoice.releasing") : t("invoice.releaseInvoice")}

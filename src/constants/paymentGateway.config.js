@@ -2,13 +2,14 @@ export const PAYMENT_GATEWAY_V1_TYPES = ["RAZORPAY", "PAYTM", "CASHFREE"];
 
 export const GATEWAY_MODES = ["TEST", "LIVE"];
 
+export const GATEWAY_WEBHOOK_SUPPORTED = new Set(["RAZORPAY", "CASHFREE"]);
+
 export const GATEWAY_CREDENTIAL_UI = {
   RAZORPAY: {
     profile: "razorpay",
     fields: [
-      { key: "keyId", secret: false },
+      { key: "keyId", secret: false, masked: true },
       { key: "keySecret", secret: true },
-      { key: "webhookSecret", secret: true, optional: true },
     ],
   },
   PAYTM: {
@@ -24,10 +25,13 @@ export const GATEWAY_CREDENTIAL_UI = {
     fields: [
       { key: "appId", secret: false },
       { key: "secretKey", secret: true },
-      { key: "webhookSecret", secret: true, optional: true },
     ],
   },
 };
+
+export function gatewaySupportsWebhookSetup(gatewayType) {
+  return GATEWAY_WEBHOOK_SUPPORTED.has(gatewayType);
+}
 
 export function getGatewayCredentialConfig(gatewayType) {
   return GATEWAY_CREDENTIAL_UI[gatewayType] ?? null;
@@ -42,7 +46,7 @@ export function buildCredentialsPayload(gatewayType, formValues, { isEdit = fals
     const raw = formValues?.[field.key];
     if (raw === undefined || raw === null) continue;
     const trimmed = String(raw).trim();
-    if (!trimmed && isEdit && field.secret) continue;
+    if (!trimmed && isEdit && (field.secret || field.masked)) continue;
     if (!trimmed && field.optional) continue;
     if (trimmed) profileData[field.key] = trimmed;
   }
@@ -51,10 +55,23 @@ export function buildCredentialsPayload(gatewayType, formValues, { isEdit = fals
   return { [config.profile]: profileData };
 }
 
-export function getRequiredCredentialFields(gatewayType) {
+export function getRequiredCredentialFields(gatewayType, isEdit = false) {
   const config = getGatewayCredentialConfig(gatewayType);
   if (!config) return [];
-  return config.fields.filter((f) => !f.optional && !f.secret).map((f) => f.key);
+  return config.fields
+    .filter((f) => !f.optional && !f.secret && !(isEdit && f.masked))
+    .map((f) => f.key);
+}
+
+export function maskCredentialDisplay(value) {
+  if (value === undefined || value === null || String(value).trim() === "") return "";
+  const str = String(value);
+  if (str.length <= 4) return "••••";
+  return `${"•".repeat(Math.min(str.length, 8))}${str.slice(-4)}`;
+}
+
+export function isMaskedCredentialField(field = {}) {
+  return Boolean(field.secret || field.masked);
 }
 
 export function getRequiredSecretFields(gatewayType, isEdit = false) {

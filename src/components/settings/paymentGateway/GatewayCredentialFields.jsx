@@ -5,6 +5,7 @@ import {
   GATEWAY_CREDENTIAL_UI,
   getRequiredCredentialFields,
   getRequiredSecretFields,
+  isMaskedCredentialField,
 } from "@/constants/paymentGateway.config";
 import { Input } from "@/components/ui";
 
@@ -28,10 +29,12 @@ const GatewayCredentialFields = ({
       {config.fields.map((field) => {
         const labelKey = `settings.paymentGateway.fields.${gatewayType}.${field.key}`;
         const label = t(labelKey, field.key);
-        const placeholder = field.secret
+        const placeholder = isMaskedCredentialField(field)
           ? isEdit
             ? t("settings.paymentGateway.leaveBlankToKeep")
-            : t("settings.paymentGateway.enterSecret")
+            : field.secret
+              ? t("settings.paymentGateway.enterSecret")
+              : t("settings.paymentGateway.enterValue")
           : undefined;
 
         return (
@@ -42,7 +45,7 @@ const GatewayCredentialFields = ({
                 ? `${label} (${t("settings.paymentGateway.optional")})`
                 : label
             }
-            type={field.secret ? "password" : "text"}
+            type={isMaskedCredentialField(field) ? "password" : "text"}
             placeholder={placeholder}
             value={values[field.key] ?? ""}
             onChange={(val) => handleFieldChange(field.key, val)}
@@ -58,7 +61,7 @@ const GatewayCredentialFields = ({
 
 export function validateGatewayCredentials(gatewayType, values, { isEdit = false, t }) {
   const errors = {};
-  for (const key of getRequiredCredentialFields(gatewayType)) {
+  for (const key of getRequiredCredentialFields(gatewayType, isEdit)) {
     if (!String(values[key] ?? "").trim()) {
       errors[key] = t("settings.paymentGateway.fieldRequired");
     }
