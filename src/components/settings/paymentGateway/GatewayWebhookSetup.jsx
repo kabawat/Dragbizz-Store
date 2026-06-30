@@ -45,7 +45,13 @@ const CopyField = ({ label, value, mono = true }) => {
   );
 };
 
-const GatewayWebhookSetup = ({ webhookSetup, showSecret = false, compact = false }) => {
+const GatewayWebhookSetup = ({
+  webhookSetup,
+  showSecret = false,
+  compact = false,
+  onRegenerateSecret,
+  isRegenerating = false,
+}) => {
   const { t } = useTranslation();
 
   if (!webhookSetup?.url) return null;
@@ -76,9 +82,28 @@ const GatewayWebhookSetup = ({ webhookSetup, showSecret = false, compact = false
           value={webhookSetup.webhookSecret}
         />
       ) : secretConfigured ? (
-        <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
-          {t("settings.paymentGateway.webhookSecretConfigured")}
-        </p>
+        <div className="space-y-2">
+          <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+            {t("settings.paymentGateway.webhookSecretConfigured")}
+          </p>
+          {onRegenerateSecret ? (
+            <>
+              <button
+                type="button"
+                onClick={onRegenerateSecret}
+                disabled={isRegenerating}
+                className="text-xs font-medium text-[rgb(var(--color-primary))] hover:underline disabled:opacity-50 cursor-pointer"
+              >
+                {isRegenerating
+                  ? t("settings.paymentGateway.webhookSecretGenerating")
+                  : t("settings.paymentGateway.webhookSecretGetForRazorpay")}
+              </button>
+              <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                {t("settings.paymentGateway.webhookSecretRegenerateHint")}
+              </p>
+            </>
+          ) : null}
+        </div>
       ) : null}
 
       <p className="text-xs text-[rgb(var(--color-text-tertiary))]">

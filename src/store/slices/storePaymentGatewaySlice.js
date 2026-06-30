@@ -139,6 +139,26 @@ export const deleteStorePaymentGateway = createAsyncThunk(
   },
 );
 
+export const rotateStorePaymentGatewayWebhookSecret = createAsyncThunk(
+  "storePaymentGateway/rotateStorePaymentGatewayWebhookSecret",
+  async ({ storeId, gatewayId }, { rejectWithValue }) => {
+    try {
+      const response = await storeService.rotateStorePaymentGatewayWebhookSecret(storeId, gatewayId);
+      const result = handleSuccess(response);
+      return {
+        storeId,
+        gatewayId,
+        data: normalizeGatewayRecord(result.data || {}),
+        message: result.message || "Webhook secret regenerated successfully",
+      };
+    } catch (error) {
+      return rejectWithValue(
+        handleError(error).message || "Failed to regenerate webhook secret",
+      );
+    }
+  },
+);
+
 const initialState = {
   byStoreId: {},
   isLoading: false,
@@ -233,6 +253,23 @@ const storePaymentGatewaySlice = createSlice({
           state.byStoreId[agencyKey].gateways = state.byStoreId[agencyKey].gateways.filter(
             (g) => !sameGatewayId(g, gatewayId),
           );
+        }
+        state.error = null;
+      })
+      .addCase(rotateStorePaymentGatewayWebhookSecret.fulfilled, (state, action) => {
+        const { storeId, data } = action.payload;
+        const agencyKey = `agency_${storeId}`;
+        if (state.byStoreId[agencyKey]?.gateways && data?.id) {
+          const idx = state.byStoreId[agencyKey].gateways.findIndex((g) =>
+            sameGatewayId(g, data.id),
+          );
+          if (idx >= 0) {
+            state.byStoreId[agencyKey].gateways[idx] = normalizeGatewayRecord({
+              ...state.byStoreId[agencyKey].gateways[idx],
+              ...data,
+              webhookSetup: data.webhookSetup,
+            });
+          }
         }
         state.error = null;
       });

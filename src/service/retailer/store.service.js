@@ -102,6 +102,15 @@ class StoreService extends BaseService {
     return this.delete(`${this.endpoint}/payment-gateway/${gatewayId}`, { store: storeId });
   }
 
+  // Store Payment Gateway - Rotate webhook secret (returns new secret for Razorpay setup)
+  async rotateStorePaymentGatewayWebhookSecret(storeId, gatewayId) {
+    return this.post(
+      `${this.endpoint}/payment-gateway/${gatewayId}/rotate-webhook-secret`,
+      {},
+      { store: storeId },
+    );
+  }
+
   // Verify GST number
   async verifyGst(gstNo) {
     return this.post(API_CONFIG?.RETAILER?.GST_VERIFY, { gstNo });

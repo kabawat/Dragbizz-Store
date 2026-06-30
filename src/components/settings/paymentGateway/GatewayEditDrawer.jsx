@@ -1,7 +1,11 @@
 "use client";
 
 import { GATEWAY_MODES, GATEWAY_CREDENTIAL_UI, buildCredentialsPayload, isMaskedCredentialField, } from "@/constants/paymentGateway.config";
-import { updateStorePaymentGateway, getStorePaymentGateways, } from "@/store/slices/storePaymentGatewaySlice";
+import {
+  updateStorePaymentGateway,
+  getStorePaymentGateways,
+  rotateStorePaymentGatewayWebhookSecret,
+} from "@/store/slices/storePaymentGatewaySlice";
 import { Input, MultiSelect, Select, Toggle } from "@/components/ui";
 import { CreditCard, Save } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -39,11 +43,14 @@ const GatewayEditDrawer = ({
   });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [webhookSetupView, setWebhookSetupView] = useState(null);
+  const [isRegeneratingSecret, setIsRegeneratingSecret] = useState(false);
 
   const gatewayType = editingGateway?.gatewayType;
 
   useEffect(() => {
     if (isOpen && editingGateway) {
+      setWebhookSetupView(editingGateway.webhookSetup || null);
       const config = GATEWAY_CREDENTIAL_UI[editingGateway.gatewayType];
       const credValues = emptyCredentialsForType(editingGateway.gatewayType);
       const maskedFields = editingGateway.credentials?.fields || {};
@@ -113,9 +120,30 @@ const GatewayEditDrawer = ({
   };
 
   const handleCancel = () => {
+    setWebhookSetupView(null);
     setForm({ label: "", mode: "TEST", storeIds: [], isDefault: false, credentials: {} });
     setErrors({});
     onClose?.();
+  };
+
+  const handleRegenerateWebhookSecret = async () => {
+    const gatewayDocId = editingGateway?.id;
+    if (!storeId || !gatewayDocId) return;
+
+    try {
+      setIsRegeneratingSecret(true);
+      const result = await dispatch(
+        rotateStorePaymentGatewayWebhookSecret({ storeId, gatewayId: gatewayDocId }),
+      ).unwrap();
+      if (result?.data?.webhookSetup) {
+        setWebhookSetupView(result.data.webhookSetup);
+      }
+      onSuccess?.(result.message || t("settings.paymentGateway.webhookSecretRegenerated"));
+    } catch (error) {
+      onError?.(error?.message || error || "Failed to get webhook secret");
+    } finally {
+      setIsRegeneratingSecret(false);
+    }
   };
 
   const storeOptions = stores.map((store) => ({
@@ -180,8 +208,16 @@ const GatewayEditDrawer = ({
           onChange={(credentials) => setForm((p) => ({ ...p, credentials }))}
           isEdit
         />
-        {editingGateway?.webhookSetup && (
-          <GatewayWebhookSetup webhookSetup={editingGateway.webhookSetup} compact />
+        {webhookSetupView && (
+          <GatewayWebhookSetup
+            webhookSetup={webhookSetupView}
+            showSecret={Boolean(webhookSetupView.webhookSecret)}
+            compact
+            onRegenerateSecret={
+              webhookSetupView.webhookSecret ? undefined : handleRegenerateWebhookSecret
+            }
+            isRegenerating={isRegeneratingSecret}
+          />
         )}
       </div>
     </FormDrawer>

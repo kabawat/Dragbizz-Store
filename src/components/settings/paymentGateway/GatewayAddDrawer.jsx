@@ -80,6 +80,10 @@ const GatewayAddDrawer = ({
   };
 
   const handleSave = async () => {
+    if (showingWebhookSetup) {
+      handleCancel();
+      return;
+    }
     if (!validateForm() || !storeId) return;
     try {
       setIsCreating(true);
@@ -93,11 +97,20 @@ const GatewayAddDrawer = ({
         isDefault: form.isDefault,
         credentials,
       };
-      await dispatch(createStorePaymentGateway({ storeId, payload })).unwrap();
+      const result = await dispatch(createStorePaymentGateway({ storeId, payload })).unwrap();
       await dispatch(
         getStorePaymentGateways({ storeId, scope: "agency", forceRefresh: true }),
       ).unwrap();
       onSuccess?.(t("settings.paymentGateway.addedSuccess"));
+
+      if (
+        gatewaySupportsWebhookSetup(form.gatewayType) &&
+        result?.data?.webhookSetup?.webhookSecret
+      ) {
+        setCreatedWebhookSetup(result.data.webhookSetup);
+        return;
+      }
+
       handleCancel();
     } catch (error) {
       onError?.(error?.message || error || "Failed to add payment gateway");
@@ -107,6 +120,7 @@ const GatewayAddDrawer = ({
   };
 
   const handleCancel = () => {
+    setCreatedWebhookSetup(null);
     setForm({
       gatewayType: PAYMENT_GATEWAY_V1_TYPES[0],
       label: "",
