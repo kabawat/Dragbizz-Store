@@ -308,6 +308,69 @@
     "setAsDefault": "ડિફૉલ્ટ UPI તરીકે સેટ કરો",
     "defaultBadge": "ડિફૉલ્ટ"
   },
+  "paymentSubTabs": {
+    "subTabUpi": "UPI",
+    "subTabGateway": "પેમેન્ટ ગેટવે"
+  },
+  "paymentGateway": {
+    "manageGateways": "પેમેન્ટ ગેટવે મેનેજ કરો",
+    "manageDescription": "ઓનલાઇન પેમેન્ટ સ્વીકારવા માટે Razorpay, Paytm અથવા Cashfree કનેક્ટ કરો",
+    "gatewayCount": "{{count}} ગેટવે કોન્ફિગર",
+    "addGateway": "ગેટવે ઉમેરો",
+    "editGateway": "ગેટવે સંપાદિત કરો",
+    "gatewayType": "ગેટવે પ્રકાર",
+    "gatewayTypeRequired": "ગેટવે પ્રકાર જરૂરી છે",
+    "labelOptional": "લેબલ (વૈકલ્પિક)",
+    "labelPlaceholder": "મુખ્ય, બેકઅપ...",
+    "mode": "મોડ",
+    "modeTest": "ટેસ્ટ",
+    "modeLive": "લાઇવ",
+    "assignToStores": "સ્ટોરને સોંપો",
+    "selectStores": "સ્ટોર પસંદ કરો",
+    "storeIdsRequired": "ઓછામાં ઓછું એક સ્ટોર જરૂરી છે",
+    "setAsDefault": "ડિફૉલ્ટ ગેટવે તરીકે સેટ કરો",
+    "defaultBadge": "ડિફૉલ્ટ",
+    "noGateways": "હજી સુધી કોઈ પેમેન્ટ ગેટવે ઉમેરાયું નથી",
+    "addFirstGatewayDescription": "ઓનલાઇન પેમેન્ટ સ્વીકારવા માટે તમારું પહેલું ગેટવે ઉમેરો",
+    "addAnotherGateway": "બીજું ગેટવે ઉમેરો",
+    "accessibleByStores": "સ્ટોર દ્વારા ઉપલબ્ધ",
+    "credentialsConfigured": "ક્રેડેન્શિયલ કોન્ફિગર",
+    "secretsConfigured": "{{count}} સિક્રેટ કોન્ફિગર",
+    "edit": "સંપાદિત કરો",
+    "delete": "કાઢી નાખો",
+    "deleteTitle": "પેમેન્ટ ગેટવે કાઢી નાખો",
+    "confirmDelete": "શું તમે ખરેખર આ પેમેન્ટ ગેટવે કાઢી નાખવા માંગો છો?",
+    "addedSuccess": "પેમેન્ટ ગેટવે સફળતાપૂર્વક ઉમેરાયું",
+    "updatedSuccess": "પેમેન્ટ ગેટવે સફળતાપૂર્વક અપડેટ થયું",
+    "deletedSuccess": "પેમેન્ટ ગેટવે સફળતાપૂર્વક કાઢી નાખ્યું",
+    "noPermission": "તમારી પાસે પેમેન્ટ ગેટવે જોવાની પરમિશન નથી",
+    "optional": "વૈકલ્પિક",
+    "fieldRequired": "આ ફીલ્ડ જરૂરી છે",
+    "leaveBlankToKeep": "હાલનું રાખવા માટે ખાલી છોડો",
+    "enterSecret": "સિક્રેટ દાખલ કરો",
+    "types": {
+      "RAZORPAY": "Razorpay",
+      "PAYTM": "Paytm",
+      "CASHFREE": "Cashfree"
+    },
+    "fields": {
+      "RAZORPAY": {
+        "keyId": "Key ID",
+        "keySecret": "Key Secret",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PAYTM": {
+        "merchantId": "Merchant ID",
+        "merchantKey": "Merchant Key",
+        "appId": "App ID"
+      },
+      "CASHFREE": {
+        "appId": "App ID",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      }
+    }
+  },
   "digitalSignatures": "ડિજિટલ સહી",
   "signatureDescription": "ચલણ અને દસ્તાવેજો માટે તમારી ડિજિટલ સહીઓ મેનેજ કરો.",
   "signatureAdded": "સહી સફળતાપૂર્વક ઉમેરાઈ",

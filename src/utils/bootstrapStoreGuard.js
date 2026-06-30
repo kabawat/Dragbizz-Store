@@ -7,7 +7,11 @@ const STORE_SCOPED_URL =
 
 export function urlNeedsStoreParam(url = "") {
   const path = String(url);
-  return STORE_SCOPED_URL.test(path) || path.includes("/upi");
+  return (
+    STORE_SCOPED_URL.test(path) ||
+    path.includes("/upi") ||
+    path.includes("/payment-gateway")
+  );
 }
 
 export function getConfigStoreParam(config) {

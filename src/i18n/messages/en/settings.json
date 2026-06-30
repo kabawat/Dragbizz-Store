@@ -313,6 +313,69 @@
     "setAsDefault": "Set as default UPI",
     "defaultBadge": "Default"
   },
+  "paymentSubTabs": {
+    "subTabUpi": "UPI",
+    "subTabGateway": "Payment Gateway"
+  },
+  "paymentGateway": {
+    "manageGateways": "Manage Payment Gateways",
+    "manageDescription": "Connect Razorpay, Paytm, or Cashfree to accept online payments",
+    "gatewayCount": "{{count}} gateway(s) configured",
+    "addGateway": "Add Gateway",
+    "editGateway": "Edit Gateway",
+    "gatewayType": "Gateway Type",
+    "gatewayTypeRequired": "Gateway type is required",
+    "labelOptional": "Label (Optional)",
+    "labelPlaceholder": "Main, Backup...",
+    "mode": "Mode",
+    "modeTest": "Test",
+    "modeLive": "Live",
+    "assignToStores": "Assign to stores",
+    "selectStores": "Select stores",
+    "storeIdsRequired": "At least one store is required",
+    "setAsDefault": "Set as default gateway",
+    "defaultBadge": "Default",
+    "noGateways": "No payment gateways added yet",
+    "addFirstGatewayDescription": "Add your first payment gateway to accept online payments",
+    "addAnotherGateway": "Add another gateway",
+    "accessibleByStores": "Accessible by stores",
+    "credentialsConfigured": "Credentials configured",
+    "secretsConfigured": "{{count}} secret(s) configured",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Delete Payment Gateway",
+    "confirmDelete": "Are you sure you want to delete this payment gateway?",
+    "addedSuccess": "Payment gateway added successfully",
+    "updatedSuccess": "Payment gateway updated successfully",
+    "deletedSuccess": "Payment gateway deleted successfully",
+    "noPermission": "You do not have permission to view payment gateways",
+    "optional": "Optional",
+    "fieldRequired": "This field is required",
+    "leaveBlankToKeep": "Leave blank to keep existing",
+    "enterSecret": "Enter secret",
+    "types": {
+      "RAZORPAY": "Razorpay",
+      "PAYTM": "Paytm",
+      "CASHFREE": "Cashfree"
+    },
+    "fields": {
+      "RAZORPAY": {
+        "keyId": "Key ID",
+        "keySecret": "Key Secret",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PAYTM": {
+        "merchantId": "Merchant ID",
+        "merchantKey": "Merchant Key",
+        "appId": "App ID"
+      },
+      "CASHFREE": {
+        "appId": "App ID",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      }
+    }
+  },
   "digitalSignatures": "Digital Signatures",
   "signatureDescription": "Manage your digital signatures for invoices and documents.",
   "signatureAdded": "Signature added successfully",
