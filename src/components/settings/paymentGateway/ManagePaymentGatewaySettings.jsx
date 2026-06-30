@@ -7,13 +7,11 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStorePaymentGateways } from "@/store/slices/storePaymentGatewaySlice";
-import {
-  GatewayHeader,
-  GatewayList,
-  GatewayAddDrawer,
-  GatewayEditDrawer,
-  GatewayDeleteModal,
-} from "./";
+import GatewayHeader from "./GatewayHeader";
+import GatewayList from "./GatewayList";
+import GatewayAddDrawer from "./GatewayAddDrawer";
+import GatewayEditDrawer from "./GatewayEditDrawer";
+import GatewayDeleteModal from "./GatewayDeleteModal";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const ManagePaymentGatewaySettings = () => {

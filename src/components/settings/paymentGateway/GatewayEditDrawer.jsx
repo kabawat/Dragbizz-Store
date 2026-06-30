@@ -1,24 +1,15 @@
 "use client";
 
+import { GATEWAY_MODES, GATEWAY_CREDENTIAL_UI, buildCredentialsPayload, } from "@/constants/paymentGateway.config";
+import { updateStorePaymentGateway, getStorePaymentGateways, } from "@/store/slices/storePaymentGatewaySlice";
+import { Input, MultiSelect, Select, Toggle } from "@/components/ui";
 import { CreditCard, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FormDrawer } from "@/components/common";
-import { Input, MultiSelect, Select, Toggle } from "@/components/ui";
-import {
-  GATEWAY_MODES,
-  GATEWAY_CREDENTIAL_UI,
-  buildCredentialsPayload,
-} from "@/constants/paymentGateway.config";
-import {
-  updateStorePaymentGateway,
-  getStorePaymentGateways,
-} from "@/store/slices/storePaymentGatewaySlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
-import GatewayCredentialFields, {
-  validateGatewayCredentials,
-} from "./GatewayCredentialFields";
+import GatewayCredentialFields, { validateGatewayCredentials } from "./GatewayCredentialFields";
 
 const emptyCredentialsForType = (gatewayType) => {
   const fields = GATEWAY_CREDENTIAL_UI[gatewayType]?.fields || [];
@@ -139,7 +130,7 @@ const GatewayEditDrawer = ({
       width="w-full md:w-[420px]"
       onSave={handleSave}
       onCancel={handleCancel}
-      saveLabel={isSaving ? t("common.saving") : t("common.save")}
+      saveLabel={isSaving ? "Saving..." : t("common.save")}
       cancelLabel={t("common.cancel")}
       isSaving={isSaving}
       saveIcon={Save}
