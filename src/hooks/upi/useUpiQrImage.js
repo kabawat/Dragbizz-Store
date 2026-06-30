@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { buildUpiPaymentUri } from "./buildUpiPaymentUri";
-import { composeQrWithLogo, getQrCodeServiceUrl } from "./upiQrImage";
+import { buildUpiPaymentUri } from "@/utils/upi/buildUpiPaymentUri";
+import { composeQrWithLogo, getQrCodeServiceUrl } from "@/utils/upi/upiQrImage";
 
 export function useUpiQrImage({ upiId, payeeName, amount, logoUrl }) {
   const [qrWithLogoUrl, setQrWithLogoUrl] = useState(null);
