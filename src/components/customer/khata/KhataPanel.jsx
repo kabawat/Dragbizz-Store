@@ -31,22 +31,27 @@ const KhataPanel = ({
     onSuccess?.();
   };
 
+  const collectActions = (
+    <KhataCollectActions
+      storeId={storeId}
+      customerId={customerId}
+      customerName={customerName}
+      customerEmail={customerEmail}
+      amount={account?.totalDue ?? 0}
+      variant="embedded"
+    />
+  );
+
   return (
-    <div className="space-y-4">
-      <KhataBalanceCard totalDue={account?.totalDue ?? 0} label={t("khata.balance")} />
+    <div className="space-y-6">
+      <KhataBalanceCard account={account} />
       <KhataEntrySection
         storeId={storeId}
         customerId={customerId}
         customerName={customerName}
         customerAccountId={customerAccountId}
         onSuccess={handleSuccess}
-      />
-      <KhataCollectActions
-        storeId={storeId}
-        customerId={customerId}
-        customerName={customerName}
-        customerEmail={customerEmail}
-        amount={account?.totalDue ?? 0}
+        collectActions={collectActions}
       />
       <KhataLedgerList
         entries={entries}

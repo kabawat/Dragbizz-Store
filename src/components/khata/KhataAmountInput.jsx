@@ -2,10 +2,18 @@
 
 import { Input } from "@/components/ui";
 
-export function KhataAmountInput({ value, onChange, label, error, autoFocus = false, disabled = false }) {
+export function KhataAmountInput({
+  value,
+  onChange,
+  label,
+  error,
+  autoFocus = false,
+  disabled = false,
+  showLabel = true,
+}) {
   return (
     <div>
-      {label ? (
+      {showLabel && label ? (
         <label className="block text-sm font-medium mb-2 text-[rgb(var(--color-text-secondary))]">
           {label}
         </label>

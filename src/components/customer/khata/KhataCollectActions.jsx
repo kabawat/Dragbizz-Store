@@ -17,6 +17,7 @@ const KhataCollectActions = ({
   customerEmail,
   amount,
   disabled = false,
+  variant = "inline",
 }) => {
   const { t } = useTranslation();
   const [upiModalOpen, setUpiModalOpen] = useState(false);
@@ -24,15 +25,15 @@ const KhataCollectActions = ({
   const storeName = selectedStore?.storeName || "";
   const collectAmount = Math.max(0, Number(amount) || 0);
   const canCollect = collectAmount > 0 && !disabled;
+  const canRemind = Boolean(customerEmail?.trim());
 
   const { defaultUpi, isLoading: upiLoading, noUpiConfigured } = useStoreDefaultUpi(storeId, {
-    enabled: canCollect,
+    enabled: Boolean(storeId),
   });
   const { createCollectLink, loading: linkLoading } = usePaymentCollect({ storeId });
   const { sendReminder, loading: reminderLoading } = usePaymentReminder({ storeId });
 
   const transactionNote = useMemo(() => buildKhataUpiNote(customerName), [customerName]);
-  const canRemind = Boolean(customerEmail?.trim());
 
   const handleSendPaymentLink = async () => {
     if (!canCollect || !customerId) return;
@@ -52,35 +53,39 @@ const KhataCollectActions = ({
     });
   };
 
-  if (!canCollect) return null;
+  const buttonClass =
+    "h-10 px-4 rounded-xl border border-[rgb(var(--color-border-primary))] text-sm font-semibold text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] disabled:opacity-50 inline-flex items-center gap-2 transition-colors";
+
+  const remindClass =
+    "h-10 px-4 rounded-xl border border-amber-500/60 text-amber-600 dark:text-amber-400 text-sm font-semibold hover:bg-amber-500/10 disabled:opacity-50 inline-flex items-center gap-2 transition-colors";
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div className={variant === "inline" ? "flex flex-wrap gap-2 pt-3" : "flex flex-wrap gap-2"}>
         <button
           type="button"
-          disabled={upiLoading || noUpiConfigured || !defaultUpi?.upiId}
+          disabled={!canCollect || upiLoading || noUpiConfigured || !defaultUpi?.upiId}
           onClick={() => setUpiModalOpen(true)}
-          className="h-10 px-4 rounded-xl border border-[rgb(var(--color-border-primary))] text-sm font-semibold text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] disabled:opacity-50 inline-flex items-center gap-2"
+          className={buttonClass}
         >
           <QrCode className="h-4 w-4" />
           {t("khata.showUpiQr")}
         </button>
         <button
           type="button"
-          disabled={linkLoading}
+          disabled={!canCollect || linkLoading}
           onClick={handleSendPaymentLink}
-          className="h-10 px-4 rounded-xl bg-[rgb(var(--color-primary))] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50 inline-flex items-center gap-2"
+          className={buttonClass}
         >
           {linkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
-          {t("khata.sendPaymentLink")}
+          {t("khata.paymentLink")}
         </button>
         <button
           type="button"
-          disabled={reminderLoading || !canRemind}
+          disabled={!canCollect || reminderLoading || !canRemind}
           title={!canRemind ? t("khata.noCustomerEmail") : undefined}
           onClick={handleSendReminder}
-          className="h-10 px-4 rounded-xl border border-amber-500 text-amber-700 text-sm font-semibold hover:bg-amber-50 disabled:opacity-50 inline-flex items-center gap-2"
+          className={remindClass}
         >
           {reminderLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
           {t("khata.remind")}

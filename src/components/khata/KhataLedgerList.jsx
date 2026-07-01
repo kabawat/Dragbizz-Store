@@ -1,8 +1,8 @@
 "use client";
 
-import { EmptyState } from "@/components/ui";
-import { Loader2 } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Loader2 } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { EmptyState } from "@/components/ui";
 
 function formatAmount(amount) {
   return new Intl.NumberFormat("en-IN", {
@@ -16,7 +16,19 @@ function formatDateHeader(value) {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return date
+    .toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+    .toUpperCase();
+}
+
+function formatPaymentMode(mode) {
+  if (!mode) return "";
+  return String(mode).replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function buildEntryMeta(entry) {
+  const parts = [entry.reference, formatPaymentMode(entry.paymentMode), entry.notes].filter(Boolean);
+  return parts.join(" · ");
 }
 
 export function KhataLedgerList({
@@ -54,34 +66,48 @@ export function KhataLedgerList({
   let lastDateHeader = "";
 
   return (
-    <div className="space-y-2">
-      {title ? <h4 className="text-sm font-semibold">{title}</h4> : null}
-      <ul className="divide-y divide-[rgb(var(--color-border-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+    <div className="rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] shadow-sm overflow-hidden">
+      {title ? (
+        <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))]">
+          <h4 className="text-base font-semibold">{title}</h4>
+        </div>
+      ) : null}
+      <ul>
         {entries.map((entry) => {
           const isYouGave = entry.label === "youGave";
           const dateHeader = formatDateHeader(entry.date);
           const showHeader = dateHeader && dateHeader !== lastDateHeader;
           if (showHeader) lastDateHeader = dateHeader;
+          const meta = buildEntryMeta(entry);
 
           return (
             <li key={`${entry.kind}-${entry.id}`}>
               {showHeader ? (
-                <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))]">
+                <div className="px-5 py-2 text-[11px] font-semibold tracking-wide bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))]">
                   {dateHeader}
                 </div>
               ) : null}
-              <div className="flex items-center justify-between gap-3 px-4 py-3 bg-[rgb(var(--color-bg-primary))]">
-                <div className="min-w-0">
-                  <p className={`text-sm font-semibold ${isYouGave ? "text-red-600" : "text-green-600"}`}>
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-[rgb(var(--color-border-primary))] last:border-b-0">
+                <div
+                  className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${
+                    isYouGave ? "bg-red-500/10 text-red-600" : "bg-green-500/10 text-green-600"
+                  }`}
+                >
+                  {isYouGave ? (
+                    <ArrowUpRight className="h-4 w-4" />
+                  ) : (
+                    <ArrowDownLeft className="h-4 w-4" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`text-sm font-semibold ${isYouGave ? "text-red-600" : "text-green-600"}`}
+                  >
                     {t(`khata.${entry.label}`)}
                   </p>
-                  <p className="text-xs text-[rgb(var(--color-text-secondary))] truncate">
-                    {entry.reference}
-                    {entry.paymentMode ? ` · ${entry.paymentMode}` : ""}
-                  </p>
-                  {entry.notes ? (
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5 truncate">
-                      {entry.notes}
+                  {meta ? (
+                    <p className="text-xs text-[rgb(var(--color-text-secondary))] truncate mt-0.5">
+                      {meta}
                     </p>
                   ) : null}
                 </div>
@@ -93,8 +119,8 @@ export function KhataLedgerList({
                     {formatAmount(entry.amount)}
                   </p>
                   {entry.runningBalance != null ? (
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))] tabular-nums">
-                      {t("khata.balance")}: {formatAmount(entry.runningBalance)}
+                    <p className="text-xs text-[rgb(var(--color-text-secondary))] tabular-nums mt-0.5">
+                      {t("khata.balance")} {formatAmount(entry.runningBalance)}
                     </p>
                   ) : null}
                 </div>
