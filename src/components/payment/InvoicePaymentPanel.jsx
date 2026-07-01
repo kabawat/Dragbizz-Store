@@ -36,6 +36,7 @@ const InvoicePaymentPanel = ({
   missingDefault = false,
   noUpiConfigured = false,
   onlineGatewayAvailable = false,
+  waitingForCustomer = false,
   onConfirm,
   onOnlinePay,
   onBack,
@@ -64,7 +65,10 @@ const InvoicePaymentPanel = ({
   const upiBlocked = mode === "upi" && (upiLoading || missingDefault || noUpiConfigured);
   const showUpiQr = mode === "upi" && defaultUpi?.upiId && paidAmount > 0 && !upiBlocked;
   const confirmLabel =
-    mode === "online" ? t("invoice.collectPayment.payWithRazorpay") : t("invoice.collectPayment.releaseInvoice");
+    mode === "online"
+      ? t("invoice.collectPayment.sendToCustomerDisplay")
+      : t("invoice.collectPayment.releaseInvoice");
+  const onlineConfirmDisabled = mode === "online" && waitingForCustomer;
 
   const handleConfirm = () => {
     if (mode === "online") {
@@ -163,8 +167,14 @@ const InvoicePaymentPanel = ({
           )}
 
           {mode === "online" && (
-            <div className="rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] p-3 text-sm text-[rgb(var(--color-text-secondary))]">
-              {t("invoice.collectPayment.onlineDescription")}
+            <div className="rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] p-3 text-sm text-[rgb(var(--color-text-secondary))] space-y-2">
+              <p>{t("invoice.collectPayment.onlineDescription")}</p>
+              {waitingForCustomer && (
+                <div className="flex items-center gap-2 text-[rgb(var(--color-text-primary))] pt-1">
+                  <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                  <span>{t("invoice.collectPayment.waitingForCustomer")}</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -218,7 +228,7 @@ const InvoicePaymentPanel = ({
           variant="primary"
           size="md"
           onClick={handleConfirm}
-          disabled={!canConfirm || upiBlocked}
+          disabled={!canConfirm || upiBlocked || onlineConfirmDisabled}
           loading={loading}
           rightIcon={ChevronRight}
           className="flex-1"

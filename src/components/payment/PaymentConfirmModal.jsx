@@ -16,6 +16,7 @@ const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) =>
     pageState,
     fetching,
     isProcessing,
+    waitingForCustomer,
     defaultUpi,
     upiLoading,
     missingDefault,
@@ -83,6 +84,7 @@ const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) =>
               missingDefault={missingDefault}
               noUpiConfigured={noUpiConfigured}
               onlineGatewayAvailable={onlineGatewayAvailable}
+              waitingForCustomer={waitingForCustomer}
               onConfirm={handleManualRelease}
               onOnlinePay={handleOnlinePay}
               onBack={handleDismiss}

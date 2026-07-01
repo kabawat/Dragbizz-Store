@@ -91,6 +91,7 @@ export function createAwaitingSession({
   defaultUpi,
   storeName,
   customerName,
+  onlineAttemptAt,
 }) {
   return {
     tenantId: scope.tenantId,
@@ -106,6 +107,7 @@ export function createAwaitingSession({
     defaultUpi,
     storeName,
     customerName,
+    ...(onlineAttemptAt ? { onlineAttemptAt } : {}),
     updatedAt: Date.now(),
   };
 }

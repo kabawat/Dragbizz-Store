@@ -1,13 +1,19 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, CreditCard, Banknote, Globe, Loader2 } from "lucide-react";
 import { UpiPaymentQr } from "@/components/common";
+import CustomerDisplayIdle from "@/components/payment/CustomerDisplayIdle";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import usePaymentDisplaySession from "@/hooks/payment/usePaymentDisplaySession";
 import { useRazorpayCheckout } from "@/hooks/payment/useRazorpayCheckout";
 import { useAppSelector } from "@/store/hooks";
-import { writePaymentDisplaySession } from "@/utils/payment/paymentDisplaySession";
+import {
+  clearPaymentDisplaySession,
+  writePaymentDisplaySession,
+} from "@/utils/payment/paymentDisplaySession";
+
+const PAID_IDLE_MS = 5000;
 
 const formatAmount = (n) => `₹${Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -18,6 +24,7 @@ const CustomerPaymentDisplay = () => {
   const { startCheckout } = useRazorpayCheckout();
   const [checkoutState, setCheckoutState] = useState("idle");
   const [checkoutError, setCheckoutError] = useState("");
+  const lastOnlineAttemptRef = useRef(null);
   const storeName = session?.storeName || selectedStore?.storeName || "";
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
@@ -59,6 +66,31 @@ const CustomerPaymentDisplay = () => {
     }
   }, [checkoutState, ready, scope, session, startCheckout, storeName, t]);
 
+  useEffect(() => {
+    if (!session || session.paymentMethod !== "online" || session.status !== "awaiting") return;
+    if (!isOnline) return;
+    if (checkoutState === "processing" || checkoutState === "success") return;
+
+    const attemptAt = session.onlineAttemptAt;
+    if (!attemptAt || attemptAt === lastOnlineAttemptRef.current) return;
+
+    lastOnlineAttemptRef.current = attemptAt;
+    handlePayWithRazorpay();
+  }, [session, isOnline, checkoutState, handlePayWithRazorpay]);
+
+  useEffect(() => {
+    if (!session || session.status !== "paid" || !scope) return undefined;
+
+    const timer = setTimeout(() => {
+      clearPaymentDisplaySession(scope);
+      setCheckoutState("idle");
+      setCheckoutError("");
+      lastOnlineAttemptRef.current = null;
+    }, PAID_IDLE_MS);
+
+    return () => clearTimeout(timer);
+  }, [session?.status, session?.sessionId, scope]);
+
   if (!ready) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
@@ -69,16 +101,7 @@ const CustomerPaymentDisplay = () => {
   }
 
   if (!session || session.status === "idle" || session.status === "cancelled") {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center animate-in fade-in duration-300">
-        <p className="text-lg font-medium text-[rgb(var(--color-text-primary))]">
-          {t("invoice.customerPayment.waiting")}
-        </p>
-        {storeName && (
-          <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-2">{storeName}</p>
-        )}
-      </div>
-    );
+    return <CustomerDisplayIdle />;
   }
 
   if (session.status === "paid") {
@@ -130,11 +153,8 @@ const CustomerPaymentDisplay = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center animate-in fade-in duration-300">
         <Banknote className="w-16 h-16 text-[rgb(var(--color-primary))] mb-6" />
-        <p className="text-3xl font-bold text-[rgb(var(--color-primary))] tabular-nums mb-4">
-          {formatAmount(amount)}
-        </p>
         <p className="text-lg text-[rgb(var(--color-text-primary))]">
-          {t("invoice.customerPayment.payAtCounter")}
+          {t("invoice.customerPayment.payAtCounter", { amount: formatAmount(amount) })}
         </p>
       </div>
     );
@@ -165,7 +185,7 @@ const CustomerPaymentDisplay = () => {
           <>
             <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))] mb-3" />
             <p className="text-lg text-[rgb(var(--color-text-primary))]">
-              {t("invoice.customerPayment.openingPaymentGateway") || "Opening payment gateway…"}
+              {t("invoice.customerPayment.openingPaymentGateway")}
             </p>
           </>
         ) : checkoutState === "failed" ? (
@@ -178,7 +198,7 @@ const CustomerPaymentDisplay = () => {
               onClick={handlePayWithRazorpay}
               className="mt-3 rounded-full bg-[rgb(var(--color-primary))] px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
             >
-              {t("invoice.collectPayment.payWithRazorpay") || "Pay with Razorpay"}
+              {t("invoice.collectPayment.payWithRazorpay")}
             </button>
           </>
         ) : (
@@ -186,14 +206,14 @@ const CustomerPaymentDisplay = () => {
             <p className="text-lg text-[rgb(var(--color-text-primary))]">
               {!isOnline
                 ? t("invoice.customerPayment.offlineOnlineRequired")
-                : t("invoice.customerPayment.openingPaymentGateway") || "Opening payment gateway…"}
+                : t("invoice.customerPayment.openingPaymentGateway")}
             </p>
             <button
               type="button"
               onClick={handlePayWithRazorpay}
               className="rounded-full bg-[rgb(var(--color-primary))] px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
             >
-              {t("invoice.collectPayment.payWithRazorpay") || "Pay with Razorpay"}
+              {t("invoice.collectPayment.payWithRazorpay")}
             </button>
           </div>
         )}
@@ -201,13 +221,7 @@ const CustomerPaymentDisplay = () => {
     );
   }
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-      <p className="text-lg text-[rgb(var(--color-text-secondary))]">
-        {t("invoice.customerPayment.waiting")}
-      </p>
-    </div>
-  );
+  return <CustomerDisplayIdle />;
 };
 
 export default CustomerPaymentDisplay;

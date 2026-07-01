@@ -4,15 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
-import { useRazorpayCheckout } from "@/hooks/payment/useRazorpayCheckout";
 import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
 import usePaymentDisplayScope from "@/hooks/payment/usePaymentDisplayScope";
+import usePaymentDisplaySession from "@/hooks/payment/usePaymentDisplaySession";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
 import { getStorePaymentGateways } from "@/store/slices/storePaymentGatewaySlice";
 import { pickStoreId } from "@/utils/store.util";
-import { openCustomerDisplay } from "@/utils/payment/openCustomerDisplay";
 import {
   clearPaymentDisplaySession,
   createAwaitingSession,
@@ -37,17 +36,19 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { byStoreId } = useAppSelector((state) => state.storePaymentGateway);
-  const { scope, tenantId, storeId: scopeStoreId } = usePaymentDisplayScope();
+  const { scope } = usePaymentDisplayScope();
+  const { session: displaySession } = usePaymentDisplaySession();
   const { showError } = useGlobalToast();
   const { execute, loading: fetching } = useApiResponse();
-  const { startCheckout } = useRazorpayCheckout();
   const processingRef = useRef(false);
+  const onlineCompletedRef = useRef(false);
   const sessionIdRef = useRef(null);
   const paymentStateRef = useRef({ mode: "cash", paidAmount: 0 });
 
   const [invoice, setInvoice] = useState(null);
   const [pageState, setPageState] = useState("loading");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [waitingForCustomer, setWaitingForCustomer] = useState(false);
 
   const storeId = pickStoreId(selectedStore);
   const storeName = selectedStore?.storeName;
@@ -81,7 +82,10 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
     (overrides = {}) => {
       if (!scope || !invoice?.id || !open) return;
 
-      const { mode, paidAmount } = { ...paymentStateRef.current, ...overrides };
+      const { mode, paidAmount, onlineAttemptAt } = {
+        ...paymentStateRef.current,
+        ...overrides,
+      };
       if (!sessionIdRef.current) {
         sessionIdRef.current = crypto.randomUUID();
       }
@@ -99,6 +103,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
           : null,
         storeName: storeName || "",
         customerName,
+        onlineAttemptAt,
       });
       writePaymentDisplaySession(scope, session);
     },
@@ -134,6 +139,9 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
 
   const handlePaymentStateChange = useCallback(
     ({ mode, paidAmount }) => {
+      if (mode !== "online") {
+        setWaitingForCustomer(false);
+      }
       paymentStateRef.current = { mode, paidAmount };
       syncDisplaySession({ mode, paidAmount });
     },
@@ -182,16 +190,15 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
 
   useEffect(() => {
     if (!open || pageState !== "ready" || !invoice) return;
-    if (tenantId && scopeStoreId) {
-      openCustomerDisplay({ tenantId, storeId: scopeStoreId });
-    }
     paymentStateRef.current = { mode: "cash", paidAmount: grandTotal };
     syncDisplaySession({ mode: "cash", paidAmount: grandTotal });
-  }, [open, pageState, invoice, grandTotal, syncDisplaySession, tenantId, scopeStoreId]);
+  }, [open, pageState, invoice, grandTotal, syncDisplaySession]);
 
   useEffect(() => {
     if (!open) {
       clearDisplaySession();
+      setWaitingForCustomer(false);
+      onlineCompletedRef.current = false;
     }
   }, [open, clearDisplaySession]);
 
@@ -210,6 +217,19 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
     },
     [refreshInvoiceList, router, source],
   );
+
+  useEffect(() => {
+    if (!open || !invoice?.id || !waitingForCustomer || onlineCompletedRef.current) return;
+    if (
+      displaySession?.status === "paid" &&
+      displaySession.paymentMethod === "online" &&
+      displaySession.invoiceId === invoice.id
+    ) {
+      onlineCompletedRef.current = true;
+      setWaitingForCustomer(false);
+      navigateAfterSuccess(invoice.id);
+    }
+  }, [open, invoice, waitingForCustomer, displaySession, navigateAfterSuccess]);
 
   const handleManualRelease = useCallback(
     async ({ paidAmount, paymentMode }) => {
@@ -241,33 +261,17 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
     [invoice, storeId, execute, markDisplayPaid, navigateAfterSuccess],
   );
 
-  const handleOnlinePay = useCallback(async () => {
-    if (!invoice?.id || !storeId || processingRef.current) return;
+  const handleOnlinePay = useCallback(() => {
+    if (!invoice?.id || !storeId || waitingForCustomer) return;
 
-    processingRef.current = true;
-    setIsProcessing(true);
-    try {
-      paymentStateRef.current = { mode: "online", paidAmount: grandTotal };
-      syncDisplaySession({ mode: "online", paidAmount: grandTotal });
-
-      if (tenantId && scopeStoreId) {
-        openCustomerDisplay({ tenantId, storeId: scopeStoreId });
-      }
-    } catch (error) {
-      showError(error?.message || "Online payment failed");
-    } finally {
-      processingRef.current = false;
-      setIsProcessing(false);
-    }
-  }, [
-    invoice,
-    storeId,
-    grandTotal,
-    tenantId,
-    scopeStoreId,
-    syncDisplaySession,
-    showError,
-  ]);
+    paymentStateRef.current = { mode: "online", paidAmount: grandTotal };
+    syncDisplaySession({
+      mode: "online",
+      paidAmount: grandTotal,
+      onlineAttemptAt: Date.now(),
+    });
+    setWaitingForCustomer(true);
+  }, [invoice, storeId, grandTotal, waitingForCustomer, syncDisplaySession]);
 
   const handleUnpaidRelease = useCallback(async () => {
     if (!invoice?.id || !storeId || processingRef.current) return;
@@ -292,6 +296,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
 
   const handleClose = useCallback(() => {
     clearDisplaySession();
+    setWaitingForCustomer(false);
   }, [clearDisplaySession]);
 
   return {
@@ -303,6 +308,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
     pageState,
     fetching,
     isProcessing,
+    waitingForCustomer,
     defaultUpi,
     upiLoading,
     missingDefault,
