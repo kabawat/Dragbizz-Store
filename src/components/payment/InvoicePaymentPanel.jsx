@@ -39,6 +39,7 @@ const InvoicePaymentPanel = ({
   onConfirm,
   onOnlinePay,
   onBack,
+  onPaymentStateChange,
 }) => {
   const { t } = useTranslation();
   const [paidAmount, setPaidAmount] = useState(grandTotal);
@@ -53,6 +54,10 @@ const InvoicePaymentPanel = ({
     setPaidAmount(grandTotal);
     setMode("cash");
   }, [grandTotal]);
+
+  useEffect(() => {
+    onPaymentStateChange?.({ mode, paidAmount });
+  }, [mode, paidAmount, onPaymentStateChange]);
 
   const changeDue = mode === "cash" ? Math.max(0, paidAmount - grandTotal) : 0;
   const canConfirm = mode === "online" || paidAmount >= grandTotal || mode !== "cash";

@@ -5,11 +5,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSelectedStore } from "@/store/slices/profileSlice";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
+import { buildSessionScope, clearPaymentDisplaySession } from "@/utils/payment/paymentDisplaySession";
 
 const StoreSelector = ({ isCollapsed, onStoreChange }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    const { stores: reduxStores, selectedStore } = useAppSelector(
+    const { stores: reduxStores, selectedStore, authProfile } = useAppSelector(
         (state) => state.profile
     );
 
@@ -25,6 +26,13 @@ const StoreSelector = ({ isCollapsed, onStoreChange }) => {
             setIsStoreDropdownOpen(false);
             return;
         }
+
+        const previousScope = buildSessionScope({
+            tenantId: authProfile?.tenant,
+            storeId: currentStoreId,
+            userId: authProfile?.id,
+        });
+        if (previousScope) clearPaymentDisplaySession(previousScope);
 
         dispatch(setSelectedStore(store));
         setIsStoreDropdownOpen(false);

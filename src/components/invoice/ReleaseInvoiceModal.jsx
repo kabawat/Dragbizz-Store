@@ -1,6 +1,5 @@
 "use client";
 import { CheckCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -11,10 +10,9 @@ import { getInvoices } from "@/store/slices/invoicesSlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { pickStoreId } from "@/utils/store.util";
 
-const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
+const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
   const { execute, loading } = useApiResponse();
@@ -38,7 +36,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
   const handleCollectPayment = () => {
     if (!invoice?.id) return;
     onClose();
-    router.push(`/dashboard/collect-payment/${invoice.id}?source=release`);
+    onCollectPayment?.(invoice.id);
   };
 
   const handleConfirm = async () => {

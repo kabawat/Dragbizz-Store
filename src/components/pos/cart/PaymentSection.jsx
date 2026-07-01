@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { Receipt, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -15,14 +14,11 @@ const PaymentSection = ({
     cart,
     globalDiscount,
     grandTotal,
-    subtotal,
-    taxTotal,
-    discountAmt,
     checkoutRef,
     onCheckoutComplete,
+    onDraftCreated,
 }) => {
     const [invoiceLoading, setInvoiceLoading] = useState(false);
-    const router = useRouter();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const { showError } = useGlobalToast();
     const { execute } = useApiResponse();
@@ -53,7 +49,7 @@ const PaymentSection = ({
                 return;
             }
             onCheckoutComplete?.();
-            router.push(`/dashboard/collect-payment/${createdId}?source=pos`);
+            onDraftCreated?.(createdId);
         } else {
             showError(result?.message || "Failed to create draft invoice.");
         }

@@ -8,6 +8,7 @@ import {
     ReleaseInvoiceModal,
     UpdatePaymentStatusModal,
 } from "@/components/invoice";
+import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
@@ -42,6 +43,7 @@ const InvoiceListContent = () => {
     const [invoiceToUpdatePayment, setInvoiceToUpdatePayment] = useState(null);
     const [invoiceToRelease, setInvoiceToRelease] = useState(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+    const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
 
     // ─── Infinite scroll via IntersectionObserver ─────────────────────────────
     useEffect(() => {
@@ -80,7 +82,7 @@ const InvoiceListContent = () => {
 
     const handleReleaseInvoice = (invoice) => {
         if (invoice?.invoiceStatus === "DRAFT" && invoice?.id) {
-            router.push(`/dashboard/collect-payment/${invoice.id}?source=release`);
+            setPaymentInvoiceId(invoice.id);
             return;
         }
         setInvoiceToRelease(invoice);
@@ -199,8 +201,16 @@ const InvoiceListContent = () => {
                 <ReleaseInvoiceModal
                     onClose={() => setInvoiceToRelease(null)}
                     invoice={invoiceToRelease}
+                    onCollectPayment={setPaymentInvoiceId}
                 />
             )}
+
+            <PaymentConfirmModal
+                open={Boolean(paymentInvoiceId)}
+                invoiceId={paymentInvoiceId}
+                source="release"
+                onClose={() => setPaymentInvoiceId(null)}
+            />
 
             {/* Payment Status Update Modal */}
             {invoiceToUpdatePayment && (

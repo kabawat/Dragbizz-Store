@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useAppSelector } from "@/store/hooks";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
@@ -11,6 +11,8 @@ import { HeaderProvider } from "@/contexts/HeaderContext";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isCustomerPayment = pathname?.includes("/customer-payment");
 
   const {
     redirectTo,
@@ -94,21 +96,25 @@ export default function DashboardLayout({ children }) {
 
   return (
     <HeaderProvider>
-      <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
-        <PermissionGuard>
-          <div className="no-print">
-            <Sidebar />
-          </div>
-          <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+      <PermissionGuard>
+        {isCustomerPayment ? (
+          <main className="min-h-[100dvh] bg-[rgb(var(--color-bg-primary))]">{children}</main>
+        ) : (
+          <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
             <div className="no-print">
-              <Header />
+              <Sidebar />
             </div>
-            <main className="flex-1 overflow-y-auto custom-scrollbar">
-              {children}
-            </main>
+            <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+              <div className="no-print">
+                <Header />
+              </div>
+              <main className="flex-1 overflow-y-auto custom-scrollbar">
+                {children}
+              </main>
+            </div>
           </div>
-        </PermissionGuard>
-      </div>
+        )}
+      </PermissionGuard>
     </HeaderProvider>
   );
 }

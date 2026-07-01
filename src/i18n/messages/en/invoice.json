@@ -253,5 +253,14 @@
     "releaseUnpaid": "Release as unpaid instead",
     "collectPayment": "Go to Collect Payment",
     "releasePaidHint": "Paid and partial payments are collected on the dedicated payment page."
+  },
+  "customerPayment": {
+    "pageTitle": "Customer Display",
+    "waiting": "Waiting for payment…",
+    "payAtCounter": "Please pay at the counter",
+    "useCardTerminal": "Please use the card terminal",
+    "completeOnStaffScreen": "Complete payment on the staff screen",
+    "offlineOnlineRequired": "Internet required for online payment",
+    "thankYou": "Thank you!"
   }
 }

@@ -253,5 +253,14 @@
     "releaseUnpaid": "इसके बजाय अवैतनिक जारी करें",
     "collectPayment": "भुगतान एकत्र करने पर जाएं",
     "releasePaidHint": "भुगतान और आंशिक भुगतान dedicated payment page पर एकत्र किए जाते हैं।"
+  },
+  "customerPayment": {
+    "pageTitle": "ग्राहक डिस्प्ले",
+    "waiting": "भुगतान की प्रतीक्षा…",
+    "payAtCounter": "कृपया काउंटर पर भुगतान करें",
+    "useCardTerminal": "कृपया कार्ड टर्मिनल का उपयोग करें",
+    "completeOnStaffScreen": "स्टाफ स्क्रीन पर भुगतान पूरा करें",
+    "offlineOnlineRequired": "ऑनलाइन भुगतान के लिए इंटरनेट आवश्यक है",
+    "thankYou": "धन्यवाद!"
   }
 }

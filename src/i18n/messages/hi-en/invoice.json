@@ -253,5 +253,14 @@
     "releaseUnpaid": "Unpaid release karo instead",
     "collectPayment": "Collect Payment page par jao",
     "releasePaidHint": "Paid aur partial payments dedicated payment page par collect hote hain."
+  },
+  "customerPayment": {
+    "pageTitle": "Customer Display",
+    "waiting": "Payment ka wait ho raha hai…",
+    "payAtCounter": "Kripya counter par payment karein",
+    "useCardTerminal": "Kripya card terminal use karein",
+    "completeOnStaffScreen": "Staff screen par payment complete karein",
+    "offlineOnlineRequired": "Online payment ke liye internet chahiye",
+    "thankYou": "Dhanyavaad!"
   }
 }

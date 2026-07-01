@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
 import ProductPanel from "@/components/pos/ProductPanel";
 import CartPanel from "@/components/pos/CartPanel";
+import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
@@ -15,6 +16,7 @@ const POSPage = () => {
     const [cart, setCart] = useState([]);
     const [mobileCartOpen, setMobileCartOpen] = useState(false);
     const [cartSummary, setCartSummary] = useState({ grandTotal: 0, itemCount: 0 });
+    const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
 
     useDashboardHeader(t("pos.title"), t("pos.description"));
 
@@ -121,6 +123,14 @@ const POSPage = () => {
                     setCart([]);
                     setMobileCartOpen(false);
                 }}
+                onDraftCreated={setPaymentInvoiceId}
+            />
+
+            <PaymentConfirmModal
+                open={Boolean(paymentInvoiceId)}
+                invoiceId={paymentInvoiceId}
+                source="pos"
+                onClose={() => setPaymentInvoiceId(null)}
             />
 
         </div>

@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
 import { InvoiceSummaryCard, InvoiceActionButtons } from "@/components/invoice";
 import { getTemplateComponent } from "@/utils/invoice/invoiceView.utils";
 
@@ -14,14 +13,13 @@ const InvoicePageLayout = ({
     onEdit,
     onUpdatePaymentStatus,
     onPrint,
+    onCollectPayment,
 }) => {
-    const router = useRouter();
-
     if (!invoiceData) return null;
 
     const handleRelease = () => {
         if (!invoiceData.id) return;
-        router.push(`/dashboard/collect-payment/${invoiceData.id}?source=release`);
+        onCollectPayment?.(invoiceData.id);
     };
 
     return (

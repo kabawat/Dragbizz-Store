@@ -253,5 +253,14 @@
     "releaseUnpaid": "બદલે બિનચૂકવણી રિલીઝ કરો",
     "collectPayment": "ચુકવણી એકત્ર કરવા જાઓ",
     "releasePaidHint": "ચૂકવેલ અને આંશિક ચુકવણી dedicated payment page પર એકત્ર કરવામાં આવે છે."
+  },
+  "customerPayment": {
+    "pageTitle": "ગ્રાહક ડિસ્પ્લે",
+    "waiting": "ચુકવણીની રાહ જોઈ રહ્યા છીએ…",
+    "payAtCounter": "કૃપા કરીને કાઉન્ટર પર ચુકવણી કરો",
+    "useCardTerminal": "કૃપા કરીને કાર્ડ ટર્મિનલનો ઉપયોગ કરો",
+    "completeOnStaffScreen": "સ્ટાફ સ્ક્રીન પર ચુકવણી પૂર્ણ કરો",
+    "offlineOnlineRequired": "ઓનલાઇન ચુકવણી માટે ઇન્ટરનેટ જરૂરી છે",
+    "thankYou": "આભાર!"
   }
 }

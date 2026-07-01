@@ -6,11 +6,18 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useRazorpayCheckout } from "@/hooks/payment/useRazorpayCheckout";
 import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
+import usePaymentDisplayScope from "@/hooks/payment/usePaymentDisplayScope";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
 import { getStorePaymentGateways } from "@/store/slices/storePaymentGatewaySlice";
 import { pickStoreId } from "@/utils/store.util";
+import { openCustomerDisplay } from "@/utils/payment/openCustomerDisplay";
+import {
+  clearPaymentDisplaySession,
+  createAwaitingSession,
+  writePaymentDisplaySession,
+} from "@/utils/payment/paymentDisplaySession";
 
 const PAYMENT_MODE_MAP = {
   cash: "CASH",
@@ -18,22 +25,25 @@ const PAYMENT_MODE_MAP = {
   card: "CREDIT_CARD",
 };
 
-export const resolveCollectPaymentRedirect = (invoiceId, source) => {
+export const resolveStaffPaymentRedirect = (invoiceId, source) => {
   if (source === "pos") {
     return `/dashboard/invoices/${invoiceId}?autoPrint=true&redirect=pos`;
   }
   return `/dashboard/invoices/${invoiceId}`;
 };
 
-export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
+export function useStaffInvoicePayment({ invoiceId, source = "create", open = false }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { byStoreId } = useAppSelector((state) => state.storePaymentGateway);
+  const { scope, tenantId, storeId: scopeStoreId } = usePaymentDisplayScope();
   const { showError } = useGlobalToast();
   const { execute, loading: fetching } = useApiResponse();
   const { startCheckout } = useRazorpayCheckout();
   const processingRef = useRef(false);
+  const sessionIdRef = useRef(null);
+  const paymentStateRef = useRef({ mode: "cash", paidAmount: 0 });
 
   const [invoice, setInvoice] = useState(null);
   const [pageState, setPageState] = useState("loading");
@@ -47,7 +57,7 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
     isLoading: upiLoading,
     missingDefault,
     noUpiConfigured,
-  } = useStoreDefaultUpi(storeId, { enabled: pageState !== "loading" });
+  } = useStoreDefaultUpi(storeId, { enabled: open && pageState !== "loading" });
 
   const onlineGatewayAvailable = useMemo(() => {
     const gateways = byStoreId?.[storeId]?.gateways || [];
@@ -66,6 +76,69 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
     invoice?.customer?.name ||
     invoice?.customerName ||
     (invoice?.isWalkin ? "Walk-in Customer" : "");
+
+  const syncDisplaySession = useCallback(
+    (overrides = {}) => {
+      if (!scope || !invoice?.id || !open) return;
+
+      const { mode, paidAmount } = { ...paymentStateRef.current, ...overrides };
+      if (!sessionIdRef.current) {
+        sessionIdRef.current = crypto.randomUUID();
+      }
+
+      const session = createAwaitingSession({
+        scope,
+        sessionId: sessionIdRef.current,
+        invoiceId: invoice.id,
+        invoiceNumber,
+        amount: grandTotal,
+        paidAmount: paidAmount || grandTotal,
+        paymentMethod: mode,
+        defaultUpi: defaultUpi?.upiId
+          ? { upiId: defaultUpi.upiId, payeeName: storeName || defaultUpi.label || "Merchant" }
+          : null,
+        storeName: storeName || "",
+        customerName,
+      });
+      writePaymentDisplaySession(scope, session);
+    },
+    [scope, invoice, open, invoiceNumber, grandTotal, defaultUpi, storeName, customerName],
+  );
+
+  const markDisplayPaid = useCallback(
+    (paidAmount) => {
+      if (!scope || !invoice?.id) return;
+      writePaymentDisplaySession(scope, {
+        tenantId: scope.tenantId,
+        storeId: scope.storeId,
+        userId: scope.userId,
+        sessionId: sessionIdRef.current,
+        invoiceId: invoice.id,
+        invoiceNumber,
+        amount: grandTotal,
+        paidAmount,
+        paymentMethod: paymentStateRef.current.mode,
+        status: "paid",
+        defaultUpi: null,
+        storeName: storeName || "",
+        customerName,
+      });
+    },
+    [scope, invoice, invoiceNumber, grandTotal, storeName, customerName],
+  );
+
+  const clearDisplaySession = useCallback(() => {
+    if (scope) clearPaymentDisplaySession(scope);
+    sessionIdRef.current = null;
+  }, [scope]);
+
+  const handlePaymentStateChange = useCallback(
+    ({ mode, paidAmount }) => {
+      paymentStateRef.current = { mode, paidAmount };
+      syncDisplaySession({ mode, paidAmount });
+    },
+    [syncDisplaySession],
+  );
 
   const loadInvoice = useCallback(async () => {
     if (!invoiceId || !storeId) return;
@@ -88,24 +161,39 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
     }
 
     if (data.invoiceStatus !== "DRAFT") {
-      router.replace(`/dashboard/invoices/${invoiceId}`);
+      setPageState("error");
+      showError("Only draft invoices can be paid from here.");
       return;
     }
 
     setInvoice(data);
-  }, [invoiceId, storeId, execute, showError, router]);
+    setPageState("ready");
+  }, [invoiceId, storeId, execute, showError]);
 
   useEffect(() => {
-    if (!storeId || !invoiceId) return;
+    if (!open || !storeId || !invoiceId) {
+      setInvoice(null);
+      setPageState("loading");
+      return;
+    }
     dispatch(getStorePaymentGateways({ storeId, scope: "store" }));
     loadInvoice();
-  }, [storeId, invoiceId, dispatch, loadInvoice]);
+  }, [open, storeId, invoiceId, dispatch, loadInvoice]);
 
   useEffect(() => {
-    if (!invoice || pageState !== "loading") return;
-    const timer = setTimeout(() => setPageState("ready"), 800);
-    return () => clearTimeout(timer);
-  }, [invoice, pageState]);
+    if (!open || pageState !== "ready" || !invoice) return;
+    if (tenantId && scopeStoreId) {
+      openCustomerDisplay({ tenantId, storeId: scopeStoreId });
+    }
+    paymentStateRef.current = { mode: "cash", paidAmount: grandTotal };
+    syncDisplaySession({ mode: "cash", paidAmount: grandTotal });
+  }, [open, pageState, invoice, grandTotal, syncDisplaySession, tenantId, scopeStoreId]);
+
+  useEffect(() => {
+    if (!open) {
+      clearDisplaySession();
+    }
+  }, [open, clearDisplaySession]);
 
   const refreshInvoiceList = useCallback(async () => {
     if (!storeId) return;
@@ -116,10 +204,9 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
 
   const navigateAfterSuccess = useCallback(
     async (id) => {
-      setPageState("success");
       await refreshInvoiceList();
-      const redirectPath = resolveCollectPaymentRedirect(id, source);
-      setTimeout(() => router.replace(redirectPath), 500);
+      const redirectPath = resolveStaffPaymentRedirect(id, source);
+      router.replace(redirectPath);
     },
     [refreshInvoiceList, router, source],
   );
@@ -143,6 +230,7 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
         );
 
         if (result?.success) {
+          markDisplayPaid(paidAmount);
           await navigateAfterSuccess(invoice.id);
         }
       } finally {
@@ -150,7 +238,7 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
         setIsProcessing(false);
       }
     },
-    [invoice, storeId, execute, navigateAfterSuccess],
+    [invoice, storeId, execute, markDisplayPaid, navigateAfterSuccess],
   );
 
   const handleOnlinePay = useCallback(async () => {
@@ -165,7 +253,10 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
         amount: grandTotal,
         storeName,
         customerName,
-        onSuccess: () => navigateAfterSuccess(invoice.id),
+        onSuccess: async () => {
+          markDisplayPaid(grandTotal);
+          await navigateAfterSuccess(invoice.id);
+        },
         onFailure: (error) => {
           showError(error?.message || "Online payment failed");
         },
@@ -183,6 +274,7 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
     storeName,
     customerName,
     startCheckout,
+    markDisplayPaid,
     navigateAfterSuccess,
     showError,
   ]);
@@ -199,13 +291,18 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
       );
 
       if (result?.success) {
+        clearDisplaySession();
         await navigateAfterSuccess(invoice.id);
       }
     } finally {
       processingRef.current = false;
       setIsProcessing(false);
     }
-  }, [invoice, storeId, execute, navigateAfterSuccess]);
+  }, [invoice, storeId, execute, clearDisplaySession, navigateAfterSuccess]);
+
+  const handleClose = useCallback(() => {
+    clearDisplaySession();
+  }, [clearDisplaySession]);
 
   return {
     invoice,
@@ -214,7 +311,6 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
     customerName,
     storeName,
     pageState,
-    setPageState,
     fetching,
     isProcessing,
     defaultUpi,
@@ -225,8 +321,10 @@ export const useInvoiceCollectPayment = ({ invoiceId, source = "create" }) => {
     handleManualRelease,
     handleOnlinePay,
     handleUnpaidRelease,
+    handleClose,
+    handlePaymentStateChange,
     loadInvoice,
   };
-};
+}
 
-export default useInvoiceCollectPayment;
+export default useStaffInvoicePayment;
