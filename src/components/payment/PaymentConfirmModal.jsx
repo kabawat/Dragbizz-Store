@@ -45,7 +45,7 @@ const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) =>
         onClick={!isProcessing ? handleDismiss : undefined}
         aria-hidden
       />
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-xl p-6">
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-[0_20px_60px_rgba(0,0,0,0.22)] p-6">
         {pageState === "error" && (
           <div className="text-center py-8">
             <p className="text-[rgb(var(--color-text-secondary))] mb-4">
