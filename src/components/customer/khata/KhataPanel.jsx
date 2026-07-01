@@ -179,8 +179,8 @@ const KhataPanel = ({ storeId, customerId, customerName, customerEmail, customer
     setLedgerError(null);
     try {
       const [txResponse, payResponse] = await Promise.all([
-        customerAccountService.getTransactions({ store: storeId, customer: customerId, limit: 50 }),
-        customerAccountService.getPayments({ store: storeId, customer: customerId, limit: 50 }),
+        customerAccountService.getTransactions({ store: storeId, customerId: customerId, limit: 50 }),
+        customerAccountService.getPayments({ store: storeId, customerId: customerId, limit: 50 }),
       ]);
       const txData = txResponse?.data?.data ?? txResponse?.data ?? [];
       const payData = payResponse?.data?.data ?? payResponse?.data ?? [];
