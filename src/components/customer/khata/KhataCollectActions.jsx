@@ -1,11 +1,12 @@
 "use client";
 
-import { Link2, Loader2, QrCode } from "lucide-react";
+import { Bell, Link2, Loader2, QrCode } from "lucide-react";
 import { useMemo, useState } from "react";
 import { UpiQrModal } from "@/components/common";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
 import { usePaymentCollect } from "@/hooks/payment/usePaymentCollect";
+import { usePaymentReminder } from "@/hooks/payment/usePaymentReminder";
 import { buildKhataUpiNote } from "@/utils/payment/paymentCollect.util";
 import { useAppSelector } from "@/store/hooks";
 
@@ -13,6 +14,7 @@ const KhataCollectActions = ({
   storeId,
   customerId,
   customerName,
+  customerEmail,
   amount,
   disabled = false,
 }) => {
@@ -27,8 +29,10 @@ const KhataCollectActions = ({
     enabled: canCollect,
   });
   const { createCollectLink, loading: linkLoading } = usePaymentCollect({ storeId });
+  const { sendReminder, loading: reminderLoading } = usePaymentReminder({ storeId });
 
   const transactionNote = useMemo(() => buildKhataUpiNote(customerName), [customerName]);
+  const canRemind = Boolean(customerEmail?.trim());
 
   const handleSendPaymentLink = async () => {
     if (!canCollect || !customerId) return;
@@ -36,6 +40,15 @@ const KhataCollectActions = ({
       customerId,
       amount: collectAmount,
       description: transactionNote,
+    });
+  };
+
+  const handleSendReminder = async () => {
+    if (!canCollect || !customerId || !canRemind) return;
+    await sendReminder({
+      customerId,
+      notes: transactionNote,
+      includePaymentLink: true,
     });
   };
 
@@ -61,6 +74,16 @@ const KhataCollectActions = ({
         >
           {linkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
           {t("khata.sendPaymentLink")}
+        </button>
+        <button
+          type="button"
+          disabled={reminderLoading || !canRemind}
+          title={!canRemind ? t("khata.noCustomerEmail") : undefined}
+          onClick={handleSendReminder}
+          className="h-10 px-4 rounded-xl border border-amber-500 text-amber-700 text-sm font-semibold hover:bg-amber-50 disabled:opacity-50 inline-flex items-center gap-2"
+        >
+          {reminderLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
+          {t("khata.remind")}
         </button>
       </div>
 

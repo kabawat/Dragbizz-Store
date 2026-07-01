@@ -16,5 +16,10 @@
   "showUpiQr": "Show UPI QR",
   "sendPaymentLink": "Send payment link",
   "paymentLinkCopied": "Payment link copied to clipboard",
-  "linkCreated": "Payment link created"
+  "linkCreated": "Payment link created",
+  "remind": "Remind",
+  "reminderSent": "Payment reminder sent by email",
+  "reminderFailed": "Failed to send payment reminder",
+  "noCustomerEmail": "Customer email is required to send a reminder",
+  "reminderCooldown": "Reminder was sent recently. Please try again later."
 }

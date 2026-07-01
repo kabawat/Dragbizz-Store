@@ -162,7 +162,7 @@ function KhataEntryModal({ open, onClose, title, loading, error, onSubmit, submi
   );
 }
 
-const KhataPanel = ({ storeId, customerId, customerName, customerAccountId, account, onSuccess }) => {
+const KhataPanel = ({ storeId, customerId, customerName, customerEmail, customerAccountId, account, onSuccess }) => {
   const { t } = useTranslation();
   const { execute, loading } = useApiResponse();
   const [ledgerLoading, setLedgerLoading] = useState(true);
@@ -277,6 +277,7 @@ const KhataPanel = ({ storeId, customerId, customerName, customerAccountId, acco
         storeId={storeId}
         customerId={customerId}
         customerName={customerName}
+        customerEmail={customerEmail}
         amount={account?.totalDue ?? 0}
       />
 

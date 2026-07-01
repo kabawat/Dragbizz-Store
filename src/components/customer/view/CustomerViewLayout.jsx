@@ -64,6 +64,7 @@ const CustomerViewLayout = ({
                             storeId={storeId}
                             customerId={customerId}
                             customerName={customerData.name}
+                            customerEmail={customerData.email}
                             customerAccountId={customerAccountId}
                             account={customerData.account}
                             onSuccess={onKhataSuccess}

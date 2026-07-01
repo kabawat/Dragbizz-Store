@@ -42,6 +42,14 @@ class CustomerAccountService extends BaseService {
     const url = this.buildResourceUrl(this.paymentsEndpoint, paymentId, storeId);
     return this.delete(url);
   }
+
+  sendReminder(storeId, reminderData) {
+    return this.post(`${this.accountEndpoint}/reminders`, { ...reminderData, store: storeId });
+  }
+
+  getReminders(params = {}) {
+    return this.get(`${this.accountEndpoint}/reminders`, params);
+  }
 }
 
 export const customerAccountService = new CustomerAccountService();
