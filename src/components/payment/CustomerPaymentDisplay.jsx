@@ -1,20 +1,69 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { CheckCircle2, CreditCard, Banknote, Globe, Loader2 } from "lucide-react";
 import { UpiPaymentQr } from "@/components/common";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import usePaymentDisplaySession from "@/hooks/payment/usePaymentDisplaySession";
+import { useRazorpayCheckout } from "@/hooks/payment/useRazorpayCheckout";
 import { useAppSelector } from "@/store/hooks";
+import { writePaymentDisplaySession } from "@/utils/payment/paymentDisplaySession";
 
 const formatAmount = (n) =>
   `₹${Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const CustomerPaymentDisplay = () => {
   const { t } = useTranslation();
-  const { session, ready } = usePaymentDisplaySession();
+  const { session, ready, scope } = usePaymentDisplaySession();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { startCheckout } = useRazorpayCheckout();
+  const [checkoutState, setCheckoutState] = useState("idle");
+  const [checkoutError, setCheckoutError] = useState("");
   const storeName = session?.storeName || selectedStore?.storeName || "";
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+
+  useEffect(() => {
+    if (!ready || !scope || !session || checkoutState !== "idle") return;
+
+    if (session.status !== "awaiting" || session.paymentMethod !== "online") return;
+    if (!session.invoiceId || !session.storeId) return;
+
+    const amount = Number(session.paidAmount ?? session.amount ?? 0);
+    if (!amount || amount <= 0) return;
+
+    const runCheckout = async () => {
+      setCheckoutState("processing");
+      setCheckoutError("");
+
+      try {
+        await startCheckout({
+          storeId: session.storeId,
+          invoiceId: session.invoiceId,
+          amount,
+          storeName: session.storeName || storeName || "",
+          customerName: session.customerName || "",
+          onSuccess: () => {
+            writePaymentDisplaySession(scope, {
+              ...session,
+              status: "paid",
+              paidAmount: amount,
+              updatedAt: Date.now(),
+            });
+            setCheckoutState("success");
+          },
+          onFailure: (error) => {
+            setCheckoutError(error?.message || t("invoice.customerPayment.paymentFailed"));
+            setCheckoutState("failed");
+          },
+        });
+      } catch (error) {
+        setCheckoutError(error?.message || t("invoice.customerPayment.paymentFailed"));
+        setCheckoutState("failed");
+      }
+    };
+
+    runCheckout();
+  }, [checkoutState, ready, scope, session, startCheckout, storeName, t]);
 
   if (!ready) {
     return (
@@ -118,11 +167,29 @@ const CustomerPaymentDisplay = () => {
         <p className="text-3xl font-bold text-[rgb(var(--color-primary))] tabular-nums mb-4">
           {formatAmount(amount)}
         </p>
-        <p className="text-lg text-[rgb(var(--color-text-primary))]">
-          {!isOnline
-            ? t("invoice.customerPayment.offlineOnlineRequired")
-            : t("invoice.customerPayment.completeOnStaffScreen")}
-        </p>
+        {checkoutState === "processing" ? (
+          <>
+            <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))] mb-3" />
+            <p className="text-lg text-[rgb(var(--color-text-primary))]">
+              {t("invoice.customerPayment.openingPaymentGateway") || "Opening payment gateway…"}
+            </p>
+          </>
+        ) : checkoutState === "failed" ? (
+          <>
+            <p className="text-lg text-[rgb(var(--color-text-primary))] mb-2">
+              {checkoutError || t("invoice.customerPayment.paymentFailed")}
+            </p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("invoice.customerPayment.tryAgain") || "Please try again from the staff screen."}
+            </p>
+          </>
+        ) : (
+          <p className="text-lg text-[rgb(var(--color-text-primary))]">
+            {!isOnline
+              ? t("invoice.customerPayment.offlineOnlineRequired")
+              : t("invoice.customerPayment.openingPaymentGateway") || "Opening payment gateway…"}
+          </p>
+        )}
       </div>
     );
   }
