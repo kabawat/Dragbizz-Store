@@ -3,6 +3,7 @@ export { authAxios, unauthAxios } from "./config/axiosConfig";
 export {
   categoryService,
   customerService,
+  customerAccountService,
   expenseService,
   inventoryService,
   invoiceService,
