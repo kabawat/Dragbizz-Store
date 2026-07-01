@@ -20,6 +20,7 @@ const CustomerPaymentDisplay = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
+        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Preparing payment display…</p>
       </div>
     );
   }
