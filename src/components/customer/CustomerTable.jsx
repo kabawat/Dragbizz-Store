@@ -2,6 +2,7 @@
 import { Edit, Eye, MoreVertical, Trash2, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
+import KhataDueBadge from "@/components/khata/KhataDueBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
 
@@ -98,9 +99,12 @@ const CustomerTable = ({
                       <Users className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-sm truncate group-hover/cell:text-[rgb(var(--color-primary))] transition-colors">
-                        {customer.name || "N/A"}
-                      </h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate group-hover/cell:text-[rgb(var(--color-primary))] transition-colors">
+                          {customer.name || "N/A"}
+                        </h3>
+                        <KhataDueBadge totalDue={customer.account?.totalDue ?? customer.totalDue} />
+                      </div>
                       <span className="text-xs text-[rgb(var(--color-text-secondary))]">
                         {t("common.added")}:{" "}
                         {formatDateDash(getRecordCreatedAt(customer))}

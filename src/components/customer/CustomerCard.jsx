@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
+import KhataDueBadge from "@/components/khata/KhataDueBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
 import { IconButton } from "../ui";
@@ -137,9 +138,12 @@ const CustomerCard = ({
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Customer Name */}
         <div>
-          <h3 className="font-bold text-md sm:text-xl mb-1 text-[rgb(var(--color-text-primary))]">
-            {customer.name || t("common.notAvailable")}
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <h3 className="font-bold text-md sm:text-xl text-[rgb(var(--color-text-primary))]">
+              {customer.name || t("common.notAvailable")}
+            </h3>
+            <KhataDueBadge totalDue={customer.account?.totalDue ?? customer.totalDue} />
+          </div>
         </div>
 
         {/* Contact Information */}

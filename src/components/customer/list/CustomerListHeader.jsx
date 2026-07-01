@@ -29,6 +29,8 @@ const CustomerListHeader = ({
     setStartDate,
     endDate,
     setEndDate,
+    hasDueOnly,
+    setHasDueOnly,
     onSuccess,
 }) => {
     const dispatch = useAppDispatch();
@@ -228,6 +230,14 @@ const CustomerListHeader = ({
                             clearable
                         />
                     </div>
+                    <Button
+                        type="button"
+                        variant={hasDueOnly ? "primary" : "outline"}
+                        size="sm"
+                        onClick={() => setHasDueOnly((value) => !value)}
+                    >
+                        {t("khata.hasDueFilter")}
+                    </Button>
                     <div className="w-[140px]">
                         <Input
                             type={startDate ? "date" : "text"}
