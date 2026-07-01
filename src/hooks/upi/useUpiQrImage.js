@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { buildUpiPaymentUri } from "@/utils/upi/buildUpiPaymentUri";
 import { composeQrWithLogo, getQrCodeServiceUrl } from "@/utils/upi/upiQrImage";
 
-export function useUpiQrImage({ upiId, payeeName, amount, logoUrl }) {
+export function useUpiQrImage({ upiId, payeeName, amount, logoUrl, transactionNote }) {
   const [qrWithLogoUrl, setQrWithLogoUrl] = useState(null);
 
   const upiUri = useMemo(() => {
     if (!upiId) return "";
-    return buildUpiPaymentUri(upiId, payeeName, { amount });
-  }, [upiId, payeeName, amount]);
+    return buildUpiPaymentUri(upiId, payeeName, { amount, transactionNote });
+  }, [upiId, payeeName, amount, transactionNote]);
 
   const qrCodeUrl = upiUri ? getQrCodeServiceUrl(upiUri) : "";
 

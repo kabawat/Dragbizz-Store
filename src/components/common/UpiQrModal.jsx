@@ -10,7 +10,7 @@ import { useUpiQrImage } from "@/hooks/upi/useUpiQrImage";
 const DEFAULT_LOGO_URL = "/icons/UPI.webp";
 const COPIED_DURATION_MS = 2500;
 
-const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl, amount }) => {
+const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl, amount, transactionNote }) => {
   const { t } = useTranslation();
   const { showSuccess, showError } = useGlobalToast();
   const [copied, setCopied] = useState(false);
@@ -21,6 +21,7 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl, amount 
     payeeName,
     amount,
     logoUrl: logoUrl || DEFAULT_LOGO_URL,
+    transactionNote,
   });
 
   if (!upiId) return null;

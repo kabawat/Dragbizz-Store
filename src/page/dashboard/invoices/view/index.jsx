@@ -152,6 +152,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
             <InvoiceViewHeader
               invoiceData={invoiceData}
               invoiceId={invoiceId}
+              storeId={storeId}
               onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
               onDownloadPDF={canRead ? handleDownloadPDF : undefined}
               canCreate={canCreate}

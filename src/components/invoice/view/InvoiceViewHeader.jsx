@@ -2,11 +2,13 @@
 import { ArrowLeft, Download, Plus, CreditCard } from "lucide-react";
 import Link from "next/link";
 import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
+import SendInvoicePaymentLinkButton from "@/components/payment/SendInvoicePaymentLinkButton";
 import { Button } from "@/components/ui";
 
 const InvoiceViewHeader = ({
     invoiceData,
     invoiceId,
+    storeId,
     showPaymentStatusModal,
     onUpdatePaymentStatus,
     onDownloadPDF,
@@ -25,14 +27,17 @@ const InvoiceViewHeader = ({
             <div className="flex items-center gap-3">
                 <OpenCustomerPaymentButton className="h-9" />
                 {invoiceData?.invoiceStatus === "RELEASED" && invoiceData?.paymentStatus !== "PAID" && (
-                    <Button
-                        variant="outline"
-                        onClick={onUpdatePaymentStatus}
-                        leftIcon={CreditCard}
-                        className="h-9"
-                    >
-                        {t("invoice.updatePaymentStatus")}
-                    </Button>
+                    <>
+                        <SendInvoicePaymentLinkButton storeId={storeId} invoice={invoiceData} className="h-9" />
+                        <Button
+                            variant="outline"
+                            onClick={onUpdatePaymentStatus}
+                            leftIcon={CreditCard}
+                            className="h-9"
+                        >
+                            {t("invoice.updatePaymentStatus")}
+                        </Button>
+                    </>
                 )}
                 {invoiceData?.invoiceStatus !== "DRAFT" && (
                     <Button

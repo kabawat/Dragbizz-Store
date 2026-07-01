@@ -12,5 +12,9 @@
   "noEntries": "अभी कोई खाता एंट्री नहीं",
   "loadError": "पार्टी खाता लोड नहीं हो सका",
   "tabKhata": "खाता",
-  "tabDetails": "विवरण"
+  "tabDetails": "विवरण",
+  "showUpiQr": "UPI QR दिखाएं",
+  "sendPaymentLink": "भुगतान लिंक भेजें",
+  "paymentLinkCopied": "भुगतान लिंक क्लिपबोर्ड पर कॉपी हो गई",
+  "linkCreated": "भुगतान लिंक बन गई"
 }

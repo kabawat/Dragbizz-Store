@@ -10,11 +10,12 @@ const UpiPaymentQr = ({
   upiId,
   payeeName,
   amount,
+  transactionNote,
   logoUrl = DEFAULT_LOGO_URL,
   size = 160,
 }) => {
   const { t } = useTranslation();
-  const { displayUrl } = useUpiQrImage({ upiId, payeeName, amount, logoUrl });
+  const { displayUrl } = useUpiQrImage({ upiId, payeeName, amount, logoUrl, transactionNote });
   const formattedAmount = formatUpiAmount(amount);
 
   if (!upiId || !formattedAmount) return null;

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { customerAccountService } from "@/service";
+import KhataCollectActions from "@/components/customer/khata/KhataCollectActions";
 
 const PAYMENT_MODES = [
   { value: "CASH", labelKey: "khata.cash" },
@@ -271,6 +272,13 @@ const KhataPanel = ({ storeId, customerId, customerName, customerAccountId, acco
           </button>
         </div>
       </div>
+
+      <KhataCollectActions
+        storeId={storeId}
+        customerId={customerId}
+        customerName={customerName}
+        amount={account?.totalDue ?? 0}
+      />
 
       {ledgerLoading ? (
         <div className="flex items-center justify-center py-8 text-[rgb(var(--color-text-secondary))]">

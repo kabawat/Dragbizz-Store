@@ -12,5 +12,9 @@
   "noEntries": "No khata entries yet",
   "loadError": "Failed to load party ledger",
   "tabKhata": "Khata",
-  "tabDetails": "Details"
+  "tabDetails": "Details",
+  "showUpiQr": "Show UPI QR",
+  "sendPaymentLink": "Send payment link",
+  "paymentLinkCopied": "Payment link copied to clipboard",
+  "linkCreated": "Payment link created"
 }
