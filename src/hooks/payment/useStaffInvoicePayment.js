@@ -247,20 +247,12 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
     processingRef.current = true;
     setIsProcessing(true);
     try {
-      await startCheckout({
-        storeId,
-        invoiceId: invoice.id,
-        amount: grandTotal,
-        storeName,
-        customerName,
-        onSuccess: async () => {
-          markDisplayPaid(grandTotal);
-          await navigateAfterSuccess(invoice.id);
-        },
-        onFailure: (error) => {
-          showError(error?.message || "Online payment failed");
-        },
-      });
+      paymentStateRef.current = { mode: "online", paidAmount: grandTotal };
+      syncDisplaySession({ mode: "online", paidAmount: grandTotal });
+
+      if (tenantId && scopeStoreId) {
+        openCustomerDisplay({ tenantId, storeId: scopeStoreId });
+      }
     } catch (error) {
       showError(error?.message || "Online payment failed");
     } finally {
@@ -271,11 +263,9 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
     invoice,
     storeId,
     grandTotal,
-    storeName,
-    customerName,
-    startCheckout,
-    markDisplayPaid,
-    navigateAfterSuccess,
+    tenantId,
+    scopeStoreId,
+    syncDisplaySession,
     showError,
   ]);
 
