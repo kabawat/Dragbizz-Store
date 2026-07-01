@@ -34,15 +34,11 @@ import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 // Extracted Dashboard Components
-import {
-  SortableSection,
-  SortableMetricCard,
-  SortableAnalyticsCard
-} from "@/components/dashboard/SortableComponents";
+import { SortableSection, SortableMetricCard, SortableAnalyticsCard } from "@/components/dashboard/SortableComponents";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { StoresSummaryTable } from "@/components/dashboard/StoresSummaryTable";
 import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
-import { ROLES } from "@/hooks/permissions/useModulePermissions";
+import { CashbookDashboardCard } from "@/components/dashboard/CashbookDashboardCard";
 
 const formatPercentChange = (value) => {
   const numericValue = Number(value);
@@ -283,6 +279,8 @@ export default function Dashboard() {
               </DndContext>
             )}
           </div>
+
+          {activeStoreId && <div className="mb-8"><CashbookDashboardCard storeId={activeStoreId} /></div>}
 
           {/* Draggable Layout Grid */}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>

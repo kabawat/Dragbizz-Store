@@ -36,6 +36,7 @@ const API_CONFIG = {
     INVOICE_PAYMENT_LINK: "/retailer/invoices/:id/payment-link",
     PAYMENTS: "/retailer/payments",
     EXPENSE: "/retailer/expense",
+    CASHBOOK: "/retailer/cashbook",
     DASHBOARD: "/retailer/dashboard",
     ANALYTICS: "/retailer/analytics",
     GST: "/retailer/gst",

@@ -1,0 +1,20 @@
+{
+  "title": "Cashbook",
+  "subtitle": "Track daily cash in and cash out",
+  "cashIn": "Cash In",
+  "cashOut": "Cash Out",
+  "closingBalance": "Closing Balance",
+  "quickEntry": "Quick entry",
+  "amount": "Amount",
+  "descriptionPlaceholder": "Optional note",
+  "todayEntries": "Today's entries",
+  "noEntries": "No entries for today",
+  "entrySaved": "Entry saved",
+  "saveFailed": "Failed to save entry",
+  "invalidAmount": "Enter a valid amount",
+  "storeRequired": "Select a store first",
+  "types": {
+    "CASH_IN": "Cash in",
+    "CASH_OUT": "Cash out"
+  }
+}
