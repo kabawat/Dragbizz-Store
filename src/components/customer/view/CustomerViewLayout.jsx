@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import CustomerBasicInfo from "@/components/customer/view/components/CustomerBasicInfo";
 import CompanyDetails from "@/components/customer/view/components/CompanyDetails";
 import AccountDetails from "@/components/customer/view/components/AccountDetails";
@@ -16,12 +17,27 @@ const CustomerViewLayout = ({
     onKhataSuccess,
     t,
 }) => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState("details");
+
+    useEffect(() => {
+        setActiveTab(searchParams.get("tab") === "khata" ? "khata" : "details");
+    }, [searchParams]);
 
     if (!customerData) return null;
 
     const customerAccountId =
         customerData.account?.id ?? customerData.account?._id ?? null;
+
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        const href =
+            tab === "khata"
+                ? `/dashboard/customers/${customerId}?tab=khata`
+                : `/dashboard/customers/${customerId}`;
+        router.replace(href);
+    };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 overflow-hidden">
@@ -29,7 +45,7 @@ const CustomerViewLayout = ({
                 <div className="flex gap-2 mb-4">
                     <button
                         type="button"
-                        onClick={() => setActiveTab("details")}
+                        onClick={() => handleTabChange("details")}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             activeTab === "details"
                                 ? "bg-[rgb(var(--color-primary))] text-white"
@@ -40,7 +56,7 @@ const CustomerViewLayout = ({
                     </button>
                     <button
                         type="button"
-                        onClick={() => setActiveTab("khata")}
+                        onClick={() => handleTabChange("khata")}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             activeTab === "khata"
                                 ? "bg-[rgb(var(--color-primary))] text-white"

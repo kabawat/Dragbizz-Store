@@ -16,6 +16,7 @@
   "loadError": "Failed to load party ledger",
   "tabKhata": "Khata",
   "tabDetails": "Details",
+  "manageKhata": "Manage Khata",
   "selectCustomer": "Select customer",
   "searchCustomer": "Search by name or phone",
   "entrySaved": "Entry saved",

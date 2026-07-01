@@ -1,3 +1,5 @@
-import KhataPage from "@/page/dashboard/khata";
+import { redirect } from "next/navigation";
 
-export default KhataPage;
+export default function KhataLegacyRedirectPage() {
+  redirect("/dashboard/customers");
+}

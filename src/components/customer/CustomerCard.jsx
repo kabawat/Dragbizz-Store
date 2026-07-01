@@ -6,6 +6,7 @@ import {
   Phone,
   Trash2,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
@@ -19,9 +20,11 @@ const CustomerCard = ({
   onEdit,
   onDelete,
   onViewDetails,
+  onManageKhata,
   className = "",
   canEdit = true,
   canDelete = true,
+  canManageKhata = true,
   ...props
 }) => {
   const { t } = useTranslation();
@@ -56,6 +59,9 @@ const CustomerCard = ({
         break;
       case "edit":
         onEdit?.(customerId);
+        break;
+      case "khata":
+        onManageKhata?.(customerId);
         break;
       case "delete":
         onDelete?.(customerId);
@@ -100,6 +106,15 @@ const CustomerCard = ({
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   {t("common.viewDetails")}
                 </button>
+                {canManageKhata && onManageKhata ? (
+                  <button
+                    onClick={() => handleMenuAction(customer.id, "khata")}
+                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                  >
+                    <BookOpen className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                    {t("khata.manageKhata")}
+                  </button>
+                ) : null}
                 {canEdit && (
                   <button
                     onClick={() => handleMenuAction(customer.id, "edit")}

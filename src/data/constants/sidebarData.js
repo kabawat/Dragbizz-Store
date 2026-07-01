@@ -3,7 +3,6 @@ import {
     Headphones,
     BadgePercent,
     BarChart3,
-    BookOpen,
     Building2,
     DollarSign,
     FileText,
@@ -29,7 +28,6 @@ export const getSalesSubMenuItems = (t) => [
     { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i", module: "invoice" },
     { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e", module: "expense" },
     { name: t("sidebar.cashbook"), icon: Wallet, href: "/dashboard/cashbook", shortcut: "b", module: "cashbook" },
-    { name: t("sidebar.khata"), icon: BookOpen, href: "/dashboard/khata", module: "customer" },
     { name: t("sidebar.pos") || "POS", icon: ShoppingBag, href: "/dashboard/pos", shortcut: "k", module: "invoice" },
     { name: t("sidebar.sellOrders") || "Sell Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o", module: "invoice" },
 ];

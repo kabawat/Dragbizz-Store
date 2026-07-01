@@ -1,5 +1,5 @@
 "use client";
-import { Edit, Eye, MoreVertical, Trash2, Users } from "lucide-react";
+import { Edit, Eye, MoreVertical, Trash2, Users, BookOpen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import KhataDueBadge from "@/components/khata/KhataDueBadge";
@@ -11,9 +11,11 @@ const CustomerTable = ({
   onEdit,
   onDelete,
   onViewDetails,
+  onManageKhata,
   className = "",
   canEdit = true,
   canDelete = true,
+  canManageKhata = true,
 }) => {
   const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -43,6 +45,7 @@ const CustomerTable = ({
     switch (action) {
       case "view": onViewDetails?.(customerId); break;
       case "edit": onEdit?.(customerId); break;
+      case "khata": onManageKhata?.(customerId); break;
       case "delete": onDelete?.(customerId); break;
       default: break;
     }
@@ -166,6 +169,15 @@ const CustomerTable = ({
                           <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                           {t("common.viewDetails")}
                         </button>
+                        {canManageKhata && onManageKhata ? (
+                          <button
+                            onClick={() => handleMenuAction(customer.id, "khata")}
+                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
+                          >
+                            <BookOpen className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                            {t("khata.manageKhata")}
+                          </button>
+                        ) : null}
                         {canEdit && (
                           <button
                             onClick={() => handleMenuAction(customer.id, "edit")}

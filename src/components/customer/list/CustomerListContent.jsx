@@ -24,8 +24,7 @@ const CustomerListContent = ({
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
-    const { customers, viewMode, isLoading, isFetchingMore, pagination } =
-        useAppSelector((state) => state.customers);
+    const { customers, viewMode, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.customers);
 
     const visibleCustomers = useMemo(() => {
         if (!hasDueOnly) return customers;
@@ -37,6 +36,10 @@ const CustomerListContent = ({
     const { can } = useModulePermissions("customer");
     const canEdit = can("edit");
     const canDelete = can("delete");
+    const canManageKhata = can("read");
+
+    const goToDetails = (id) => router.push(`/dashboard/customers/${id}`);
+    const goToKhata = (id) => router.push(`/dashboard/customers/${id}?tab=khata`);
 
     const filtersRef = useRef({ searchValue, isActive, source, startDate, endDate });
     filtersRef.current = { searchValue, isActive, source, startDate, endDate };
@@ -117,9 +120,11 @@ const CustomerListContent = ({
                                 customers={visibleCustomers}
                                 onEdit={canEdit ? setEditCustomerId : undefined}
                                 onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
-                                onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
+                                onViewDetails={goToDetails}
+                                onManageKhata={canManageKhata ? goToKhata : undefined}
                                 canEdit={canEdit}
                                 canDelete={canDelete}
+                                canManageKhata={canManageKhata}
                             />
                         </div>
                     ) : (
@@ -131,9 +136,11 @@ const CustomerListContent = ({
                                         customer={customer}
                                         onEdit={canEdit ? setEditCustomerId : undefined}
                                         onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
-                                        onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
+                                        onViewDetails={goToDetails}
+                                        onManageKhata={canManageKhata ? goToKhata : undefined}
                                         canEdit={canEdit}
                                         canDelete={canDelete}
+                                        canManageKhata={canManageKhata}
                                     />
                                 ))}
                             </div>
