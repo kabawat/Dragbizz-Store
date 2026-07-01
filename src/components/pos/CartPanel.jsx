@@ -17,6 +17,7 @@ const CartPanel = ({
     mobileOpen = false,
     onMobileClose,
     onTotalsChange,
+    onCheckoutComplete,
 }) => {
     const [customerName, setCustomerName] = useState("");
     const [globalDiscount, setGlobalDiscount] = useState("");
@@ -134,6 +135,7 @@ const CartPanel = ({
                         taxTotal={taxTotal}
                         discountAmt={discountAmt}
                         checkoutRef={checkoutRef}
+                        onCheckoutComplete={onCheckoutComplete}
                     />
                 </div>
             )}

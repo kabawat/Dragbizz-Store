@@ -213,11 +213,11 @@ const CreateInvoicePage = () => {
     );
 
     if (result?.success) {
-      const createdId = result?.data?.id || null;
+      const createdId = result?.data?.id;
 
       router.push(
         createdId
-          ? `/dashboard/invoices/${createdId}`
+          ? `/dashboard/collect-payment/${createdId}?source=create`
           : "/dashboard/invoices"
       );
     } else {

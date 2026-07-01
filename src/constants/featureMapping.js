@@ -47,6 +47,7 @@ export const FEATURE_ROUTES = {
       "/dashboard/invoices/add",
       "/dashboard/invoices/edit",
       "/dashboard/invoices/view",
+      "/dashboard/collect-payment",
     ],
     menuItems: ["Invoices"],
     subMenuItems: ["All Invoices", "Add New Invoice", "View Invoice"],

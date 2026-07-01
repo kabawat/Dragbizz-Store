@@ -1,14 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { InvoiceSummaryCard, InvoiceActionButtons, ReleaseInvoiceModal } from "@/components/invoice";
+import React from "react";
+import { useRouter } from "next/navigation";
+import { InvoiceSummaryCard, InvoiceActionButtons } from "@/components/invoice";
 import { getTemplateComponent } from "@/utils/invoice/invoiceView.utils";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const InvoicePageLayout = ({
     invoiceData,
-    fetchInvoiceData,
     selectedTemplate,
     selectedStore,
     itemsWithGst,
@@ -18,21 +15,17 @@ const InvoicePageLayout = ({
     onUpdatePaymentStatus,
     onPrint,
 }) => {
-    const { t } = useTranslation();
-    const { showSuccess } = useGlobalToast();
-    const [showReleaseModal, setShowReleaseModal] = useState(false);
-
-    useCommonHotkeys({
-        onClose: () => {
-            if (showReleaseModal) setShowReleaseModal(false);
-        }
-    });
+    const router = useRouter();
 
     if (!invoiceData) return null;
 
+    const handleRelease = () => {
+        if (!invoiceData.id) return;
+        router.push(`/dashboard/collect-payment/${invoiceData.id}?source=release`);
+    };
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 150px)" }}>
-            {/* Left Column - Invoice Format */}
             <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 overflow-y-auto pe-3 print:pe-0 max-h-[calc(100vh-150px)]">
                     <div id="invoice-area" className="bg-white rounded-lg">
@@ -49,7 +42,6 @@ const InvoicePageLayout = ({
                 </div>
             </div>
 
-            {/* Right Sidebar */}
             <div className="flex flex-col h-full no-print right-sidebar">
                 <div className="flex-1 overflow-y-auto px-3 max-h-[calc(100vh-204px)]">
                     <div className="space-y-4">
@@ -61,26 +53,13 @@ const InvoicePageLayout = ({
                         <InvoiceActionButtons
                             invoiceData={invoiceData}
                             onEdit={onEdit}
-                            onRelease={() => setShowReleaseModal(true)}
+                            onRelease={handleRelease}
                             onUpdatePaymentStatus={onUpdatePaymentStatus}
                             onPrint={onPrint}
                         />
                     </div>
                 </div>
             </div>
-
-            {/* Local Modals */}
-            {showReleaseModal && (
-                <ReleaseInvoiceModal
-                    onClose={() => setShowReleaseModal(false)}
-                    onSuccess={() => {
-                        showSuccess(t("invoice.releasedSuccessfully"));
-                        fetchInvoiceData(true);
-                        setShowReleaseModal(false);
-                    }}
-                    invoice={invoiceData}
-                />
-            )}
         </div>
     );
 };

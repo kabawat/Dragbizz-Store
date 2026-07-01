@@ -117,6 +117,10 @@ const POSPage = () => {
                 mobileOpen={mobileCartOpen}
                 onMobileClose={() => setMobileCartOpen(false)}
                 onTotalsChange={handleTotalsChange}
+                onCheckoutComplete={() => {
+                    setCart([]);
+                    setMobileCartOpen(false);
+                }}
             />
 
         </div>

@@ -79,6 +79,10 @@ const InvoiceListContent = () => {
     };
 
     const handleReleaseInvoice = (invoice) => {
+        if (invoice?.invoiceStatus === "DRAFT" && invoice?.id) {
+            router.push(`/dashboard/collect-payment/${invoice.id}?source=release`);
+            return;
+        }
         setInvoiceToRelease(invoice);
     };
 

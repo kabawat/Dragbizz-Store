@@ -19,6 +19,7 @@ export const ROUTE_MODULE_MAP = {
     "/dashboard/customers": MODULE_KEYS.CUSTOMERS,
     "/dashboard/invoices": MODULE_KEYS.INVOICES,
     "/dashboard/pos": MODULE_KEYS.INVOICES,
+    "/dashboard/collect-payment": MODULE_KEYS.INVOICES,
     "/dashboard/expenses": MODULE_KEYS.EXPENSES,
     "/dashboard/sales-order": MODULE_KEYS.SALES_ORDER,
     "/dashboard/products": MODULE_KEYS.PRODUCTS,
