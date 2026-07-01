@@ -258,6 +258,7 @@
   },
   "customerPayment": {
     "pageTitle": "ग्राहक डिस्प्ले",
+    "openDisplay": "डिस्प्ले",
     "waiting": "भुगतान की प्रतीक्षा…",
     "idleWelcome": "स्वागत है! प्रतीक्षा के दौरान हमारे नवीनतम ऑफ़र देखें।",
     "idleSlideWelcome": "स्वागत है",

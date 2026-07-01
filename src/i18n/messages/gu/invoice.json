@@ -258,6 +258,7 @@
   },
   "customerPayment": {
     "pageTitle": "ગ્રાહક ડિસ્પ્લે",
+    "openDisplay": "ડિસ્પ્લે",
     "waiting": "ચુકવણીની રાહ જોઈ રહ્યા છીએ…",
     "idleWelcome": "સ્વાગત છે! રાહ જોતી વખતે અમારા નવीनતમ ઑફર જુઓ.",
     "idleSlideWelcome": "સ્વાગત છે",

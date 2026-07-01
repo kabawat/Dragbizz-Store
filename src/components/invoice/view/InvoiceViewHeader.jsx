@@ -1,6 +1,7 @@
 "use client";
 import { ArrowLeft, Download, Plus, CreditCard } from "lucide-react";
 import Link from "next/link";
+import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
 import { Button } from "@/components/ui";
 
 const InvoiceViewHeader = ({
@@ -22,6 +23,7 @@ const InvoiceViewHeader = ({
                 <span className="text-sm font-medium">Back to Invoices</span>
             </Link>
             <div className="flex items-center gap-3">
+                <OpenCustomerPaymentButton className="h-9" />
                 {invoiceData?.invoiceStatus === "RELEASED" && invoiceData?.paymentStatus !== "PAID" && (
                     <Button
                         variant="outline"

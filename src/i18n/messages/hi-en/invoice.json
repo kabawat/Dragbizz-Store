@@ -258,6 +258,7 @@
   },
   "customerPayment": {
     "pageTitle": "Customer Display",
+    "openDisplay": "Display",
     "waiting": "Payment ka wait ho raha hai…",
     "idleWelcome": "Welcome! Wait karte waqt hamare latest offers dekho.",
     "idleSlideWelcome": "Welcome",

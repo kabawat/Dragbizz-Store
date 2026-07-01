@@ -3,6 +3,7 @@ import { Download, Grid3X3, List, Plus, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InvoiceDownloadDrawer } from "@/components/invoice";
+import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
 import { Button, Input, Select } from "@/components/ui";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -149,6 +150,8 @@ const InvoiceListHeader = () => {
 
                 {/* Right side - Action Buttons */}
                 <div className="flex gap-3">
+                    <OpenCustomerPaymentButton className="h-9" />
+
                     {hasInvoices && (
                         <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                             <button

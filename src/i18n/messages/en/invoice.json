@@ -258,6 +258,7 @@
   },
   "customerPayment": {
     "pageTitle": "Customer Display",
+    "openDisplay": "Display",
     "waiting": "Waiting for payment…",
     "idleWelcome": "Welcome! Browse our latest offers while you wait.",
     "idleSlideWelcome": "Welcome",
