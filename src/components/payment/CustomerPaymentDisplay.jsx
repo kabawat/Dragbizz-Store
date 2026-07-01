@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { CheckCircle2, CreditCard, Banknote, Globe, Loader2 } from "lucide-react";
 import { UpiPaymentQr } from "@/components/common";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -9,8 +9,7 @@ import { useRazorpayCheckout } from "@/hooks/payment/useRazorpayCheckout";
 import { useAppSelector } from "@/store/hooks";
 import { writePaymentDisplaySession } from "@/utils/payment/paymentDisplaySession";
 
-const formatAmount = (n) =>
-  `₹${Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const formatAmount = (n) => `₹${Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const CustomerPaymentDisplay = () => {
   const { t } = useTranslation();
@@ -22,47 +21,42 @@ const CustomerPaymentDisplay = () => {
   const storeName = session?.storeName || selectedStore?.storeName || "";
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
-  useEffect(() => {
-    if (!ready || !scope || !session || checkoutState !== "idle") return;
-
+  const handlePayWithRazorpay = useCallback(async () => {
+    if (!ready || !scope || !session || checkoutState === "processing") return;
     if (session.status !== "awaiting" || session.paymentMethod !== "online") return;
     if (!session.invoiceId || !session.storeId) return;
 
     const amount = Number(session.paidAmount ?? session.amount ?? 0);
     if (!amount || amount <= 0) return;
 
-    const runCheckout = async () => {
-      setCheckoutState("processing");
-      setCheckoutError("");
+    setCheckoutState("processing");
+    setCheckoutError("");
 
-      try {
-        await startCheckout({
-          storeId: session.storeId,
-          invoiceId: session.invoiceId,
-          amount,
-          storeName: session.storeName || storeName || "",
-          customerName: session.customerName || "",
-          onSuccess: () => {
-            writePaymentDisplaySession(scope, {
-              ...session,
-              status: "paid",
-              paidAmount: amount,
-              updatedAt: Date.now(),
-            });
-            setCheckoutState("success");
-          },
-          onFailure: (error) => {
-            setCheckoutError(error?.message || t("invoice.customerPayment.paymentFailed"));
-            setCheckoutState("failed");
-          },
-        });
-      } catch (error) {
-        setCheckoutError(error?.message || t("invoice.customerPayment.paymentFailed"));
-        setCheckoutState("failed");
-      }
-    };
-
-    runCheckout();
+    try {
+      await startCheckout({
+        storeId: session.storeId,
+        invoiceId: session.invoiceId,
+        amount,
+        storeName: session.storeName || storeName || "",
+        customerName: session.customerName || "",
+        onSuccess: () => {
+          writePaymentDisplaySession(scope, {
+            ...session,
+            status: "paid",
+            paidAmount: amount,
+            updatedAt: Date.now(),
+          });
+          setCheckoutState("success");
+        },
+        onFailure: (error) => {
+          setCheckoutError(error?.message || t("invoice.customerPayment.paymentFailed"));
+          setCheckoutState("failed");
+        },
+      });
+    } catch (error) {
+      setCheckoutError(error?.message || t("invoice.customerPayment.paymentFailed"));
+      setCheckoutState("failed");
+    }
   }, [checkoutState, ready, scope, session, startCheckout, storeName, t]);
 
   if (!ready) {
@@ -179,16 +173,29 @@ const CustomerPaymentDisplay = () => {
             <p className="text-lg text-[rgb(var(--color-text-primary))] mb-2">
               {checkoutError || t("invoice.customerPayment.paymentFailed")}
             </p>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-              {t("invoice.customerPayment.tryAgain") || "Please try again from the staff screen."}
-            </p>
+            <button
+              type="button"
+              onClick={handlePayWithRazorpay}
+              className="mt-3 rounded-full bg-[rgb(var(--color-primary))] px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+            >
+              {t("invoice.collectPayment.payWithRazorpay") || "Pay with Razorpay"}
+            </button>
           </>
         ) : (
-          <p className="text-lg text-[rgb(var(--color-text-primary))]">
-            {!isOnline
-              ? t("invoice.customerPayment.offlineOnlineRequired")
-              : t("invoice.customerPayment.openingPaymentGateway") || "Opening payment gateway…"}
-          </p>
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-lg text-[rgb(var(--color-text-primary))]">
+              {!isOnline
+                ? t("invoice.customerPayment.offlineOnlineRequired")
+                : t("invoice.customerPayment.openingPaymentGateway") || "Opening payment gateway…"}
+            </p>
+            <button
+              type="button"
+              onClick={handlePayWithRazorpay}
+              className="rounded-full bg-[rgb(var(--color-primary))] px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+            >
+              {t("invoice.collectPayment.payWithRazorpay") || "Pay with Razorpay"}
+            </button>
+          </div>
         )}
       </div>
     );
