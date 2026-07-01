@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import CollectPaymentPreloader from "@/components/payment/CollectPaymentPreloader";
@@ -12,9 +12,11 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import useInvoiceCollectPayment from "@/hooks/payment/useInvoiceCollectPayment";
 
-const CollectPaymentPage = ({ invoiceId }) => {
+const CollectPaymentPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
+  const params = useParams();
+  const invoiceId = params?.invoiceId;
   const searchParams = useSearchParams();
   const source = searchParams.get("source") || "create";
   const [preloaderStep, setPreloaderStep] = useState(0);

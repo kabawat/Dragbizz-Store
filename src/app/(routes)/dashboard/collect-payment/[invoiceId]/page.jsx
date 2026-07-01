@@ -1,3 +1,4 @@
+"use client";
 import dynamic from "next/dynamic";
 
 const CollectPaymentPage = dynamic(() => import("@/page/dashboard/collect-payment"), {
@@ -12,7 +13,4 @@ const CollectPaymentPage = dynamic(() => import("@/page/dashboard/collect-paymen
   ),
 });
 
-export default async function CollectPaymentRoute({ params }) {
-  const { invoiceId } = await params;
-  return <CollectPaymentPage invoiceId={invoiceId} />;
-}
+export default CollectPaymentPage;
