@@ -74,6 +74,7 @@ export function useKhataEntry({ storeId, customerId, customerName, customerAccou
             customer: customerId,
             paymentType: "LEDGER_PAYMENT",
             payment: [{ method: paymentMode, amount: value }],
+            allocateToInvoices: true,
             notes: notes?.trim() || undefined,
           }),
           { successMessage: t("khata.entrySaved") },

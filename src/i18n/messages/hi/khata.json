@@ -39,6 +39,8 @@
   "searchCustomer": "नाम या फोन से खोजें",
   "entrySaved": "एंट्री सहेजी गई",
   "dueBadge": "{{amount}} बकाया",
+  "advanceBadge": "{{amount}} एडवांस",
+  "balanceAdvance": "एडवांस बैलेंस",
   "syncPending": "सिंक लंबित",
   "recentEntries": "हाल की एंट्री",
   "quickEntry": "त्वरित एंट्री",

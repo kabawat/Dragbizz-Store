@@ -38,6 +38,10 @@ export function KhataBalanceCard({ account, className = "" }) {
   const totalInvoices = Number(account?.totalInvoices) || 0;
   const itemsBought = Number(account?.totalItemsPurchased) || 0;
   const hasDue = totalDue > 0;
+  const hasAdvance = totalDue < 0;
+
+  const balanceLabel = hasAdvance ? t("khata.balanceAdvance") : t("khata.balance");
+  const balanceValue = hasAdvance ? formatAmount(Math.abs(totalDue)) : formatAmount(totalDue);
 
   return (
     <div
@@ -60,17 +64,26 @@ export function KhataBalanceCard({ account, className = "" }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {hasDue ? (
           <MetricTile
-            label={t("khata.balance")}
-            value={formatAmount(totalDue)}
+            label={balanceLabel}
+            value={balanceValue}
             icon={AlertCircle}
             gradient="from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3"
             iconClass="text-orange-500/35 dark:!text-orange-400 dark:opacity-40"
             valueClass="text-orange-600 dark:text-orange-400"
           />
+        ) : hasAdvance ? (
+          <MetricTile
+            label={balanceLabel}
+            value={balanceValue}
+            icon={CheckCircle}
+            gradient="from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3"
+            iconClass="text-emerald-500/35 dark:text-emerald-400/40"
+            valueClass="text-emerald-600 dark:text-emerald-400"
+          />
         ) : (
           <MetricTile
-            label={t("khata.balance")}
-            value={formatAmount(totalDue)}
+            label={balanceLabel}
+            value={balanceValue}
             icon={CheckCircle}
             gradient="from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3"
             iconClass="text-emerald-500/35 dark:text-emerald-400/40"

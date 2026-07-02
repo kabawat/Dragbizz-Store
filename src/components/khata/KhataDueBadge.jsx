@@ -8,13 +8,21 @@ function formatAmount(amount) {
     style: "currency",
     currency: "INR",
     minimumFractionDigits: 2,
-  }).format(Number(amount) || 0);
+  }).format(Math.abs(Number(amount) || 0));
 }
 
 export function KhataDueBadge({ totalDue = 0, className = "" }) {
   const { t } = useTranslation();
   const amount = Number(totalDue) || 0;
-  if (amount <= 0) return null;
+  if (amount === 0) return null;
+
+  if (amount < 0) {
+    return (
+      <Badge variant="success" size="sm" className={`tabular-nums ${className}`}>
+        {t("khata.advanceBadge", { amount: formatAmount(amount) })}
+      </Badge>
+    );
+  }
 
   return (
     <Badge variant="warning" size="sm" className={`tabular-nums ${className}`}>

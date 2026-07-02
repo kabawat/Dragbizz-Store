@@ -39,6 +39,8 @@
   "searchCustomer": "Search by name or phone",
   "entrySaved": "Entry saved",
   "dueBadge": "{{amount}} due",
+  "advanceBadge": "{{amount}} advance",
+  "balanceAdvance": "Advance balance",
   "syncPending": "Pending sync",
   "recentEntries": "Recent entries",
   "quickEntry": "Quick entry",
