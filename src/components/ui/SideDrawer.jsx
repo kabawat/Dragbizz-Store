@@ -18,6 +18,7 @@ const SideDrawer = ({
   draggable = true,
   resizable = true,
   autoHeight = false,
+  position = "right",
 }) => {
   const drawerRef = useRef(null);
   const dragStateRef = useRef(null);
@@ -36,6 +37,8 @@ const SideDrawer = ({
   const minWidthPx = 320;
   const minHeightPx = 220;
 
+  const isCentered = position === "center";
+
   const clampOffsetToViewport = useMemo(() => {
     return (next) => {
       const el = drawerRef.current;
@@ -45,21 +48,20 @@ const SideDrawer = ({
       const vw = window.innerWidth;
       const vh = window.innerHeight;
 
-      // Base position is top-right with margin (top=margin, right=margin)
-      const baseLeft = vw - marginPx - rect.width;
-      const baseTop = marginPx;
+      const baseLeft = isCentered ? (vw - rect.width) / 2 : vw - marginPx - rect.width;
+      const baseTop = isCentered ? (vh - rect.height) / 2 : marginPx;
 
-      const minX = marginPx - baseLeft; // allows moving left until left hits margin
-      const maxX = 0; // cannot move further right than base
-      const minY = 0; // cannot move above base top margin
-      const maxY = Math.max(0, vh - marginPx - rect.height - baseTop); // until bottom hits margin
+      const minX = marginPx - baseLeft;
+      const maxX = isCentered ? vw - marginPx - rect.width - baseLeft : 0;
+      const minY = isCentered ? marginPx - baseTop : 0;
+      const maxY = Math.max(0, vh - marginPx - rect.height - baseTop);
 
       return {
         x: Math.min(maxX, Math.max(minX, next.x)),
         y: Math.min(maxY, Math.max(minY, next.y)),
       };
     };
-  }, []);
+  }, [isCentered]);
 
   const clampSizeToViewport = useMemo(() => {
     return (next) => {
@@ -263,7 +265,11 @@ const SideDrawer = ({
   if (!isOpen || !mounted) return null;
 
   const drawerContent = (
-    <div className="fixed inset-0 overflow-hidden" style={{ zIndex: 10050 }} role="presentation">
+    <div
+      className={`fixed inset-0 overflow-hidden ${isCentered ? "flex items-center justify-center p-[10px]" : ""}`}
+      style={{ zIndex: 10050 }}
+      role="presentation"
+    >
       {/* Glass Effect Backdrop */}
       <div
         onClick={() => closeOnOutsideClick && onClose()}
@@ -280,7 +286,7 @@ const SideDrawer = ({
           width: drawerSize.width ? `${drawerSize.width}px` : undefined,
           height: drawerSize.height ? `${drawerSize.height}px` : undefined,
         }}
-        className={`absolute right-[10px] top-[10px] ${drawerSize.height ? "" : autoHeight ? "h-auto" : "h-[calc(100vh-20px)]"} max-h-[calc(100vh-20px)] ${width} max-w-[calc(100vw-20px)] bg-[rgb(var(--color-bg-primary))] shadow-2xl transform ${isDragging || isResizing ? "transition-none" : "transition-transform duration-300 ease-in-out"} flex flex-col rounded-[10px] overflow-hidden will-change-transform`}
+        className={`${isCentered ? "relative" : "absolute right-[10px] top-[10px]"} ${drawerSize.height ? "" : autoHeight ? "h-auto" : "h-[calc(100vh-20px)]"} max-h-[calc(100vh-20px)] ${width} max-w-[calc(100vw-20px)] bg-[rgb(var(--color-bg-primary))] shadow-2xl transform ${isDragging || isResizing ? "transition-none" : "transition-transform duration-300 ease-in-out"} flex flex-col rounded-[10px] overflow-hidden will-change-transform`}
       >
         {/* Header */}
         <div

@@ -47,6 +47,7 @@
   "addCompanyDetails": "કંપનીની વિગતો ઉમેરો",
   "companyInformation": "કંપનીની માહિતી",
   "addresses": "સરનામાં",
+  "noAddressDetails": "કોઈ સરનામું વિગતો ઉપલબ્ધ નથી",
   "addBillingShipping": "બિલિંગ અને શિપિંગ સરનામાં ઉમેરો",
   "locationDetected": "📍 સ્થાન શોધાયું: {city}, {state} - સરનામાં આપમેળે ભરાશે",
   "addBillingAddress": "બિલિંગ સરનામું ઉમેરો",

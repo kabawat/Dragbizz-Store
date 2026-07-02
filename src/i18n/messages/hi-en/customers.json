@@ -47,6 +47,7 @@
   "addCompanyDetails": "Company details add karo",
   "companyInformation": "Company Information",
   "addresses": "Addresses",
+  "noAddressDetails": "Koi address details available nahi hain",
   "addBillingShipping": "Billing aur shipping addresses add karo",
   "locationDetected": "📍 Location detect ho gaya: {city}, {state} - Addresses auto-fill ho jayengi",
   "addBillingAddress": "Billing Address add karo",

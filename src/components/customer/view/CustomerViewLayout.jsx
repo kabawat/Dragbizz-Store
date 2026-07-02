@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import CustomerBasicInfo from "@/components/customer/view/components/CustomerBasicInfo";
 import CompanyDetails from "@/components/customer/view/components/CompanyDetails";
 import AccountDetails from "@/components/customer/view/components/AccountDetails";
@@ -15,10 +16,13 @@ const CustomerViewLayout = ({
     onDownloadPDF,
     onKhataSuccess,
 }) => {
+    const [khataRefreshKey, setKhataRefreshKey] = useState(0);
     if (!customerData) return null;
 
-    const customerAccountId =
-        customerData.account?.id ?? customerData.account?._id ?? null;
+    const handleKhataSuccess = () => {
+        setKhataRefreshKey((key) => key + 1);
+        onKhataSuccess?.();
+    };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 overflow-hidden">
@@ -36,10 +40,12 @@ const CustomerViewLayout = ({
                             storeId={storeId}
                             customerId={customerId}
                             customerName={customerData.name}
-                            customerEmail={customerData.email}
-                            customerAccountId={customerAccountId}
+                            customerAccountId={
+                                customerData.account?.id ?? customerData.account?._id ?? null
+                            }
                             account={customerData.account}
-                            onSuccess={onKhataSuccess}
+                            refreshKey={khataRefreshKey}
+                            onSuccess={handleKhataSuccess}
                         />
                     )}
                 </div>

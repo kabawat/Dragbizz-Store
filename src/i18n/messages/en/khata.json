@@ -14,6 +14,7 @@
   "toCollect": "To collect",
   "noDue": "All settled",
   "recordTransaction": "Record transaction",
+  "recordShort": "Record",
   "recordTransactionHint": "Log credit given or payment received from this customer",
   "collectPayment": "Collect payment",
   "collectPaymentHint": "Available when there is an outstanding balance",

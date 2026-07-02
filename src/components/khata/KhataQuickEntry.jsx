@@ -24,6 +24,7 @@ export function KhataQuickEntry({
       description={t("khata.recordTransactionHint")}
       icon={Receipt}
       width="w-full max-w-md"
+      position="center"
       closeOnOutsideClick={false}
       draggable
       resizable

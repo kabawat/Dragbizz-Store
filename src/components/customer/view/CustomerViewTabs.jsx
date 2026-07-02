@@ -1,5 +1,5 @@
 const tabButtonClass = (isActive) =>
-  `px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+  `px-5 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
     isActive
       ? "bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] shadow-sm"
       : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"

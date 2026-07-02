@@ -48,6 +48,7 @@
   "addCompanyDetails": "कंपनी विवरण जोड़ें",
   "companyInformation": "कंपनी की जानकारी",
   "addresses": "पते",
+  "noAddressDetails": "कोई पता विवरण उपलब्ध नहीं है",
   "addBillingShipping": "बिलिंग और शिपिंग पते जोड़ें",
   "locationDetected": "📍 स्थान का पता चला: {city}, {state} - पते स्वचालित रूप से भर दिए जाएंगे",
   "addBillingAddress": "बिलिंग पता जोड़ें",

@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui";
 import {
   AlertCircle,
   CheckCircle,
@@ -31,7 +32,7 @@ function MetricTile({ label, value, icon: Icon, gradient, iconClass, valueClass 
   );
 }
 
-export function KhataBalanceCard({ account, className = "" }) {
+export function KhataBalanceCard({ account, className = "", onRecordTransaction, showRecordButton = false }) {
   const { t } = useTranslation();
   const totalDue = Number(account?.totalDue) || 0;
   const totalSpent = Number(account?.totalAmount) || 0;
@@ -47,18 +48,34 @@ export function KhataBalanceCard({ account, className = "" }) {
     <div
       className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-5 sm:p-6 ${className}`}
     >
-      <div className="flex items-center gap-3 mb-5 sm:mb-6">
-        <div className="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center shrink-0">
-          <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-[rgb(var(--color-primary))]" />
+      <div className="flex items-start justify-between gap-3 mb-5 sm:mb-6">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center shrink-0">
+            <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-[rgb(var(--color-primary))]" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+              {t("khata.quickStats")}
+            </h2>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("khata.summaryHint")}
+            </p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-            {t("khata.quickStats")}
-          </h2>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {t("khata.summaryHint")}
-          </p>
-        </div>
+        {showRecordButton && onRecordTransaction ? (
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
+            className="shrink-0 font-semibold"
+            onClick={onRecordTransaction}
+            leftIcon={Receipt}
+            aria-label={t("khata.recordTransaction")}
+          >
+            <span className="hidden min-[420px]:inline">{t("khata.recordTransaction")}</span>
+            <span className="min-[420px]:hidden">{t("khata.recordShort")}</span>
+          </Button>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">

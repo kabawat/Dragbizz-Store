@@ -47,6 +47,7 @@
   "addCompanyDetails": "Add Company Details",
   "companyInformation": "Company Information",
   "addresses": "Addresses",
+  "noAddressDetails": "No address details available",
   "addBillingShipping": "Add billing and shipping addresses",
   "locationDetected": "📍 Location detected: {city}, {state} - Will auto-fill addresses",
   "addBillingAddress": "Add Billing Address",

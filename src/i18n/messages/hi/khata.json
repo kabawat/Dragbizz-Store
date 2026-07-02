@@ -14,6 +14,7 @@
   "toCollect": "वसूली बाकी",
   "noDue": "सब साफ",
   "recordTransaction": "लेन-देन दर्ज करें",
+  "recordShort": "दर्ज करें",
   "recordTransactionHint": "इस ग्राहक को दिया गया उधार या प्राप्त भुगतान दर्ज करें",
   "collectPayment": "भुगतान वसूलें",
   "collectPaymentHint": "बकाया राशि होने पर उपलब्ध",

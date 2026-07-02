@@ -2,74 +2,62 @@
 
 import { useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import KhataCollectActions from "@/components/customer/khata/KhataCollectActions";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useKhataLedger } from "@/hooks/khata/useKhataLedger";
 import KhataBalanceCard from "@/components/khata/KhataBalanceCard";
-import KhataEntrySection from "@/components/khata/KhataEntrySection";
 import KhataLedgerList from "@/components/khata/KhataLedgerList";
+import { KhataQuickEntry } from "@/components/khata/KhataQuickEntry";
 
 const KhataPanel = ({
   storeId,
   customerId,
   customerName,
-  customerEmail,
   customerAccountId,
   account,
+  refreshKey = 0,
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [ledgerRefreshKey, setLedgerRefreshKey] = useState(0);
+  const [showRecordDrawer, setShowRecordDrawer] = useState(false);
+  const { can } = useModulePermissions("customer");
+  const canEdit = can("edit");
 
   const { entries, loading, error } = useKhataLedger({
     storeId,
     customerId,
-    refreshKey: ledgerRefreshKey,
+    refreshKey,
   });
 
-  const handleSuccess = () => {
-    setLedgerRefreshKey((key) => key + 1);
+  const handleRecordSuccess = () => {
+    setShowRecordDrawer(false);
     onSuccess?.();
   };
 
-  const collectActions = (
-    <KhataCollectActions
-      storeId={storeId}
-      customerId={customerId}
-      customerName={customerName}
-      customerEmail={customerEmail}
-      amount={account?.totalDue ?? 0}
-      variant="embedded"
-    />
-  );
-
   return (
     <div className="space-y-5">
-      <KhataBalanceCard account={account} />
+      <KhataBalanceCard
+        account={account}
+        showRecordButton={canEdit}
+        onRecordTransaction={() => setShowRecordDrawer(true)}
+      />
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 xl:gap-6 xl:items-start">
-        <div className="xl:col-span-5">
-          <KhataEntrySection
-            storeId={storeId}
-            customerId={customerId}
-            customerName={customerName}
-            customerAccountId={customerAccountId}
-            onSuccess={handleSuccess}
-          />
-        </div>
+      <KhataLedgerList
+        entries={entries}
+        loading={loading}
+        error={error}
+        title={t("khata.partyLedger")}
+        className="min-h-[320px]"
+      />
 
-        <div className="xl:col-span-7 xl:sticky xl:top-0 xl:max-h-[calc(100vh-240px)] xl:flex xl:flex-col">
-          <div className="space-y-4">
-            {collectActions}
-            <KhataLedgerList
-              entries={entries}
-              loading={loading}
-              error={error}
-              title={t("khata.partyLedger")}
-              className="xl:flex-1 xl:min-h-0 xl:overflow-y-auto custom-scrollbar"
-            />
-          </div>
-        </div>
-      </div>
+      <KhataQuickEntry
+        open={showRecordDrawer}
+        onClose={() => setShowRecordDrawer(false)}
+        storeId={storeId}
+        customerId={customerId}
+        customerName={customerName}
+        customerAccountId={customerAccountId}
+        onSuccess={handleRecordSuccess}
+      />
     </div>
   );
 };

@@ -54,7 +54,7 @@ const KhataCollectActions = ({
   };
 
   const buttonClass =
-    "h-11 px-3 rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] disabled:opacity-50 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 transition-colors w-full";
+    "h-11 px-3 rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 transition-colors w-full";
 
   const actions = (
     <>
