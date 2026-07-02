@@ -27,7 +27,7 @@ export function KhataAmountInput({
           min="0"
           step="0.01"
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={onChange}
           disabled={disabled}
           autoFocus={autoFocus}
           placeholder="0"
