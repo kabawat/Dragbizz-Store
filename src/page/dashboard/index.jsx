@@ -32,6 +32,7 @@ import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 // Extracted Dashboard Components
 import { SortableSection, SortableMetricCard, SortableAnalyticsCard } from "@/components/dashboard/SortableComponents";
