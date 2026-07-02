@@ -42,13 +42,13 @@ const CustomerViewLayout = ({
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 overflow-hidden">
             <div className="lg:col-span-2">
-                <div className="flex gap-2 mb-4">
+                <div className="inline-flex p-1 rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/50 mb-5">
                     <button
                         type="button"
                         onClick={() => handleTabChange("details")}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
                             activeTab === "details"
-                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                ? "bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] shadow-sm"
                                 : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                         }`}
                     >
@@ -57,9 +57,9 @@ const CustomerViewLayout = ({
                     <button
                         type="button"
                         onClick={() => handleTabChange("khata")}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
                             activeTab === "khata"
-                                ? "bg-[rgb(var(--color-primary))] text-white"
+                                ? "bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] shadow-sm"
                                 : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                         }`}
                     >

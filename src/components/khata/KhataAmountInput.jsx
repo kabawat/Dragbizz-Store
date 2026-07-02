@@ -31,7 +31,7 @@ export function KhataAmountInput({
           disabled={disabled}
           autoFocus={autoFocus}
           placeholder="0"
-          className="text-3xl font-semibold tabular-nums pl-12 py-4 h-auto"
+          className="text-2xl font-semibold tabular-nums pl-12 py-3 h-auto max-w-full"
         />
       </div>
       {error ? (

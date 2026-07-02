@@ -43,22 +43,31 @@ const KhataPanel = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <KhataBalanceCard account={account} />
-      <KhataEntrySection
-        storeId={storeId}
-        customerId={customerId}
-        customerName={customerName}
-        customerAccountId={customerAccountId}
-        onSuccess={handleSuccess}
-        collectActions={collectActions}
-      />
-      <KhataLedgerList
-        entries={entries}
-        loading={loading}
-        error={error}
-        title={t("khata.partyLedger")}
-      />
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 xl:gap-6 xl:items-start">
+        <div className="xl:col-span-5">
+          <KhataEntrySection
+            storeId={storeId}
+            customerId={customerId}
+            customerName={customerName}
+            customerAccountId={customerAccountId}
+            onSuccess={handleSuccess}
+            collectActions={collectActions}
+          />
+        </div>
+
+        <div className="xl:col-span-7 xl:sticky xl:top-0 xl:max-h-[calc(100vh-240px)] xl:flex xl:flex-col">
+          <KhataLedgerList
+            entries={entries}
+            loading={loading}
+            error={error}
+            title={t("khata.partyLedger")}
+            className="xl:flex-1 xl:min-h-0 xl:overflow-y-auto custom-scrollbar"
+          />
+        </div>
+      </div>
     </div>
   );
 };

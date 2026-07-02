@@ -58,50 +58,60 @@ export function KhataEntrySection({
   };
 
   return (
-    <div className="rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] p-5 shadow-sm space-y-5">
-      <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-        {t("khata.recordTransaction")}
-      </h3>
-
-      <KhataAmountInput
-        value={amount}
-        onChange={setAmount}
-        showLabel={false}
-        error={error}
-        autoFocus={autoFocusAmount}
-        disabled={isDisabled || loading}
-      />
-
-      <KhataPaymentModeSelect
-        value={paymentMode}
-        onChange={setPaymentMode}
-        disabled={isDisabled || loading}
-      />
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-[rgb(var(--color-text-secondary))]">
-          {t("khata.notes")}
-        </label>
-        <textarea
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          rows={2}
-          disabled={isDisabled || loading}
-          placeholder={t("khata.notesPlaceholder")}
-          className="w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2 text-sm"
-        />
+    <div className="rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] shadow-sm overflow-hidden flex flex-col">
+      <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/20">
+        <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+          {t("khata.recordTransaction")}
+        </h3>
+        <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
+          {t("khata.recordTransactionHint")}
+        </p>
       </div>
 
-      <KhataActionButtons
-        loading={loading}
-        disabled={!canSubmit || isDisabled}
-        onYouGave={handleYouGave}
-        onYouGot={handleYouGot}
-      />
+      <div className="p-5 space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+          <KhataAmountInput
+            value={amount}
+            onChange={setAmount}
+            label={t("khata.amount")}
+            showLabel
+            error={error}
+            autoFocus={autoFocusAmount}
+            disabled={isDisabled || loading}
+          />
 
-      {collectActions ? (
-        <div className="pt-1 border-t border-[rgb(var(--color-border-primary))]">{collectActions}</div>
-      ) : null}
+          <KhataPaymentModeSelect
+            value={paymentMode}
+            onChange={setPaymentMode}
+            disabled={isDisabled || loading}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 text-[rgb(var(--color-text-secondary))]">
+            {t("khata.notes")}
+          </label>
+          <textarea
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            rows={2}
+            disabled={isDisabled || loading}
+            placeholder={t("khata.notesPlaceholder")}
+            className="w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2 text-sm"
+          />
+        </div>
+
+        <KhataActionButtons
+          loading={loading}
+          disabled={!canSubmit || isDisabled}
+          onYouGave={handleYouGave}
+          onYouGot={handleYouGot}
+        />
+
+        {collectActions ? (
+          <div className="pt-4 border-t border-[rgb(var(--color-border-primary))]">{collectActions}</div>
+        ) : null}
+      </div>
     </div>
   );
 }

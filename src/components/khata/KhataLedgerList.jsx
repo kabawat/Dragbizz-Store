@@ -37,6 +37,7 @@ export function KhataLedgerList({
   error = null,
   title,
   emptyTitle,
+  className = "",
 }) {
   const { t } = useTranslation();
 
@@ -66,13 +67,13 @@ export function KhataLedgerList({
   let lastDateHeader = "";
 
   return (
-    <div className="rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] shadow-sm overflow-hidden">
+    <div className={`rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] shadow-sm overflow-hidden flex flex-col ${className}`}>
       {title ? (
-        <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))]">
+        <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))] shrink-0 bg-[rgb(var(--color-bg-secondary))]/20">
           <h4 className="text-base font-semibold">{title}</h4>
         </div>
       ) : null}
-      <ul>
+      <ul className="overflow-y-auto flex-1 min-h-0">
         {entries.map((entry) => {
           const isYouGave = entry.label === "youGave";
           const dateHeader = formatDateHeader(entry.date);
