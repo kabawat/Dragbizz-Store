@@ -1,5 +1,5 @@
 "use client";
-import { Edit, Eye, MoreVertical, Trash2, Users, BookOpen } from "lucide-react";
+import { Edit, Eye, MoreVertical, Trash2, Users, BookOpen, Receipt } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import KhataDueBadge from "@/components/khata/KhataDueBadge";
@@ -12,10 +12,12 @@ const CustomerTable = ({
   onDelete,
   onViewDetails,
   onManageKhata,
+  onQuickKhataEntry,
   className = "",
   canEdit = true,
   canDelete = true,
   canManageKhata = true,
+  canQuickKhataEntry = true,
 }) => {
   const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -46,6 +48,7 @@ const CustomerTable = ({
       case "view": onViewDetails?.(customerId); break;
       case "edit": onEdit?.(customerId); break;
       case "khata": onManageKhata?.(customerId); break;
+      case "quickKhata": onQuickKhataEntry?.(customerId); break;
       case "delete": onDelete?.(customerId); break;
       default: break;
     }
@@ -169,6 +172,15 @@ const CustomerTable = ({
                           <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                           {t("common.viewDetails")}
                         </button>
+                        {canQuickKhataEntry && onQuickKhataEntry ? (
+                          <button
+                            onClick={() => handleMenuAction(customer.id, "quickKhata")}
+                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
+                          >
+                            <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                            {t("khata.quickEntry")}
+                          </button>
+                        ) : null}
                         {canManageKhata && onManageKhata ? (
                           <button
                             onClick={() => handleMenuAction(customer.id, "khata")}

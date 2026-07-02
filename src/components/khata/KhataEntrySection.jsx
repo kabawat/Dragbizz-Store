@@ -12,6 +12,8 @@ export function KhataEntrySection({
   autoFocusAmount = false,
   disabled = false,
   collectActions = null,
+  hideHeader = false,
+  variant = "card",
 }) {
   const { loading, error, recordYouGave, recordYouGot, clearError } = useKhataEntry({
     storeId,
@@ -32,6 +34,8 @@ export function KhataEntrySection({
       onClearError={clearError}
       autoFocusAmount={autoFocusAmount}
       footer={collectActions}
+      hideHeader={hideHeader}
+      variant={variant}
     />
   );
 }

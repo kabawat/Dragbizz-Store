@@ -117,6 +117,8 @@ export function KhataRecordTransaction({
   onClearError,
   autoFocusAmount = false,
   footer = null,
+  hideHeader = false,
+  variant = "card",
   className = "",
 }) {
   const { t } = useTranslation();
@@ -154,20 +156,26 @@ export function KhataRecordTransaction({
     }
   };
 
-  return (
-    <div
-      className={`rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] overflow-hidden flex flex-col ${className}`}
-    >
-      <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/20">
-        <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-          {t("khata.recordTransaction")}
-        </h3>
-        <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-          {t("khata.recordTransactionHint")}
-        </p>
-      </div>
+  const isCard = variant === "card";
+  const shellClass = isCard
+    ? "rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] overflow-hidden flex flex-col"
+    : "flex flex-col";
+  const bodyClass = isCard ? "p-5 space-y-5" : "space-y-5";
 
-      <div className="p-5 space-y-5">
+  return (
+    <div className={`${shellClass} ${className}`}>
+      {!hideHeader ? (
+        <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/20">
+          <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+            {t("khata.recordTransaction")}
+          </h3>
+          <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
+            {t("khata.recordTransactionHint")}
+          </p>
+        </div>
+      ) : null}
+
+      <div className={bodyClass}>
         <div className="space-y-4">
           <KhataAmountInput
             value={amount}

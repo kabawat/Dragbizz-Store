@@ -1,6 +1,7 @@
 "use client";
 import { Download, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Button from "./Button";
 
 const SideDrawer = ({
@@ -16,6 +17,7 @@ const SideDrawer = ({
   closeOnOutsideClick = true,
   draggable = true,
   resizable = true,
+  autoHeight = false,
 }) => {
   const drawerRef = useRef(null);
   const dragStateRef = useRef(null);
@@ -28,6 +30,7 @@ const SideDrawer = ({
   const pendingSizeRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [drawerSize, setDrawerSize] = useState({ width: null, height: null }); // px overrides
+  const [mounted, setMounted] = useState(false);
 
   const marginPx = 10;
   const minWidthPx = 320;
@@ -70,6 +73,10 @@ const SideDrawer = ({
         height: Math.min(maxH, Math.max(minHeightPx, next.height)),
       };
     };
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   // Handle escape key
@@ -253,25 +260,27 @@ const SideDrawer = ({
     window.addEventListener("touchcancel", onUp, { passive: true });
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-[9998] overflow-hidden">
+  const drawerContent = (
+    <div className="fixed inset-0 overflow-hidden" style={{ zIndex: 10050 }} role="presentation">
       {/* Glass Effect Backdrop */}
       <div
         onClick={() => closeOnOutsideClick && onClose()}
         className="absolute inset-0 bg-black/20 backdrop-blur-[1px] transition-opacity duration-300"
+        style={{ zIndex: 10050 }}
       />
 
       {/* Drawer */}
       <div
         ref={drawerRef}
         style={{
+          zIndex: 10051,
           transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`,
           width: drawerSize.width ? `${drawerSize.width}px` : undefined,
           height: drawerSize.height ? `${drawerSize.height}px` : undefined,
         }}
-        className={`absolute right-[10px] top-[10px] ${drawerSize.height ? "" : "h-[calc(100vh-20px)]"} max-h-[calc(100vh-20px)] ${width} max-w-[calc(100vw-20px)] bg-[rgb(var(--color-bg-primary))] shadow-2xl transform ${isDragging || isResizing ? "transition-none" : "transition-transform duration-300 ease-in-out"} flex flex-col z-[9999] rounded-[10px] overflow-hidden will-change-transform`}
+        className={`absolute right-[10px] top-[10px] ${drawerSize.height ? "" : autoHeight ? "h-auto" : "h-[calc(100vh-20px)]"} max-h-[calc(100vh-20px)] ${width} max-w-[calc(100vw-20px)] bg-[rgb(var(--color-bg-primary))] shadow-2xl transform ${isDragging || isResizing ? "transition-none" : "transition-transform duration-300 ease-in-out"} flex flex-col rounded-[10px] overflow-hidden will-change-transform`}
       >
         {/* Header */}
         <div
@@ -323,8 +332,8 @@ const SideDrawer = ({
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain">
+        {/* Content — flex column so drawer forms can pin footer actions */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden overscroll-contain">
           {children}
         </div>
 
@@ -357,6 +366,8 @@ const SideDrawer = ({
       </div>
     </div>
   );
+
+  return createPortal(drawerContent, document.body);
 };
 
 export default SideDrawer;

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EditCustomer, CustomerTable, CustomerCard } from "@/components/customer";
 import CustomerDeleteModal from "./CustomerDeleteModal";
@@ -11,6 +11,18 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { Users } from "lucide-react";
 import { buildCustomerListParams } from "@/utils/customer/customerList.util";
+import KhataQuickEntry from "@/components/khata/KhataQuickEntry";
+
+function findCustomerQuickEntryTarget(customers, customerId) {
+    const customer = customers.find((item) => item.id === customerId || item._id === customerId);
+    if (!customer) return null;
+
+    return {
+        customerId: customer.id ?? customer._id,
+        customerName: customer.name ?? "",
+        customerAccountId: customer.account?.id ?? customer.account?._id ?? null,
+    };
+}
 
 const CustomerListContent = ({
     searchValue = "",
@@ -37,9 +49,37 @@ const CustomerListContent = ({
     const canEdit = can("edit");
     const canDelete = can("delete");
     const canManageKhata = can("read");
+    const canQuickKhataEntry = canEdit;
 
     const goToDetails = (id) => router.push(`/dashboard/customers/${id}`);
     const goToKhata = (id) => router.push(`/dashboard/customers/${id}?tab=khata`);
+
+    const refreshCustomers = useCallback(() => {
+        if (!storeId) return;
+        const { searchValue: search, isActive: active, source: src, startDate: start, endDate: end } =
+            filtersRef.current;
+        dispatch(
+            getCustomers(
+                buildCustomerListParams({
+                    storeId,
+                    search,
+                    isActive: active,
+                    source: src,
+                    startDate: start,
+                    endDate: end,
+                    isFreshLoad: true,
+                }),
+            ),
+        );
+    }, [dispatch, storeId]);
+
+    const openQuickKhataEntry = useCallback(
+        (customerId) => {
+            const target = findCustomerQuickEntryTarget(visibleCustomers, customerId);
+            if (target) setQuickEntryTarget(target);
+        },
+        [visibleCustomers],
+    );
 
     const filtersRef = useRef({ searchValue, isActive, source, startDate, endDate });
     filtersRef.current = { searchValue, isActive, source, startDate, endDate };
@@ -55,6 +95,7 @@ const CustomerListContent = ({
 
     // ─── Edit drawer state ────────────────────────────────────────────────────
     const [editCustomerId, setEditCustomerId] = useState(null);
+    const [quickEntryTarget, setQuickEntryTarget] = useState(null);
 
     // ─── Delete modal ref (self-contained) ───────────────────────────────────
     const deleteModalRef = useRef(null);
@@ -122,9 +163,11 @@ const CustomerListContent = ({
                                 onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
                                 onViewDetails={goToDetails}
                                 onManageKhata={canManageKhata ? goToKhata : undefined}
+                                onQuickKhataEntry={canQuickKhataEntry ? openQuickKhataEntry : undefined}
                                 canEdit={canEdit}
                                 canDelete={canDelete}
                                 canManageKhata={canManageKhata}
+                                canQuickKhataEntry={canQuickKhataEntry}
                             />
                         </div>
                     ) : (
@@ -138,9 +181,11 @@ const CustomerListContent = ({
                                         onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
                                         onViewDetails={goToDetails}
                                         onManageKhata={canManageKhata ? goToKhata : undefined}
+                                        onQuickKhataEntry={canQuickKhataEntry ? openQuickKhataEntry : undefined}
                                         canEdit={canEdit}
                                         canDelete={canDelete}
                                         canManageKhata={canManageKhata}
+                                        canQuickKhataEntry={canQuickKhataEntry}
                                     />
                                 ))}
                             </div>
@@ -183,6 +228,16 @@ const CustomerListContent = ({
 
             {/* Delete modal — fully self-contained via ref */}
             <CustomerDeleteModal ref={deleteModalRef} />
+
+            <KhataQuickEntry
+                open={Boolean(quickEntryTarget)}
+                onClose={() => setQuickEntryTarget(null)}
+                storeId={storeId}
+                customerId={quickEntryTarget?.customerId}
+                customerName={quickEntryTarget?.customerName}
+                customerAccountId={quickEntryTarget?.customerAccountId}
+                onSuccess={refreshCustomers}
+            />
 
             {/* Edit Customer Drawer */}
             <SideDrawer
