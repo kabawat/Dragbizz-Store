@@ -1,17 +1,20 @@
 "use client";
 import {
+  BookOpen,
   Edit,
   Eye,
   Mail,
   Phone,
+  Receipt,
   Trash2,
   Users,
-  BookOpen,
-  Receipt,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
+import CopyableContactValue from "@/components/customer/CopyableContactValue";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
 import KhataDueBadge from "@/components/khata/KhataDueBadge";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
 import { IconButton } from "../ui";
@@ -31,31 +34,10 @@ const CustomerCard = ({
   ...props
 }) => {
   const { t } = useTranslation();
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
+  const { menu, menuRefs, closeMenu, toggleDropdown } = useRowActionMenu();
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-
-
-  const handleMenuToggle = (customerId) => {
-    setOpenMenuId(openMenuId === customerId ? null : customerId);
-  };
-
-  const handleMenuAction = (customerId, action) => {
-    setOpenMenuId(null);
+  const handleMenuAction = useCallback((customerId, action) => {
+    closeMenu();
     switch (action) {
       case "view":
         onViewDetails?.(customerId);
@@ -75,7 +57,30 @@ const CustomerCard = ({
       default:
         break;
     }
-  };
+  }, [closeMenu, onViewDetails, onEdit, onManageKhata, onQuickKhataEntry, onDelete]);
+
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => handleMenuAction(rowId, action);
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (canQuickKhataEntry && onQuickKhataEntry) {
+      items.push({ key: "quickKhata", label: t("khata.quickEntry"), icon: Receipt, onClick: run("quickKhata") });
+    }
+    if (canManageKhata && onManageKhata) {
+      items.push({ key: "khata", label: t("khata.manageKhata"), icon: BookOpen, onClick: run("khata") });
+    }
+    if (canEdit) {
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (canEdit && canDelete) {
+      items.push({ type: "separator" });
+    }
+    if (canDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, canQuickKhataEntry, onQuickKhataEntry, canManageKhata, onManageKhata, canEdit, canDelete, handleMenuAction]);
 
   // Grid view - Modern Card Design
   return (
@@ -97,62 +102,12 @@ const CustomerCard = ({
 
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
-          <div className="relative" ref={menuRef}>
-            <IconButton
-              onClick={() => handleMenuToggle(customer.id)}
-            />
+          <div className="relative" ref={(el) => (menuRefs.current[customer.id] = el)}>
+            <IconButton onClick={() => toggleDropdown(customer.id)} />
 
-            {/* Popup Menu */}
-            {openMenuId === customer.id && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-[9999]">
-                <button
-                  onClick={() => handleMenuAction(customer.id, "view")}
-                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                >
-                  <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t("common.viewDetails")}
-                </button>
-                {canQuickKhataEntry && onQuickKhataEntry ? (
-                  <button
-                    onClick={() => handleMenuAction(customer.id, "quickKhata")}
-                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                  >
-                    <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                    {t("khata.quickEntry")}
-                  </button>
-                ) : null}
-                {canManageKhata && onManageKhata ? (
-                  <button
-                    onClick={() => handleMenuAction(customer.id, "khata")}
-                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                  >
-                    <BookOpen className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                    {t("khata.manageKhata")}
-                  </button>
-                ) : null}
-                {canEdit && (
-                  <button
-                    onClick={() => handleMenuAction(customer.id, "edit")}
-                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                  >
-                    <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                    {t("common.edit")}
-                  </button>
-                )}
-                {canEdit && canDelete && (
-                  <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                )}
-                {canDelete && (
-                  <button
-                    onClick={() => handleMenuAction(customer.id, "delete")}
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                    {t("common.delete")}
-                  </button>
-                )}
-              </div>
-            )}
+            {menu?.rowId === customer.id && menu.mode === "dropdown" ? (
+              <RowActionsMenu items={buildMenuItems(customer.id)} mode="dropdown" />
+            ) : null}
           </div>
         </div>
 
@@ -185,7 +140,7 @@ const CustomerCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-medium truncate text-[rgb(var(--color-text-primary))]">
-                {customer.phone || t("common.notAvailable")}
+                <CopyableContactValue value={customer.phone} fallback={t("common.notAvailable")} />
               </p>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                 {t("common.phone")}
@@ -200,7 +155,7 @@ const CustomerCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-medium truncate text-[rgb(var(--color-text-primary))]">
-                {customer.email || t("common.notAvailable")}
+                <CopyableContactValue value={customer.email} fallback={t("common.notAvailable")} />
               </p>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                 {t("common.email")}

@@ -1,9 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
     ChevronDown, ChevronUp, Shield, CheckCircle, Clock,
     XCircle, MoreVertical, Mail, Trash2, Ban, Loader2
 } from "lucide-react";
+import CopyableContactValue from "@/components/common/CopyableContactValue";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 
 const MODULE_LABELS = {
     billing: "Billing",
@@ -30,7 +33,7 @@ const STATUS_CONFIG = {
 
 const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditStaff, onRefresh }) => {
     const [showPermissions, setShowPermissions] = useState(false);
-    const [showMenu, setShowMenu] = useState(false);
+    const { menu, menuRefs, closeMenu, toggleDropdown } = useRowActionMenu();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isResending, setIsResending] = useState(false);
     const [isRemoving, setIsRemoving] = useState(false);
@@ -51,7 +54,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
     const handleCancelInvite = async () => {
         if (!onDeleteTemp) return;
         setIsDeleting(true);
-        setShowMenu(false);
+        closeMenu();
         try {
             await onDeleteTemp(staff._id);
         } finally {
@@ -62,7 +65,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
     const handleResendInviteLocal = async () => {
         if (!onResendInvite) return;
         setIsResending(true);
-        setShowMenu(false);
+        closeMenu();
         try {
             await onResendInvite(staff._id);
         } finally {
@@ -73,7 +76,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
     const handleRemoveStaff = async () => {
         if (!onRemoveStaff) return;
         setIsRemoving(true);
-        setShowMenu(false);
+        closeMenu();
         try {
             await onRemoveStaff(staff._id);
         } finally {
@@ -82,6 +85,43 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
     };
 
     const isBusy = isDeleting || isRemoving || isResending;
+
+    const buildMenuItems = useCallback(() => {
+        const items = [];
+        if (isTempStaff) {
+            items.push({
+                key: "resend",
+                label: "Resend Invitation",
+                icon: isResending ? Loader2 : Mail,
+                onClick: handleResendInviteLocal,
+            });
+            items.push({
+                key: "cancel",
+                label: "Cancel Invitation",
+                icon: Trash2,
+                tone: "danger",
+                onClick: handleCancelInvite,
+            });
+        }
+        if (!isTempStaff && staff.status === "ACTIVE") {
+            items.push({
+                key: "edit",
+                label: "Edit Permissions",
+                icon: Shield,
+                onClick: () => { closeMenu(); onEditStaff?.(staff); },
+            });
+        }
+        if (!isTempStaff && staff.status !== "REMOVED") {
+            items.push({
+                key: "remove",
+                label: "Remove Staff",
+                icon: Trash2,
+                tone: "danger",
+                onClick: handleRemoveStaff,
+            });
+        }
+        return items;
+    }, [isTempStaff, staff, isResending, closeMenu, onEditStaff, handleResendInviteLocal, handleCancelInvite, handleRemoveStaff]);
 
     return (
         <div className={`bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary)/0.3)] rounded-xl transition-all ${isBusy ? "opacity-50 pointer-events-none" : "border-[rgb(var(--color-border-primary))]"}`}>
@@ -112,7 +152,9 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
                             {staff.roleName}
                         </span>
                     </div>
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5 truncate">{staff.email}</p>
+                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5 truncate">
+                        <CopyableContactValue value={staff.email} className="text-xs" />
+                    </p>
                 </div>
 
                 {/* Status badge */}
@@ -136,63 +178,17 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
 
                 {/* Actions menu */}
                 {staff.status !== "REMOVED" && (
-                    <div className="relative flex-shrink-0">
+                    <div className="relative flex-shrink-0" ref={(el) => (menuRefs.current[staff._id] = el)}>
                         <button
-                            onClick={() => setShowMenu(!showMenu)}
+                            onClick={() => toggleDropdown(staff._id)}
                             className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] transition-all"
                         >
                             <MoreVertical size={16} />
                         </button>
 
-                        {showMenu && (
-                            <>
-                                <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                                <div className="absolute right-0 top-9 z-20 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl overflow-hidden shadow-lg">
-
-                                    {/* TEMP_STAFF actions */}
-                                    {isTempStaff && (
-                                        <>
-                                            <button
-                                                onClick={handleResendInviteLocal}
-                                                disabled={isResending}
-                                                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors disabled:opacity-50"
-                                            >
-                                                {isResending ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
-                                                Resend Invitation
-                                            </button>
-                                            <button
-                                                onClick={handleCancelInvite}
-                                                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-red-500 hover:bg-red-500/5 transition-colors"
-                                            >
-                                                <Trash2 size={13} />
-                                                Cancel Invitation
-                                            </button>
-                                        </>
-                                    )}
-
-                                    {/* Active STAFF actions */}
-                                    {!isTempStaff && staff.status === "ACTIVE" && (
-                                        <button 
-                                            onClick={() => { setShowMenu(false); onEditStaff?.(staff); }}
-                                            className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
-                                        >
-                                            <Shield size={13} />
-                                            Edit Permissions
-                                        </button>
-                                    )}
-
-                                    {!isTempStaff && staff.status !== "REMOVED" && (
-                                        <button
-                                            onClick={handleRemoveStaff}
-                                            className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-red-500 hover:bg-red-500/5 transition-colors"
-                                        >
-                                            <Trash2 size={13} />
-                                            Remove Staff
-                                        </button>
-                                    )}
-                                </div>
-                            </>
-                        )}
+                        {menu?.rowId === staff._id && menu.mode === "dropdown" ? (
+                            <RowActionsMenu items={buildMenuItems()} mode="dropdown" className="w-48" />
+                        ) : null}
                     </div>
                 )}
             </div>

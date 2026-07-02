@@ -15,7 +15,10 @@ import {
   Send,
   Trash2,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { renderStatusBadge } from "@/utils/statusBadge";
 
@@ -29,20 +32,19 @@ const BillTable = ({
   hasMore,
   onLoadMore,
   isLoadingMore,
-  openMenuId,
-  onMenuToggle,
   onMenuAction,
-  menuRefs,
   formatCurrency,
   formatDate,
   enableSendMenu = false,
   getShareUrl,
 }) => {
   const { t } = useTranslation();
+  const _defaultEmptyMessage = emptyMessage || t("bills.noBills");
+
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
+
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
   const sendMenuRefs = useRef({});
-
-  const _defaultEmptyMessage = emptyMessage || t("bills.noBills");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -73,6 +75,30 @@ const BillTable = ({
         await navigator.clipboard.writeText(text);
     } catch { }
   };
+
+  const buildMenuItems = useCallback((rowId) => {
+    const bill = bills.find((b) => (b._id || b.id) === rowId);
+    if (!bill) return [];
+
+    const run = (action) => () => {
+      closeMenu();
+      onMenuAction?.(rowId, action);
+    };
+
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (onEdit) {
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (onEdit && bill.paymentStatus !== "PAID") {
+      items.push({ key: "payment", label: t("bills.payBill"), icon: CreditCard, tone: "success", onClick: run("payment") });
+    }
+    if (onDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [bills, onEdit, onDelete, closeMenu, onMenuAction, t]);
 
   return (
     <div className="h-full">
@@ -132,10 +158,13 @@ const BillTable = ({
               };
               const StatusIcon = iconMap[status] || Clock;
 
+              const rowId = bill._id || bill.id || bill.billNumber;
+
               return (
                 <tr
-                  key={bill._id || bill.id || bill.billNumber}
+                  key={rowId}
                   className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+                  onContextMenu={(event) => openContextMenu(event, rowId)}
                 >
                   <td className="w-[15%] px-6 py-4">
                     <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))]">
@@ -272,65 +301,19 @@ const BillTable = ({
 
                       <div
                         className="relative inline-block"
-                        ref={(el) =>
-                          (menuRefs.current[bill._id || bill.id] = el)
-                        }
+                        ref={(el) => (menuRefs.current[rowId] = el)}
                       >
                         <button
-                          onClick={() => onMenuToggle(bill._id || bill.id)}
+                          onClick={() => toggleDropdown(rowId)}
                           className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                           title={t("common.actions")}
                         >
                           <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                         </button>
 
-                        {/* Popup Menu */}
-                        {openMenuId === (bill._id || bill.id) && (
-                          <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                            <button
-                              onClick={() =>
-                                onMenuAction(bill._id || bill.id, "view")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                            >
-                              <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t("common.viewDetails")}
-                            </button>
-                            {onEdit && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(bill._id || bill.id, "edit")
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                              >
-                                <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                {t("common.edit")}
-                              </button>
-                            )}
-                            {onEdit && bill.paymentStatus !== "PAID" && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(bill._id || bill.id, "payment")
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
-                              >
-                                <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
-                                {t("bills.payBill")}
-                              </button>
-                            )}
-                            {onDelete && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(bill._id || bill.id, "delete")
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                                {t("common.delete")}
-                              </button>
-                            )}
-                          </div>
-                        )}
+                        {menu?.rowId === rowId && menu.mode === "dropdown" ? (
+                          <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
+                        ) : null}
                       </div>
                     </div>
                   </td>
@@ -350,6 +333,16 @@ const BillTable = ({
           </div>
         )}
       </div>
+
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
     </div>
   );
 };

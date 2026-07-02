@@ -8,11 +8,13 @@ import {
   Printer,
   Trash2,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import CopyableContactValue from "@/components/common/CopyableContactValue";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useTheme } from "../../contexts/ThemeContext";
-import { Badge, IconButton } from "../ui";
+import { IconButton } from "../ui";
 
 const SupplierCard = ({
   supplier,
@@ -27,59 +29,17 @@ const SupplierCard = ({
   ...props
 }) => {
   const { t } = useTranslation();
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
+  const { menu, menuRefs, closeMenu, toggleDropdown } = useRowActionMenu();
   const { currentVariant, themeConfig } = useTheme();
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const _getStatusBadge = (status) => {
-    const config = getCommonStatusBadge(status, "general");
-    return <Badge variant={config.variant}>{config.text}</Badge>;
-  };
-
-  const _actionMenuItems = [
-    {
-      value: "view",
-      label: t("common.viewDetails"),
-      icon: Eye,
-      onClick: () => onViewDetails?.(supplier.id),
-    },
-    {
-      value: "edit",
-      label: t("common.edit"),
-      icon: Edit,
-      onClick: () => onEdit?.(supplier.id),
-    },
-    {
-      value: "delete",
-      label: t("common.delete"),
-      icon: Trash2,
-      onClick: () => onDelete?.(supplier.id),
-    },
-  ];
-
-  const handleMenuToggle = (supplierId) => {
-    setOpenMenuId(openMenuId === supplierId ? null : supplierId);
-  };
-
-  const handleMenuAction = (supplierId, action) => {
-    setOpenMenuId(null);
+  const handleMenuAction = useCallback((supplierId, action) => {
+    closeMenu();
     switch (action) {
       case "view":
         onViewDetails?.(supplierId);
+        break;
+      case "print":
+        onPrint?.(supplierId);
         break;
       case "edit":
         onEdit?.(supplierId);
@@ -90,7 +50,27 @@ const SupplierCard = ({
       default:
         break;
     }
-  };
+  }, [closeMenu, onViewDetails, onPrint, onEdit, onDelete]);
+
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => handleMenuAction(rowId, action);
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (onPrint) {
+      items.push({ key: "print", label: t("common.print"), icon: Printer, onClick: run("print") });
+    }
+    if (canEdit) {
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (canEdit && canDelete) {
+      items.push({ type: "separator" });
+    }
+    if (canDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, onPrint, canEdit, canDelete, handleMenuAction]);
 
   // Grid view - Modern Card Design
   return (
@@ -114,53 +94,12 @@ const SupplierCard = ({
 
         {/* Action Menu */}
         <div className="absolute top-4 right-4">
-          <div className="relative" ref={menuRef}>
-            <IconButton
-              onClick={() => handleMenuToggle(supplier.id)}
-            />
+          <div className="relative" ref={(el) => (menuRefs.current[supplier.id] = el)}>
+            <IconButton onClick={() => toggleDropdown(supplier.id)} />
 
-            {/* Popup Menu */}
-            {openMenuId === supplier.id && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                <button
-                  onClick={() => handleMenuAction(supplier.id, "view")}
-                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                >
-                  <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t("common.viewDetails")}
-                </button>
-                {onPrint && (
-                  <button
-                    onClick={() => handleMenuAction(supplier.id, "print")}
-                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                  >
-                    <Printer className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                    {t("common.print")}
-                  </button>
-                )}
-                {canEdit && (
-                  <button
-                    onClick={() => handleMenuAction(supplier.id, "edit")}
-                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                  >
-                    <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                    {t("common.edit")}
-                  </button>
-                )}
-                {canEdit && canDelete && (
-                  <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                )}
-                {canDelete && (
-                  <button
-                    onClick={() => handleMenuAction(supplier.id, "delete")}
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                    {t("common.delete")}
-                  </button>
-                )}
-              </div>
-            )}
+            {menu?.rowId === supplier.id && menu.mode === "dropdown" ? (
+              <RowActionsMenu items={buildMenuItems(supplier.id)} mode="dropdown" />
+            ) : null}
           </div>
         </div>
 
@@ -203,7 +142,7 @@ const SupplierCard = ({
                 className="text-sm font-medium"
                 style={{ color: themeConfig.text }}
               >
-                {supplier.phone || t("common.notAvailable")}
+                <CopyableContactValue value={supplier.phone} fallback={t("common.notAvailable")} />
               </p>
               <p
                 className="text-xs"
@@ -224,7 +163,7 @@ const SupplierCard = ({
                 className="text-sm font-medium"
                 style={{ color: themeConfig.text }}
               >
-                {supplier.email || t("common.notAvailable")}
+                <CopyableContactValue value={supplier.email} fallback={t("common.notAvailable")} />
               </p>
               <p
                 className="text-xs"

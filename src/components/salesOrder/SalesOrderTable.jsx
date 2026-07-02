@@ -1,7 +1,11 @@
 import moment from "moment";
-import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, CreditCard, AlertCircle, RotateCcw, Truck } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import CopyableContactValue from "@/components/common/CopyableContactValue";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const StatusBadge = ({ order, statusField = 'status' }) => {
@@ -63,27 +67,11 @@ const StatusBadge = ({ order, statusField = 'status' }) => {
 const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEdit = false }) => {
     const { t } = useTranslation();
     const router = useRouter();
-    const [openMenuId, setOpenMenuId] = useState(null);
     const [hoveredRow, setHoveredRow] = useState(null);
-    const menuRefs = useRef({});
+    const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
 
-    // Close menu when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
-                setOpenMenuId(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [openMenuId]);
-
-    const handleMenuToggle = (orderId) => {
-        setOpenMenuId(openMenuId === orderId ? null : orderId);
-    };
-
-    const handleMenuAction = (orderId, action, order) => {
-        setOpenMenuId(null);
+    const handleMenuAction = useCallback((orderId, action, order) => {
+        closeMenu();
         switch (action) {
             case "view":
                 onViewDetails?.(orderId);
@@ -100,7 +88,25 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
             default:
                 break;
         }
-    };
+    }, [closeMenu, onViewDetails, onPrint, onUpdateStatus]);
+
+    const buildMenuItems = useCallback((rowId, order) => {
+        const run = (action) => () => handleMenuAction(rowId, action, order);
+        const items = [
+            { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+        ];
+        if (canEdit && order.status === "PROCESSING") {
+            items.push({ type: "separator" });
+            items.push({ key: "ship", label: t("salesOrder.markAsShipped"), icon: Truck, tone: "primary", onClick: run("ship") });
+        }
+        if (canEdit && (order.status === "SHIPPED" || order.status === "IN_TRANSIT" || order.status === "OUT_FOR_DELIVERY" || order.status === "DELIVERED") && order.paymentStatus !== "PAID") {
+            items.push({ type: "separator" });
+            items.push({ key: "mark_paid", label: t("salesOrder.markAsPaid"), icon: CreditCard, tone: "success", onClick: run("mark_paid") });
+        }
+        items.push({ type: "separator" });
+        items.push({ key: "print", label: t("common.print"), icon: Printer, onClick: run("print") });
+        return items;
+    }, [t, canEdit, handleMenuAction]);
 
     return (
         <div className="flex flex-col h-full bg-[rgb(var(--color-bg-primary))]">
@@ -138,6 +144,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
                                         }`}
                                     onMouseEnter={() => setHoveredRow(index)}
                                     onMouseLeave={() => setHoveredRow(null)}
+                                    onContextMenu={(event) => openContextMenu(event, orderId)}
                                 >
                                     <td
                                         className="w-1/4 px-4 py-2 relative cursor-pointer transition-colors "
@@ -184,8 +191,13 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
                                             <span className={`text-sm font-semibold truncate`}>
                                                 {order.customer?.name || t("common.guest")}
                                             </span>
-                                            <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate">
-                                                {order.customer?.phone || order.customer?.email || ""}
+                                            <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate block">
+                                                {order.customer?.phone || order.customer?.email ? (
+                                                    <CopyableContactValue
+                                                        value={order.customer?.phone || order.customer?.email}
+                                                        className="text-xs"
+                                                    />
+                                                ) : null}
                                             </span>
                                         </div>
                                     </td>
@@ -210,60 +222,16 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
                                             ref={(el) => (menuRefs.current[orderId] = el)}
                                         >
                                             <button
-                                                onClick={(e) => { e.stopPropagation(); handleMenuToggle(orderId); }}
+                                                onClick={(e) => { e.stopPropagation(); toggleDropdown(orderId); }}
                                                 className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                                                 title={t("common.actions")}
                                             >
-                                                < MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                                                <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                                             </button>
 
-                                            {/* Popup Menu */}
-                                            {openMenuId === orderId && (
-                                                <div className="absolute right-0 top-full mt-1 w-56 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50 text-left">
-                                                    <button
-                                                        onClick={() => handleMenuAction(orderId, "view", order)}
-                                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                                                    >
-                                                        <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                        {t("common.viewDetails")}
-                                                    </button>
-
-                                                    {canEdit && order.status === "PROCESSING" && (
-                                                        <>
-                                                            <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
-                                                            <button
-                                                                onClick={() => handleMenuAction(orderId, "ship", order)}
-                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
-                                                            >
-                                                                <Truck className="w-4 h-4" />
-                                                                {t("salesOrder.markAsShipped")}
-                                                            </button>
-                                                        </>
-                                                    )}
-
-                                                    {canEdit && (order.status === "SHIPPED" || order.status === "IN_TRANSIT" || order.status === "OUT_FOR_DELIVERY" || order.status === "DELIVERED") && order.paymentStatus !== "PAID" && (
-                                                        <>
-                                                            <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
-                                                            <button
-                                                                onClick={() => handleMenuAction(orderId, "mark_paid", order)}
-                                                                className="w-full px-4 py-2 text-left text-sm text-emerald-600 hover:bg-emerald-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
-                                                            >
-                                                                <CreditCard className="w-4 h-4" />
-                                                                {t("salesOrder.markAsPaid")}
-                                                            </button>
-                                                        </>
-                                                    )}
-
-                                                    <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
-                                                    <button
-                                                        onClick={() => handleMenuAction(orderId, "print", order)}
-                                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                                                    >
-                                                        <Printer className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                        {t("common.print")}
-                                                    </button>
-                                                </div>
-                                            )}
+                                            {menu?.rowId === orderId && menu.mode === "dropdown" ? (
+                                                <RowActionsMenu items={buildMenuItems(orderId, order)} mode="dropdown" className="w-56" />
+                                            ) : null}
                                         </div>
                                     </td>
                                 </tr>
@@ -272,6 +240,16 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
                     </tbody>
                 </table>
             </div>
+
+            <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+            {menu?.mode === "context" ? (
+                <RowActionsMenu
+                    mode="context"
+                    anchorPoint={{ x: menu.x, y: menu.y }}
+                    items={buildMenuItems(menu.rowId, orders.find((o, i) => (o.id || o._id || i) === menu.rowId) || {})}
+                    className="w-56"
+                />
+            ) : null}
         </div>
     );
 };

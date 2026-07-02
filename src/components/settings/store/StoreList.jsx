@@ -1,7 +1,7 @@
 "use client";
 import { Building2, Edit2, Loader2, Plus, QrCode, Trash2 } from "lucide-react";
+import CopyableContactValue from "@/components/common/CopyableContactValue";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { copyToClipboard } from "@/utils/clipboard";
 
 const StoreList = ({
   stores = [],
@@ -150,7 +150,7 @@ const StoreList = ({
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
                     {t("settings.phone")}:
                   </span>{" "}
-                  {store.phone}
+                  <CopyableContactValue value={store.phone} className="text-sm inline" />
                 </p>
               )}
               {store.email && (
@@ -158,7 +158,7 @@ const StoreList = ({
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
                     {t("settings.email")}:
                   </span>{" "}
-                  {store.email}
+                  <CopyableContactValue value={store.email} className="text-sm inline" />
                 </p>
               )}
             </div>

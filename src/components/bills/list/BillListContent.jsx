@@ -147,10 +147,7 @@ const BillListContent = () => {
               onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
               loading={isLoading && bills.length === 0}
               emptyMessage={t("bills.noBills")}
-              openMenuId={openMenuId}
-              onMenuToggle={handleMenuToggle}
               onMenuAction={handleMenuAction}
-              menuRefs={menuRefs}
               formatCurrency={formatCurrency}
               formatDate={formatDate}
             />

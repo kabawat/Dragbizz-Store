@@ -1,13 +1,14 @@
 "use client";
-import { MoreVertical, Users } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { BookOpen, Edit, Eye, MoreVertical, Receipt, Trash2, Users } from "lucide-react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import CopyableContactValue from "@/components/customer/CopyableContactValue";
-import CustomerTableActionsMenu from "@/components/customer/CustomerTableActionsMenu";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
+import { useCallback } from "react";
 
 function CustomerBalanceAmount({ totalDue }) {
   const amount = Number(totalDue) || 0;
@@ -38,61 +39,9 @@ const CustomerTable = ({
   canQuickKhataEntry = true,
 }) => {
   const { t } = useTranslation();
-  const [menu, setMenu] = useState(null);
-  const menuRefs = useRef({});
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
 
-  const closeMenu = () => setMenu(null);
-
-  useEffect(() => {
-    if (!menu) return undefined;
-
-    const handlePointerDown = (event) => {
-      if (menu.mode === "dropdown") {
-        const anchor = menuRefs.current[menu.customerId];
-        if (anchor?.contains(event.target)) return;
-      }
-      if (menu.mode === "context" && event.target.closest?.("[data-customer-context-menu]")) {
-        return;
-      }
-      closeMenu();
-    };
-
-    const handleEscape = (event) => {
-      if (event.key === "Escape") closeMenu();
-    };
-
-    const handleScroll = () => closeMenu();
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-    window.addEventListener("scroll", handleScroll, true);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-      window.removeEventListener("scroll", handleScroll, true);
-    };
-  }, [menu]);
-
-  const handleMenuToggle = (customerId) => {
-    setMenu((current) =>
-      current?.customerId === customerId && current.mode === "dropdown"
-        ? null
-        : { customerId, mode: "dropdown" },
-    );
-  };
-
-  const handleRowContextMenu = (event, customerId) => {
-    event.preventDefault();
-    setMenu({
-      customerId,
-      mode: "context",
-      x: event.clientX,
-      y: event.clientY,
-    });
-  };
-
-  const handleMenuAction = (customerId, action) => {
+  const handleMenuAction = useCallback((customerId, action) => {
     closeMenu();
     switch (action) {
       case "view": onViewDetails?.(customerId); break;
@@ -102,7 +51,30 @@ const CustomerTable = ({
       case "delete": onDelete?.(customerId); break;
       default: break;
     }
-  };
+  }, [closeMenu, onViewDetails, onEdit, onManageKhata, onQuickKhataEntry, onDelete]);
+
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => handleMenuAction(rowId, action);
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (canQuickKhataEntry && onQuickKhataEntry) {
+      items.push({ key: "quickKhata", label: t("khata.quickEntry"), icon: Receipt, onClick: run("quickKhata") });
+    }
+    if (canManageKhata && onManageKhata) {
+      items.push({ key: "khata", label: t("khata.manageKhata"), icon: BookOpen, onClick: run("khata") });
+    }
+    if (canEdit) {
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (canEdit && canDelete) {
+      items.push({ type: "separator" });
+    }
+    if (canDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, canQuickKhataEntry, onQuickKhataEntry, canManageKhata, onManageKhata, canEdit, canDelete, handleMenuAction]);
 
   return (
     <div className={`${className}`}>
@@ -145,12 +117,13 @@ const CustomerTable = ({
           <tbody className="divide-y divide-gray-100">
             {customers.map((customer) => {
               const totalDue = customer.account?.totalDue ?? customer.totalDue;
+              const rowId = customer.id;
 
               return (
               <tr
                 key={customer.id}
                 className="transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
-                onContextMenu={(event) => handleRowContextMenu(event, customer.id)}
+                onContextMenu={(event) => openContextMenu(event, rowId)}
               >
                 {/* Customer Column */}
                 <td
@@ -214,28 +187,18 @@ const CustomerTable = ({
                 <td className="w-[4%] px-1 py-4 text-center">
                   <div
                     className="relative inline-block"
-                    ref={(el) => (menuRefs.current[customer.id] = el)}
+                    ref={(el) => (menuRefs.current[rowId] = el)}
                   >
                     <button
-                      onClick={() => handleMenuToggle(customer.id)}
+                      onClick={() => toggleDropdown(rowId)}
                       className="p-1.5 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                       title={t("common.actions")}
                     >
                       <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                     </button>
 
-                    {menu?.customerId === customer.id && menu.mode === "dropdown" ? (
-                      <CustomerTableActionsMenu
-                        customerId={customer.id}
-                        mode="dropdown"
-                        onAction={(action) => handleMenuAction(customer.id, action)}
-                        canEdit={canEdit}
-                        canDelete={canDelete}
-                        canManageKhata={canManageKhata}
-                        canQuickKhataEntry={canQuickKhataEntry}
-                        onManageKhata={onManageKhata}
-                        onQuickKhataEntry={onQuickKhataEntry}
-                      />
+                    {menu?.rowId === rowId && menu.mode === "dropdown" ? (
+                      <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
                     ) : null}
                   </div>
                 </td>
@@ -246,32 +209,13 @@ const CustomerTable = ({
         </table>
       </div>
 
-      {menu?.mode === "context"
-        ? createPortal(
-            <div
-              className="fixed inset-0 z-[10050]"
-              onMouseDown={closeMenu}
-              onContextMenu={(event) => {
-                event.preventDefault();
-                closeMenu();
-              }}
-            />,
-            document.body,
-          )
-        : null}
-
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
       {menu?.mode === "context" ? (
-        <CustomerTableActionsMenu
-          customerId={menu.customerId}
+        <RowActionsMenu
           mode="context"
           anchorPoint={{ x: menu.x, y: menu.y }}
-          onAction={(action) => handleMenuAction(menu.customerId, action)}
-          canEdit={canEdit}
-          canDelete={canDelete}
-          canManageKhata={canManageKhata}
-          canQuickKhataEntry={canQuickKhataEntry}
-          onManageKhata={onManageKhata}
-          onQuickKhataEntry={onQuickKhataEntry}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
         />
       ) : null}
     </div>

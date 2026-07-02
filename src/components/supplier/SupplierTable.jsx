@@ -1,8 +1,11 @@
 "use client";
 import { Building, Edit, Eye, MoreVertical, Printer, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+import CopyableContactValue from "@/components/common/CopyableContactValue";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { Checkbox } from "@/components/ui";
 
 const SupplierTable = ({
   suppliers = [],
@@ -22,65 +25,12 @@ const SupplierTable = ({
 }) => {
   const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRefs = useRef({});
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
 
   const _defaultEmptyMessage = emptyMessage || t("suppliers.noSuppliers");
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        openMenuId &&
-        menuRefs.current[openMenuId] &&
-        !menuRefs.current[openMenuId].contains(event.target)
-      ) {
-        setOpenMenuId(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openMenuId]);
-
-  const _actionMenuItems = (supplier) => [
-    {
-      value: "view",
-      label: t("common.viewDetails"),
-      icon: Eye,
-      onClick: () => onViewDetails?.(supplier.id),
-    },
-    ...(onPrint
-      ? [
-        {
-          value: "print",
-          label: t("common.print"),
-          icon: Printer,
-          onClick: () => onPrint?.(supplier.id),
-        },
-      ]
-      : []),
-    {
-      value: "edit",
-      label: t("common.edit"),
-      icon: Edit,
-      onClick: () => onEdit?.(supplier.id),
-    },
-    {
-      value: "delete",
-      label: t("common.delete"),
-      icon: Trash2,
-      onClick: () => onDelete?.(supplier.id),
-    },
-  ];
-
-  const handleMenuToggle = (supplierId) => {
-    setOpenMenuId(openMenuId === supplierId ? null : supplierId);
-  };
-
-  const handleMenuAction = (supplierId, action) => {
-    setOpenMenuId(null);
+  const handleMenuAction = useCallback((supplierId, action) => {
+    closeMenu();
     switch (action) {
       case "view":
         onViewDetails?.(supplierId);
@@ -97,7 +47,27 @@ const SupplierTable = ({
       default:
         break;
     }
-  };
+  }, [closeMenu, onViewDetails, onPrint, onEdit, onDelete]);
+
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => handleMenuAction(rowId, action);
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (onPrint) {
+      items.push({ key: "print", label: t("common.print"), icon: Printer, onClick: run("print") });
+    }
+    if (canEdit) {
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (canEdit && canDelete) {
+      items.push({ type: "separator" });
+    }
+    if (canDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, onPrint, canEdit, canDelete, handleMenuAction]);
 
   if (loading) {
     return (
@@ -163,6 +133,7 @@ const SupplierTable = ({
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {suppliers.map((supplier, index) => {
+              const rowId = supplier.id;
               return (
                 <tr
                   key={supplier.id}
@@ -172,6 +143,7 @@ const SupplierTable = ({
                     }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
+                  onContextMenu={(event) => openContextMenu(event, rowId)}
                 >
                   {/* Supplier Column */}
                   <td className="px-4 py-2 cursor-pointer" onClick={() => onViewDetails?.(supplier.id)}>
@@ -214,9 +186,9 @@ const SupplierTable = ({
                       </div>
                       <div className="text-xs text-[rgb(var(--color-text-secondary))]">
                         {supplier.phone ? (
-                          <>📞 {supplier.phone}</>
+                          <CopyableContactValue value={supplier.phone} className="text-xs" />
                         ) : (
-                          <>✉️ {supplier.email || "N/A"}</>
+                          <CopyableContactValue value={supplier.email} className="text-xs" />
                         )}
                       </div>
                     </div>
@@ -270,66 +242,19 @@ const SupplierTable = ({
                   <td className="w-24 px-4 py-2 text-center">
                     <div
                       className="relative inline-block"
-                      ref={(el) => (menuRefs.current[supplier.id] = el)}
+                      ref={(el) => (menuRefs.current[rowId] = el)}
                     >
                       <button
-                        onClick={() => handleMenuToggle(supplier.id)}
+                        onClick={() => toggleDropdown(rowId)}
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                         title={t("common.moreActions")}
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                       </button>
 
-                      {/* Popup Menu */}
-                      {openMenuId === supplier.id && (
-                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                          <button
-                            onClick={() =>
-                              handleMenuAction(supplier.id, "view")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("common.viewDetails")}
-                          </button>
-                          {onPrint && (
-                            <button
-                              onClick={() =>
-                                handleMenuAction(supplier.id, "print")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                            >
-                              <Printer className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t("common.print")}
-                            </button>
-                          )}
-                          {canEdit && (
-                            <button
-                              onClick={() =>
-                                handleMenuAction(supplier.id, "edit")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                            >
-                              <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t("common.edit")}
-                            </button>
-                          )}
-                          {canEdit && canDelete && (
-                            <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                          )}
-                          {canDelete && (
-                            <button
-                              onClick={() =>
-                                handleMenuAction(supplier.id, "delete")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                            >
-                              <Trash2 className="w-4 h-4 text-red-500" />
-                              Delete
-                            </button>
-                          )}
-                        </div>
-                      )}
+                      {menu?.rowId === rowId && menu.mode === "dropdown" ? (
+                        <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
+                      ) : null}
                     </div>
                   </td>
                 </tr>
@@ -352,6 +277,16 @@ const SupplierTable = ({
           </div>
         </div>
       )}
+
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
     </div>
   );
 };

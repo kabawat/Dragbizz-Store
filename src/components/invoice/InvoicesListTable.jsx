@@ -15,9 +15,12 @@ import {
   Trash2,
   User,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddActionButton } from "@/components/ui";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { formatCurrencySimple as formatCurrency } from "@/utils/currencyFormatter";
@@ -43,22 +46,14 @@ const InvoicesListTable = ({
   const { t } = useTranslation();
   const router = useRouter();
   const { showSuccess, showError } = useGlobalToast();
-  const [openMenuId, setOpenMenuId] = useState(null);
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
-  const menuRefs = useRef({});
   const sendMenuRefs = useRef({});
 
   const defaultEmptyMessage = emptyMessage || t("invoice.noInvoices");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        openMenuId &&
-        menuRefs.current[openMenuId] &&
-        !menuRefs.current[openMenuId].contains(event.target)
-      ) {
-        setOpenMenuId(null);
-      }
       if (
         openSendMenuId &&
         sendMenuRefs.current[openSendMenuId] &&
@@ -72,7 +67,7 @@ const InvoicesListTable = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [openMenuId, openSendMenuId]);
+  }, [openSendMenuId]);
 
   const buildShareUrl = (row) => {
     if (typeof window === "undefined") return "";
@@ -116,7 +111,6 @@ const InvoicesListTable = ({
       return;
     }
     const ok = await handleCopy(shareUrl);
-    setOpenMenuId(null);
     setOpenSendMenuId(null);
     if (ok) {
       showSuccess(t("common.copied") || "Copied to clipboard");
@@ -147,9 +141,73 @@ const InvoicesListTable = ({
       );
     }
 
-    setOpenMenuId(null);
     setOpenSendMenuId(null);
   };
+
+  const buildMenuItems = useCallback((rowId) => {
+    const invoice = invoices.find((inv) => (inv.id || inv._id) === rowId);
+    if (!invoice) return [];
+
+    const run = (action, handler) => () => {
+      closeMenu();
+      handler?.();
+    };
+
+    const items = [];
+    if (onViewDetails) {
+      items.push({
+        key: "view",
+        label: t("common.viewDetails"),
+        icon: Eye,
+        onClick: run("view", () => onViewDetails(rowId)),
+      });
+    }
+    if (invoice.invoiceStatus === "DRAFT") {
+      if (onEdit) {
+        items.push({
+          key: "edit",
+          label: t("common.edit"),
+          icon: Edit,
+          onClick: run("edit", () => onEdit(rowId)),
+        });
+      }
+      if (onRelease) {
+        items.push({
+          key: "release",
+          label: t("invoice.release"),
+          icon: CheckCircle,
+          onClick: run("release", () => onRelease(invoice)),
+        });
+      }
+    }
+    if (invoice.invoiceStatus === "RELEASED" && invoice.paymentStatus !== "PAID" && onUpdatePaymentStatus) {
+      items.push({
+        key: "payment",
+        label: t("invoice.paymentStatus"),
+        icon: CreditCard,
+        onClick: run("payment", () => onUpdatePaymentStatus(rowId, invoice)),
+      });
+    }
+    if (onPrint) {
+      items.push({
+        key: "print",
+        label: t("common.print"),
+        icon: Printer,
+        onClick: run("print", () => onPrint(rowId)),
+      });
+    }
+    if (invoice.invoiceStatus === "DRAFT" && onDelete) {
+      items.push({ type: "separator" });
+      items.push({
+        key: "delete",
+        label: t("common.delete"),
+        icon: Trash2,
+        tone: "danger",
+        onClick: run("delete", () => onDelete(invoice)),
+      });
+    }
+    return items;
+  }, [invoices, onViewDetails, onEdit, onRelease, onUpdatePaymentStatus, onPrint, onDelete, closeMenu, t]);
 
   if (loading && invoices.length === 0) {
     return (
@@ -213,11 +271,14 @@ const InvoicesListTable = ({
         <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
           {invoices.map((invoice, index) => {
             const invoiceId = invoice.id || invoice._id;
-            const isMenuOpen = openMenuId === invoiceId;
             const isLastItems = index >= invoices.length - 2 && invoices.length > 3;
 
             return (
-              <tr key={invoiceId} className="transition-colors">
+              <tr
+                key={invoiceId}
+                className="transition-colors"
+                onContextMenu={(event) => openContextMenu(event, invoiceId)}
+              >
                 <td
                   className="px-4 py-2 cursor-pointer transition-colors hover:bg-[rgb(var(--color-bg-secondary))]"
                   onClick={() => onViewDetails?.(invoiceId)}
@@ -342,100 +403,18 @@ const InvoicesListTable = ({
                       }}
                     >
                       <button
-                        onClick={() =>
-                          setOpenMenuId(isMenuOpen ? null : invoiceId)
-                        }
+                        onClick={() => toggleDropdown(invoiceId)}
                         className="p-2 rounded-md hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                       </button>
-                      {isMenuOpen && (
-                        <div className={`absolute right-0 ${isLastItems ? 'bottom-full mb-2' : 'top-full mt-2'} w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50`}>
-                            <div className="py-1">
-                              {onViewDetails && (
-                                <button
-                                  onClick={() => {
-                                    onViewDetails?.(invoiceId);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                  {t("common.viewDetails")}
-                                </button>
-                              )}
-                              {invoice.invoiceStatus === "DRAFT" && (
-                                <>
-                                  {onEdit && (
-                                    <button
-                                      onClick={() => {
-                                        onEdit?.(invoiceId);
-                                        setOpenMenuId(null);
-                                      }}
-                                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                    >
-                                      <Edit className="w-4 h-4" />
-                                      {t("common.edit")}
-                                    </button>
-                                  )}
-                                  {onRelease && (
-                                    <button
-                                      onClick={() => {
-                                        onRelease?.(invoice);
-                                        setOpenMenuId(null);
-                                      }}
-                                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                    >
-                                      <CheckCircle className="w-4 h-4" />
-                                      {t("invoice.release")}
-                                    </button>
-                                  )}
-                                </>
-                              )}
-                              {invoice.invoiceStatus === "RELEASED" &&
-                                invoice.paymentStatus !== "PAID" &&
-                                onUpdatePaymentStatus && (
-                                  <button
-                                    onClick={() => {
-                                      onUpdatePaymentStatus?.(invoiceId, invoice);
-                                      setOpenMenuId(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                  >
-                                    <CreditCard className="w-4 h-4" />
-                                    {t("invoice.paymentStatus")}
-                                  </button>
-                                )}
-                              {onPrint && (
-                                <button
-                                  onClick={() => {
-                                    onPrint?.(invoiceId);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                >
-                                  <Printer className="w-4 h-4" />
-                                  {t("common.print")}
-                                </button>
-                              )}
-                              {invoice.invoiceStatus === "DRAFT" && onDelete && (
-                                <>
-                                  <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
-                                  <button
-                                    onClick={() => {
-                                      onDelete?.(invoice);
-                                      setOpenMenuId(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                    {t("common.delete")}
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                        </div>
-                      )}
+                      {menu?.rowId === invoiceId && menu.mode === "dropdown" ? (
+                        <RowActionsMenu
+                          items={buildMenuItems(invoiceId)}
+                          mode="dropdown"
+                          className={`${isLastItems ? "bottom-full mb-2" : ""} w-48`}
+                        />
+                      ) : null}
                     </div>
                   </div>
                 </td>
@@ -454,6 +433,15 @@ const InvoicesListTable = ({
           </div>
         </div>
       )}
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
     </div>
   );
 };

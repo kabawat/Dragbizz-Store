@@ -17,8 +17,12 @@ import {
   Send,
   Trash2,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { AddActionButton } from "@/components/ui";
+import CopyableContactValue from "@/components/common/CopyableContactValue";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import logger from "@/utils/logger";
 import { renderStatusBadge } from "@/utils/statusBadge";
@@ -34,10 +38,7 @@ const PurchaseOrderTable = ({
   hasMore,
   onLoadMore,
   isLoadingMore,
-  openMenuId,
-  onMenuToggle,
   onMenuAction,
-  menuRefs,
   formatCurrency,
   formatDate,
   enableSendMenu = true,
@@ -51,6 +52,7 @@ const PurchaseOrderTable = ({
   const _defaultEmptyMessage =
     emptyMessage || t("purchaseOrders.noPurchaseOrders");
 
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
 
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
   const sendMenuRefs = useRef({});
@@ -136,6 +138,39 @@ const PurchaseOrderTable = ({
     setOpenSendMenuId(null);
   };
 
+  const buildMenuItems = useCallback((rowId) => {
+    const row = bills.find((b) => (b._id || b.id) === rowId);
+    if (!row) return [];
+    const normalizedData = normalizePurchaseOrder(row);
+    const poStatus = (normalizedData.status || "").toUpperCase();
+    const isDeleted = poStatus === "DELETED";
+    const hasAdvancePayments = (normalizedData.payments || []).some(
+      (payment) => payment.paymentType === "ADVANCE_PAYMENT"
+    );
+    const hasAdvancePayment = normalizedData.advanceAmount > 0 || hasAdvancePayments;
+
+    const run = (action) => () => {
+      closeMenu();
+      onMenuAction?.(rowId, action);
+    };
+
+    const items = [];
+    if (canRead) {
+      items.push({ key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") });
+    }
+    if (!hasAdvancePayment && !isDeleted && canEdit) {
+      items.push({ key: "advancePayment", label: t("purchaseOrders.advancePayment"), icon: IndianRupee, onClick: run("advancePayment") });
+    }
+    if (!isDeleted && canEdit) {
+      items.push({ key: "createBill", label: t("purchaseOrders.createBill"), icon: Receipt, onClick: run("createBill") });
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (canDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [bills, canRead, canEdit, canDelete, closeMenu, onMenuAction, t]);
+
   return (
     <div className="h-full">
       {/* Fixed Header */}
@@ -187,10 +222,13 @@ const PurchaseOrderTable = ({
               );
               const hasAdvancePayment = normalizedData.advanceAmount > 0 || hasAdvancePayments;
 
+              const rowId = normalizedData._id || normalizedData.id || normalizedData.billNumber;
+
               return (
                 <tr
-                  key={normalizedData._id || normalizedData.id || normalizedData.billNumber}
+                  key={rowId}
                   className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+                  onContextMenu={(event) => openContextMenu(event, rowId)}
                 >
                   <td className="w-1/6 px-6 py-4">
                     <div className="font-medium text-[rgb(var(--color-primary))] cursor-pointer hover:underline transition-colors decoration-2 underline-offset-4"
@@ -212,17 +250,19 @@ const PurchaseOrderTable = ({
                         <div className="text-xs mt-0.5 flex items-center justify-start gap-1.5">
                           {normalizedData.supplier?.phone ? (
                             <>
-                              <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
-                              <span className="text-[rgb(var(--color-text-secondary))]">
-                                {normalizedData.supplier.phone}
-                              </span>
+                              <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400 shrink-0" />
+                              <CopyableContactValue
+                                value={normalizedData.supplier.phone}
+                                className="text-xs text-[rgb(var(--color-text-secondary))]"
+                              />
                             </>
                           ) : (
                             <>
-                              <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
-                              <span className="text-[rgb(var(--color-text-secondary))]">
-                                {normalizedData.supplier?.email}
-                              </span>
+                              <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))] shrink-0" />
+                              <CopyableContactValue
+                                value={normalizedData.supplier?.email}
+                                className="text-xs text-[rgb(var(--color-text-secondary))]"
+                              />
                             </>
                           )}
                         </div>
@@ -309,81 +349,18 @@ const PurchaseOrderTable = ({
                         </div>
                       )}
 
-                      <div
-                        className="relative inline-block"
-                        ref={(el) => (menuRefs.current[row._id || row.id] = el)}
-                      >
+                      <div ref={(el) => (menuRefs.current[rowId] = el)} className="relative inline-block" >
                         <button
-                          onClick={() => onMenuToggle(row._id || row.id)}
+                          onClick={() => toggleDropdown(rowId)}
                           className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                           title={t("common.actions")}
                         >
                           <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                         </button>
 
-                        {/* Popup Menu */}
-                        {openMenuId === (row._id || row.id) && (
-                          <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                            {canRead && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(row._id || row.id, "view")
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                              >
-                                <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                {t("common.viewDetails")}
-                              </button>
-                            )}
-                            {!hasAdvancePayment && !isDeleted && canEdit && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(
-                                    row._id || row.id,
-                                    "advancePayment"
-                                  )
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                              >
-                                <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                {t("purchaseOrders.advancePayment")}
-                              </button>
-                            )}
-                            {!isDeleted && canEdit && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(row._id || row.id, "createBill")
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                              >
-                                <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                {t("purchaseOrders.createBill")}
-                              </button>
-                            )}
-                            {!isDeleted && canEdit && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(row._id || row.id, "edit")
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                              >
-                                <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                {t("common.edit")}
-                              </button>
-                            )}
-                            {canDelete && (
-                              <button
-                                onClick={() =>
-                                  onMenuAction(row._id || row.id, "delete")
-                                }
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                                {t("common.delete")}
-                              </button>
-                            )}
-                          </div>
-                        )}
+                        {menu?.rowId === rowId && menu.mode === "dropdown" ? (
+                          <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
+                        ) : null}
                       </div>
                     </div>
                   </td>
@@ -403,6 +380,16 @@ const PurchaseOrderTable = ({
           </div>
         )}
       </div>
+
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
     </div>
   );
 };

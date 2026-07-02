@@ -7,7 +7,10 @@ import {
   MoreVertical,
   Trash2,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import {
   getCategoryLabel,
   getPaymentMethodIcon,
@@ -32,31 +35,12 @@ const ExpenseTable = ({
   bodyOnly = false,
 }) => {
   const { t } = useTranslation();
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRefs = useRef({});
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
 
   const defaultEmptyMessage = emptyMessage || t("expenses.noExpenses");
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        openMenuId &&
-        menuRefs.current[openMenuId] &&
-        !menuRefs.current[openMenuId].contains(event.target)
-      ) {
-        setOpenMenuId(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openMenuId]);
-
-  const handleMenuAction = (expenseId, action) => {
-    setOpenMenuId(null);
+  const handleMenuAction = useCallback((expenseId, action) => {
+    closeMenu();
     const expense = expenses.find((e) => e.id === expenseId);
     switch (action) {
       case "view":
@@ -71,7 +55,59 @@ const ExpenseTable = ({
       default:
         break;
     }
+  }, [closeMenu, expenses, onView, onEdit, onDelete]);
+
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => handleMenuAction(rowId, action);
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (onEdit) {
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (onDelete) {
+      items.push({ type: "separator" });
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, onEdit, onDelete, handleMenuAction]);
+
+  const renderActionsCell = (expense) => {
+    const rowId = expense.id;
+    return (
+      <td className="w-24 px-6 py-4 text-center">
+        <div
+          className="relative inline-block"
+          ref={(el) => (menuRefs.current[rowId] = el)}
+        >
+          <button
+            onClick={() => toggleDropdown(rowId)}
+            className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+            title={t("common.actions")}
+          >
+            <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+          </button>
+          {menu?.rowId === rowId && menu.mode === "dropdown" ? (
+            <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
+          ) : null}
+        </div>
+      </td>
+    );
   };
+
+  const contextMenuLayer = (
+    <>
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
+    </>
+  );
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
@@ -154,12 +190,14 @@ const ExpenseTable = ({
     }
 
     return (
-      <table className="w-full min-w-[900px] table-fixed">
+      <>
+        <table className="w-full min-w-[900px] table-fixed">
         <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
           {expenses.map((expense) => (
             <tr
               key={expense.id}
               className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+              onContextMenu={(event) => openContextMenu(event, expense.id)}
             >
               <td
                 className="w-[22%] px-6 py-4 cursor-pointer group/cell"
@@ -196,56 +234,13 @@ const ExpenseTable = ({
               <td className="w-[10%] px-6 py-4 text-center">
                 <div className="inline-flex">{renderStatusBadge(expense.status, "general")}</div>
               </td>
-              <td className="w-24 px-6 py-4 text-center">
-                <div
-                  className="relative inline-block"
-                  ref={(el) => (menuRefs.current[expense.id] = el)}
-                >
-                  <button
-                    onClick={() => setOpenMenuId(openMenuId === expense.id ? null : expense.id)}
-                    className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                    title={t("common.actions")}
-                  >
-                    <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-                  </button>
-                  {openMenuId === expense.id && (
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                      <button
-                        onClick={() => handleMenuAction(expense.id, "view")}
-                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                      >
-                        <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                        {t("common.viewDetails")}
-                      </button>
-                      {onEdit && (
-                        <button
-                          onClick={() => handleMenuAction(expense.id, "edit")}
-                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                        >
-                          <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          {t("common.edit")}
-                        </button>
-                      )}
-                      {onDelete && (
-                        <>
-                          <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                          <button
-                            onClick={() => handleMenuAction(expense.id, "delete")}
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                            {t("common.delete")}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </td>
+              {renderActionsCell(expense)}
             </tr>
           ))}
         </tbody>
       </table>
+      {contextMenuLayer}
+      </>
     );
   }
 
@@ -361,6 +356,7 @@ const ExpenseTable = ({
                 <tr
                   key={expense.id}
                   className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+                  onContextMenu={(event) => openContextMenu(event, expense.id)}
                 >
                   {/* Title + Bill Number */}
                   <td
@@ -419,65 +415,14 @@ const ExpenseTable = ({
                     </div>
                   </td>
 
-                  {/* Actions */}
-                  <td className="w-24 px-6 py-4 text-center">
-                    <div
-                      className="relative inline-block"
-                      ref={(el) => (menuRefs.current[expense.id] = el)}
-                    >
-                      <button
-                        onClick={() =>
-                          setOpenMenuId(
-                            openMenuId === expense.id ? null : expense.id
-                          )
-                        }
-                        className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                        title={t("common.actions")}
-                      >
-                        <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-                      </button>
-
-                      {/* Popup Menu */}
-                      {openMenuId === expense.id && (
-                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                          <button
-                            onClick={() => handleMenuAction(expense.id, "view")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("common.viewDetails")}
-                          </button>
-                          {onEdit && (
-                            <button
-                              onClick={() => handleMenuAction(expense.id, "edit")}
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                            >
-                              <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t("common.edit")}
-                            </button>
-                          )}
-                          {onDelete && (
-                            <>
-                              <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                              <button
-                                onClick={() => handleMenuAction(expense.id, "delete")}
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-600" />
-                                {t("common.delete")}
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </td>
+                  {renderActionsCell(expense)}
                 </tr>
               )
             })}
           </tbody>
         </table>
       </div>
+      {contextMenuLayer}
     </div>
   );
 };

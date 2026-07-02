@@ -9,7 +9,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { renderStatusBadge } from "@/utils/statusBadge";
 
@@ -33,28 +36,47 @@ const InventoryTable = ({
   const { t } = useTranslation();
   const [imageError, setImageError] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRefs = useRef({});
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
 
   const _defaultEmptyMessage = emptyMessage || t("inventory.noInventory");
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        openMenuId &&
-        menuRefs.current[openMenuId] &&
-        !menuRefs.current[openMenuId].contains(event.target)
-      ) {
-        setOpenMenuId(null);
-      }
-    };
+  const handleMenuAction = useCallback((inventoryId, action) => {
+    closeMenu();
+    switch (action) {
+      case "view":
+        onViewDetails?.(inventoryId);
+        break;
+      case "stock-in":
+        onStockIn?.(inventoryId);
+        break;
+      case "duplicate":
+        onDuplicate?.(inventoryId);
+        break;
+      case "delete":
+        onDelete?.(inventoryId);
+        break;
+      default:
+        break;
+    }
+  }, [closeMenu, onViewDetails, onStockIn, onDuplicate, onDelete]);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openMenuId]);
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => handleMenuAction(rowId, action);
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (canEdit) {
+      items.push({ key: "stock-in", label: t("inventory.addStock"), icon: TrendingUp, tone: "success", onClick: run("stock-in") });
+    }
+    if (canCreate) {
+      items.push({ key: "duplicate", label: t("common.duplicate"), icon: Copy, onClick: run("duplicate") });
+    }
+    if (canDelete) {
+      items.push({ type: "separator" });
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, canEdit, canCreate, canDelete, handleMenuAction]);
 
   const getInventoryStatusBadge = (inventory) => {
     let status = "INACTIVE";
@@ -72,58 +94,6 @@ const InventoryTable = ({
   const getPaymentStatusBadge = (paymentStatus) => {
     if (!paymentStatus) return null;
     return renderStatusBadge(paymentStatus, "bill");
-  };
-
-  const _actionMenuItems = (inventory) => [
-    {
-      value: "view",
-      label: t("common.viewDetails"),
-      icon: Eye,
-      onClick: () => onViewDetails?.(inventory.id),
-    },
-    {
-      value: "stock-in",
-      label: t("inventory.addStock"),
-      icon: TrendingUp,
-      onClick: () => onStockIn?.(inventory.id),
-      className: "text-green-600 hover:text-green-700",
-    },
-    {
-      value: "duplicate",
-      label: t("common.duplicate"),
-      icon: Copy,
-      onClick: () => onDuplicate?.(inventory.id),
-    },
-    {
-      value: "delete",
-      label: t("common.delete"),
-      icon: Trash2,
-      onClick: () => onDelete?.(inventory.id),
-    },
-  ];
-
-  const handleMenuToggle = (inventoryId) => {
-    setOpenMenuId(openMenuId === inventoryId ? null : inventoryId);
-  };
-
-  const handleMenuAction = (inventoryId, action) => {
-    setOpenMenuId(null);
-    switch (action) {
-      case "view":
-        onViewDetails?.(inventoryId);
-        break;
-      case "stock-in":
-        onStockIn?.(inventoryId);
-        break;
-      case "duplicate":
-        onDuplicate?.(inventoryId);
-        break;
-      case "delete":
-        onDelete?.(inventoryId);
-        break;
-      default:
-        break;
-    }
   };
 
   return (
@@ -160,6 +130,7 @@ const InventoryTable = ({
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {inventories.map((inventory, index) => {
+              const rowId = inventory.id;
               return (
                 <tr
                   key={inventory.id}
@@ -169,6 +140,7 @@ const InventoryTable = ({
                     }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
+                  onContextMenu={(event) => openContextMenu(event, rowId)}
                 >
                   {/* Product Column */}
                   <td className="px-6 py-4 relative">
@@ -273,64 +245,19 @@ const InventoryTable = ({
                   <td className="px-4 py-4 w-24 text-start">
                     <div
                       className="relative"
-                      ref={(el) => (menuRefs.current[inventory.id] = el)}
+                      ref={(el) => (menuRefs.current[rowId] = el)}
                     >
                       <button
-                        onClick={() => handleMenuToggle(inventory.id)}
+                        onClick={() => toggleDropdown(rowId)}
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                         title="More Actions"
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                       </button>
 
-                      {/* Popup Menu */}
-                      {openMenuId === inventory.id && (
-                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                          <button
-                            onClick={() =>
-                              handleMenuAction(inventory.id, "view")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            View Details
-                          </button>
-                          {canEdit && (
-                            <button
-                              onClick={() =>
-                                handleMenuAction(inventory.id, "stock-in")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-green-500/10 dark:hover:bg-green-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10 dark:focus:bg-green-500/20"
-                            >
-                              <TrendingUp className="w-4 h-4 text-green-500 dark:text-green-400" />
-                              {t("inventory.addStock")}
-                            </button>
-                          )}
-                          {canCreate && (
-                            <button
-                              onClick={() =>
-                                handleMenuAction(inventory.id, "duplicate")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                            >
-                              <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t("common.duplicate")}
-                            </button>
-                          )}
-                          <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                          {canDelete && (
-                            <button
-                              onClick={() =>
-                                handleMenuAction(inventory.id, "delete")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
-                            >
-                              <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                              {t("common.delete")}
-                            </button>
-                          )}
-                        </div>
-                      )}
+                      {menu?.rowId === rowId && menu.mode === "dropdown" ? (
+                        <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
+                      ) : null}
                     </div>
                   </td>
                 </tr>
@@ -353,6 +280,16 @@ const InventoryTable = ({
           </div>
         </div>
       )}
+
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
     </div>
   );
 };

@@ -1,7 +1,10 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
   formatCurrency,
@@ -53,9 +56,10 @@ const PaymentTableHeader = () => {
 const PaymentTableRow = ({
   payment,
   menuRefs,
-  openMenuId,
-  handleMenuToggle,
-  handleMenuAction,
+  menu,
+  toggleDropdown,
+  openContextMenu,
+  buildMenuItems,
   canEdit,
   canDelete,
 }) => {
@@ -69,7 +73,10 @@ const PaymentTableRow = ({
   const StatusIcon = statusBadge.icon;
 
   return (
-    <tr className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
+    <tr
+      className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+      onContextMenu={(event) => openContextMenu(event, paymentId)}
+    >
       <td className="w-1/6 px-6 py-4">
         <div
           onClick={() => router.push(`/dashboard/payments/${paymentId}`)}
@@ -135,42 +142,16 @@ const PaymentTableRow = ({
           ref={(el) => (menuRefs.current[paymentId] = el)}
         >
           <button
-            onClick={() => handleMenuToggle(paymentId)}
+            onClick={() => toggleDropdown(paymentId)}
             className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
             title="More Actions"
           >
             <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
           </button>
 
-          {openMenuId === paymentId && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-              <button
-                onClick={() => handleMenuAction(paymentId, "view")}
-                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-              >
-                <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                {t("common.viewDetails")}
-              </button>
-              {canEdit && (
-                <button
-                  onClick={() => handleMenuAction(paymentId, "edit")}
-                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                >
-                  <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t("common.edit")}
-                </button>
-              )}
-              {canDelete && (
-                <button
-                  onClick={() => handleMenuAction(paymentId, "delete")}
-                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                >
-                  <Trash2 className="w-4 h-4 text-red-500" />
-                  {t("common.delete")}
-                </button>
-              )}
-            </div>
-          )}
+          {menu?.rowId === paymentId && menu.mode === "dropdown" ? (
+            <RowActionsMenu items={buildMenuItems(paymentId)} mode="dropdown" />
+          ) : null}
         </div>
       </td>
     </tr>
@@ -180,14 +161,29 @@ const PaymentTableRow = ({
 const PaymentTable = ({
   payments = [],
   isLoadingMore = false,
-  menuRefs,
-  openMenuId,
-  handleMenuToggle,
   handleMenuAction,
   canEdit,
   canDelete,
 }) => {
   const { t } = useTranslation();
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
+
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => {
+      closeMenu();
+      handleMenuAction?.(rowId, action);
+    };
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (canEdit) {
+      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
+    }
+    if (canDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, canEdit, canDelete, closeMenu, handleMenuAction]);
 
   return (
     <>
@@ -201,9 +197,10 @@ const PaymentTable = ({
                 key={payment._id || payment.id}
                 payment={payment}
                 menuRefs={menuRefs}
-                openMenuId={openMenuId}
-                handleMenuToggle={handleMenuToggle}
-                handleMenuAction={handleMenuAction}
+                menu={menu}
+                toggleDropdown={toggleDropdown}
+                openContextMenu={openContextMenu}
+                buildMenuItems={buildMenuItems}
                 canEdit={canEdit}
                 canDelete={canDelete}
               />
@@ -224,6 +221,16 @@ const PaymentTable = ({
           </div>
         )}
       </div>
+
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
     </>
   );
 };

@@ -255,9 +255,6 @@ const Payments = () => {
                   <PaymentTable
                     payments={payments}
                     isLoadingMore={isFetchingMore}
-                    menuRefs={menuRefs}
-                    openMenuId={openMenuId}
-                    handleMenuToggle={handleMenuToggle}
                     handleMenuAction={handleMenuAction}
                     canEdit={canEdit}
                     canDelete={canDelete}

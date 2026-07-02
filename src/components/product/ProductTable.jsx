@@ -1,15 +1,10 @@
 "use client";
-import {
-  ArrowDownToLine,
-  Copy,
-  Edit,
-  Eye,
-  MoreVertical,
-  Package,
-  Trash2,
-} from "lucide-react";
+import { ArrowDownToLine, Copy, Edit, Eye, MoreVertical, Package, Trash2, } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const ProductTable = ({
@@ -29,28 +24,50 @@ const ProductTable = ({
   const { t } = useTranslation();
   const [imageError, setImageError] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRefs = useRef({});
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
 
   const _defaultEmptyMessage = emptyMessage || t("products.noProducts");
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        openMenuId &&
-        menuRefs.current[openMenuId] &&
-        !menuRefs.current[openMenuId].contains(event.target)
-      ) {
-        setOpenMenuId(null);
-      }
-    };
+  const handleMenuAction = useCallback((productId, action) => {
+    closeMenu();
+    switch (action) {
+      case "view":
+        onViewDetails?.(productId);
+        break;
+      case "stock-in":
+        onStockIn?.(productId);
+        break;
+      case "edit":
+        onEdit?.(productId);
+        break;
+      case "duplicate":
+        onDuplicate?.(productId);
+        break;
+      case "delete":
+        onDelete?.(productId);
+        break;
+      default:
+        break;
+    }
+  }, [closeMenu, onViewDetails, onStockIn, onEdit, onDuplicate, onDelete]);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openMenuId]);
+  const buildMenuItems = useCallback((rowId) => {
+    const run = (action) => () => handleMenuAction(rowId, action);
+    const items = [
+      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
+    ];
+    if (canEdit) {
+      items.push(
+        { key: "stock-in", label: t("products.stockIn"), icon: ArrowDownToLine, tone: "success", onClick: run("stock-in") },
+        { key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") },
+        { key: "duplicate", label: t("common.duplicate"), icon: Copy, onClick: run("duplicate") },
+      );
+    }
+    if (canDelete) {
+      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
+    }
+    return items;
+  }, [t, canEdit, canDelete, handleMenuAction]);
 
   const getVisibilityBadge = (product) => {
     const isInCatalog = product.showInCatalog !== false;
@@ -73,79 +90,6 @@ const ProductTable = ({
   const _calculateDiscount = (sellingPrice, mrp) => {
     if (!mrp || mrp <= sellingPrice) return 0;
     return Math.round(((mrp - sellingPrice) / mrp) * 100);
-  };
-
-  const _actionMenuItems = (product) => {
-    const items = [
-      {
-        value: "view",
-        label: t("common.viewDetails"),
-        icon: Eye,
-        onClick: () => onViewDetails?.(product.id),
-      }
-    ];
-
-    if (canEdit) {
-      items.push(
-        {
-          value: "stock-in",
-          label: t("products.stockIn"),
-          icon: ArrowDownToLine,
-          onClick: () => onStockIn?.(product.id),
-          className: "text-green-600 hover:text-green-700",
-        },
-        {
-          value: "edit",
-          label: t("common.edit"),
-          icon: Edit,
-          onClick: () => onEdit?.(product.id),
-        },
-        {
-          value: "duplicate",
-          label: t("common.duplicate"),
-          icon: Copy,
-          onClick: () => onDuplicate?.(product.id),
-        }
-      );
-    }
-
-    if (canDelete) {
-      items.push({
-        value: "delete",
-        label: t("common.delete"),
-        icon: Trash2,
-        onClick: () => onDelete?.(product.id),
-      });
-    }
-
-    return items;
-  };
-
-  const handleMenuToggle = (productId) => {
-    setOpenMenuId(openMenuId === productId ? null : productId);
-  };
-
-  const handleMenuAction = (productId, action) => {
-    setOpenMenuId(null);
-    switch (action) {
-      case "view":
-        onViewDetails?.(productId);
-        break;
-      case "stock-in":
-        onStockIn?.(productId);
-        break;
-      case "edit":
-        onEdit?.(productId);
-        break;
-      case "duplicate":
-        onDuplicate?.(productId);
-        break;
-      case "delete":
-        onDelete?.(productId);
-        break;
-      default:
-        break;
-    }
   };
 
   return (
@@ -183,6 +127,7 @@ const ProductTable = ({
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {products.map((product, index) => {
+              const rowId = product.id;
               return (
                 <tr
                   key={product.id}
@@ -192,6 +137,7 @@ const ProductTable = ({
                     }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
+                  onContextMenu={(event) => openContextMenu(event, rowId)}
                 >
                   {/* Product Column */}
                   <td className="px-6 py-4">
@@ -340,31 +286,19 @@ const ProductTable = ({
                   <td className="px-4 py-4 w-24 text-start">
                     <div
                       className="relative"
-                      ref={(el) => (menuRefs.current[product.id] = el)}
+                      ref={(el) => (menuRefs.current[rowId] = el)}
                     >
                       <button
-                        onClick={() => handleMenuToggle(product.id)}
+                        onClick={() => toggleDropdown(rowId)}
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                         title={t("common.actions")}
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                       </button>
 
-                      {/* Popup Menu */}
-                      {openMenuId === product.id && (
-                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                            {_actionMenuItems(product).map((item) => (
-                              <button
-                                key={item.value}
-                                onClick={() => handleMenuAction(product.id, item.value)}
-                                className={`w-full px-4 py-2 text-left text-sm ${item.className || 'text-[rgb(var(--color-text-primary))]'} hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]`}
-                              >
-                                <item.icon className={`w-4 h-4 ${item.className ? '' : 'text-[rgb(var(--color-text-secondary))]'}`} />
-                                {item.label}
-                              </button>
-                            ))}
-                        </div>
-                      )}
+                      {menu?.rowId === rowId && menu.mode === "dropdown" ? (
+                        <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
+                      ) : null}
                     </div>
                   </td>
                 </tr>
@@ -373,6 +307,16 @@ const ProductTable = ({
           </tbody>
         </table>
       </div>
+
+      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      {menu?.mode === "context" ? (
+        <RowActionsMenu
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          items={buildMenuItems(menu.rowId)}
+          className="w-48"
+        />
+      ) : null}
     </div>
   );
 };

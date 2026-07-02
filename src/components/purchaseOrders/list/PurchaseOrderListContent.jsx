@@ -205,10 +205,7 @@ const PurchaseOrderListContent = () => {
                                 onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
                                 loading={isLoading && purchaseOrders.length === 0}
                                 emptyMessage={t("purchaseOrders.noPurchaseOrders")}
-                                openMenuId={openMenuId}
-                                onMenuToggle={handleMenuToggle}
                                 onMenuAction={handleMenuAction}
-                                menuRefs={menuRefs}
                                 formatCurrency={formatCurrency}
                                 formatDate={formatDate}
                                 enableSendMenu={true}
