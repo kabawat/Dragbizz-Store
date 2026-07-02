@@ -1,8 +1,10 @@
 "use client";
-import { Edit, Eye, MoreVertical, Trash2, Users, BookOpen, Receipt } from "lucide-react";
+import { MoreVertical, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import CopyableContactValue from "@/components/customer/CopyableContactValue";
+import CustomerTableActionsMenu from "@/components/customer/CustomerTableActionsMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
@@ -36,30 +38,62 @@ const CustomerTable = ({
   canQuickKhataEntry = true,
 }) => {
   const { t } = useTranslation();
-  const [openMenuId, setOpenMenuId] = useState(null);
+  const [menu, setMenu] = useState(null);
   const menuRefs = useRef({});
 
-  // Close menu when clicking outside
+  const closeMenu = () => setMenu(null);
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        openMenuId &&
-        menuRefs.current[openMenuId] &&
-        !menuRefs.current[openMenuId].contains(event.target)
-      ) {
-        setOpenMenuId(null);
+    if (!menu) return undefined;
+
+    const handlePointerDown = (event) => {
+      if (menu.mode === "dropdown") {
+        const anchor = menuRefs.current[menu.customerId];
+        if (anchor?.contains(event.target)) return;
       }
+      if (menu.mode === "context" && event.target.closest?.("[data-customer-context-menu]")) {
+        return;
+      }
+      closeMenu();
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openMenuId]);
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") closeMenu();
+    };
+
+    const handleScroll = () => closeMenu();
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [menu]);
 
   const handleMenuToggle = (customerId) => {
-    setOpenMenuId(openMenuId === customerId ? null : customerId);
+    setMenu((current) =>
+      current?.customerId === customerId && current.mode === "dropdown"
+        ? null
+        : { customerId, mode: "dropdown" },
+    );
+  };
+
+  const handleRowContextMenu = (event, customerId) => {
+    event.preventDefault();
+    setMenu({
+      customerId,
+      mode: "context",
+      x: event.clientX,
+      y: event.clientY,
+    });
   };
 
   const handleMenuAction = (customerId, action) => {
-    setOpenMenuId(null);
+    closeMenu();
     switch (action) {
       case "view": onViewDetails?.(customerId); break;
       case "edit": onEdit?.(customerId); break;
@@ -116,6 +150,7 @@ const CustomerTable = ({
               <tr
                 key={customer.id}
                 className="transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+                onContextMenu={(event) => handleRowContextMenu(event, customer.id)}
               >
                 {/* Customer Column */}
                 <td
@@ -189,56 +224,19 @@ const CustomerTable = ({
                       <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                     </button>
 
-                    {openMenuId === customer.id && (
-                      <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                        <button
-                          onClick={() => handleMenuAction(customer.id, "view")}
-                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
-                        >
-                          <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          {t("common.viewDetails")}
-                        </button>
-                        {canQuickKhataEntry && onQuickKhataEntry ? (
-                          <button
-                            onClick={() => handleMenuAction(customer.id, "quickKhata")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
-                          >
-                            <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("khata.quickEntry")}
-                          </button>
-                        ) : null}
-                        {canManageKhata && onManageKhata ? (
-                          <button
-                            onClick={() => handleMenuAction(customer.id, "khata")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
-                          >
-                            <BookOpen className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("khata.manageKhata")}
-                          </button>
-                        ) : null}
-                        {canEdit && (
-                          <button
-                            onClick={() => handleMenuAction(customer.id, "edit")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
-                          >
-                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("common.edit")}
-                          </button>
-                        )}
-                        {canEdit && canDelete && (
-                          <div className="border-t border-[rgb(var(--color-border-primary))] my-1" />
-                        )}
-                        {canDelete && (
-                          <button
-                            onClick={() => handleMenuAction(customer.id, "delete")}
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                            {t("common.delete")}
-                          </button>
-                        )}
-                      </div>
-                    )}
+                    {menu?.customerId === customer.id && menu.mode === "dropdown" ? (
+                      <CustomerTableActionsMenu
+                        customerId={customer.id}
+                        mode="dropdown"
+                        onAction={(action) => handleMenuAction(customer.id, action)}
+                        canEdit={canEdit}
+                        canDelete={canDelete}
+                        canManageKhata={canManageKhata}
+                        canQuickKhataEntry={canQuickKhataEntry}
+                        onManageKhata={onManageKhata}
+                        onQuickKhataEntry={onQuickKhataEntry}
+                      />
+                    ) : null}
                   </div>
                 </td>
               </tr>
@@ -247,6 +245,35 @@ const CustomerTable = ({
           </tbody>
         </table>
       </div>
+
+      {menu?.mode === "context"
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[10050]"
+              onMouseDown={closeMenu}
+              onContextMenu={(event) => {
+                event.preventDefault();
+                closeMenu();
+              }}
+            />,
+            document.body,
+          )
+        : null}
+
+      {menu?.mode === "context" ? (
+        <CustomerTableActionsMenu
+          customerId={menu.customerId}
+          mode="context"
+          anchorPoint={{ x: menu.x, y: menu.y }}
+          onAction={(action) => handleMenuAction(menu.customerId, action)}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          canManageKhata={canManageKhata}
+          canQuickKhataEntry={canQuickKhataEntry}
+          onManageKhata={onManageKhata}
+          onQuickKhataEntry={onQuickKhataEntry}
+        />
+      ) : null}
     </div>
   );
 };
