@@ -54,18 +54,20 @@ const KhataPanel = ({
             customerName={customerName}
             customerAccountId={customerAccountId}
             onSuccess={handleSuccess}
-            collectActions={collectActions}
           />
         </div>
 
         <div className="xl:col-span-7 xl:sticky xl:top-0 xl:max-h-[calc(100vh-240px)] xl:flex xl:flex-col">
-          <KhataLedgerList
-            entries={entries}
-            loading={loading}
-            error={error}
-            title={t("khata.partyLedger")}
-            className="xl:flex-1 xl:min-h-0 xl:overflow-y-auto custom-scrollbar"
-          />
+          <div className="space-y-4">
+            {collectActions}
+            <KhataLedgerList
+              entries={entries}
+              loading={loading}
+              error={error}
+              title={t("khata.partyLedger")}
+              className="xl:flex-1 xl:min-h-0 xl:overflow-y-auto custom-scrollbar"
+            />
+          </div>
         </div>
       </div>
     </div>

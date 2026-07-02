@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import CustomerDetailsTemplate from "@/components/templates/customer/CustomerDetailsTemplate";
 import CustomerViewHeader from "@/components/customer/view/CustomerViewHeader";
@@ -23,8 +23,11 @@ const ViewCustomerPage = ({ customerId }) => {
 
   useDashboardHeader(t("customers.viewCustomer"), t("customers.viewCustomerDescription"));
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
+
+  const [activeTab, setActiveTab] = useState("details");
 
   const customerPerm = useModulePermissions("customer");
   const canEdit = customerPerm.edit;
@@ -37,6 +40,10 @@ const ViewCustomerPage = ({ customerId }) => {
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
 
   const { handleDownloadPDF } = useCustomerDetailsPrint(loading || (!customerData && !error), customerData);
+
+  useEffect(() => {
+    setActiveTab(searchParams.get("tab") === "khata" ? "khata" : "details");
+  }, [searchParams]);
 
   // Sync natively
   useEffect(() => {
@@ -58,6 +65,15 @@ const ViewCustomerPage = ({ customerId }) => {
     }
   }, [customerId, storeId, execute]);
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    const href =
+      tab === "khata"
+        ? `/dashboard/customers/${customerId}?tab=khata`
+        : `/dashboard/customers/${customerId}`;
+    router.replace(href);
+  };
+
   const handleEditSuccess = (updatedData) => {
     setIsEditDrawerOpen(false);
     fetchCustomerData(); // Refetch customer data directly after edit
@@ -76,7 +92,7 @@ const ViewCustomerPage = ({ customerId }) => {
   return (
     <div className="overflow-hidden">
       <div className="w-full">
-        <CustomerViewHeader t={t} />
+        <CustomerViewHeader t={t} activeTab={activeTab} onTabChange={handleTabChange} />
 
         <div className="px-5">
           {error && <ErrorState error={error} />}
@@ -94,10 +110,10 @@ const ViewCustomerPage = ({ customerId }) => {
                 customerData={customerData}
                 customerId={customerId}
                 storeId={storeId}
+                activeTab={activeTab}
                 onEdit={canEdit ? () => setIsEditDrawerOpen(true) : undefined}
                 onDownloadPDF={handleDownloadPDF}
                 onKhataSuccess={fetchCustomerData}
-                t={t}
               />
             </div>
           )}

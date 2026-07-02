@@ -26,6 +26,7 @@
   "items": "आइटम",
   "paymentLink": "भुगतान लिंक",
   "quickStats": "त्वरित आंकड़े",
+  "summaryHint": "बकाया राशि और खरीदारी का सारांश",
   "quickActions": "त्वरित कार्य",
   "manageThisCustomer": "इस ग्राहक को प्रबंधित करें",
   "noEntries": "अभी कोई खाता एंट्री नहीं",

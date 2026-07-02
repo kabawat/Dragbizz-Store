@@ -67,7 +67,7 @@ export function KhataLedgerList({
   let lastDateHeader = "";
 
   return (
-    <div className={`rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] shadow-sm overflow-hidden flex flex-col ${className}`}>
+    <div className={`rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] overflow-hidden flex flex-col ${className}`}>
       {title ? (
         <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))] shrink-0 bg-[rgb(var(--color-bg-secondary))]/20">
           <h4 className="text-base font-semibold">{title}</h4>
