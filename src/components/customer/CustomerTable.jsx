@@ -2,9 +2,25 @@
 import { Edit, Eye, MoreVertical, Trash2, Users, BookOpen, Receipt } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
-import KhataDueBadge from "@/components/khata/KhataDueBadge";
+import CopyableContactValue from "@/components/customer/CopyableContactValue";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
+
+function CustomerBalanceAmount({ totalDue }) {
+  const amount = Number(totalDue) || 0;
+  if (amount === 0) {
+    return <span className="text-sm text-[rgb(var(--color-text-secondary))]">—</span>;
+  }
+
+  const valueClass = amount < 0 ? "text-green-600" : "text-orange-600";
+
+  return (
+    <span className={`text-sm font-semibold tabular-nums ${valueClass}`}>
+      {formatCurrency(Math.abs(amount))}
+    </span>
+  );
+}
 
 const CustomerTable = ({
   customers = [],
@@ -58,24 +74,27 @@ const CustomerTable = ({
     <div className={`${className}`}>
       {/* Sticky Header */}
       <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-        <table className="w-full min-w-[760px] table-fixed">
+        <table className="w-full min-w-[880px] table-fixed">
           <thead>
             <tr>
-              <th className="w-[26%] px-6 py-4 text-left">
+              <th className="w-[22%] px-6 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   {t("customers.customer")}
                 </span>
               </th>
-              <th className="w-[17%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("customers.phone")}
-              </th>
-              <th className="w-[22%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("customers.email")}
-              </th>
-              <th className="w-[17%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("customers.source")}
+              <th className="w-[12%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("khata.balance")}
               </th>
               <th className="w-[14%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("customers.phone")}
+              </th>
+              <th className="w-[18%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("customers.email")}
+              </th>
+              <th className="w-[14%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("customers.source")}
+              </th>
+              <th className="w-[12%] px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.status")}
               </th>
               <th className="w-[4%] px-1 py-4 text-center">
@@ -88,16 +107,19 @@ const CustomerTable = ({
 
       {/* Table Body */}
       <div className="overflow-x-auto min-h-[300px]">
-        <table className="w-full min-w-[760px] table-fixed">
+        <table className="w-full min-w-[880px] table-fixed">
           <tbody className="divide-y divide-gray-100">
-            {customers.map((customer) => (
+            {customers.map((customer) => {
+              const totalDue = customer.account?.totalDue ?? customer.totalDue;
+
+              return (
               <tr
                 key={customer.id}
                 className="transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
               >
                 {/* Customer Column */}
                 <td
-                  className="w-[26%] px-6 py-4 cursor-pointer group/cell"
+                  className="w-[22%] px-6 py-4 cursor-pointer group/cell"
                   onClick={() => onViewDetails?.(customer.id)}
                 >
                   <div className="flex items-center gap-4">
@@ -105,12 +127,9 @@ const CustomerTable = ({
                       <Users className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-gray-900 text-sm truncate group-hover/cell:text-[rgb(var(--color-primary))] transition-colors">
-                          {customer.name || "N/A"}
-                        </h3>
-                        <KhataDueBadge totalDue={customer.account?.totalDue ?? customer.totalDue} />
-                      </div>
+                      <h3 className="font-semibold text-gray-900 text-sm truncate group-hover/cell:text-[rgb(var(--color-primary))] transition-colors">
+                        {customer.name || "N/A"}
+                      </h3>
                       <span className="text-xs text-[rgb(var(--color-text-secondary))]">
                         {t("common.added")}:{" "}
                         {formatDateDash(getRecordCreatedAt(customer))}
@@ -119,27 +138,34 @@ const CustomerTable = ({
                   </div>
                 </td>
 
+                {/* Balance Column */}
+                <td className="w-[12%] px-6 py-4">
+                  <CustomerBalanceAmount totalDue={totalDue} />
+                </td>
+
                 {/* Phone Column */}
-                <td className="w-[17%] px-6 py-4">
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                    {customer.phone || "N/A"}
-                  </span>
+                <td className="w-[14%] px-6 py-4">
+                  <CopyableContactValue
+                    value={customer.phone}
+                    className="text-sm font-semibold text-[rgb(var(--color-text-primary))]"
+                  />
                 </td>
 
                 {/* Email Column */}
-                <td className="w-[22%] px-6 py-4">
-                  <span className="text-sm text-[rgb(var(--color-text-primary))]">
-                    {customer.email || "N/A"}
-                  </span>
+                <td className="w-[18%] px-6 py-4">
+                  <CopyableContactValue
+                    value={customer.email}
+                    className="text-sm text-[rgb(var(--color-text-primary))]"
+                  />
                 </td>
 
                 {/* Source Column */}
-                <td className="w-[17%] px-6 py-4">
+                <td className="w-[14%] px-6 py-4">
                   <CustomerSourceBadge source={customer.source} />
                 </td>
 
                 {/* Status Column */}
-                <td className="w-[14%] px-6 py-4">
+                <td className="w-[12%] px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                     customer.isActive === false
                       ? "bg-red-500/10 text-red-600 border-red-500/20"
@@ -216,7 +242,8 @@ const CustomerTable = ({
                   </div>
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>
