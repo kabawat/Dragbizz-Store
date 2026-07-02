@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EditCustomer, CustomerTable, CustomerCard } from "@/components/customer";
 import CustomerDeleteModal from "./CustomerDeleteModal";
@@ -18,19 +18,28 @@ const CustomerListContent = ({
     source = "",
     startDate = "",
     endDate = "",
+    hasDueOnly = false,
 }) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
-    const { customers, viewMode, isLoading, isFetchingMore, pagination } =
-        useAppSelector((state) => state.customers);
+    const { customers, viewMode, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.customers);
+
+    const visibleCustomers = useMemo(() => {
+        if (!hasDueOnly) return customers;
+        return customers.filter((customer) => Number(customer.account?.totalDue ?? customer.totalDue ?? 0) > 0);
+    }, [customers, hasDueOnly]);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
 
     const { can } = useModulePermissions("customer");
     const canEdit = can("edit");
     const canDelete = can("delete");
+    const canManageKhata = can("read");
+
+    const goToDetails = (id) => router.push(`/dashboard/customers/${id}`);
+    const goToKhata = (id) => router.push(`/dashboard/customers/${id}?tab=khata`);
 
     const filtersRef = useRef({ searchValue, isActive, source, startDate, endDate });
     filtersRef.current = { searchValue, isActive, source, startDate, endDate };
@@ -91,6 +100,16 @@ const CustomerListContent = ({
 
     if (!isLoading && customers.length === 0) return null;
 
+    if (!isLoading && hasDueOnly && visibleCustomers.length === 0) {
+        return (
+            <div className="py-12 text-center text-sm text-[rgb(var(--color-text-secondary))]">
+                {t("khata.hasDueFilter")}: {t("common.noResults")}
+            </div>
+        );
+    }
+
+    if (!isLoading && visibleCustomers.length === 0) return null;
+
     return (
         <>
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
@@ -98,26 +117,30 @@ const CustomerListContent = ({
                     {viewMode === "table" ? (
                         <div className="h-auto">
                             <CustomerTable
-                                customers={customers}
+                                customers={visibleCustomers}
                                 onEdit={canEdit ? setEditCustomerId : undefined}
                                 onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
-                                onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
+                                onViewDetails={goToDetails}
+                                onManageKhata={canManageKhata ? goToKhata : undefined}
                                 canEdit={canEdit}
                                 canDelete={canDelete}
+                                canManageKhata={canManageKhata}
                             />
                         </div>
                     ) : (
                         <div className="h-auto">
                             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {customers.map((customer) => (
+                                {visibleCustomers.map((customer) => (
                                     <CustomerCard
                                         key={customer.id}
                                         customer={customer}
                                         onEdit={canEdit ? setEditCustomerId : undefined}
                                         onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
-                                        onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
+                                        onViewDetails={goToDetails}
+                                        onManageKhata={canManageKhata ? goToKhata : undefined}
                                         canEdit={canEdit}
                                         canDelete={canDelete}
+                                        canManageKhata={canManageKhata}
                                     />
                                 ))}
                             </div>
@@ -129,7 +152,7 @@ const CustomerListContent = ({
                         <div ref={sentinelRef} className="h-4 w-full" />
                     )}
 
-                    {(isFetchingMore || isLoading) && customers.length > 0 && (
+                    {(isFetchingMore || isLoading) && visibleCustomers.length > 0 && (
                         <div className="flex items-center justify-center py-16">
                             <div className="flex items-center gap-3">
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
@@ -146,7 +169,7 @@ const CustomerListContent = ({
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                         {t("common.showing") || "Showing"}{" "}
                         <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                            {customers.length}
+                            {visibleCustomers.length}
                         </span>{" "}
                         {t("customers.title").toLowerCase()}
                         {pagination.hasNextPage && (

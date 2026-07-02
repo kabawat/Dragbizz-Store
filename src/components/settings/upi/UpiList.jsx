@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
+import { pickStoreId } from "@/utils/store.util";
 import { UpiQrModal } from "@/components/common";
 
 const COPIED_DURATION_MS = 2500;
@@ -30,14 +31,13 @@ const UpiList = ({
   const [copiedUpiId, setCopiedUpiId] = React.useState(null);
 
   const getStoreNames = (storeIds = []) => {
-    if (!storeIds?.length || !stores?.length) return "-";
+    if (!storeIds.length || !stores.length) return "-";
     return storeIds
-      .map((sid) => {
-        const s = stores.find(
-          (st) =>
-            (st._id || st.id)?.toString() === (sid?.toString?.() || sid)
+      .map((storeId) => {
+        const store = stores.find(
+          (entry) => pickStoreId(entry) === String(storeId)
         );
-        return s?.name || sid;
+        return store?.storeName ?? storeId;
       })
       .filter(Boolean)
       .join(", ") || "-";
@@ -89,7 +89,7 @@ const UpiList = ({
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {upiIds.map((item) => {
-          const id = item.id || item._id;
+          const id = item.id;
           return (
             <div
               key={id}
@@ -104,6 +104,11 @@ const UpiList = ({
                   {item.label && (
                     <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))] truncate">
                       {item.label}
+                    </span>
+                  )}
+                  {item.isDefault && (
+                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] flex-shrink-0">
+                      {t("settings.upi.defaultBadge")}
                     </span>
                   )}
                 </div>

@@ -16,6 +16,7 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { fromProductForm, normalizeProductRecord, toProductForm } from "@/utils/productUtils";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -91,50 +92,8 @@ const UpdateProductPage = ({ productId }) => {
       );
 
       if (result?.success) {
-        const product = result.data;
-
-        // Transform API data to form data structure based on the actual response format
-        const transformedData = {
-          store: storeId,
-          name: product?.name || "",
-          brand: product?.brand || "",
-          category: product?.category?._id || product?.category?.id || (typeof product?.category === "string" ? product?.category : "") || "",
-          barcode: product?.barcode || "",
-          sku: product?.sku || "",
-          // Pricing data - directly from API response
-          basePrice: product?.basePrice || "",
-          mrp: product?.mrp || "",
-          sellingPrice: product?.sellingPrice || "",
-          discount: product?.discount || "",
-          currency: product?.currency || "",
-          uom: product?.uom || "",
-          images: Array.isArray(product?.images) ? product.images : (product?.image ? [product.image] : []),
-          // Status and catalog
-          status: product?.status || "",
-
-          showInCatalog: product?.showInCatalog !== false,
-          featured: product?.featured || false,
-          bestSeller: product?.bestSeller || false,
-          newArrival: product?.newArrival || false,
-          stockQuantity: product?.stockQuantity || 0,
-          // GST info from nested gstInfo object
-          gstInfo: {
-            isGstIncluded: product?.gstInfo?.isGstIncluded !== undefined ? product?.gstInfo?.isGstIncluded : (product?.gstInfo?.isGstApplicable || false),
-            gstRate: product?.gstInfo?.gstRate || "",
-            gstCategory: product?.gstInfo?.gstCategory || "TAXABLE",
-            hsnCode: product?.gstInfo?.hsnCode || "",
-          },
-          // Content data from nested content object
-          content: {
-            shortDescription: product?.content?.shortDescription || "",
-            longDescription: product?.content?.longDescription || "",
-            tags: product?.content?.tags || [],
-            specifications: product?.content?.specifications || [],
-            features: product?.features || [],
-          },
-        };
-
-        setFormData(transformedData);
+        const product = normalizeProductRecord(result.data);
+        setFormData(toProductForm(product, storeId));
       } else {
         setProductNotFound(true);
       }
@@ -189,37 +148,10 @@ const UpdateProductPage = ({ productId }) => {
   const handleSaveAndUpdate = async () => {
     setFieldErrors({});
 
-    const mrp = parseFloat(formData.mrp) || 0;
-    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    let discountPercentage = "0";
-
-    if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
-      discountPercentage = String(
-        Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100
-      );
-    }
-
-    const sanitizedImages = (formData.images || [])
-      .map(img => {
-        if (typeof img === "string") return img;
-        if (img instanceof File) return img.uploadedUrl;
-        if (img && typeof img === "object" && img.url) return img.url;
-        return null;
-      })
-      .filter(Boolean);
-
-    const updateData = {
+    const updateData = fromProductForm({
       ...formData,
-      images: sanitizedImages,
-      pricing: {
-        basePrice: formData.basePrice,
-        mrp: formData.mrp,
-        sellingPrice: formData.sellingPrice,
-        discount: discountPercentage,
-        currency: formData.currency,
-        uom: formData.uom,
-      },
-    };
+      store: storeId,
+    });
 
     const result = await executeSave(
       productService.updateProduct(productId, updateData, storeId),

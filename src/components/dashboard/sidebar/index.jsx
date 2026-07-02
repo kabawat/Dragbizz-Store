@@ -87,6 +87,7 @@ const Sidebar = ({ onStoreChange }) => {
         "/dashboard/invoices": "invoice",
         "/dashboard/pos": "invoice",
         "/dashboard/expenses": "expense",
+        "/dashboard/cashbook": "cashbook",
         "/dashboard/sales-order": "sales_order",
         "/dashboard/products": "product",
         "/dashboard/stock": "inventory",

@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CreateCustomer } from "@/components/customer";
+import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService, invoiceService, productService } from "@/service";
@@ -41,6 +42,7 @@ const CreateInvoicePage = () => {
   const [customersLoading, setCustomersLoading] = useState(false);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
 
   // Permission Guard: Ensure user can create invoices
   const { can, loading: permissionLoading } = useModulePermissions("invoice");
@@ -213,13 +215,12 @@ const CreateInvoicePage = () => {
     );
 
     if (result?.success) {
-      const createdId = result?.data?.id || null;
-
-      router.push(
-        createdId
-          ? `/dashboard/invoices/${createdId}`
-          : "/dashboard/invoices"
-      );
+      const createdId = result?.data?.id;
+      if (createdId) {
+        setPaymentInvoiceId(createdId);
+      } else {
+        router.push("/dashboard/invoices");
+      }
     } else {
       showError(result?.message || t("errors.unknown") || "Failed to create invoice");
     }
@@ -334,6 +335,13 @@ const CreateInvoicePage = () => {
           />
         </div>
       </SideDrawer>
+
+      <PaymentConfirmModal
+        open={Boolean(paymentInvoiceId)}
+        invoiceId={paymentInvoiceId}
+        source="create"
+        onClose={() => setPaymentInvoiceId(null)}
+      />
     </div >
   );
 };

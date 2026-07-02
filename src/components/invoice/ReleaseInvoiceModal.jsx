@@ -1,115 +1,67 @@
 "use client";
 import { CheckCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button, Input, Select } from "@/components/ui";
+import { Button, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { pickStoreId } from "@/utils/store.util";
 
-const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
+const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
   const { execute, loading } = useApiResponse();
-  const [paymentStatus, setPaymentStatus] = useState("PAID");
-  const [paidAmount, setPaidAmount] = useState("");
-  const [errors, setErrors] = useState({});
+  const [paymentStatus, setPaymentStatus] = useState("UNPAID");
 
+  const storeId = pickStoreId(selectedStore);
   const totalAmount = invoice?.totalAmount || 0;
   const invoiceNumber =
     invoice?.invoiceNumber ||
     invoice?.name ||
-    `INV-${(invoice?.id || invoice?._id)?.slice(-6)}`;
+    (invoice?.id ? `INV-${invoice.id.slice(-6)}` : "");
 
   useEffect(() => {
     if (invoice) {
-      // Set default payment status and paidAmount
-      setPaymentStatus("PAID");
-      setPaidAmount(totalAmount ? totalAmount.toString() : "");
-      setErrors({});
+      setPaymentStatus("UNPAID");
     }
-  }, [invoice, totalAmount]);
+  }, [invoice]);
 
   if (!invoice) return null;
 
-  const handlePaymentStatusChange = (value) => {
-    setPaymentStatus(value);
-    setErrors({});
-    if (value === "UNPAID") {
-      setPaidAmount("");
-    } else if (value === "PAID" || value === "PARTIAL") {
-      // Set default to totalAmount for PAID and PARTIAL
-      setPaidAmount(totalAmount ? totalAmount.toString() : "");
-    }
-  };
-
-  const handlePaidAmountChange = (value) => {
-    const numValue = parseFloat(value) || 0;
-    if (numValue < 0) {
-      setErrors({ paidAmount: "Paid amount cannot be negative" });
-      return;
-    }
-    setPaidAmount(value);
-    setErrors({});
+  const handleCollectPayment = () => {
+    if (!invoice?.id) return;
+    onClose();
+    onCollectPayment?.(invoice.id);
   };
 
   const handleConfirm = async () => {
-    // Validate if PARTIAL or PAID with paidAmount
-    if (
-      (paymentStatus === "PARTIAL" || paymentStatus === "PAID") &&
-      paidAmount
-    ) {
-      const numPaidAmount = parseFloat(paidAmount);
-      if (Number.isNaN(numPaidAmount) || numPaidAmount < 0) {
-        setErrors({ paidAmount: "Paid amount must be a valid number >= 0" });
-        return;
-      }
+    if (paymentStatus === "PAID" || paymentStatus === "PARTIAL") {
+      handleCollectPayment();
+      return;
     }
 
-    if (!invoice) return;
-
-    const invoiceId = invoice.id || invoice._id;
-    const storeId = selectedStore?.storeId;
-
-    if (!storeId) {
+    if (!invoice?.id || !storeId) {
       showError("Store ID is missing. Please select a store.");
       return;
     }
 
     const result = await execute(
-      invoiceService.releaseInvoice(
-        invoiceId,
-        paymentStatus,
-        storeId,
-        paidAmount ? parseFloat(paidAmount) : null
-      ),
-      { message: "Invoice released successfully" }
+      invoiceService.releaseInvoice(invoice.id, paymentStatus, storeId),
+      { message: "Invoice released successfully" },
     );
 
     if (result?.success) {
-      const refreshParams = {
-        store: storeId,
-        limit: 20,
-        cursor: null,
-        isFreshLoad: true,
-      };
-      await dispatch(getInvoices(refreshParams));
-
-      if (onSuccess) {
-        onSuccess(result.data || invoiceId);
-      }
+      await dispatch(
+        getInvoices({ store: storeId, limit: 20, cursor: null, isFreshLoad: true }),
+      );
+      onSuccess?.(result.data || invoice.id);
       onClose();
-
-      // Auto-redirect to view invoice page after successful release
-      if (router.pathname !== `/dashboard/invoices/${invoiceId}`) {
-        router.push(`/dashboard/invoices/${invoiceId}`);
-      }
+      router.push(`/dashboard/invoices/${invoice.id}`);
     }
   };
 
@@ -140,7 +92,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
           </label>
           <Select
             value={paymentStatus}
-            onChange={handlePaymentStatusChange}
+            onChange={setPaymentStatus}
             options={[
               { value: "PAID", label: t("invoice.paid") },
               { value: "UNPAID", label: t("invoice.unpaid") },
@@ -153,63 +105,30 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
 
         {(paymentStatus === "PARTIAL" || paymentStatus === "PAID") && (
           <div className="mb-6">
-            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t("invoice.paidAmount")} {t("common.optional")}
-            </label>
-            <Input
-              type="number"
-              value={paidAmount}
-              onChange={(value) => handlePaidAmountChange(value)}
-              placeholder={t("invoice.enterPaidAmount", {
-                max: totalAmount?.toLocaleString() || 0,
-              })}
-              min="0"
-              step="0.01"
-              className={errors.paidAmount ? "border-red-500" : ""}
-            />
-            {errors.paidAmount && (
-              <p className="text-red-500 text-xs mt-1">{errors.paidAmount}</p>
-            )}
-            <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-              {t("invoice.totalInvoiceAmount")}: ₹
-              {totalAmount?.toLocaleString() || 0}
-              {paymentStatus === "PARTIAL" &&
-                ` • ${t("invoice.leaveEmptyForZero")}`}
-              {paymentStatus === "PAID" &&
-                ` • ${t("invoice.leaveEmptyForFullPayment")}`}
+            <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-3">
+              {t("invoice.collectPayment.releasePaidHint")}
             </p>
-            {paymentStatus === "PAID" &&
-              paidAmount &&
-              parseFloat(paidAmount) > 0 &&
-              parseFloat(paidAmount) < totalAmount && (
-                <div className="mt-3 p-3 bg-[rgb(var(--color-warning))]/10 border border-[rgb(var(--color-warning))]/20 rounded-md">
-                  <p className="text-xs text-[rgb(var(--color-warning))] font-medium">
-                    {t("invoice.settlementDiscountWarning", {
-                      amount: (totalAmount - parseFloat(paidAmount)).toLocaleString(),
-                    })}
-                  </p>
-                </div>
-              )}
+            <Button variant="outline" className="w-full" onClick={handleCollectPayment}>
+              {t("invoice.collectPayment.collectPayment")}
+            </Button>
           </div>
         )}
 
+        {paymentStatus === "UNPAID" && (
+          <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-6">
+            {t("invoice.totalInvoiceAmount")}: ₹{totalAmount?.toLocaleString() || 0}
+          </p>
+        )}
+
         <div className="flex space-x-3">
-          <Button
-            onClick={onClose}
-            variant="outline"
-            className="flex-1"
-            disabled={loading}
-          >
+          <Button onClick={onClose} variant="outline" className="flex-1" disabled={loading}>
             {t("common.cancel")}
           </Button>
-          <Button
-            onClick={handleConfirm}
-            className="flex-1"
-            disabled={loading}
-            loading={loading}
-          >
-            {loading ? t("invoice.releasing") : t("invoice.releaseInvoice")}
-          </Button>
+          {(paymentStatus === "UNPAID" || paymentStatus === "CANCELLED") && (
+            <Button onClick={handleConfirm} className="flex-1" disabled={loading} loading={loading}>
+              {loading ? t("invoice.releasing") : t("invoice.releaseInvoice")}
+            </Button>
+          )}
         </div>
       </div>
     </div>

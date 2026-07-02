@@ -304,7 +304,73 @@
     "upiQrCode": "UPI QR Code",
     "scanToPay": "UPI se pay karne ke liye scan karein",
     "qrDownloaded": "QR code successfully download ho gaya",
-    "qrDownloadFailed": "QR code download karne mein fail"
+    "qrDownloadFailed": "QR code download karne mein fail",
+    "setAsDefault": "Default UPI set karein",
+    "defaultBadge": "Default"
+  },
+  "paymentSubTabs": {
+    "subTabUpi": "UPI",
+    "subTabGateway": "Payment Gateway"
+  },
+  "paymentGateway": {
+    "manageGateways": "Payment Gateways Manage Karein",
+    "manageDescription": "Online payments ke liye Razorpay, Paytm ya Cashfree connect karein",
+    "gatewayCount": "{{count}} gateway(s) configured",
+    "addGateway": "Gateway Add Karein",
+    "editGateway": "Gateway Edit Karein",
+    "gatewayType": "Gateway Type",
+    "gatewayTypeRequired": "Gateway type required hai",
+    "labelOptional": "Label (Optional)",
+    "labelPlaceholder": "Main, Backup...",
+    "mode": "Mode",
+    "modeTest": "Test",
+    "modeLive": "Live",
+    "assignToStores": "Stores ko assign karein",
+    "selectStores": "Stores select karein",
+    "storeIdsRequired": "Kam se kam ek store required hai",
+    "setAsDefault": "Default gateway set karein",
+    "defaultBadge": "Default",
+    "noGateways": "Abhi tak koi payment gateway add nahi hua",
+    "addFirstGatewayDescription": "Online payments ke liye apna pehla gateway add karein",
+    "addAnotherGateway": "Ek aur gateway add karein",
+    "accessibleByStores": "Stores ke liye accessible",
+    "credentialsConfigured": "Credentials configured",
+    "secretsConfigured": "{{count}} secret(s) configured",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Payment Gateway Delete Karein",
+    "confirmDelete": "Kya aap is payment gateway ko delete karna chahte hain?",
+    "addedSuccess": "Payment gateway successfully add ho gaya",
+    "updatedSuccess": "Payment gateway successfully update ho gaya",
+    "deletedSuccess": "Payment gateway successfully delete ho gaya",
+    "noPermission": "Aapke paas payment gateways dekhne ki permission nahi hai",
+    "optional": "Optional",
+    "fieldRequired": "Yeh field required hai",
+    "leaveBlankToKeep": "Existing rakhne ke liye blank chhod dein",
+    "enterSecret": "Secret enter karein",
+    "enterValue": "Value enter karein",
+    "types": {
+      "RAZORPAY": "Razorpay",
+      "PAYTM": "Paytm",
+      "CASHFREE": "Cashfree"
+    },
+    "fields": {
+      "RAZORPAY": {
+        "keyId": "Key ID",
+        "keySecret": "Key Secret",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PAYTM": {
+        "merchantId": "Merchant ID",
+        "merchantKey": "Merchant Key",
+        "appId": "App ID"
+      },
+      "CASHFREE": {
+        "appId": "App ID",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      }
+    }
   },
   "digitalSignatures": "Digital Signatures",
   "signatureDescription": "Invoice aur documents ke liye apne digital signatures manage karein.",
@@ -314,5 +380,6 @@
   "createSignaturePrompt": "Apne invoices aur documents par use karne ke liye digital signature banayein.",
   "createSignature": "Signature Banayein",
   "deleteSignature": "Signature Delete karein",
-  "signatureAddedTitle": "Signature Add ho gaya"
+  "signatureAddedTitle": "Signature Add ho gaya",
+  "generalInformation": "General Information"
 }

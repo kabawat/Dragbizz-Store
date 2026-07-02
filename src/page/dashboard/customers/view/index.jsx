@@ -96,6 +96,7 @@ const ViewCustomerPage = ({ customerId }) => {
                 storeId={storeId}
                 onEdit={canEdit ? () => setIsEditDrawerOpen(true) : undefined}
                 onDownloadPDF={handleDownloadPDF}
+                onKhataSuccess={fetchCustomerData}
                 t={t}
               />
             </div>

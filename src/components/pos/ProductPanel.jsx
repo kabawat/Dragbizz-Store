@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { Search, Grid3X3, List, Package, Loader2 } from "lucide-react";
 import { Select, EmptyState } from "@/components/ui";
 import ProductCard from "./ProductCard";
+import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
 import { CATEGORIES as MOCK_CATEGORIES } from "@/page/dashboard/pos/data/mockData";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { categoryService } from "@/service/retailer";
@@ -128,7 +129,9 @@ const ProductPanel = ({ addToCart, searchRef }) => {
                         />
                     </div>
                 </div>
-                <div className="flex items-center gap-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg p-1 self-end sm:self-auto flex-shrink-0">
+                <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                    <OpenCustomerPaymentButton size="sm" className="h-9 whitespace-nowrap" />
+                    <div className="flex items-center gap-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg p-1">
                     <button
                         type="button"
                         onClick={() => setViewMode("grid")}
@@ -151,6 +154,7 @@ const ProductPanel = ({ addToCart, searchRef }) => {
                     >
                         <List size={18} />
                     </button>
+                </div>
                 </div>
             </div>
 

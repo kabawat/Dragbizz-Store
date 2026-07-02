@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import {
     AccountSettings,
     AppearanceSettings,
-    ManageUpiSettings,
+    ManagePaymentSettings,
     NotificationsSettings,
     ProfileSettings,
     SecuritySettings,
@@ -133,7 +133,7 @@ const SettingsPage = () => {
                     {activeTab === "account" && <AccountSettings />}
                     {activeTab === "store" && <StoreSettings selectedStore={selectedStore} />}
                     {activeTab === "signature" && <SignatureSettings />}
-                    {activeTab === "payment" && <ManageUpiSettings />}
+                    {activeTab === "payment" && <ManagePaymentSettings />}
                     {activeTab === "security" && <SecuritySettings />}
                     {activeTab === "notifications" && <NotificationsSettings />}
                 </div>

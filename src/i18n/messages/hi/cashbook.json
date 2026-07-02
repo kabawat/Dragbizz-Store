@@ -1,0 +1,20 @@
+{
+  "title": "कैशबुक",
+  "subtitle": "दैनिक नकद आय और व्यय ट्रैक करें",
+  "cashIn": "नकद आया",
+  "cashOut": "नकद गया",
+  "closingBalance": "बंद शेष",
+  "quickEntry": "त्वरित एंट्री",
+  "amount": "राशि",
+  "descriptionPlaceholder": "वैकल्पिक नोट",
+  "todayEntries": "आज की एंट्री",
+  "noEntries": "आज कोई एंट्री नहीं",
+  "entrySaved": "एंट्री सहेजी गई",
+  "saveFailed": "एंट्री सहेजने में विफल",
+  "invalidAmount": "मान्य राशि दर्ज करें",
+  "storeRequired": "पहले स्टोर चुनें",
+  "types": {
+    "CASH_IN": "नकद आया",
+    "CASH_OUT": "नकद गया"
+  }
+}

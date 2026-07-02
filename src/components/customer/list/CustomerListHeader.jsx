@@ -16,6 +16,7 @@ import {
     buildCustomerListParams,
     getCustomerListFetchKey,
 } from "@/utils/customer/customerList.util";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const CustomerListHeader = ({
     searchValue,
@@ -28,17 +29,15 @@ const CustomerListHeader = ({
     setStartDate,
     endDate,
     setEndDate,
+    hasDueOnly,
+    setHasDueOnly,
     onSuccess,
 }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
     const { viewMode, customers } = useAppSelector((state) => state.customers);
-    const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = useMemo(
-        () => selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "",
-        [selectedStore]
-    );
+    const { storeId, ready: storeReady } = useSelectedStoreId();
 
     const hasCustomers = customers.length > 0;
 
@@ -101,7 +100,7 @@ const CustomerListHeader = ({
     };
 
     const fetchCustomers = useCallback(async () => {
-        if (!storeId) return;
+        if (!storeReady || !storeId) return;
 
         const fetchKey = getCustomerListFetchKey(storeId, listFilters);
         if (lastFetchRef.current === fetchKey) return;
@@ -141,10 +140,10 @@ const CustomerListHeader = ({
         } catch {
             lastFetchRef.current = null;
         }
-    }, [dispatch, storeId, searchValue, isActive, source, startDate, endDate]);
+    }, [dispatch, storeReady, storeId, searchValue, isActive, source, startDate, endDate]);
 
     useEffect(() => {
-        if (!storeId) return;
+        if (!storeReady || !storeId) return;
         const last = hasFetchedRef.current;
         if (
             last.fetched &&
@@ -160,7 +159,7 @@ const CustomerListHeader = ({
 
         const timer = setTimeout(() => fetchCustomers(), 350);
         return () => clearTimeout(timer);
-    }, [storeId, searchValue, isActive, source, startDate, endDate, fetchCustomers]);
+    }, [storeReady, storeId, searchValue, isActive, source, startDate, endDate, fetchCustomers]);
 
     const handleViewModeChange = (mode) => {
         dispatch(setViewMode(mode));
@@ -231,6 +230,14 @@ const CustomerListHeader = ({
                             clearable
                         />
                     </div>
+                    <Button
+                        type="button"
+                        variant={hasDueOnly ? "primary" : "outline"}
+                        size="sm"
+                        onClick={() => setHasDueOnly((value) => !value)}
+                    >
+                        {t("khata.hasDueFilter")}
+                    </Button>
                     <div className="w-[140px]">
                         <Input
                             type={startDate ? "date" : "text"}

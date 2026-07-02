@@ -5,6 +5,7 @@ import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
 import fcmService from "@/service/utility/fcm.service";
 import { isLocalhost, getMainDomain, redirectToMainDomain } from "@/utils/helper/domain";
+import { clearAllPaymentDisplaySessions } from "@/utils/payment/paymentDisplaySession";
 
 export function useLogout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,6 +38,7 @@ export function useLogout() {
 
       // 3. Clear local session data
       sessionStorage.clear();
+      clearAllPaymentDisplaySessions();
 
       // 4. Clear tenant cookie (must match domain/path used when setting)
       Cookies.remove("tenant", {
@@ -49,6 +51,7 @@ export function useLogout() {
     } catch (_error) {
       // Even if API fails, clear local state and redirect
       dispatch(clearAuth());
+      clearAllPaymentDisplaySessions();
       Cookies.remove("tenant", {
         path: "/",
         domain: isLocalhost() ? undefined : `.${getMainDomain()}`,

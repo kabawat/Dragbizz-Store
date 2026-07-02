@@ -79,6 +79,38 @@ class StoreService extends BaseService {
     return this.delete(`${this.endpoint}/${storeId}/upi/${upiId}`);
   }
 
+  // Store Payment Gateway - Get
+  async getStorePaymentGateways(storeId, options = {}) {
+    const params = { store: storeId, ...(options.scope && { scope: options.scope }) };
+    return this.get(`${this.endpoint}/payment-gateway`, params);
+  }
+
+  // Store Payment Gateway - Create
+  async createStorePaymentGateway(storeId, payload) {
+    return this.post(`${this.endpoint}/payment-gateway`, payload, { store: storeId });
+  }
+
+  // Store Payment Gateway - Update
+  async updateStorePaymentGateway(storeId, gatewayId, payload) {
+    return this.put(`${this.endpoint}/payment-gateway/${gatewayId}`, payload, {
+      store: storeId,
+    });
+  }
+
+  // Store Payment Gateway - Delete
+  async deleteStorePaymentGateway(storeId, gatewayId) {
+    return this.delete(`${this.endpoint}/payment-gateway/${gatewayId}`, { store: storeId });
+  }
+
+  // Store Payment Gateway - Rotate webhook secret (returns new secret for Razorpay setup)
+  async rotateStorePaymentGatewayWebhookSecret(storeId, gatewayId) {
+    return this.post(
+      `${this.endpoint}/payment-gateway/${gatewayId}/rotate-webhook-secret`,
+      {},
+      { store: storeId },
+    );
+  }
+
   // Verify GST number
   async verifyGst(gstNo) {
     return this.post(API_CONFIG?.RETAILER?.GST_VERIFY, { gstNo });

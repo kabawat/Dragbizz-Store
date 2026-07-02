@@ -3,13 +3,14 @@
 import { Loader2, Save, Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 import { FormDrawer } from "@/components/common";
-import { Input, MultiSelect } from "@/components/ui";
+import { Input, MultiSelect, Toggle } from "@/components/ui";
 import {
   updateStoreUpi,
   getStoreUpi,
 } from "@/store/slices/storeUpiSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { pickStoreId } from "@/utils/store.util";
 
 const UPI_ID_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
 
@@ -28,6 +29,7 @@ const UpiEditDrawer = ({
     upiId: "",
     label: "",
     storeIds: [],
+    isDefault: false,
   });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
@@ -38,6 +40,7 @@ const UpiEditDrawer = ({
         upiId: editingUpi.upiId || "",
         label: editingUpi.label || "",
         storeIds: editingUpi.storeIds?.map((id) => String(id)) || [],
+        isDefault: Boolean(editingUpi.isDefault),
       });
       setErrors({});
     }
@@ -58,7 +61,7 @@ const UpiEditDrawer = ({
   };
 
   const handleSave = async () => {
-    const upiDocId = editingUpi?.id || editingUpi?._id;
+    const upiDocId = editingUpi?.id;
     if (!validateForm() || !storeId || !upiDocId) return;
 
     try {
@@ -70,6 +73,7 @@ const UpiEditDrawer = ({
         storeIds: form.storeIds.map((id) =>
           typeof id === "string" ? id : id?.toString?.() || id
         ),
+        isDefault: form.isDefault,
       };
       await dispatch(
         updateStoreUpi({ storeId, upiId: upiDocId, payload })
@@ -89,14 +93,14 @@ const UpiEditDrawer = ({
   };
 
   const handleCancel = () => {
-    setForm({ upiId: "", label: "", storeIds: [] });
+    setForm({ upiId: "", label: "", storeIds: [], isDefault: false });
     setErrors({});
     onClose?.();
   };
 
-  const storeOptions = (stores || []).map((s) => ({
-    label: s.name || s._id || s.id || String(s._id || s.id),
-    value: String(s._id || s.id),
+  const storeOptions = stores.map((store) => ({
+    label: store.storeName,
+    value: pickStoreId(store),
   }));
 
   return (
@@ -144,6 +148,11 @@ const UpiEditDrawer = ({
           error={!!errors.storeIds}
           errorMessage={errors.storeIds}
           clearable={false}
+        />
+        <Toggle
+          label={t("settings.upi.setAsDefault")}
+          checked={form.isDefault}
+          onChange={(checked) => setForm((p) => ({ ...p, isDefault: checked }))}
         />
       </div>
     </FormDrawer>

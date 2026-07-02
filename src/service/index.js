@@ -3,6 +3,7 @@ export { authAxios, unauthAxios } from "./config/axiosConfig";
 export {
   categoryService,
   customerService,
+  customerAccountService,
   expenseService,
   inventoryService,
   invoiceService,
@@ -12,6 +13,7 @@ export {
   suggestionService,
   supplierService,
   billService,
+  paymentCollectService,
 } from "./retailer";
 export { utilityService } from "./utility/utility.service";
 export { fcmService } from "./utility/fcm.service";

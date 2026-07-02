@@ -20,6 +20,7 @@ import { Badge, Button, Card, Input, Modal, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getAccountStats, getAccounts } from "@/store/slices/accountsSlice";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const Accounts = () => {
   useDashboardHeader("Supplier Accounts", "Manage supplier accounts and credit limits");
@@ -34,7 +35,7 @@ const Accounts = () => {
     viewMode,
     pagination,
   } = useAppSelector((state) => state.accounts);
-  const { selectedStore } = useAppSelector((state) => state.profile);
+  const { storeId, ready: storeReady } = useSelectedStoreId();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -46,17 +47,17 @@ const Accounts = () => {
 
   // Fetch accounts and stats on component mount
   useEffect(() => {
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getAccounts({
-          store: selectedStore.id,
+          store: storeId,
           limit: 20,
           page: 1,
         })
       );
-      dispatch(getAccountStats(selectedStore.id));
+      dispatch(getAccountStats(storeId));
     }
-  }, [dispatch, selectedStore]);
+  }, [dispatch, storeReady, storeId]);
 
   // Handle search
   const handleSearch = (value) => {

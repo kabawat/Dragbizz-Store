@@ -11,6 +11,21 @@ import DeleteModal from "@/components/customer/view/components/DeleteModal";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
+function formatCompact(amount) {
+  const value = Number(amount) || 0;
+  if (value >= 100000) {
+    return `₹${(value / 100000).toFixed(value % 100000 === 0 ? 0 : 1)}L`;
+  }
+  if (value >= 1000) {
+    return `₹${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}K`;
+  }
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 const CustomerActions = ({
   customerData,
   customerId,
@@ -81,10 +96,10 @@ const CustomerActions = ({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                Quick Actions
+                {t("khata.quickActions")}
               </h3>
               <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                Manage this customer
+                {t("khata.manageThisCustomer")}
               </p>
             </div>
           </div>
@@ -131,50 +146,38 @@ const CustomerActions = ({
           </div>
 
           {customerData.account && (
-            <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                Quick Stats
+            <div className="mt-6">
+              <h4 className="text-xs font-semibold tracking-wide text-[rgb(var(--color-text-secondary))] mb-3 uppercase">
+                {t("khata.quickStats")}
               </h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">
-                    Total Invoices:
-                  </span>
-                  <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-[rgb(var(--color-border-primary))]/30 bg-[rgb(var(--color-bg-primary))]/20 p-3">
+                  <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t("khata.invoices")}</p>
+                  <p className="text-lg font-bold tabular-nums text-[rgb(var(--color-text-primary))] mt-1">
                     {customerData.account.totalInvoices || 0}
-                  </span>
+                  </p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">
-                    Total Spent:
-                  </span>
-                  <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    ₹
-                    {customerData.account.totalAmount?.toLocaleString("en-IN", {
-                      maximumFractionDigits: 2,
-                    }) || "0.00"}
-                  </span>
+                <div className="rounded-xl border border-[rgb(var(--color-border-primary))]/30 bg-[rgb(var(--color-bg-primary))]/20 p-3">
+                  <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t("khata.spent")}</p>
+                  <p className="text-lg font-bold tabular-nums text-[rgb(var(--color-text-primary))] mt-1">
+                    {formatCompact(customerData.account.totalAmount)}
+                  </p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">
-                    Total Due:
-                  </span>
-                  <span
-                    className={`font-medium ${customerData.account.totalDue > 0 ? "text-orange-500" : "text-[rgb(var(--color-text-primary))]"}`}
+                <div className="rounded-xl border border-[rgb(var(--color-border-primary))]/30 bg-[rgb(var(--color-bg-primary))]/20 p-3">
+                  <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t("khata.due")}</p>
+                  <p
+                    className={`text-lg font-bold tabular-nums mt-1 ${
+                      customerData.account.totalDue > 0 ? "text-red-600" : "text-[rgb(var(--color-text-primary))]"
+                    }`}
                   >
-                    ₹
-                    {customerData.account.totalDue?.toLocaleString("en-IN", {
-                      maximumFractionDigits: 2,
-                    }) || "0.00"}
-                  </span>
+                    {formatCompact(customerData.account.totalDue)}
+                  </p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">
-                    Items Purchased:
-                  </span>
-                  <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                <div className="rounded-xl border border-[rgb(var(--color-border-primary))]/30 bg-[rgb(var(--color-bg-primary))]/20 p-3">
+                  <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t("khata.items")}</p>
+                  <p className="text-lg font-bold tabular-nums text-[rgb(var(--color-text-primary))] mt-1">
                     {customerData.account.totalItemsPurchased || 0}
-                  </span>
+                  </p>
                 </div>
               </div>
             </div>

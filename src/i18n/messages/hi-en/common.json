@@ -163,5 +163,12 @@
   "selected": "selected",
   "gst": "GST",
   "scrollToLoadMore": "scroll To Load More",
-  "additionalInformation": "Additional Information"
+  "additionalInformation": "Additional Information",
+  "updated": "Updated",
+  "downloadSample": "Download Sample",
+  "bulkUpload": {
+    "templateFetchError": "Template structure resolve karne mein fail ho gaya.",
+    "templateDownloaded": "{format} Template successfully download ho gaya!",
+    "downloadError": "Template file generate karne mein error."
+  }
 }

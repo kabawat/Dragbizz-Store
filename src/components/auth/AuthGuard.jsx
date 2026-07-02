@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 // Protects authenticated routes and handles redirects
 export default function AuthGuard({ children }) {
     const router = useRouter();
@@ -17,6 +18,7 @@ export default function AuthGuard({ children }) {
         redirectTo,
         isInitialized,
     } = useAppSelector((state) => state.profile);
+    const { ready: storeReady } = useSelectedStoreId();
 
     useEffect(() => {
         // Wait for auth & data load
@@ -78,8 +80,16 @@ export default function AuthGuard({ children }) {
         isInitialized,
     ]);
 
+    const needsStoreBootstrap =
+        isAuthenticated && agency && stores.length > 0 && !storeReady;
+
     // Show loader
-    if (!isInitialized || isChecking || (isLoading && !agency)) {
+    if (
+        !isInitialized ||
+        isChecking ||
+        (isLoading && !agency) ||
+        needsStoreBootstrap
+    ) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
                 <div className="text-center">

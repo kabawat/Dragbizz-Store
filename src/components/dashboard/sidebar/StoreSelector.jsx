@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSelectedStore } from "@/store/slices/profileSlice";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { pickStoreId } from "@/utils/store.util";
+import { buildSessionScope, clearPaymentDisplaySession } from "@/utils/payment/paymentDisplaySession";
 
 const StoreSelector = ({ isCollapsed, onStoreChange }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    const { stores: reduxStores, selectedStore } = useAppSelector(
+    const { stores: reduxStores, selectedStore, authProfile } = useAppSelector(
         (state) => state.profile
     );
 
@@ -17,13 +19,20 @@ const StoreSelector = ({ isCollapsed, onStoreChange }) => {
 
     // Handle store selection
     const handleStoreSelect = (store) => {
-        const currentStoreId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
-        const newStoreId = store?._id || store?.id || store?.storeId;
+        const currentStoreId = pickStoreId(selectedStore);
+        const newStoreId = pickStoreId(store);
 
         if (currentStoreId === newStoreId) {
             setIsStoreDropdownOpen(false);
             return;
         }
+
+        const previousScope = buildSessionScope({
+            tenantId: authProfile?.tenant,
+            storeId: currentStoreId,
+            userId: authProfile?.id,
+        });
+        if (previousScope) clearPaymentDisplaySession(previousScope);
 
         dispatch(setSelectedStore(store));
         setIsStoreDropdownOpen(false);
@@ -83,8 +92,7 @@ const StoreSelector = ({ isCollapsed, onStoreChange }) => {
                 >
                     <div>
                         <div className="font-semibold text-sm text-gray-900">
-                            {selectedStore?.name ||
-                                selectedStore?.storeName ||
+                            {selectedStore?.storeName ||
                                 t("sidebar.selectStore")}
                         </div>
                         <div className="text-xs text-gray-600">
@@ -103,11 +111,10 @@ const StoreSelector = ({ isCollapsed, onStoreChange }) => {
                         <div className="p-1">
                             {reduxStores.map((store) => {
                                 const isSelected =
-                                    selectedStore &&
-                                    store.storeName === selectedStore.storeName;
+                                    pickStoreId(selectedStore) === pickStoreId(store);
                                 return (
                                     <div
-                                        key={store.storeName || store.name || store.id}
+                                        key={pickStoreId(store)}
                                         onClick={() => handleStoreSelect(store)}
                                         className={`flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? "bg-[rgb(var(--color-primary))]/5" : ""
                                             }`}

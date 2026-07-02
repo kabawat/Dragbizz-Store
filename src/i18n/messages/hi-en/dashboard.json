@@ -30,5 +30,11 @@
   "stockAnalytics": "Stock Analytics",
   "supplierAnalytics": "Supplier Analytics",
   "billAnalytics": "Bill Analytics",
-  "expenseAnalytics": "Expense Analytics"
+  "expenseAnalytics": "Expense Analytics",
+  "totalProfit": "Total Profit",
+  "totalProducts": "Total Products",
+  "stockValue": "Stock Value",
+  "outOfStock": "Out of Stock",
+  "totalPayables": "Total Payables",
+  "storesSummary": "Stores Summary"
 }

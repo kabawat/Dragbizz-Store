@@ -3,7 +3,7 @@ export const resolveStoreId = (storeOrId) => {
   if (typeof storeOrId === "string" || typeof storeOrId === "number") {
     return String(storeOrId);
   }
-  return String(storeOrId._id || storeOrId.id || "");
+  return String(storeOrId.storeId || storeOrId._id || storeOrId.id || "");
 };
 
 export const mapStoreToForm = (storeData = {}) => {

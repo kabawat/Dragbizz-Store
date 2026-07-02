@@ -307,7 +307,73 @@
     "upiQrCode": "UPI QR कोड",
     "scanToPay": "UPI के माध्यम से भुगतान के लिए स्कैन करें",
     "qrDownloaded": "QR कोड सफलतापूर्वक डाउनलोड हुआ",
-    "qrDownloadFailed": "QR कोड डाउनलोड करने में विफल"
+    "qrDownloadFailed": "QR कोड डाउनलोड करने में विफल",
+    "setAsDefault": "डिफ़ॉल्ट UPI के रूप में सेट करें",
+    "defaultBadge": "डिफ़ॉल्ट"
+  },
+  "paymentSubTabs": {
+    "subTabUpi": "UPI",
+    "subTabGateway": "पेमेंट गेटवे"
+  },
+  "paymentGateway": {
+    "manageGateways": "पेमेंट गेटवे प्रबंधित करें",
+    "manageDescription": "ऑनलाइन भुगतान स्वीकार करने के लिए Razorpay, Paytm या Cashfree कनेक्ट करें",
+    "gatewayCount": "{{count}} गेटवे कॉन्फ़िगर",
+    "addGateway": "गेटवे जोड़ें",
+    "editGateway": "गेटवे संपादित करें",
+    "gatewayType": "गेटवे प्रकार",
+    "gatewayTypeRequired": "गेटवे प्रकार आवश्यक है",
+    "labelOptional": "लेबल (वैकल्पिक)",
+    "labelPlaceholder": "मुख्य, बैकअप...",
+    "mode": "मोड",
+    "modeTest": "टेस्ट",
+    "modeLive": "लाइव",
+    "assignToStores": "स्टोर को असाइन करें",
+    "selectStores": "स्टोर चुनें",
+    "storeIdsRequired": "कम से कम एक स्टोर आवश्यक है",
+    "setAsDefault": "डिफ़ॉल्ट गेटवे के रूप में सेट करें",
+    "defaultBadge": "डिफ़ॉल्ट",
+    "noGateways": "अभी तक कोई पेमेंट गेटवे नहीं जोड़ा गया",
+    "addFirstGatewayDescription": "ऑनलाइन भुगतान स्वीकार करने के लिए अपना पहला गेटवे जोड़ें",
+    "addAnotherGateway": "एक और गेटवे जोड़ें",
+    "accessibleByStores": "स्टोर द्वारा उपलब्ध",
+    "credentialsConfigured": "क्रेडेंशियल कॉन्फ़िगर",
+    "secretsConfigured": "{{count}} सीक्रेट कॉन्फ़िगर",
+    "edit": "संपादित करें",
+    "delete": "हटाएं",
+    "deleteTitle": "पेमेंट गेटवे हटाएं",
+    "confirmDelete": "क्या आप वाकई इस पेमेंट गेटवे को हटाना चाहते हैं?",
+    "addedSuccess": "पेमेंट गेटवे सफलतापूर्वक जोड़ा गया",
+    "updatedSuccess": "पेमेंट गेटवे सफलतापूर्वक अपडेट किया गया",
+    "deletedSuccess": "पेमेंट गेटवे सफलतापूर्वक हटाया गया",
+    "noPermission": "आपके पास पेमेंट गेटवे देखने की अनुमति नहीं है",
+    "optional": "वैकल्पिक",
+    "fieldRequired": "यह फ़ील्ड आवश्यक है",
+    "leaveBlankToKeep": "मौजूदा रखने के लिए खाली छोड़ें",
+    "enterSecret": "सीक्रेट दर्ज करें",
+    "enterValue": "मान दर्ज करें",
+    "types": {
+      "RAZORPAY": "Razorpay",
+      "PAYTM": "Paytm",
+      "CASHFREE": "Cashfree"
+    },
+    "fields": {
+      "RAZORPAY": {
+        "keyId": "Key ID",
+        "keySecret": "Key Secret",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PAYTM": {
+        "merchantId": "Merchant ID",
+        "merchantKey": "Merchant Key",
+        "appId": "App ID"
+      },
+      "CASHFREE": {
+        "appId": "App ID",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      }
+    }
   },
   "digitalSignatures": "डिजिटल हस्ताक्षर",
   "signatureDescription": "चालान और दस्तावेजों के लिए अपने डिजिटल हस्ताक्षर प्रबंधित करें।",
@@ -317,5 +383,6 @@
   "createSignaturePrompt": "अपने चालान और दस्तावेजों पर उपयोग करने के लिए डिजिटल हस्ताक्षर बनाएं।",
   "createSignature": "हस्ताक्षर बनाएं",
   "deleteSignature": "हस्ताक्षर हटाएं",
-  "signatureAddedTitle": "हस्ताक्षर जोड़ा गया"
+  "signatureAddedTitle": "हस्ताक्षर जोड़ा गया",
+  "generalInformation": "सामान्य जानकारी"
 }

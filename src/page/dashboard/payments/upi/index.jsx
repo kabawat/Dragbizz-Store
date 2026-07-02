@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import storeService from "@/service/retailer/store.service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -15,27 +14,23 @@ import {
   UpiEditDrawer,
   UpiDeleteModal,
 } from "@/components/settings/upi";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const ManageUpiPage = () => {
   const { t } = useTranslation();
 
-    useDashboardHeader(t("payments.manageUpiIds"), t("settings.upi.manageUpiDescription"));
+  useDashboardHeader(t("payments.manageUpiIds"), t("settings.upi.manageUpiDescription"));
   const dispatch = useAppDispatch();
   const { showError, showSuccess } = useGlobalToast();
-  const { stores: reduxStores } = useAppSelector((state) => state.profile);
+  const { stores } = useAppSelector((state) => state.profile);
+  const { storeId, ready: storeReady } = useSelectedStoreId();
 
-  const [stores, setStores] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
   const [editingUpi, setEditingUpi] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [upiToDelete, setUpiToDelete] = useState(null);
 
-  const hasFetchedRef = useRef(false);
-  const isFetchingRef = useRef(false);
-
-  const storeId = stores[0]?._id || stores[0]?.id;
   const agencyKey = storeId ? `agency_${storeId}` : null;
   const upiData = useAppSelector((state) =>
     agencyKey ? state.storeUpi?.byStoreId?.[agencyKey] : null
@@ -46,52 +41,11 @@ const ManageUpiPage = () => {
       state.storeUpi?.loadingStoreId === storeId && state.storeUpi?.isLoading
   );
 
-  const fetchStores = useCallback(async () => {
-    if (hasFetchedRef.current || isFetchingRef.current) return;
-    isFetchingRef.current = true;
-    try {
-      setIsLoading(true);
-      const result = await storeService.getStores();
-      if (result?.success) {
-        const storesData = result.data?.data || result.data || [];
-        setStores(Array.isArray(storesData) ? storesData : []);
-        hasFetchedRef.current = true;
-      } else {
-        if (reduxStores?.length > 0) {
-          setStores(reduxStores);
-          hasFetchedRef.current = true;
-        } else {
-          showError(result?.message || "Failed to fetch stores");
-          setStores([]);
-        }
-      }
-    } catch (error) {
-      if (reduxStores?.length > 0) {
-        setStores(reduxStores);
-        hasFetchedRef.current = true;
-      } else {
-        showError(
-          error?.response?.data?.message ||
-          error?.message ||
-          "Failed to fetch stores"
-        );
-        setStores([]);
-      }
-    } finally {
-      setIsLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, [reduxStores, showError]);
-
   useEffect(() => {
-    fetchStores();
-  }, [fetchStores]);
-
-  useEffect(() => {
-    if (storeId) {
+    if (storeReady && storeId) {
       dispatch(getStoreUpi({ storeId, scope: "agency" }));
     }
-  }, [storeId, dispatch]);
+  }, [storeReady, storeId, dispatch]);
 
   const handleAddUpi = () => setIsAddDrawerOpen(true);
   const handleEditUpi = (item) => {
@@ -103,67 +57,60 @@ const ManageUpiPage = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleSuccess = (message) => {
-    showSuccess(message);
-    hasFetchedRef.current = false;
-    fetchStores();
-    if (storeId) {
-      dispatch(getStoreUpi({ storeId, scope: "agency", forceRefresh: true }));
-    }
-  };
-
-  const activeStores = stores.filter((s) => s.status !== "DELETED");
+  const handleMutationSuccess = useCallback(
+    (message) => {
+      showSuccess(message);
+      if (storeId) {
+        dispatch(getStoreUpi({ storeId, scope: "agency", forceRefresh: true }));
+      }
+    },
+    [dispatch, showSuccess, storeId]
+  );
 
   return (
-    
-      
-
-      
-        
-
-        <div className="flex-1 p-5 overflow-auto">
-          <div className="max-w-6xl mx-auto">
-            {isLoading && stores.length === 0 ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
-              </div>
-            ) : stores.length === 0 ? (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-12 text-center">
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                  {t("settings.noStoresFound")}
-                </h3>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t("settings.getStartedByAddingFirstStore")}
-                </p>
-              </div>
-            ) : (
-              <>
-                <UpiHeader
-                  upiCount={upiIds.length}
-                  isLoading={isUpiLoading}
-                  onAddUpi={handleAddUpi}
-                />
-                <UpiList
-                  upiIds={upiIds}
-                  stores={activeStores}
-                  isLoading={isUpiLoading}
-                  onAddUpi={handleAddUpi}
-                  onEditUpi={handleEditUpi}
-                  onDeleteUpi={handleDeleteUpi}
-                  showSuccess={showSuccess}
-                />
-              </>
-            )}
-          </div>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 p-5 overflow-auto">
+        <div className="max-w-6xl mx-auto">
+          {!storeReady ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
+            </div>
+          ) : stores.length === 0 ? (
+            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-12 text-center">
+              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                {t("settings.noStoresFound")}
+              </h3>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                {t("settings.getStartedByAddingFirstStore")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <UpiHeader
+                upiCount={upiIds.length}
+                isLoading={isUpiLoading}
+                onAddUpi={handleAddUpi}
+              />
+              <UpiList
+                upiIds={upiIds}
+                stores={stores}
+                isLoading={isUpiLoading}
+                onAddUpi={handleAddUpi}
+                onEditUpi={handleEditUpi}
+                onDeleteUpi={handleDeleteUpi}
+                showSuccess={showSuccess}
+              />
+            </div>
+          )}
         </div>
       </div>
 
       <UpiAddDrawer
         isOpen={isAddDrawerOpen}
         storeId={storeId}
-        stores={activeStores}
+        stores={stores}
         onClose={() => setIsAddDrawerOpen(false)}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
 
@@ -171,12 +118,12 @@ const ManageUpiPage = () => {
         isOpen={isEditDrawerOpen}
         storeId={storeId}
         editingUpi={editingUpi}
-        stores={activeStores}
+        stores={stores}
         onClose={() => {
           setIsEditDrawerOpen(false);
           setEditingUpi(null);
         }}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
 
@@ -188,7 +135,7 @@ const ManageUpiPage = () => {
           setIsDeleteModalOpen(false);
           setUpiToDelete(null);
         }}
-        onSuccess={handleSuccess}
+        onSuccess={handleMutationSuccess}
         onError={showError}
       />
     </div>

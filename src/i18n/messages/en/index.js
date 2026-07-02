@@ -5,9 +5,11 @@ import customers from "./customers.json";
 import dashboard from "./dashboard.json";
 import errors from "./errors.json";
 import expenses from "./expenses.json";
+import cashbook from "./cashbook.json";
 import gst from "./gst.json";
 import header from "./header.json";
 import inventory from "./inventory.json";
+import khata from "./khata.json";
 import invoice from "./invoice.json";
 import invoices from "./invoices.json";
 import modals from "./modals.json";
@@ -38,9 +40,11 @@ export default {
   dashboard,
   errors,
   expenses,
+  cashbook,
   gst,
   header,
   inventory,
+  khata,
   invoice,
   invoices,
   modals,

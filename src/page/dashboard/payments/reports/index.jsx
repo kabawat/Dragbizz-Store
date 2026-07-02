@@ -16,6 +16,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getPayments } from "@/store/slices/paymentsSlice";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const PaymentReports = () => {
   const { t } = useTranslation();
@@ -23,7 +24,7 @@ const PaymentReports = () => {
   useDashboardHeader(t("payments.reports.title"), t("payments.reports.description"));
   const dispatch = useAppDispatch();
   const { stats, isLoading, error } = useAppSelector((state) => state.payments);
-  const { selectedStore } = useAppSelector((state) => state.profile);
+  const { storeId, ready: storeReady } = useSelectedStoreId();
 
   const [reportType, setReportType] = useState("summary");
   const [dateRange, setDateRange] = useState("month");
@@ -32,19 +33,19 @@ const PaymentReports = () => {
 
   // Fetch payment data on component mount
   useEffect(() => {
-    if (selectedStore?.id) {
-      dispatch(getPayments({ store: selectedStore.id }));
+    if (storeReady && storeId) {
+      dispatch(getPayments({ store: storeId }));
     }
-  }, [dispatch, selectedStore]);
+  }, [dispatch, storeReady, storeId]);
 
   // Handle report type change
   const handleReportTypeChange = (value) => {
     setReportType(value);
     // Fetch specific report data
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           type: value,
           dateRange,
           supplier: supplierFilter,
@@ -58,10 +59,10 @@ const PaymentReports = () => {
   const handleDateRangeChange = (value) => {
     setDateRange(value);
     // Refetch report data
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           type: reportType,
           dateRange: value,
           supplier: supplierFilter,
@@ -75,10 +76,10 @@ const PaymentReports = () => {
   const handleSupplierFilterChange = (value) => {
     setSupplierFilter(value);
     // Refetch report data
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           type: reportType,
           dateRange,
           supplier: value,
@@ -92,10 +93,10 @@ const PaymentReports = () => {
   const handleMethodFilterChange = (value) => {
     setMethodFilter(value);
     // Refetch report data
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           type: reportType,
           dateRange,
           supplier: supplierFilter,

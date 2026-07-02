@@ -1,93 +1,28 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Check, Copy, Download, Printer } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useUpiQrImage } from "@/hooks/upi/useUpiQrImage";
 
 const DEFAULT_LOGO_URL = "/icons/UPI.webp";
-const QR_SIZE = 400;
-const LOGO_RATIO = 0.22; // ~22% of QR - safe for ecc=H (30% recovery)
-
-// Builds UPI payment URI for QR code.
-const buildUpiUri = (upiId, payeeName) => {
-  const params = new URLSearchParams();
-  params.set("pa", upiId.trim().toLowerCase());
-  params.set("pn", (payeeName || "Merchant").replace(/[^a-zA-Z0-9\s.-]/g, "").trim() || "Merchant");
-  params.set("cu", "INR");
-  return `upi://pay?${params.toString()}`;
-};
-
-// Composes QR code with logo in center. Uses ecc=H (30% error correction) so QR remains scannable.
-const composeQrWithLogo = async (qrImageUrl, logoUrl = DEFAULT_LOGO_URL) => {
-  const [qrImg, logoImg] = await Promise.all([
-    loadImage(qrImageUrl),
-    loadImage(logoUrl).catch(() => null),
-  ]);
-
-  const size = QR_SIZE;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-
-  ctx.drawImage(qrImg, 0, 0, size, size);
-
-  if (logoImg) {
-    const logoSize = Math.floor(size * LOGO_RATIO);
-    const padding = Math.floor(size * 0.04);
-    const center = size / 2;
-    const halfLogo = logoSize / 2 + padding;
-    const x = center - halfLogo;
-    const y = center - halfLogo;
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(x, y, halfLogo * 2, halfLogo * 2);
-
-    ctx.drawImage(logoImg, x + padding, y + padding, logoSize, logoSize);
-  }
-
-  return canvas.toDataURL("image/png");
-};
-
-const loadImage = (url) =>
-  new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = url;
-  });
-
 const COPIED_DURATION_MS = 2500;
 
-const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
+const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl, amount, transactionNote }) => {
   const { t } = useTranslation();
   const { showSuccess, showError } = useGlobalToast();
-  const [qrWithLogoUrl, setQrWithLogoUrl] = useState(null);
   const [copied, setCopied] = useState(false);
 
   const payeeName = storeName || label || "Merchant";
-  const upiUri = upiId ? buildUpiUri(upiId, payeeName) : "";
-  const qrCodeUrl = upiId
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=${QR_SIZE}x${QR_SIZE}&ecc=H&data=${encodeURIComponent(upiUri)}`
-    : "";
-
-  useEffect(() => {
-    if (!upiId || !qrCodeUrl) return;
-    let cancelled = false;
-    composeQrWithLogo(qrCodeUrl, logoUrl || DEFAULT_LOGO_URL)
-      .then((url) => {
-        if (!cancelled) setQrWithLogoUrl(url);
-      })
-      .catch(() => {
-        if (!cancelled) setQrWithLogoUrl(qrCodeUrl);
-      });
-    return () => { cancelled = true; };
-  }, [upiId, qrCodeUrl, logoUrl]);
-
-  const displayUrl = qrWithLogoUrl || qrCodeUrl;
+  const { displayUrl } = useUpiQrImage({
+    upiId,
+    payeeName,
+    amount,
+    logoUrl: logoUrl || DEFAULT_LOGO_URL,
+    transactionNote,
+  });
 
   if (!upiId) return null;
 
@@ -167,8 +102,7 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
 
       doc.save(`upi-qr-${upiId.replace(/[@.]/g, "-")}.pdf`);
       showSuccess(t("settings.upi.qrDownloaded"));
-    } catch (error) {
-
+    } catch {
       showError(t("settings.upi.qrDownloadFailed"));
     }
   };

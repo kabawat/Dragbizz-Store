@@ -374,5 +374,7 @@
   "uploading": "અપલોડ થઈ રહ્યું છે...",
   "upload": "ફાઇલ અપલોડ કરો",
   "done": "પૂર્ણ",
-  "uploadAnother": "બીજું અપલોડ કરો"
+  "uploadAnother": "બીજું અપલોડ કરો",
+  "gstNotRegistered": "GST નોંધાયેલ નથી",
+  "gstNotRegisteredMessage": "તમારા સ્ટોર પાસે નોંધાયેલ GST નંબર નથી. સરકારી નિયમો અનુસાર, તમે ઉત્પાદનો પર GST એકત્રિત કરી શકતા નથી."
 }

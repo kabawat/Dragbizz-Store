@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UpdatePaymentStatusModal } from "@/components/invoice";
+import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import InvoiceLoadingState from "@/components/invoice/view/InvoiceLoadingState";
 import InvoicePageLayout from "@/components/invoice/view/InvoicePageLayout";
 import InvoiceViewHeader from "@/components/invoice/view/InvoiceViewHeader";
@@ -48,6 +49,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   const { execute, data: invoiceData, loading: fetching } = useApiResponse();
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+  const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const hasFetched = useRef(false);
   const hasAutoPrinted = useRef(false);
@@ -150,6 +152,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
             <InvoiceViewHeader
               invoiceData={invoiceData}
               invoiceId={invoiceId}
+              storeId={storeId}
               onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
               onDownloadPDF={canRead ? handleDownloadPDF : undefined}
               canCreate={canCreate}
@@ -166,6 +169,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
               onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
               onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
               onPrint={canRead ? handlePrintWithRedirect : undefined}
+              onCollectPayment={canEdit ? setPaymentInvoiceId : undefined}
             />
           </div>
         )}
@@ -182,6 +186,13 @@ const ViewInvoicePage = ({ invoiceId }) => {
           invoice={invoiceData}
         />
       )}
+
+      <PaymentConfirmModal
+        open={Boolean(paymentInvoiceId)}
+        invoiceId={paymentInvoiceId}
+        source="release"
+        onClose={() => setPaymentInvoiceId(null)}
+      />
     </div>
   );
 };

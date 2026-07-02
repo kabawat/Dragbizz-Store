@@ -6,9 +6,11 @@ import {
   Phone,
   Trash2,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
+import KhataDueBadge from "@/components/khata/KhataDueBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
 import { IconButton } from "../ui";
@@ -18,9 +20,11 @@ const CustomerCard = ({
   onEdit,
   onDelete,
   onViewDetails,
+  onManageKhata,
   className = "",
   canEdit = true,
   canDelete = true,
+  canManageKhata = true,
   ...props
 }) => {
   const { t } = useTranslation();
@@ -55,6 +59,9 @@ const CustomerCard = ({
         break;
       case "edit":
         onEdit?.(customerId);
+        break;
+      case "khata":
+        onManageKhata?.(customerId);
         break;
       case "delete":
         onDelete?.(customerId);
@@ -99,6 +106,15 @@ const CustomerCard = ({
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   {t("common.viewDetails")}
                 </button>
+                {canManageKhata && onManageKhata ? (
+                  <button
+                    onClick={() => handleMenuAction(customer.id, "khata")}
+                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                  >
+                    <BookOpen className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                    {t("khata.manageKhata")}
+                  </button>
+                ) : null}
                 {canEdit && (
                   <button
                     onClick={() => handleMenuAction(customer.id, "edit")}
@@ -137,9 +153,12 @@ const CustomerCard = ({
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Customer Name */}
         <div>
-          <h3 className="font-bold text-md sm:text-xl mb-1 text-[rgb(var(--color-text-primary))]">
-            {customer.name || t("common.notAvailable")}
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <h3 className="font-bold text-md sm:text-xl text-[rgb(var(--color-text-primary))]">
+              {customer.name || t("common.notAvailable")}
+            </h3>
+            <KhataDueBadge totalDue={customer.account?.totalDue ?? customer.totalDue} />
+          </div>
         </div>
 
         {/* Contact Information */}

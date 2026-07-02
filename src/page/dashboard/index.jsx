@@ -31,17 +31,15 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 // Extracted Dashboard Components
-import {
-  SortableSection,
-  SortableMetricCard,
-  SortableAnalyticsCard
-} from "@/components/dashboard/SortableComponents";
+import { SortableSection, SortableMetricCard, SortableAnalyticsCard } from "@/components/dashboard/SortableComponents";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { StoresSummaryTable } from "@/components/dashboard/StoresSummaryTable";
 import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
-import { ROLES } from "@/hooks/permissions/useModulePermissions";
+import { CashbookDashboardCard } from "@/components/dashboard/CashbookDashboardCard";
 
 const formatPercentChange = (value) => {
   const numericValue = Number(value);
@@ -52,9 +50,10 @@ const formatPercentChange = (value) => {
 export default function Dashboard() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedStore: storeFromRedux, authProfile, staffProfile } = useAppSelector(
+  const { authProfile, staffProfile } = useAppSelector(
     (state) => state.profile
   );
+  const { storeId: activeStoreId, ready: storeReady } = useSelectedStoreId();
 
   const isStaff = authProfile?.role === ROLES.STAFF;
 
@@ -183,10 +182,9 @@ export default function Dashboard() {
   }, [t, execute]);
 
   useEffect(() => {
-    const storeId = storeFromRedux?._id || storeFromRedux?.id || storeFromRedux?.storeId;
-    if (!storeId) return;
-    loadDashboardMetrics(storeId);
-  }, [storeFromRedux?._id, storeFromRedux?.id, storeFromRedux?.storeId, loadDashboardMetrics]);
+    if (!storeReady || !activeStoreId) return;
+    loadDashboardMetrics(activeStoreId);
+  }, [storeReady, activeStoreId, loadDashboardMetrics]);
 
   // Load saved layout
   useEffect(() => {
@@ -282,6 +280,8 @@ export default function Dashboard() {
               </DndContext>
             )}
           </div>
+
+          {activeStoreId && <div className="mb-8"><CashbookDashboardCard storeId={activeStoreId} /></div>}
 
           {/* Draggable Layout Grid */}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>

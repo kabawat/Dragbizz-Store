@@ -4,10 +4,20 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
+import {
+    getConfigStoreParam,
+    shouldSuppressStoreIdToast,
+} from "@/utils/bootstrapStoreGuard";
+import { isValidStoreId } from "@/utils/store.util";
+
+const STORE_ID_BOOTSTRAP_ERROR = /invalid or missing store id/i;
 
 export const useApiResponse = () => {
     const { showError, showSuccess: toastSuccess } = useGlobalToast();
     const { showUpgradeModal } = useSubscription();
+    const { ready: storeReady, isInitialized, isLoading } = useSelectedStoreId();
+    const storeBootstrapReady = storeReady;
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -44,12 +54,27 @@ export const useApiResponse = () => {
             return result;
         }
 
-        if (showToast) {
+        const requestStore = getConfigStoreParam(error?.config);
+        const missingStoreOnRequest =
+            requestStore == null ||
+            requestStore === "" ||
+            !isValidStoreId(String(requestStore));
+
+        const isStoreIdError = STORE_ID_BOOTSTRAP_ERROR.test(result.message || "");
+        const shouldSuppressBootstrapStoreError =
+            isStoreIdError &&
+            (shouldSuppressStoreIdToast({ storeBootstrapReady }) ||
+                !storeReady ||
+                missingStoreOnRequest ||
+                !isInitialized ||
+                isLoading);
+
+        if (showToast && !shouldSuppressBootstrapStoreError) {
             showError(result.message);
         }
 
         return result;
-    }, [showError, showUpgradeModal]);
+    }, [showError, showUpgradeModal, storeReady, storeBootstrapReady, isInitialized, isLoading]);
 
     const execute = useCallback(async (apiPromise, options = {}) => {
         try {
