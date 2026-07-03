@@ -81,6 +81,20 @@ const InventoryListContent = ({ canEdit = false, canDelete = false, canCreate = 
         },
         [inventories]
     );
+
+    const stockInItem =
+        inventoryForStockIn?.product
+            ? inventoryForStockIn
+            : inventoryForStockIn?.productId
+              ? {
+                    ...inventoryForStockIn,
+                    product: {
+                        id: inventoryForStockIn.productId,
+                        name: inventoryForStockIn?.product?.name,
+                        sku: inventoryForStockIn?.product?.sku,
+                    },
+                }
+              : inventoryForStockIn;
     const handleCloseStockInDrawer = useCallback(() => {
         setShowStockInDrawer(false);
         setInventoryForStockIn(null);
@@ -216,7 +230,7 @@ const InventoryListContent = ({ canEdit = false, canDelete = false, canCreate = 
             <StockInDrawer
                 isOpen={showStockInDrawer}
                 onClose={handleCloseStockInDrawer}
-                item={inventoryForStockIn}
+                item={stockInItem}
                 onSuccess={handleStockInSuccess}
                 type="inventory"
             />
