@@ -1,8 +1,9 @@
 "use client";
-import { ArrowLeft, Download, Plus, CreditCard } from "lucide-react";
+import { ArrowLeft, Plus, CreditCard } from "lucide-react";
 import Link from "next/link";
 import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
 import SendInvoicePaymentLinkButton from "@/components/payment/SendInvoicePaymentLinkButton";
+import InvoiceShareMenu from "@/components/invoice/InvoiceShareMenu";
 import { Button } from "@/components/ui";
 
 const InvoiceViewHeader = ({
@@ -40,14 +41,11 @@ const InvoiceViewHeader = ({
                     </>
                 )}
                 {invoiceData?.invoiceStatus !== "DRAFT" && (
-                    <Button
-                        variant="outline"
-                        onClick={() => onDownloadPDF(invoiceData, invoiceId)}
-                        leftIcon={Download}
-                        className="h-9"
-                    >
-                        {t("invoice.downloadPDF")}
-                    </Button>
+                    <InvoiceShareMenu
+                        invoice={invoiceData}
+                        onDownloadPDF={() => onDownloadPDF(invoiceData, invoiceId)}
+                        t={t}
+                    />
                 )}
                 {canCreate && (
                     <Link href="/dashboard/invoices/create">

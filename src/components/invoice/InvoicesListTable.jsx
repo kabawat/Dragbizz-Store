@@ -25,6 +25,12 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { formatCurrencySimple as formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateLong as formatDate } from "@/utils/dateFormatter";
+import {
+  buildInvoiceShareUrl,
+  copyInvoiceShareLink,
+  openInvoiceEmailShare,
+  openWhatsAppShare,
+} from "@/utils/invoice/invoiceShare.utils";
 import logger from "@/utils/logger";
 import { renderStatusBadge } from "@/utils/statusBadge";
 
@@ -69,48 +75,13 @@ const InvoicesListTable = ({
     };
   }, [openSendMenuId]);
 
-  const buildShareUrl = (row) => {
-    if (typeof window === "undefined") return "";
-    const publicId = row.publicId;
-    if (!publicId) return "";
-    const base = window.location.origin;
-    return `${base}/view/invoice/${publicId}`;
-  };
-
-  const handleCopy = async (text) => {
-    try {
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-        return true;
-      }
-    } catch {
-      // Fallback for non-secure context (e.g. HTTP)
-    }
-    // Fallback: execCommand works in HTTP and older browsers
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.style.position = "fixed";
-    textarea.style.opacity = "0";
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      const ok = document.execCommand("copy");
-      document.body.removeChild(textarea);
-      return ok;
-    } catch {
-      document.body.removeChild(textarea);
-      return false;
-    }
-  };
-
   const handleCopyLink = async (row) => {
-
-    const shareUrl = buildShareUrl(row);
+    const shareUrl = buildInvoiceShareUrl(row);
     if (!shareUrl) {
       showError(t("invoice.copyLinkNotAvailable") || "Invoice link not available");
       return;
     }
-    const ok = await handleCopy(shareUrl);
+    const ok = await copyInvoiceShareLink(shareUrl);
     setOpenSendMenuId(null);
     if (ok) {
       showSuccess(t("common.copied") || "Copied to clipboard");
@@ -120,27 +91,18 @@ const InvoicesListTable = ({
   };
 
   const handleWhatsAppShare = (row) => {
-    const shareUrl = buildShareUrl(row);
-    if (!shareUrl) return;
-    const message = `Hello *${row.customer?.name || "Customer"}*, Thanks for your business! *Invoice: ${row.invoiceNumber || "N/A"}* *Link:* ${shareUrl} Thanks *${row.store?.name || "DragBizz Store"}* *${row.store?.phone || "N/A"}* Sent using *DragBizz: Simple Store Management* (dragbizz.com)`;
-
-    const customerPhone = row.customer?.phone;
-    if (customerPhone) {
-      const cleanPhone = customerPhone.replace(/\D/g, "");
-      const whatsappPhone = cleanPhone.startsWith("91")
-        ? cleanPhone
-        : `91${cleanPhone}`;
-      window.open(
-        `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
-    } else {
-      window.open(
-        `https://wa.me/?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
+    const shareUrl = buildInvoiceShareUrl(row);
+    if (!shareUrl) {
+      showError(t("invoice.copyLinkNotAvailable") || "Invoice link not available");
+      return;
     }
+    openWhatsAppShare(row, shareUrl, t);
+    setOpenSendMenuId(null);
+  };
 
+  const handleEmailShare = (row) => {
+    const shareUrl = buildInvoiceShareUrl(row);
+    openInvoiceEmailShare(row, shareUrl);
     setOpenSendMenuId(null);
   };
 
@@ -375,7 +337,10 @@ const InvoicesListTable = ({
                             <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" />{" "}
                             {t("common.whatsapp")}
                           </button>
-                          <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
+                          <button
+                            className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                            onClick={() => handleEmailShare(invoice)}
+                          >
                             <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" />{" "}
                             {t("common.email")}
                           </button>

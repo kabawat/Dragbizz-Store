@@ -16,6 +16,11 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge } from "@/utils/statusBadge";
+import {
+  buildInvoiceShareUrl,
+  copyInvoiceShareLink,
+  openWhatsAppShare,
+} from "@/utils/invoice/invoiceShare.utils";
 import { Card, Badge, IconButton } from "../ui";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -55,37 +60,11 @@ const InvoiceCard = ({
   const isDraft = invoiceStatus === "DRAFT";
   const isReleased = invoiceStatus === "RELEASED";
 
-  const buildShareUrl = (inv) => {
-    if (typeof window === "undefined") return "";
-    const publicId = inv.publicId;
-    if (!publicId) return "";
-    const base = window.location.origin;
-    return `${base}/view/invoice/${publicId}`;
-  };
+  const buildShareUrl = (inv) => buildInvoiceShareUrl(inv) || "";
 
   const handleCopy = async (text) => {
-    try {
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-        return true;
-      }
-    } catch {
-      // Fallback
-    }
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.style.position = "fixed";
-    textarea.style.opacity = "0";
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      const ok = document.execCommand("copy");
-      document.body.removeChild(textarea);
-      return ok;
-    } catch {
-      document.body.removeChild(textarea);
-      return false;
-    }
+    if (!text) return false;
+    return copyInvoiceShareLink(text);
   };
 
   const actionMenuItems = [
@@ -109,32 +88,8 @@ const InvoiceCard = ({
       icon: MessageCircle,
       onClick: () => {
         const shareUrl = buildShareUrl(invoice);
-        const invoiceNumber =
-          invoice.invoiceNumber ||
-          invoice.invoice_number ||
-          invoice.id ||
-          t("common.notAvailable");
-        const totalAmount =
-          invoice.totalAmount || invoice.total_amount || invoice.total || 0;
-        const customerName =
-          invoice.customer?.name ||
-          invoice.customerName ||
-          t("invoice.customer");
-
-        let message = t("invoice.whatsappShareMessage", {
-          invoiceNumber,
-          customerName,
-          totalAmount,
-        });
-
-        if (shareUrl) {
-          message += `\n\nLink: ${shareUrl}`;
-        }
-
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-          message
-        )}`;
-        window.open(whatsappUrl, "_blank");
+        if (!shareUrl) return;
+        openWhatsAppShare(invoice, shareUrl, t);
       },
       show: true,
     },
