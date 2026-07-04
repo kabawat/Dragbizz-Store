@@ -15,18 +15,25 @@ const UsageLimitsPage = () => {
 
     useDashboardHeader(t("limits.title"), t("limits.description"));
     const router = useRouter();
-    const { isLoading, subscription: subscriptionData } = useSubscription();
+    const { isLoading, subscription: subscriptionData, isKhataFree } = useSubscription();
+    const KHATA_FIRST_ORDER = ['customer', 'payment_reminder', 'cashbook', 'invoice', 'product', 'store'];
     const MODULE_CONFIG = {
-        'billing': { name: t("limits.modules.billing"), icon: Activity, color: "#3b82f6" },
-        'invoice': { name: t("limits.modules.invoice"), icon: FileText, color: "#f59e0b" },
-        'product': { name: t("limits.modules.product"), icon: Package, color: "#10b981" },
         'customer': { name: t("limits.modules.customer"), icon: Users, color: "#6366f1" },
+        'payment_reminder': { name: t("limits.modules.payment_reminder") || "Payment Reminders", icon: Zap, color: "#22c55e" },
+        'cashbook': { name: t("limits.modules.cashbook") || "Cashbook", icon: Zap, color: "#0ea5e9" },
+        'invoice': { name: t("limits.modules.invoice"), icon: FileText, color: "#f59e0b" },
+        'billing': { name: t("limits.modules.billing"), icon: Activity, color: "#3b82f6" },
+        'product': { name: t("limits.modules.product"), icon: Package, color: "#10b981" },
         'supplier': { name: t("limits.modules.supplier"), icon: Store, color: "#8b5cf6" },
         'purchase_order': { name: t("limits.modules.purchase_order"), icon: ShoppingBag, color: "#ec4899" },
         'expense': { name: t("limits.modules.expense"), icon: Zap, color: "#f43f5e" },
     };
 
-    const features = subscriptionData?.features || [];
+    const features = [...(subscriptionData?.features || [])].sort((a, b) => {
+        const ai = KHATA_FIRST_ORDER.indexOf(a.module);
+        const bi = KHATA_FIRST_ORDER.indexOf(b.module);
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
 
     const stats = features.map(feature => {
         const config = MODULE_CONFIG[feature.module] || { name: feature.module, icon: Activity, color: "#888888" };
@@ -52,7 +59,9 @@ const UsageLimitsPage = () => {
                                 <div className="flex items-center justify-between gap-4 flex-wrap">
                                     <div>
                                         <h2 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">{t("limits.resourceMonitor.title")}</h2>
-                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">{t("limits.resourceMonitor.description")}</p>
+                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
+                                            {isKhataFree ? t("subscription.khataFree.description") : t("limits.resourceMonitor.description")}
+                                        </p>
                                     </div>
                                     <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-md">
                                         <div className="w-1.5 h-1.5 rounded-full bg-green-500" />

@@ -28,13 +28,13 @@ export const getSalesSubMenuItems = (t) => [
     { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i", module: "invoice" },
     { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e", module: "expense" },
     { name: t("sidebar.cashbook"), icon: Wallet, href: "/dashboard/cashbook", shortcut: "b", module: "cashbook" },
-    { name: t("sidebar.pos") || "POS", icon: ShoppingBag, href: "/dashboard/pos", shortcut: "k", module: "invoice" },
+    { name: t("sidebar.pos") || "POS", icon: ShoppingBag, href: "/dashboard/pos", shortcut: "k", module: "invoice", requireCapability: "pos" },
     { name: t("sidebar.sellOrders") || "Sell Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o", module: "invoice" },
 ];
 
 export const getInventorySubMenuItems = (t) => [
     { name: t("sidebar.products"), icon: Package, href: "/dashboard/products", shortcut: "p", module: "product" },
-    { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock", shortcut: "s", module: "inventory" },
+    { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock", shortcut: "s", module: "inventory", requireCapability: "fifo" },
 ];
 
 export const getPurchaseSubMenuItems = (t) => [
@@ -58,8 +58,9 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
         name: t("gst.gstAnalytics") || "GST Analytics",
         icon: BadgePercent,
         href: "/dashboard/analytics/gst",
-        module: "invoice",
-        requireAnalytics: true
+        module: "reports",
+        requireAnalytics: true,
+        requireCapability: "gst",
     }] : []),
 ];
 

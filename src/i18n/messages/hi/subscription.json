@@ -1,7 +1,14 @@
 {
     "title": "Subscription Management",
     "description": "Configure and manage your active business plan",
-    "trialPlan": "Trial Plan",
+    "trialPlan": "ट्रायल प्लान",
+    "khataFree": {
+        "title": "खाता फ्री",
+        "description": "असीमित खाता, रिमाइंडर और कैशबुक। प्रतिदिन 30 इनवॉइस तक।",
+        "upgradeToPremium": "प्रीमियम ERP में अपग्रेड करें",
+        "dailyInvoiceLimit": "प्रतिदिन 30 इनवॉइस",
+        "unlimitedReminders": "असीमित पेमेंट रिमाइंडर"
+    },
     "activePlanTitle": "Active Plan",
     "nextBillingLabel": "Next billing:",
     "planRateLabel": "Plan Rate",

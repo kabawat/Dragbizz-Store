@@ -7,6 +7,16 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleExpandedMenu } from "@/store/slices/uiSlice";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
+function isNavItemLocked(hasAccess, item) {
+    if (!item?.module) return false;
+    return !hasAccess(
+        item.module,
+        item.requireAnalytics,
+        item.requireReport,
+        item.requireCapability,
+    );
+}
+
 export const SidebarNavItem = ({
     item,
     isCollapsed,
@@ -65,7 +75,6 @@ export const SidebarNavItem = ({
                     )}
                 </div>
 
-                {/* Sub-menu (expanded sidebar) */}
                 <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded && !isCollapsed ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0"
                         }`}
@@ -75,6 +84,7 @@ export const SidebarNavItem = ({
                             item.subMenuItems.map((subItem) => {
                                 const SubIcon = subItem.icon;
                                 const isSubActive = pathname === subItem.href || pathname.startsWith(`${subItem.href}/`);
+                                const locked = isNavItemLocked(hasAccess, subItem);
                                 return (
                                     <Link
                                         key={subItem.name}
@@ -82,22 +92,29 @@ export const SidebarNavItem = ({
                                         prefetch={false}
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            withAccess(subItem.module, () => router.push(subItem.href), subItem.requireAnalytics || false, false, true)();
+                                            withAccess(
+                                                subItem.module,
+                                                () => router.push(subItem.href),
+                                                subItem.requireAnalytics || false,
+                                                subItem.requireReport || false,
+                                                true,
+                                                subItem.requireCapability || null,
+                                            )();
                                         }}
                                         className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${isSubActive
                                             ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
                                             : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                                            } ${subItem.module && !hasAccess(subItem.module, subItem.requireAnalytics) ? "opacity-75" : ""}`}
+                                            } ${locked ? "opacity-75" : ""}`}
                                         title={subItem.shortcut ? `Alt+${subItem.shortcut.toUpperCase()}` : ""}
                                     >
                                         <div className="relative">
                                             <SubIcon className={`w-4 h-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
                                         </div>
                                         <span className="text-sm font-medium flex-1">{subItem.name}</span>
-                                        {subItem.module && !hasAccess(subItem.module, subItem.requireAnalytics) && (
+                                        {locked && (
                                             <Crown size={12} className="absolute right-3 text-[#f59e0b] opacity-100 fill-[#f59e0b]/20" />
                                         )}
-                                        {subItem.shortcut && !(subItem.module && !hasAccess(subItem.module, subItem.requireAnalytics)) && (
+                                        {subItem.shortcut && !locked && (
                                             <kbd className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none bg-[rgb(var(--color-bg-secondary))]">
                                                 ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
                                             </kbd>
@@ -111,7 +128,6 @@ export const SidebarNavItem = ({
         );
     }
 
-    // Simple menu item without submenu
     const isActive = pathname === item.href;
     const bottomSpecificClasses = isBottomItem
         ? `px-2 py-2 ${isCollapsed ? "justify-center" : "space-x-3"}`
@@ -123,6 +139,8 @@ export const SidebarNavItem = ({
         : `${isCollapsed ? "w-[18px] h-[18px]" : "w-4 h-4"} ${isActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"
         }`;
 
+    const locked = isNavItemLocked(hasAccess, item);
+
     return (
         <div
             onMouseEnter={(e) => onMouseEnterItem(item, e, isBottomItem)}
@@ -133,17 +151,24 @@ export const SidebarNavItem = ({
                 prefetch={false}
                 onClick={(e) => {
                     e.preventDefault();
-                    withAccess(item.module, () => router.push(item.href), item.requireAnalytics || false, false, true)();
+                    withAccess(
+                        item.module,
+                        () => router.push(item.href),
+                        item.requireAnalytics || false,
+                        item.requireReport || false,
+                        true,
+                        item.requireCapability || null,
+                    )();
                 }}
                 className={`w-full flex items-center rounded-lg transition-all duration-300 cursor-pointer ${bottomSpecificClasses} ${isActive
                     ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
                     : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                    } ${item.module && !hasAccess(item.module, item.requireAnalytics) ? "opacity-75" : ""}`}
+                    } ${locked ? "opacity-75" : ""}`}
                 title={isCollapsed && item.shortcut ? `${item.name}  ⌥${item.shortcut.toUpperCase()}` : isCollapsed ? item.name : ""}
             >
                 <div className="relative">
                     <Icon className={`transition-all duration-300 ${iconClasses}`} />
-                    {isCollapsed && item.module && !hasAccess(item.module, item.requireAnalytics) && (
+                    {isCollapsed && locked && (
                         <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
                             <Crown size={8} className="fill-white/30" />
                         </div>
@@ -152,7 +177,7 @@ export const SidebarNavItem = ({
                 {!isCollapsed && (
                     <span className={`font-medium ${isBottomItem ? "" : "text-sm"} ml-3 flex-1`}>{item.name}</span>
                 )}
-                {!isCollapsed && item.module && !hasAccess(item.module, item.requireAnalytics) && (
+                {!isCollapsed && locked && (
                     <Crown size={14} className="absolute right-3 text-[#f59e0b] opacity-100 fill-[#f59e0b]/20" />
                 )}
             </Link>

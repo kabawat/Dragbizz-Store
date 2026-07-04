@@ -3,12 +3,14 @@ import { createContext, useContext, useState, useMemo, useEffect, useRef } from 
 import SubscriptionUpgradeModal from "@/components/subscription/SubscriptionUpgradeModal";
 import { subscriptionService } from "@/service/retailer";
 import useApiResponse from "@/hooks/useApiResponse";
+import { isKhataFreeSubscription } from "@/utils/subscriptionCapability.util";
 
 const defaultContext = {
   subscription: null,
   isLoading: false,
   error: null,
   hasSubscription: false,
+  isKhataFree: false,
   showUpgradeModal: () => { },
 };
 
@@ -20,7 +22,7 @@ export const SubscriptionProvider = ({ children }) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [modalType, setModalType] = useState("UPGRADE"); // 'UPGRADE' | 'QUOTA'
+  const [modalType, setModalType] = useState("UPGRADE");
 
   useEffect(() => {
     if (!hasFetched.current && executeFetch) {
@@ -42,14 +44,17 @@ export const SubscriptionProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
+  const isKhataFree = useMemo(() => isKhataFreeSubscription(subscription), [subscription]);
+
   const value = useMemo(
     () => ({
       subscription,
       isLoading,
       hasSubscription: !!subscription,
+      isKhataFree,
       showUpgradeModal,
     }),
-    [subscription, isLoading]
+    [subscription, isLoading, isKhataFree]
   );
 
   return (
