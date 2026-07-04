@@ -1,6 +1,6 @@
 {
   "gstAnalytics": "GST Analytics",
-  "gstAnalyticsDesc": "GST summary, mismatches, and export for CA filing",
+  "gstAnalyticsDesc": "GSTR export + health score — beyond basic Khatabook GST prep",
   "gstSummary": "GST Summary",
   "gstMismatches": "GST Mismatches",
   "gstExport": "GST Export",
@@ -36,5 +36,7 @@
   "itcEligible": "ITC Eligible",
   "nonItcPurchase": "Non-ITC Purchase",
   "compliance": "Compliance",
-  "totalOutputTax": "Total Output Tax"
+  "totalOutputTax": "Total Output Tax",
+  "gstSafeShopBadge": "GST-safe shop",
+  "gstSafeShopHint": "Your books are audit-ready with GSTR export and mismatch checks"
 }

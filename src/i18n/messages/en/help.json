@@ -22,7 +22,7 @@
         },
         "gstReports": {
             "q": "Where can I find GST reports?",
-            "a": "Navigate to 'Analytics' > 'GST Analytics'. Here you can view your tax liabilities and download GSTR reports."
+            "a": "Go to Analytics > GST Analytics for GSTR export, health score, and mismatch checks — deeper than basic Khatabook GST prep."
         }
     },
     "steps": {

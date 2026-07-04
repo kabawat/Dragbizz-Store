@@ -1,4 +1,5 @@
 import auth from "./auth.json";
+import analytics from "./analytics.json";
 import bills from "./bills.json";
 import common from "./common.json";
 import customers from "./customers.json";
@@ -33,6 +34,7 @@ import pos from "./pos.json";
 import staff from "./staff.json";
 
 export default {
+  analytics,
   auth,
   bills,
   common,

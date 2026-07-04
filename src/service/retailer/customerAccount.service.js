@@ -50,6 +50,15 @@ class CustomerAccountService extends BaseService {
   getReminders(params = {}) {
     return this.get(`${this.accountEndpoint}/reminders`, params);
   }
+
+  exportLedger(customerId, params = {}, storeId = null) {
+    const url = this.buildResourceUrl(
+      `${this.accountEndpoint}/${customerId}/ledger/export`,
+      null,
+      storeId,
+    );
+    return this.get(url, params);
+  }
 }
 
 export const customerAccountService = new CustomerAccountService();

@@ -1,0 +1,13 @@
+{
+  "dailySalesDescription": "Simple today sales view for kirana shops",
+  "todaysSalesAmount": "Today's sales",
+  "todaysBillCount": "Bills today",
+  "todaysProfit": "Today's profit",
+  "releasedToday": "Released today",
+  "recentBillsToday": "Recent bills",
+  "noBillsToday": "No bills recorded today yet",
+  "gstUpsell": "Add your GST number to unlock GSTR export, health score, and full GST analytics.",
+  "addGstCta": "Add GST in store settings",
+  "gstDailySalesCta": "Need GSTR export or GST health score? Open GST analytics for CA-ready reports.",
+  "openGstAnalytics": "Open GST analytics"
+}

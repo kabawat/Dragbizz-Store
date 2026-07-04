@@ -8,7 +8,7 @@ import {
 } from "../common";
 import styles from "../common/analyticsReport.module.scss";
 
-const RevenueReportTemplate = ({ analyticsData, selectedStore }) => {
+const RevenueReportTemplate = ({ analyticsData, selectedStore, hideGst = false }) => {
   const formatCurrency = (amount) => {
     if (amount === null || amount === undefined) return "₹0.00";
     return `₹${Number(amount).toLocaleString("en-IN", {
@@ -98,7 +98,7 @@ const RevenueReportTemplate = ({ analyticsData, selectedStore }) => {
     { label: "Total Revenue", amount: formatCurrency(summary.totalRevenue) },
     { label: "Total Profit", amount: formatCurrency(summary.totalProfit) },
     { label: "Total Discount", amount: formatCurrency(summary.totalDiscount) },
-    { label: "Total GST", amount: formatCurrency(summary.totalGst) },
+    ...(hideGst ? [] : [{ label: "Total GST", amount: formatCurrency(summary.totalGst) }]),
     { label: "Profit Margin", amount: formatPercent(summary.profitMargin) },
   ];
 

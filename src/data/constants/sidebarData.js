@@ -45,6 +45,7 @@ export const getPurchaseSubMenuItems = (t) => [
 ];
 
 export const getAnalyticsSubMenuItems = (t, selectedStore) => [
+    { name: t("dashboard.dailySales") || "Daily Sales", icon: Receipt, href: "/dashboard/analytics/daily-sales", module: "invoice", requireAnalytics: true },
     { name: t("dashboard.revenueAnalytics") || "Revenue Analytics", icon: LineChart, href: "/dashboard/analytics/revenue", module: "invoice", requireAnalytics: true },
     { name: t("dashboard.salesAnalytics") || "Sales Analytics", icon: BarChart3, href: "/dashboard/analytics/sales", module: "invoice", requireAnalytics: true },
     { name: t("dashboard.stockAnalytics") || "Stock Analytics", icon: Warehouse, href: "/dashboard/analytics/stock", module: "inventory", requireAnalytics: true },

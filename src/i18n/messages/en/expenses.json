@@ -163,5 +163,25 @@
     "metric": "Metric",
     "value": "Value"
   },
-  "emptyDescription": "Keep track of your business costs. Start by adding your first expense to see your spending patterns and manage your budget effectively!"
+  "emptyDescription": "Keep track of your business costs. Start by adding your first expense to see your spending patterns and manage your budget effectively!",
+  "cashbookAutoLinkHint": "Cash paid expenses can post to your cashbook automatically when auto-link is enabled.",
+  "categories": {
+    "rent": "Rent (Kiraya)",
+    "daily-expenses": "Tea & Snacks (Chai)",
+    "transport": "Transport (Dhulai)",
+    "shop-supplies": "Shop Supplies",
+    "staff-wages": "Staff Wages",
+    "utilities": "Electricity & Water",
+    "office-supplies": "Office Supplies",
+    "travel": "Travel & Transport",
+    "marketing": "Marketing & Advertising",
+    "promotions": "Promotions & Discounts",
+    "legal": "Legal & Professional",
+    "insurance": "Insurance",
+    "maintenance": "Maintenance & Repairs",
+    "cleaning": "Cleaning & Housekeeping",
+    "communication": "Communication",
+    "training": "Training & Development",
+    "miscellaneous": "Miscellaneous"
+  }
 }

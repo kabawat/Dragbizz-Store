@@ -153,6 +153,7 @@ const RevenueAnalytics = () => {
           <RevenueReportTemplate
             analyticsData={analytics}
             selectedStore={selectedStore}
+            hideGst={!selectedStore?.gst}
           />
         )}
       </div>

@@ -27,7 +27,7 @@ const ExpenseForm = ({
     title: "",
     billNumber: "",
     date: new Date().toISOString().split("T")[0],
-    category: "office-supplies",
+    category: "rent",
     amount: "",
     paymentMethod: "CASH",
     vendor: "",
@@ -72,7 +72,7 @@ const ExpenseForm = ({
           ? new Date(expense.date).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0],
         category:
-          expense.category?.name || (typeof expense.category === "string" ? expense.category : "") || "office-supplies",
+          expense.category?.name || (typeof expense.category === "string" ? expense.category : "") || "rent",
         amount: expense.amount || "",
         paymentMethod: expense.paymentMethod || "CASH",
         vendor: expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "",
@@ -225,7 +225,7 @@ const ExpenseForm = ({
               onChange={(value) => handleInputChange("category", value)}
               options={EXPENSE_CATEGORIES.map((cat) => ({
                 value: cat.value,
-                label: cat.label,
+                label: t(`expenses.categories.${cat.value}`, { defaultValue: cat.label }),
               }))}
               error={errors.category}
             />
@@ -404,6 +404,12 @@ const ExpenseForm = ({
             />
           </div>
         </div>
+
+        {formData.paymentMethod === "CASH" && formData.status === "PAID" ? (
+          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+            {t("expenses.cashbookAutoLinkHint")}
+          </p>
+        ) : null}
 
         {/* ── Description ── */}
         <div>

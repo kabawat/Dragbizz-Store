@@ -1,15 +1,39 @@
-// Expense Categories
+// Expense Categories — kirana-first defaults at top, legacy categories retained
 export const EXPENSE_CATEGORIES = [
-  // Office & Business
+  {
+    value: "rent",
+    label: "Rent (Kiraya)",
+    subCategories: ["Shop Rent", "Godown Rent", "Electricity", "Water"],
+  },
+  {
+    value: "daily-expenses",
+    label: "Tea & Snacks (Chai)",
+    subCategories: ["Chai", "Snacks", "Meals"],
+  },
+  {
+    value: "transport",
+    label: "Transport (Dhulai)",
+    subCategories: ["Fuel", "Delivery", "Loading"],
+  },
+  {
+    value: "shop-supplies",
+    label: "Shop Supplies",
+    subCategories: ["Bags", "Labels", "Packaging"],
+  },
+  {
+    value: "staff-wages",
+    label: "Staff Wages",
+    subCategories: ["Daily Wage", "Helper", "Bonus"],
+  },
+  {
+    value: "utilities",
+    label: "Electricity & Water",
+    subCategories: ["Electricity", "Water", "Gas"],
+  },
   {
     value: "office-supplies",
     label: "Office Supplies",
     subCategories: ["Stationery", "Equipment", "Software"],
-  },
-  {
-    value: "rent",
-    label: "Rent & Utilities",
-    subCategories: ["Office Rent", "Electricity", "Water", "Internet"],
   },
   {
     value: "travel",
@@ -120,7 +144,7 @@ export const EXPENSE_GST_RATES = [
 ];
 
 // Default values
-export const DEFAULT_EXPENSE_CATEGORY = "office-supplies";
+export const DEFAULT_EXPENSE_CATEGORY = "rent";
 export const DEFAULT_PAYMENT_METHOD = "CASH";
 export const DEFAULT_EXPENSE_STATUS = "PAID";
 export const DEFAULT_GST_RATE = 18;
@@ -128,7 +152,7 @@ export const DEFAULT_GST_RATE = 18;
 // Helper functions
 export const getCategoryLabel = (categoryValue) => {
   const category = EXPENSE_CATEGORIES.find((c) => c.value === categoryValue);
-  return category ? category.label : "Office Supplies";
+  return category ? category.label : "Rent (Kiraya)";
 };
 
 export const getSubCategoryOptions = (categoryValue) => {

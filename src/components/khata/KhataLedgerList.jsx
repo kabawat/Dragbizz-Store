@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowDownLeft, ArrowUpRight, Loader2 } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Download, Loader2 } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { EmptyState } from "@/components/ui";
+import { EmptyState, Button } from "@/components/ui";
 
 function formatAmount(amount) {
   return new Intl.NumberFormat("en-IN", {
@@ -38,6 +38,7 @@ export function KhataLedgerList({
   title,
   emptyTitle,
   className = "",
+  onDownload,
 }) {
   const { t } = useTranslation();
 
@@ -69,8 +70,14 @@ export function KhataLedgerList({
   return (
     <div className={`rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] overflow-hidden flex flex-col ${className}`}>
       {title ? (
-        <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))] shrink-0 bg-[rgb(var(--color-bg-secondary))]/20">
+        <div className="px-5 py-4 border-b border-[rgb(var(--color-border-primary))] shrink-0 bg-[rgb(var(--color-bg-secondary))]/20 flex items-center justify-between gap-3">
           <h4 className="text-base font-semibold">{title}</h4>
+          {onDownload ? (
+            <Button variant="outline" size="sm" onClick={onDownload}>
+              <Download className="h-4 w-4 mr-1" />
+              {t("khata.exportStatement")}
+            </Button>
+          ) : null}
         </div>
       ) : null}
       <ul className="overflow-y-auto flex-1 min-h-0">
