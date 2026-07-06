@@ -71,6 +71,20 @@ const BasicInfoSection = ({
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <Select
+            label={t("products.productType")}
+            value={formData.productType || "GOODS"}
+            onChange={(value) => handleFieldChange("productType", value)}
+            options={[
+              { value: "GOODS", label: t("products.productTypeGoods") },
+              { value: "SERVICE", label: t("products.productTypeService") },
+            ]}
+          />
+        </div>
+      </div>
+
       {/* Second Section - Category & Barcode */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Category Selection */}
