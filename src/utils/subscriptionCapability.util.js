@@ -15,7 +15,7 @@ export function hasFeatureCapability(feature, capability) {
     if (capability === "pos" || capability === "release") {
       return true;
     }
-    if (capability === "gst") {
+    if (capability === "gst" || capability === "tally") {
       return Boolean(feature.report || feature.analytics);
     }
     if (capability === "fifo" || capability === "batches" || capability === "stock_events") {

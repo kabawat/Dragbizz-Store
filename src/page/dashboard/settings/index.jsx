@@ -1,17 +1,6 @@
 "use client";
 
-import {
-    Bell,
-    ChevronRight,
-    CreditCard,
-    Palette,
-    Settings as SettingsIcon,
-    Shield,
-    Store,
-    User,
-    PenTool,
-    Languages,
-} from "lucide-react";
+import { Bell, ChevronRight, CreditCard, Palette, Settings as SettingsIcon, Shield, Store, User, PenTool, Languages, Plug, } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -24,6 +13,7 @@ import {
     StoreSettings,
     SignatureSettings,
     LanguageSettings,
+    IntegrationsSettings,
 } from "@/components/settings";
 import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -52,6 +42,7 @@ const SettingsPage = () => {
         { id: "store", label: t("settings.store"), icon: Store },
         { id: "signature", label: t("settings.digitalSignatures") || "Signatures", icon: PenTool },
         { id: "payment", label: t("settings.payment"), icon: CreditCard },
+        { id: "integrations", label: t("integrations.title"), icon: Plug },
         { id: "security", label: t("settings.security"), icon: Shield },
         {
             id: "notifications",
@@ -134,6 +125,7 @@ const SettingsPage = () => {
                     {activeTab === "store" && <StoreSettings selectedStore={selectedStore} />}
                     {activeTab === "signature" && <SignatureSettings />}
                     {activeTab === "payment" && <ManagePaymentSettings />}
+                    {activeTab === "integrations" && <IntegrationsSettings />}
                     {activeTab === "security" && <SecuritySettings />}
                     {activeTab === "notifications" && <NotificationsSettings />}
                 </div>

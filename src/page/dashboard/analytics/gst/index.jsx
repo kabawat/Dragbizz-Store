@@ -1,12 +1,6 @@
 "use client";
 import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+  closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, } from "@dnd-kit/core";
 import {
   arrayMove,
   rectSortingStrategy,
@@ -25,6 +19,7 @@ import { SortableCard, SortableMetricCard } from "@/components/templates/analyti
 import GstMismatchList from "@/components/analytics/gst/GstMismatchList";
 import GstHealthScoreWidget from "@/components/analytics/gst/GstHealthScoreWidget";
 import GstExportDrawer from "@/components/analytics/gst/GstExportDrawer";
+import TallyExportDrawer from "@/components/analytics/tally/TallyExportDrawer";
 import { Button, Card, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
@@ -35,7 +30,9 @@ import {
   getGstExport,
   getGstHealthScore,
 } from "@/store/slices/gstSlice";
-import { gstService } from "@/service/retailer";
+import { tallyService, gstService } from "@/service/retailer";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useRouter } from "next/navigation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import GstGuard from "@/components/auth/GstGuard";
 
@@ -50,6 +47,8 @@ const GstAnalyticsContent = () => {
 
   useDashboardHeader(t("gst.gstAnalytics") || "GST Analytics", t("gst.gstAnalyticsDesc") || "GST summary, mismatches, and export for CA filing");
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const {
     summary,
@@ -66,6 +65,7 @@ const GstAnalyticsContent = () => {
     year: new Date().getFullYear(),
   });
   const [showExportDrawer, setShowExportDrawer] = useState(false);
+  const [showTallyExportDrawer, setShowTallyExportDrawer] = useState(false);
   const lastFetchedParamsRef = useRef(null);
 
   const [metrics, setMetrics] = useState([
@@ -137,8 +137,20 @@ const GstAnalyticsContent = () => {
   const { execute: executeExport } = useApiResponse();
 
   const handleExport = async (exportPeriod) => {
-    // Return wrapped result to GstExportDrawer
     return await executeExport(gstService.getGstExport(storeId, exportPeriod), { showToast: false });
+  };
+
+  const handleTallyExport = async (params) => {
+    return await executeExport(tallyService.getTallyExport(storeId, params), { showToast: false });
+  };
+
+  const openTallyExport = () => {
+    if (!selectedStore?.tallyIntegration?.enabled) {
+      showError(t("integrations.enableFirst"));
+      router.push("/dashboard/settings?tab=integrations");
+      return;
+    }
+    setShowTallyExportDrawer(true);
   };
 
   const { execute: executeSync, loading: isSyncing } = useApiResponse();
@@ -208,6 +220,10 @@ const GstAnalyticsContent = () => {
                 Sync Data
               </Button>
             )}
+            <Button variant="secondary" onClick={openTallyExport} size="sm">
+              <Download className="w-3.5 h-3.5 mr-2" />
+              {t("integrations.exportTally")}
+            </Button>
             <Button variant="primary" leftIcon={Download} onClick={() => setShowExportDrawer(true)} size="sm">
               {t("gst.exportForCA") || "Export for CA"}
             </Button>
@@ -389,6 +405,12 @@ const GstAnalyticsContent = () => {
         isOpen={showExportDrawer}
         onClose={() => setShowExportDrawer(false)}
         onExport={handleExport}
+        isLoading={isLoading}
+      />
+      <TallyExportDrawer
+        isOpen={showTallyExportDrawer}
+        onClose={() => setShowTallyExportDrawer(false)}
+        onExport={handleTallyExport}
         isLoading={isLoading}
       />
     </div>
