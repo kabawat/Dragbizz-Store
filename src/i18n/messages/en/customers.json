@@ -177,5 +177,15 @@
   "partialSuccess": "Bulk upload partially successful",
   "bulkUploadSuccess": "Bulk upload completed successfully",
   "rowData": "Data",
-  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!"
+  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!",
+  "importOpeningBalance": "Import Opening Balance",
+  "openingBalanceImportTitle": "Import Opening Balance",
+  "openingBalanceImportDesc": "Upload udhari for existing customers. Customers are matched by phone number.",
+  "openingBalanceInstruction1": "Customers must already exist — matched by phone.",
+  "openingBalanceInstruction2": "Required columns: phone, openingDue.",
+  "openingBalanceResults": "Import Results",
+  "importedCount": "Imported",
+  "openingBalanceImportSuccess": "Opening balance import completed",
+  "openingBalancePartialSuccess": "Import partially successful",
+  "downloadErrorsCsv": "Download errors CSV"
 }

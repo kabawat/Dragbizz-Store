@@ -177,5 +177,15 @@
   "partialSuccess": "थोक अपलोड आंशिक रूप से सफल",
   "bulkUploadSuccess": "थोक अपलोड सफलतापूर्वक पूरा हुआ",
   "rowData": "डेटा",
-  "emptyDescription": "आपके पास अभी तक कोई ग्राहक नहीं है। उनके ऑर्डर और प्राथमिकताओं को ट्रैक करना शुरू करने के लिए अपना पहला ग्राहक जोड़ें!"
+  "emptyDescription": "आपके पास अभी तक कोई ग्राहक नहीं है। उनके ऑर्डर और प्राथमिकताओं को ट्रैक करना शुरू करने के लिए अपना पहला ग्राहक जोड़ें!",
+  "importOpeningBalance": "ओपनिंग बैलेंस इम्पोर्ट",
+  "openingBalanceImportTitle": "ओपनिंग बैलेंस इम्पोर्ट करें",
+  "openingBalanceImportDesc": "मौजूदा ग्राहकों के लिए उधारी अपलोड करें। फोन नंबर से मिलान होगा।",
+  "openingBalanceInstruction1": "ग्राहक पहले से मौजूद होना चाहिए — फोन से मिलान।",
+  "openingBalanceInstruction2": "आवश्यक कॉलम: phone, openingDue।",
+  "openingBalanceResults": "इम्पोर्ट परिणाम",
+  "importedCount": "इम्पोर्ट किया गया",
+  "openingBalanceImportSuccess": "ओपनिंग बैलेंस इम्पोर्ट पूरा हुआ",
+  "openingBalancePartialSuccess": "इम्पोर्ट आंशिक रूप से सफल",
+  "downloadErrorsCsv": "त्रुटि CSV डाउनलोड करें"
 }

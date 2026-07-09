@@ -5,6 +5,7 @@ import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { CreateCustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
 import CustomerBulkUploadDrawer from "@/components/customer/CustomerBulkUploadDrawer";
+import OpeningBalanceImportDrawer from "@/components/customer/OpeningBalanceImportDrawer";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -58,6 +59,7 @@ const CustomerListHeader = ({
     const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
+    const [showOpeningBalanceDrawer, setShowOpeningBalanceDrawer] = useState(false);
 
     useEffect(() => {
         if (!canCreate) setShowCustomerDrawer(false);
@@ -186,6 +188,7 @@ const CustomerListHeader = ({
             if (showCustomerDrawer) setShowCustomerDrawer(false);
             else if (showDownloadDrawer) setShowDownloadDrawer(false);
             else if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
+            else if (showOpeningBalanceDrawer) setShowOpeningBalanceDrawer(false);
         },
     });
 
@@ -322,6 +325,14 @@ const CustomerListHeader = ({
                         <>
                             <Button
                                 variant="secondary"
+                                onClick={() => setShowOpeningBalanceDrawer(true)}
+                                className="flex items-center gap-2 h-9"
+                            >
+                                <Upload className="w-4 h-4" />
+                                {t("customers.importOpeningBalance", "Import Opening Balance")}
+                            </Button>
+                            <Button
+                                variant="secondary"
                                 onClick={() => setShowBulkUploadDrawer(true)}
                                 className="flex items-center gap-2 h-9"
                             >
@@ -370,6 +381,14 @@ const CustomerListHeader = ({
                 <CustomerBulkUploadDrawer
                     isOpen={showBulkUploadDrawer}
                     onClose={() => setShowBulkUploadDrawer(false)}
+                    onSuccess={handleBulkUploadSuccess}
+                />
+            )}
+
+            {showOpeningBalanceDrawer && (
+                <OpeningBalanceImportDrawer
+                    isOpen={showOpeningBalanceDrawer}
+                    onClose={() => setShowOpeningBalanceDrawer(false)}
                     onSuccess={handleBulkUploadSuccess}
                 />
             )}

@@ -59,6 +59,13 @@ class CustomerAccountService extends BaseService {
     );
     return this.get(url, params);
   }
+
+  importOpeningBalance(file, storeId) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("store", storeId);
+    return this.uploadAxios.post(`${this.accountEndpoint}/import-opening-balance`, formData);
+  }
 }
 
 export const customerAccountService = new CustomerAccountService();

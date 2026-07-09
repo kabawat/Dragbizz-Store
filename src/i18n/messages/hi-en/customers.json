@@ -178,5 +178,15 @@
   "partialSuccess": "Bulk upload partially successful",
   "bulkUploadSuccess": "Bulk upload successfully complete ho gaya",
   "rowData": "Data",
-  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!"
+  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!",
+  "importOpeningBalance": "Opening Balance Import",
+  "openingBalanceImportTitle": "Opening Balance Import Karo",
+  "openingBalanceImportDesc": "Existing customers ke liye udhari upload karo. Phone number se match hoga.",
+  "openingBalanceInstruction1": "Customer pehle se exist karna chahiye — phone se match.",
+  "openingBalanceInstruction2": "Required columns: phone, openingDue.",
+  "openingBalanceResults": "Import Results",
+  "importedCount": "Imported",
+  "openingBalanceImportSuccess": "Opening balance import complete ho gaya",
+  "openingBalancePartialSuccess": "Import partially successful",
+  "downloadErrorsCsv": "Errors CSV download karo"
 }
