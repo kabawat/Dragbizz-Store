@@ -101,3 +101,90 @@ export function getPresetLabelKey(preset) {
       return "common.dateRange.placeholder";
   }
 }
+
+export function parseISODate(iso) {
+  if (!iso) return null;
+  const [year, month, day] = iso.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  return Number.isNaN(date.getTime()) ? null : startOfDay(date);
+}
+
+export function compareISODates(a, b) {
+  const left = parseISODate(a)?.getTime() ?? 0;
+  const right = parseISODate(b)?.getTime() ?? 0;
+  return left - right;
+}
+
+export function isDateInRange(iso, startIso, endIso) {
+  if (!iso || !startIso || !endIso) return false;
+  return compareISODates(iso, startIso) >= 0 && compareISODates(iso, endIso) <= 0;
+}
+
+export function formatDisplayDate(iso, locale = "en-GB") {
+  const date = parseISODate(iso);
+  if (!date) return "";
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+export function getMonthYearFromISO(iso) {
+  const date = parseISODate(iso) || startOfDay();
+  return { year: date.getFullYear(), month: date.getMonth() };
+}
+
+export function addMonths(year, month, count = 1) {
+  const date = new Date(year, month + count, 1);
+  return { year: date.getFullYear(), month: date.getMonth() };
+}
+
+export function getDefaultCalendarViews(startDate = "", endDate = "") {
+  const today = startOfDay();
+
+  if (startDate && endDate) {
+    return {
+      from: getMonthYearFromISO(startDate),
+      to: getMonthYearFromISO(endDate),
+    };
+  }
+
+  const from = startDate
+    ? getMonthYearFromISO(startDate)
+    : { year: today.getFullYear(), month: today.getMonth() };
+
+  return {
+    from,
+    to: addMonths(from.year, from.month, 1),
+  };
+}
+
+export function getCalendarGrid(year, month) {
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+
+  for (let index = 0; index < firstWeekday; index += 1) {
+    cells.push(null);
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    cells.push(formatDateISO(new Date(year, month, day)));
+  }
+
+  return cells;
+}
+
+export function getMonthOptions(locale = "en-GB") {
+  return Array.from({ length: 12 }, (_, month) => ({
+    value: month,
+    label: new Intl.DateTimeFormat(locale, { month: "long" }).format(new Date(2024, month, 1)),
+  }));
+}
+
+export function getYearOptions(range = 12) {
+  const currentYear = new Date().getFullYear();
+  return Array.from({ length: range }, (_, index) => currentYear - range + 1 + index);
+}

@@ -179,6 +179,11 @@
     "last30Days": "Last 30 days",
     "last3Months": "Last 3 months",
     "last6Months": "Last 6 months",
-    "custom": "Custom date range"
+    "custom": "Custom date range",
+    "from": "From",
+    "to": "To",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "selectRange": "Select date range"
   }
 }

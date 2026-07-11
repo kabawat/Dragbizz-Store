@@ -3,15 +3,18 @@
 import { Calendar, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import Input from "./Input";
+import CustomDateRangePanel from "./CustomDateRangePanel";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
   DATE_RANGE_PRESETS,
   DATE_RANGE_PRESET_ORDER,
+  formatDisplayDate,
   getPresetDateRange,
   getPresetLabelKey,
   inferPresetFromDates,
 } from "@/utils/dateRange.util";
+
+const PANEL_WIDTH = 820;
 
 const DateRangeFilter = ({
   startDate = "",
@@ -19,10 +22,10 @@ const DateRangeFilter = ({
   onChange,
   className = "",
   disabled = false,
-  showCustomInputs = true,
 }) => {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const [showCustomPanel, setShowCustomPanel] = useState(false);
   const triggerRef = useRef(null);
 
   const activePreset = useMemo(
@@ -38,6 +41,7 @@ const DateRangeFilter = ({
       const isInsideDropdown = event.target.closest(".date-range-dropdown-portal");
       if (!isInsideTrigger && !isInsideDropdown) {
         setIsOpen(false);
+        setShowCustomPanel(false);
       }
     };
 
@@ -53,9 +57,14 @@ const DateRangeFilter = ({
     });
   };
 
+  const closeDropdown = () => {
+    setIsOpen(false);
+    setShowCustomPanel(false);
+  };
+
   const handlePresetSelect = (preset) => {
     if (preset === DATE_RANGE_PRESETS.CUSTOM) {
-      emitChange(startDate, endDate, DATE_RANGE_PRESETS.CUSTOM);
+      setShowCustomPanel(true);
       return;
     }
 
@@ -63,28 +72,38 @@ const DateRangeFilter = ({
     if (range) {
       emitChange(range.startDate, range.endDate, preset);
     }
-    setIsOpen(false);
+    closeDropdown();
   };
 
-  const handleStartDateChange = (value) => {
-    emitChange(value, endDate, DATE_RANGE_PRESETS.CUSTOM);
+  const handleTriggerClick = () => {
+    if (disabled) return;
+    const nextOpen = !isOpen;
+    setIsOpen(nextOpen);
+    setShowCustomPanel(nextOpen && activePreset === DATE_RANGE_PRESETS.CUSTOM);
   };
 
-  const handleEndDateChange = (value) => {
-    emitChange(startDate, value, DATE_RANGE_PRESETS.CUSTOM);
-  };
-
-  const triggerLabel = activePreset
-    ? t(getPresetLabelKey(activePreset))
-    : t("common.dateRange.placeholder", "Date range");
+  const triggerLabel = useMemo(() => {
+    if (activePreset === DATE_RANGE_PRESETS.CUSTOM && startDate && endDate) {
+      return `${formatDisplayDate(startDate, locale)} — ${formatDisplayDate(endDate, locale)}`;
+    }
+    if (activePreset) {
+      return t(getPresetLabelKey(activePreset));
+    }
+    return t("common.dateRange.placeholder", "Date range");
+  }, [activePreset, startDate, endDate, locale, t]);
 
   const dropdownPosition = isOpen && triggerRef.current
     ? (() => {
         const rect = triggerRef.current.getBoundingClientRect();
+        const width = showCustomPanel ? PANEL_WIDTH : Math.max(rect.width, 208);
+        let left = rect.left;
+        const maxLeft = window.innerWidth - width - 16;
+        if (left > maxLeft) left = Math.max(16, maxLeft);
+
         return {
           top: rect.bottom + 4,
-          left: rect.left,
-          width: Math.max(rect.width, 208),
+          left,
+          width,
         };
       })()
     : null;
@@ -95,7 +114,7 @@ const DateRangeFilter = ({
         <button
           type="button"
           disabled={disabled}
-          onClick={() => setIsOpen((open) => !open)}
+          onClick={handleTriggerClick}
           className="w-full h-10 px-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm text-[rgb(var(--color-text-primary))] flex items-center justify-between gap-2 hover:bg-[rgb(var(--color-bg-secondary))] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <span className="flex items-center gap-2 min-w-0">
@@ -112,64 +131,46 @@ const DateRangeFilter = ({
               left: dropdownPosition.left,
               width: dropdownPosition.width,
             }}
-            className="date-range-dropdown-portal fixed z-[999999] bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 max-h-72 overflow-y-auto"
+            className="date-range-dropdown-portal fixed z-[999999] bg-[rgb(var(--color-bg-primary))] rounded-xl shadow-xl border border-[rgb(var(--color-border-primary))] overflow-hidden"
             onMouseDown={(e) => e.stopPropagation()}
           >
-            {DATE_RANGE_PRESET_ORDER.map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                onClick={() => handlePresetSelect(preset)}
-                className={`w-full px-4 py-2.5 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${
-                  activePreset === preset
-                    ? "text-[rgb(var(--color-primary))] font-medium"
-                    : "text-[rgb(var(--color-text-primary))]"
-                }`}
-              >
-                {t(getPresetLabelKey(preset))}
-              </button>
-            ))}
+            {showCustomPanel ? (
+              <CustomDateRangePanel
+                startDate={startDate}
+                endDate={endDate}
+                onApply={({ startDate: nextStart, endDate: nextEnd }) => {
+                  emitChange(nextStart, nextEnd, DATE_RANGE_PRESETS.CUSTOM);
+                  closeDropdown();
+                }}
+                onCancel={closeDropdown}
+                onClear={() => emitChange("", "", "")}
+                onPresetSelect={({ startDate: nextStart, endDate: nextEnd, preset }) => {
+                  emitChange(nextStart, nextEnd, preset);
+                  closeDropdown();
+                }}
+              />
+            ) : (
+              <div className="py-1.5">
+                {DATE_RANGE_PRESET_ORDER.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => handlePresetSelect(preset)}
+                    className={`w-[calc(100%-8px)] mx-1 px-3 py-2.5 rounded-lg text-left text-sm transition-colors hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${
+                      activePreset === preset
+                        ? "text-[rgb(var(--color-primary))] font-semibold bg-[rgb(var(--color-primary))]/8"
+                        : "text-[rgb(var(--color-text-primary))]"
+                    }`}
+                  >
+                    {t(getPresetLabelKey(preset))}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>,
           document.body,
         )}
       </div>
-
-      {showCustomInputs && (
-        <>
-          <div className="w-[140px]">
-            <Input
-              type={startDate ? "date" : "text"}
-              onFocus={(e) => {
-                e.target.type = "date";
-              }}
-              onBlur={(e) => {
-                if (!e.target.value) e.target.type = "text";
-              }}
-              value={startDate}
-              onChange={handleStartDateChange}
-              max={endDate || undefined}
-              placeholder={t("common.startDate")}
-              disabled={disabled}
-            />
-          </div>
-          <div className="w-[140px]">
-            <Input
-              type={endDate ? "date" : "text"}
-              onFocus={(e) => {
-                e.target.type = "date";
-              }}
-              onBlur={(e) => {
-                if (!e.target.value) e.target.type = "text";
-              }}
-              value={endDate}
-              onChange={handleEndDateChange}
-              min={startDate || undefined}
-              placeholder={t("common.endDate")}
-              disabled={disabled}
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 };
