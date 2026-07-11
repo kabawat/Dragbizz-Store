@@ -56,6 +56,8 @@
   "reminderSent": "Payment reminder sent by email",
   "reminderFailed": "Failed to send payment reminder",
   "noCustomerEmail": "Customer email is required to send a reminder",
+  "reminderPermissionDenied": "You do not have permission to send payment reminders",
+  "reminderPlanRequired": "Payment reminders are not available in your current plan",
   "reminderCooldown": "Reminder was sent recently. Please try again later.",
   "exportStatement": "Download statement",
   "exportStatementTitle": "PARTY LEDGER STATEMENT",

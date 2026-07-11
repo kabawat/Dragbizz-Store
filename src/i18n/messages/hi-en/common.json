@@ -170,5 +170,15 @@
     "templateFetchError": "Template structure resolve karne mein fail ho gaya.",
     "templateDownloaded": "{format} Template successfully download ho gaya!",
     "downloadError": "Template file generate karne mein error."
+  },
+  "dateRange": {
+    "placeholder": "Date range",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days",
+    "last3Months": "Last 3 months",
+    "last6Months": "Last 6 months",
+    "custom": "Custom date range"
   }
 }

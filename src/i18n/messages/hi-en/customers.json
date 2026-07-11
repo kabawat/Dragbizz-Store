@@ -180,6 +180,7 @@
   "rowData": "Data",
   "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!",
   "importOpeningBalance": "Opening Balance Import",
+  "importMenu": "Import",
   "openingBalanceImportTitle": "Opening Balance Import Karo",
   "openingBalanceImportDesc": "Existing customers ke liye udhari upload karo. Phone number se match hoga.",
   "openingBalanceInstruction1": "Customer pehle se exist karna chahiye — phone se match.",

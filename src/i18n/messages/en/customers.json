@@ -179,6 +179,7 @@
   "rowData": "Data",
   "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!",
   "importOpeningBalance": "Import Opening Balance",
+  "importMenu": "Import",
   "openingBalanceImportTitle": "Import Opening Balance",
   "openingBalanceImportDesc": "Upload udhari for existing customers. Customers are matched by phone number.",
   "openingBalanceInstruction1": "Customers must already exist — matched by phone.",

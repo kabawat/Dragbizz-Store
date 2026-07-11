@@ -1,10 +1,11 @@
 "use client";
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
-import { Download, Grid3X3, List, Plus, RotateCcw, Search, Upload, Crown, Users } from "lucide-react";
-import { Button, Input, Select, SideDrawer } from "@/components/ui";
+import { Download, Grid3X3, List, Plus, RotateCcw, Search, Crown, Users } from "lucide-react";
+import { Button, Input, Select, SideDrawer, DateRangeFilter } from "@/components/ui";
 import { CreateCustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
 import CustomerBulkUploadDrawer from "@/components/customer/CustomerBulkUploadDrawer";
+import CustomerImportMenu from "@/components/customer/CustomerImportMenu";
 import OpeningBalanceImportDrawer from "@/components/customer/OpeningBalanceImportDrawer";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -66,6 +67,7 @@ const CustomerListHeader = ({
     }, [canCreate]);
 
     const searchInputRef = useRef(null);
+    const importMenuRef = useRef(null);
     const lastFetchRef = useRef(null);
     const listFilters = { search: searchValue, isActive, source, startDate, endDate };
     const hasFetchedRef = useRef({
@@ -189,6 +191,7 @@ const CustomerListHeader = ({
             else if (showDownloadDrawer) setShowDownloadDrawer(false);
             else if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
             else if (showOpeningBalanceDrawer) setShowOpeningBalanceDrawer(false);
+            else importMenuRef.current?.close?.();
         },
     });
 
@@ -241,32 +244,14 @@ const CustomerListHeader = ({
                     >
                         {t("khata.hasDueFilter")}
                     </Button>
-                    <div className="w-[140px]">
-                        <Input
-                            type={startDate ? "date" : "text"}
-                            onFocus={(e) => (e.target.type = "date")}
-                            onBlur={(e) => {
-                                if (!e.target.value) e.target.type = "text";
-                            }}
-                            value={startDate}
-                            onChange={setStartDate}
-                            max={endDate || undefined}
-                            placeholder={t("common.startDate")}
-                        />
-                    </div>
-                    <div className="w-[140px]">
-                        <Input
-                            type={endDate ? "date" : "text"}
-                            onFocus={(e) => (e.target.type = "date")}
-                            onBlur={(e) => {
-                                if (!e.target.value) e.target.type = "text";
-                            }}
-                            value={endDate}
-                            onChange={setEndDate}
-                            min={startDate || undefined}
-                            placeholder={t("common.endDate")}
-                        />
-                    </div>
+                    <DateRangeFilter
+                        startDate={startDate}
+                        endDate={endDate}
+                        onChange={({ startDate: nextStart, endDate: nextEnd }) => {
+                            setStartDate(nextStart);
+                            setEndDate(nextEnd);
+                        }}
+                    />
                     {hasActiveFilters && (
                         <Button
                             variant="ghost"
@@ -323,22 +308,11 @@ const CustomerListHeader = ({
 
                     {canCreate && (
                         <>
-                            <Button
-                                variant="secondary"
-                                onClick={() => setShowOpeningBalanceDrawer(true)}
-                                className="flex items-center gap-2 h-9"
-                            >
-                                <Upload className="w-4 h-4" />
-                                {t("customers.importOpeningBalance", "Import Opening Balance")}
-                            </Button>
-                            <Button
-                                variant="secondary"
-                                onClick={() => setShowBulkUploadDrawer(true)}
-                                className="flex items-center gap-2 h-9"
-                            >
-                                <Upload className="w-4 h-4" />
-                                {t("customers.bulkUpload", "Bulk Upload")}
-                            </Button>
+                            <CustomerImportMenu
+                                ref={importMenuRef}
+                                onOpeningBalance={() => setShowOpeningBalanceDrawer(true)}
+                                onBulkUpload={() => setShowBulkUploadDrawer(true)}
+                            />
 
                             <Button
                                 variant="primary"

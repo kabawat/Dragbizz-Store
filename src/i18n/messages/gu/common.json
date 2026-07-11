@@ -170,5 +170,15 @@
     "templateFetchError": "ટેમ્પલેટ માળખું મેળવવામાં નિષ્ફળ.",
     "templateDownloaded": "{format} ટેમ્પલેટ સફળતાપૂર્વક ડાઉનલોડ થયું!",
     "downloadError": "ટેમ્પલેટ ફાઇલ બનાવવામાં ભૂલ."
+  },
+  "dateRange": {
+    "placeholder": "તારીખ રેંજ",
+    "today": "આજે",
+    "yesterday": "ગઈકાલે",
+    "last7Days": "છેલ્લા 7 દિવસ",
+    "last30Days": "છેલ્લા 30 દિવસ",
+    "last3Months": "છેલ્લા 3 મહિના",
+    "last6Months": "છેલ્લા 6 મહિના",
+    "custom": "કસ્ટમ તારીખ રેંજ"
   }
 }

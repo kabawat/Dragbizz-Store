@@ -20,6 +20,7 @@ import Card, {
 } from "./Card";
 import Checkbox, { CheckboxGroup } from "./Checkbox";
 import Divider from "./Divider";
+import DateRangeFilter from "./DateRangeFilter";
 import Dropdown from "./Dropdown";
 import EmptyState from "./EmptyState";
 import FileUpload from "./FileUpload";
@@ -82,6 +83,7 @@ export {
   ModalFooter,
   LogoutModal,
   Divider,
+  DateRangeFilter,
   Alert,
   Badge,
   BadgeGroup,
@@ -152,6 +154,7 @@ export default {
   ModalFooter,
   LogoutModal,
   Divider,
+  DateRangeFilter,
   Alert,
   Badge,
   BadgeGroup,

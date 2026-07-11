@@ -7,6 +7,8 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
 import { usePaymentCollect } from "@/hooks/payment/usePaymentCollect";
 import { usePaymentReminder } from "@/hooks/payment/usePaymentReminder";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 import { buildKhataUpiNote } from "@/utils/payment/paymentCollect.util";
 import { useAppSelector } from "@/store/hooks";
 
@@ -22,10 +24,14 @@ const KhataCollectActions = ({
   const { t } = useTranslation();
   const [upiModalOpen, setUpiModalOpen] = useState(false);
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { can } = useModulePermissions("customer");
+  const { hasAccess, withAccess } = useSubscriptionAccess();
   const storeName = selectedStore?.storeName || "";
   const collectAmount = Math.max(0, Number(amount) || 0);
   const canCollect = collectAmount > 0 && !disabled;
-  const canRemind = Boolean(customerEmail?.trim());
+  const canRemindByPlan = hasAccess("payment_reminder");
+  const canRemindByPermission = can("create");
+  const canRemind = Boolean(customerEmail?.trim()) && canRemindByPlan && canRemindByPermission;
 
   const { defaultUpi, isLoading: upiLoading, noUpiConfigured } = useStoreDefaultUpi(storeId, {
     enabled: Boolean(storeId),
@@ -44,14 +50,25 @@ const KhataCollectActions = ({
     });
   };
 
-  const handleSendReminder = async () => {
-    if (!canCollect || !customerId || !canRemind) return;
-    await sendReminder({
-      customerId,
-      notes: transactionNote,
-      includePaymentLink: true,
-    });
-  };
+  const handleSendReminder = withAccess(
+    "payment_reminder",
+    async () => {
+      if (!canCollect || !customerId || !customerEmail?.trim() || !canRemindByPermission) return;
+      await sendReminder({
+        customerId,
+        notes: transactionNote,
+        includePaymentLink: true,
+      });
+    },
+  );
+
+  const remindDisabledReason = !customerEmail?.trim()
+    ? t("khata.noCustomerEmail")
+    : !canRemindByPermission
+      ? t("khata.reminderPermissionDenied")
+      : !canRemindByPlan
+        ? t("khata.reminderPlanRequired")
+        : undefined;
 
   const buttonClass =
     "h-11 px-3 rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 transition-colors w-full";
@@ -79,7 +96,7 @@ const KhataCollectActions = ({
       <button
         type="button"
         disabled={!canCollect || reminderLoading || !canRemind}
-        title={!canRemind ? t("khata.noCustomerEmail") : undefined}
+        title={remindDisabledReason}
         onClick={handleSendReminder}
         className={`${buttonClass} border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10`}
       >

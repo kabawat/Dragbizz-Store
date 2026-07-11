@@ -22,7 +22,7 @@ import {
   Package,
   XCircle,
 } from "lucide-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ProductsChart from "@/components/analytics/products/ProductsChart";
 import ProductsReportTemplate from "@/components/templates/analytics/products/ProductsReportTemplate";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
@@ -31,7 +31,8 @@ import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getStockAnalytics } from "@/store/slices/products/analyticsSlice";
+import { getProductAnalytics } from "@/store/slices/analyticsSlice";
+import { normalizeProductAnalytics } from "@/utils/analytics/productAnalytics.util";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
@@ -42,12 +43,12 @@ const ProductAnalytics = () => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
-  const { analytics: reduxAnalytics, isLoading } = useAppSelector(
-    (state) => state.productAnalytics
+  const { product: reduxAnalytics, isLoadingProduct: isLoading } = useAppSelector(
+    (state) => state.analytics
   );
 
   const analytics = useMemo(
-    () => reduxAnalytics || { totals: { totalProducts: 0, activeProducts: 0, inactiveProducts: 0 } },
+    () => normalizeProductAnalytics(reduxAnalytics),
     [reduxAnalytics]
   );
 
@@ -55,7 +56,7 @@ const ProductAnalytics = () => {
   useEffect(() => {
     if (storeId && !hasFetchedRef.current.fetched) {
       hasFetchedRef.current = { storeId, fetched: true };
-      dispatch(getStockAnalytics(storeId));
+      dispatch(getProductAnalytics(storeId));
     }
   }, [storeId, dispatch]);
 
@@ -76,12 +77,12 @@ const ProductAnalytics = () => {
   const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
   const exportMenuRef = React.useRef(null);
 
-  const [metrics, setMetrics] = useState([
+  const buildMetrics = useCallback((totals) => [
     {
       id: "totalProducts",
       title: "Total Products",
-      value: formatNumber(analytics.totals.totalProducts),
-      change: `${formatNumber(analytics.totals.activeProducts)} active, ${formatNumber(analytics.totals.inactiveProducts)} inactive`,
+      value: formatNumber(totals.totalProducts),
+      change: `${formatNumber(totals.activeProducts)} active, ${formatNumber(totals.inactiveProducts)} inactive`,
       icon: Package,
       iconColor: "from-purple-100 to-purple-200",
       textColor: "text-[rgb(var(--color-text-primary))]",
@@ -89,7 +90,7 @@ const ProductAnalytics = () => {
     {
       id: "activeProducts",
       title: "Active Products",
-      value: formatNumber(analytics.totals.activeProducts),
+      value: formatNumber(totals.activeProducts),
       change: "Currently active",
       icon: CheckCircle,
       iconColor: "from-green-100 to-green-200",
@@ -98,7 +99,7 @@ const ProductAnalytics = () => {
     {
       id: "inactiveProducts",
       title: "Inactive Products",
-      value: formatNumber(analytics.totals.inactiveProducts),
+      value: formatNumber(totals.inactiveProducts),
       change: "Not active",
       icon: XCircle,
       iconColor: "from-gray-100 to-gray-200",
@@ -107,19 +108,25 @@ const ProductAnalytics = () => {
     {
       id: "totalCount",
       title: "Total Count",
-      value: formatNumber(analytics.totals.totalProducts),
+      value: formatNumber(totals.totalProducts),
       change: "All products",
       icon: Package,
       iconColor: "from-blue-100 to-blue-200",
       textColor: "text-[rgb(var(--color-text-primary))]",
     },
-  ]);
+  ], []);
+
+  const [metrics, setMetrics] = useState(() => buildMetrics(analytics.totals));
 
   const [cards, setCards] = useState([
     { id: "chart1", type: "chart", title: "Products by Category" },
     { id: "chart2", type: "chart", title: "Top Selling Products" },
     { id: "breakdown", type: "breakdown", title: "Product Statistics" },
   ]);
+
+  useEffect(() => {
+    setMetrics(buildMetrics(analytics.totals));
+  }, [analytics.totals, buildMetrics]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

@@ -181,6 +181,7 @@
   "bulkUploadSuccess": "બલ્ક અપલોડ સફળતાપૂર્વક પૂર્ણ થયું",
   "rowData": "ડેટા",
   "importOpeningBalance": "ઓપનિંગ બેલેન્સ ઇમ્પોર્ટ",
+  "importMenu": "ઇમ્પોર્ટ",
   "openingBalanceImportTitle": "ઓપનિંગ બેલેન્સ ઇમ્પોર્ટ કરો",
   "openingBalanceImportDesc": "હાલના ગ્રાહકો માટે ઉધારી અપલોડ કરો. ફોન નંબરથી મેળ થશે.",
   "openingBalanceInstruction1": "ગ્રાહક પહેલેથી અસ્તિત્વમાં હોવો જોઈએ — ફોનથી મેળ.",

@@ -6,7 +6,13 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { customerAccountService } from "@/service";
 
-function mapReminderError(message, t) {
+function mapReminderError(message, code, t) {
+  if (code === "FEATURE_NOT_AVAILABLE" || code === "SUBSCRIPTION_REQUIRED") {
+    return t("khata.reminderPlanRequired");
+  }
+  if (code === "FORBIDDEN" || message.includes("permission")) {
+    return t("khata.reminderPermissionDenied");
+  }
   if (message.includes("cooldown") || message.includes("REMINDER_COOLDOWN")) {
     return t("khata.reminderCooldown");
   }
@@ -41,20 +47,21 @@ export function usePaymentReminder({ storeId }) {
         );
 
         if (!result?.success) {
-          showError(mapReminderError(result?.message, t));
+          showError(mapReminderError(result?.message, result?.code, t));
           return null;
         }
 
         const reminder = result?.data;
         if (reminder?.status === "FAILED" || reminder?.status === "SKIPPED") {
-          showError(reminder?.errorMessage || mapReminderError(result?.message, t));
+          showError(reminder?.errorMessage || mapReminderError(result?.message, result?.code, t));
           return null;
         }
 
         showSuccess(t("khata.reminderSent"));
         return reminder ?? null;
       } catch (error) {
-        showError(mapReminderError(error?.message, t));
+        const code = error?.response?.data?.code;
+        showError(mapReminderError(error?.message, code, t));
         return null;
       } finally {
         setReminderLoading(false);
