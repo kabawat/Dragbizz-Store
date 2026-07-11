@@ -1,7 +1,7 @@
 "use client";
 import { Calendar, Download } from "lucide-react";
 import { useState } from "react";
-import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
+import { Button, Checkbox, DateRangeFilter, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
@@ -536,32 +536,14 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
           )}
 
           {selectedDownloadPeriod === "custom" && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t("suppliers.startDate")}
-                </label>
-                <input
-                  type="date"
-                  value={customStartDate}
-                  onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="w-full px-4 py-2.5 text-sm text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t("suppliers.endDate")}
-                </label>
-                <input
-                  type="date"
-                  value={customEndDate}
-                  onChange={(e) => setCustomEndDate(e.target.value)}
-                  min={customStartDate}
-                  className="w-full px-4 py-2.5 text-sm text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
-                />
-              </div>
-            </div>
+            <DateRangeFilter
+              startDate={customStartDate}
+              endDate={customEndDate}
+              onChange={({ startDate: nextStart, endDate: nextEnd }) => {
+                setCustomStartDate(nextStart);
+                setCustomEndDate(nextEnd);
+              }}
+            />
           )}
 
           {selectedDownloadPeriod &&

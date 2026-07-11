@@ -25,6 +25,8 @@ const SalesOrdersPage = () => {
     const [searchValue, setSearchValue] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [orderSourceFilter, setOrderSourceFilter] = useState("all");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
     const {
         can,
@@ -63,6 +65,10 @@ const SalesOrdersPage = () => {
                     setStatusFilter={setStatusFilter}
                     orderSourceFilter={orderSourceFilter}
                     setOrderSourceFilter={setOrderSourceFilter}
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
                 />
                 <div className="px-5">
                     {/* Loading State Wrapper */}
@@ -86,6 +92,11 @@ const SalesOrdersPage = () => {
                             canCreate={canCreate}
                             canEdit={canEdit}
                             canDelete={canDelete}
+                            searchValue={searchValue}
+                            statusFilter={statusFilter}
+                            orderSourceFilter={orderSourceFilter}
+                            startDate={startDate}
+                            endDate={endDate}
                         />
                     )}
                 </div>

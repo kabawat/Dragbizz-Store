@@ -12,7 +12,7 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import { useState } from "react";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const BillListContent = () => {
+const BillListContent = ({ searchValue = "", startDate = "", endDate = "" }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -42,9 +42,15 @@ const BillListContent = () => {
   const isFetchingMoreRef = useRef(isFetchingMore);
   const storeIdRef = useRef(storeId);
   const paginationRef = useRef(pagination);
+  const searchRef = useRef(searchValue);
+  const startDateRef = useRef(startDate);
+  const endDateRef = useRef(endDate);
   isFetchingMoreRef.current = isFetchingMore;
   storeIdRef.current = storeId;
   paginationRef.current = pagination;
+  searchRef.current = searchValue;
+  startDateRef.current = startDate;
+  endDateRef.current = endDate;
 
   // ─── Infinite scroll via IntersectionObserver ─────────────────────────────
   useEffect(() => {
@@ -58,6 +64,9 @@ const BillListContent = () => {
             store: storeIdRef.current,
             limit: 20,
             cursor: paginationRef.current.nextCursor,
+            search: searchRef.current || undefined,
+            startDate: startDateRef.current || undefined,
+            endDate: endDateRef.current || undefined,
             isFreshLoad: false,
           }));
         }

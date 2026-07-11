@@ -20,6 +20,8 @@ const Bills = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [searchValue, setSearchValue] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const { bills, isLoading, error } = useAppSelector((state) => state.bills);
 
   const { can, create: canCreate, loading: permissionsLoading } = useModulePermissions("billing");
@@ -38,7 +40,14 @@ const Bills = () => {
   return (
     <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto">
-        <BillListHeader searchValue={searchValue} setSearchValue={setSearchValue} />
+        <BillListHeader
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
         <div className="px-5">
           {(isLoading || permissionsLoading) && bills.length === 0 && !error && (<PageLoader />)}
           {!(isLoading || permissionsLoading) && bills.length === 0 && !error && (
@@ -54,7 +63,13 @@ const Bills = () => {
               } : null}
             />
           )}
-          {bills.length > 0 && <BillListContent />}
+          {bills.length > 0 && (
+            <BillListContent
+              searchValue={searchValue}
+              startDate={startDate}
+              endDate={endDate}
+            />
+          )}
         </div>
       </div>
     </div>

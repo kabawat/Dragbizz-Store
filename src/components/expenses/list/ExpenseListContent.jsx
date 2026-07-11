@@ -8,7 +8,7 @@ import { getExpenses, setSortOptions } from "@/store/slices/expenses/expenseSlic
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const ExpenseListContent = () => {
+const ExpenseListContent = ({ searchValue = "", startDate = "", endDate = "" }) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -41,9 +41,15 @@ const ExpenseListContent = () => {
     const isFetchingMoreRef = useRef(isFetchingMore);
     const storeIdRef = useRef(storeId);
     const paginationRef = useRef(pagination);
+    const searchRef = useRef(searchValue);
+    const startDateRef = useRef(startDate);
+    const endDateRef = useRef(endDate);
     isFetchingMoreRef.current = isFetchingMore;
     storeIdRef.current = storeId;
     paginationRef.current = pagination;
+    searchRef.current = searchValue;
+    startDateRef.current = startDate;
+    endDateRef.current = endDate;
 
     // Delete modal ref (self-contained)
     const deleteModalRef = useRef(null);
@@ -60,6 +66,9 @@ const ExpenseListContent = () => {
                         getExpenses({
                             store: storeIdRef.current,
                             cursor: paginationRef.current.nextCursor,
+                            search: searchRef.current || undefined,
+                            startDate: startDateRef.current || undefined,
+                            endDate: endDateRef.current || undefined,
                             isFreshLoad: false,
                         })
                     );

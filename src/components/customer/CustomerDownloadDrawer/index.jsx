@@ -14,7 +14,6 @@ import FieldSelector from "./FieldSelector";
 import {
   buildDownloadParams,
   getCustomDateRangePreview,
-  getDateRangePreview,
   transformCustomerData,
 } from "./utils";
 import { getCustomerSourceOptions } from "@/utils/customer/customerSource.util";
@@ -25,9 +24,8 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { execute, loading: isDownloading } = useApiResponse();
 
-  const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState("");
-  const [customStartDate, setCustomStartDate] = useState("");
-  const [customEndDate, setCustomEndDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [downloadFormat, setDownloadFormat] = useState("xlsx");
   const [sortOrder, setSortOrder] = useState("nameAsc");
   const [sourceFilter, setSourceFilter] = useState("");
@@ -74,15 +72,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     setSelectedFields([availableFields[0].key]);
   };
 
-  const handleDownloadPeriodChange = (value) => {
-    setSelectedDownloadPeriod(value);
-
-    if (value !== "custom") {
-      setCustomStartDate("");
-      setCustomEndDate("");
-    }
-  };
-
   const downloadCustomersFile = async (customers) => {
     if (!customers || customers.length === 0) {
       showError(t("customers.noCustomersToDownload"));
@@ -101,10 +90,8 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
 
     const storeName = selectedStore?.storeName || selectedStore?.name;
     let dateRange = null;
-    if (selectedDownloadPeriod === "custom") {
-      dateRange = getCustomDateRangePreview(customStartDate, customEndDate);
-    } else {
-      dateRange = getDateRangePreview(selectedDownloadPeriod);
+    if (startDate && endDate) {
+      dateRange = getCustomDateRangePreview(startDate, endDate);
     }
 
     const metadata = [];
@@ -136,71 +123,18 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     });
   };
 
-  const handlePredefinedDownload = async () => {
-    if (!selectedDownloadPeriod) {
-      showError(t("customers.pleaseSelectTimePeriod"));
-      return;
-    }
-
-    const dateRange = getDateRangePreview(selectedDownloadPeriod);
-    if (!dateRange) {
-      showError(t("customers.invalidDateRange"));
-      return;
-    }
-
-    const storeId =
-      selectedStore?.storeId;
-    if (!storeId) {
-      showError(t("suppliers.storeIdMissing"));
-      return;
-    }
-
-    try {
-      const params = buildDownloadParams(
-        storeId,
-        dateRange.startDate,
-        dateRange.endDate,
-        selectedFields,
-        sourceFilter
-      );
-
-      const result = await execute(
-        customerService.getCustomers(params),
-        { showToast: false }
-      );
-
-      if (result?.success && result.data) {
-        const customersData = result.data?.data || result.data || [];
-
-        if (customersData.length === 0) {
-          showError(t("customers.noCustomersFoundToDownload"));
-          return;
-        }
-
-        await downloadCustomersFile(customersData);
-        showSuccess(t("customers.customersDownloadedSuccessfully"));
-      } else {
-        showError(result?.message || t("customers.failedToDownloadCustomers"));
-      }
-    } catch (_error) {
-      showError(t("customers.errorDownloadingCustomers"));
-    } finally {
-      handleClose();
-    }
-  };
-
-  const handleCustomRangeDownload = async () => {
-    if (!customStartDate || !customEndDate) {
+  const handleDownload = async () => {
+    if (!startDate || !endDate) {
       showError(t("customers.pleaseSelectBothDates"));
       return;
     }
 
-    if (new Date(customEndDate) < new Date(customStartDate)) {
+    if (new Date(endDate) <= new Date(startDate)) {
       showError(t("customers.endDateMustBeAfterStart"));
       return;
     }
 
-    const dateRange = getCustomDateRangePreview(customStartDate, customEndDate);
+    const dateRange = getCustomDateRangePreview(startDate, endDate);
     if (!dateRange) {
       showError(t("customers.invalidDateRange"));
       return;
@@ -248,9 +182,8 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   };
 
   const handleClose = () => {
-    setSelectedDownloadPeriod("");
-    setCustomStartDate("");
-    setCustomEndDate("");
+    setStartDate("");
+    setEndDate("");
     setSourceFilter("");
     setSortOrder("nameAsc");
     setSelectedFields(
@@ -259,13 +192,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const getDateRange = () => {
-    if (selectedDownloadPeriod === "custom") {
-      return getCustomDateRangePreview(customStartDate, customEndDate);
-    } else {
-      return getDateRangePreview(selectedDownloadPeriod);
-    }
-  };
+  const getDateRange = () => getCustomDateRangePreview(startDate, endDate);
 
   return (
     <SideDrawer
@@ -279,15 +206,15 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       <div className="p-4 sm:p-6">
         <div className="space-y-4">
           <DateRangeSelector
-            selectedPeriod={selectedDownloadPeriod}
-            onPeriodChange={handleDownloadPeriodChange}
-            customStartDate={customStartDate}
-            setCustomStartDate={setCustomStartDate}
-            customEndDate={customEndDate}
-            setCustomEndDate={setCustomEndDate}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={({ startDate: nextStart, endDate: nextEnd }) => {
+              setStartDate(nextStart);
+              setEndDate(nextEnd);
+            }}
           />
 
-          {selectedDownloadPeriod && (
+          {startDate && endDate && (
             <>
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -348,31 +275,16 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
               <DateRangePreview dateRange={getDateRange()} />
 
               <div className="pt-2 flex justify-start">
-                {selectedDownloadPeriod === "custom" ? (
-                  <Button
-                    variant="primary"
-                    onClick={handleCustomRangeDownload}
-                    disabled={
-                      !customStartDate || !customEndDate || isDownloading
-                    }
-                    loading={isDownloading}
-                  >
-                    {isDownloading
-                      ? t("customers.downloading")
-                      : t("customers.downloadButton")}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="primary"
-                    onClick={handlePredefinedDownload}
-                    disabled={isDownloading}
-                    loading={isDownloading}
-                  >
-                    {isDownloading
-                      ? t("customers.downloading")
-                      : t("customers.downloadButton")}
-                  </Button>
-                )}
+                <Button
+                  variant="primary"
+                  onClick={handleDownload}
+                  disabled={!startDate || !endDate || isDownloading}
+                  loading={isDownloading}
+                >
+                  {isDownloading
+                    ? t("customers.downloading")
+                    : t("customers.downloadButton")}
+                </Button>
               </div>
             </>
           )}

@@ -1,7 +1,7 @@
 "use client";
-import { useRef, useState } from "react";
-import { Download, Grid3X3, List, Plus, Search, Crown } from "lucide-react";
-import { Button, Input } from "@/components/ui";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Download, Grid3X3, List, Plus, RotateCcw, Search, Crown } from "lucide-react";
+import { Button, Input, DateRangeFilter } from "@/components/ui";
 import { AddExpenseDrawer, ExpenseDownloadDrawer } from "@/components/expenses";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -11,7 +11,12 @@ import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 const ExpenseListHeader = ({
-    onSearchChange,
+    searchValue,
+    setSearchValue,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
 }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -20,9 +25,7 @@ const ExpenseListHeader = ({
     const { hasAccess, withAccess } = useSubscriptionAccess();
     
     const canCreate = can("create");
-    // Button is shown if user has report OR read permission
     const canSeeDownload = can("report") || can("read");
-    // Check if subscription blocks reports
     const isReportLocked = !hasAccess("expense", false, true);
 
     const handleDownloadClick = withAccess(
@@ -34,17 +37,94 @@ const ExpenseListHeader = ({
 
     const { viewMode, expenses } = useAppSelector((state) => state.expenses);
     const { selectedStore } = useAppSelector((state) => state.profile);
+    const storeId = selectedStore?.storeId;
     const hasExpenses = expenses.length > 0;
 
-    const [searchValue, setSearchValue] = useState("");
     const [showAddDrawer, setShowAddDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
 
     const searchInputRef = useRef(null);
+    const lastFetchRef = useRef(null);
+    const hasFetchedRef = useRef({
+        fetched: false,
+        storeId: null,
+        search: null,
+        startDate: null,
+        endDate: null,
+    });
 
-    const handleSearchChange = (value) => {
-        setSearchValue(value);
-        onSearchChange?.(value);
+    const hasActiveFilters = Boolean(startDate || endDate);
+
+    useEffect(() => {
+        lastFetchRef.current = null;
+        hasFetchedRef.current = {
+            fetched: false,
+            storeId: null,
+            search: null,
+            startDate: null,
+            endDate: null,
+        };
+    }, [storeId]);
+
+    const fetchExpenses = useCallback(async () => {
+        if (!storeId) return;
+
+        const fetchKey = `${storeId}-${searchValue}-${startDate}-${endDate}`;
+        if (lastFetchRef.current === fetchKey) return;
+
+        const last = hasFetchedRef.current;
+        if (
+            last.fetched &&
+            last.storeId === storeId &&
+            last.search === searchValue &&
+            last.startDate === startDate &&
+            last.endDate === endDate
+        ) {
+            return;
+        }
+
+        lastFetchRef.current = fetchKey;
+
+        try {
+            await dispatch(getExpenses({
+                store: storeId,
+                search: searchValue || undefined,
+                startDate: startDate || undefined,
+                endDate: endDate || undefined,
+                isFreshLoad: true,
+            }));
+            hasFetchedRef.current = {
+                fetched: true,
+                storeId,
+                search: searchValue,
+                startDate,
+                endDate,
+            };
+        } catch {
+            lastFetchRef.current = null;
+        }
+    }, [dispatch, storeId, searchValue, startDate, endDate]);
+
+    useEffect(() => {
+        if (!storeId) return;
+        const last = hasFetchedRef.current;
+        if (
+            last.fetched &&
+            last.storeId === storeId &&
+            last.search === searchValue &&
+            last.startDate === startDate &&
+            last.endDate === endDate
+        ) {
+            return;
+        }
+
+        const timer = setTimeout(() => fetchExpenses(), 350);
+        return () => clearTimeout(timer);
+    }, [storeId, searchValue, startDate, endDate, fetchExpenses]);
+
+    const handleClearFilters = () => {
+        setStartDate("");
+        setEndDate("");
     };
 
     const handleViewModeChange = (mode) => {
@@ -52,11 +132,16 @@ const ExpenseListHeader = ({
         localStorage.setItem("expenses-view-mode", mode);
     };
 
-    const handleSuccess = async (data) => {
+    const handleSuccess = async () => {
         setShowAddDrawer(false);
-        const storeId = selectedStore?.storeId;
         if (storeId) {
-            dispatch(getExpenses({ store: storeId, isFreshLoad: true }));
+            dispatch(getExpenses({
+                store: storeId,
+                search: searchValue || undefined,
+                startDate: startDate || undefined,
+                endDate: endDate || undefined,
+                isFreshLoad: true,
+            }));
         }
     };
 
@@ -77,16 +162,36 @@ const ExpenseListHeader = ({
     return (
         <div className="p-5">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                <div className="w-100">
-                    <Input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder={`${t("common.search")} ${t("expenses.title").toLowerCase()}...`}
-                        value={searchValue}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                        leftIcon={Search}
-                        className="w-100"
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="min-w-[200px] max-w-md flex-1">
+                        <Input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder={`${t("common.search")} ${t("expenses.title").toLowerCase()}...`}
+                            value={searchValue}
+                            onChange={(e) => setSearchValue(e.target.value)}
+                            leftIcon={Search}
+                            className="w-full"
+                        />
+                    </div>
+                    <DateRangeFilter
+                        startDate={startDate}
+                        endDate={endDate}
+                        onChange={({ startDate: nextStart, endDate: nextEnd }) => {
+                            setStartDate(nextStart);
+                            setEndDate(nextEnd);
+                        }}
                     />
+                    {hasActiveFilters && (
+                        <Button
+                            variant="ghost"
+                            onClick={handleClearFilters}
+                            className="h-10 px-3 text-sm font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] flex items-center gap-2"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            {t("common.clearFilters")}
+                        </Button>
+                    )}
                 </div>
 
                 <div className="flex gap-3">

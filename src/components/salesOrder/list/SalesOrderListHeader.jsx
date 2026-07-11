@@ -1,8 +1,8 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Grid3X3, List, QrCode, Search } from "lucide-react";
+import { Grid3X3, List, QrCode, RotateCcw, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Button, Input, Select } from "@/components/ui";
+import { Button, Input, Select, DateRangeFilter } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -17,7 +17,11 @@ const SalesOrderListHeader = ({
     statusFilter,
     setStatusFilter,
     orderSourceFilter,
-    setOrderSourceFilter
+    setOrderSourceFilter,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
 }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
@@ -34,23 +38,25 @@ const SalesOrderListHeader = ({
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
-    const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null });
+    const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null, startDate: null, endDate: null });
+
+    const hasActiveFilters = Boolean(startDate || endDate);
 
     // Reset fetch refs when store changes
     useEffect(() => {
         lastFetchRef.current = null;
-        hasFetchedRef.current = { fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null };
+        hasFetchedRef.current = { fetched: false, storeId: null, searchValue: null, statusFilter: null, orderSourceFilter: null, startDate: null, endDate: null };
     }, [storeId]);
 
     // Fetch Orders with debounce + deduplication
     const fetchSalesOrders = useCallback(async () => {
         if (!storeId) return;
 
-        const fetchKey = `${storeId}-${searchValue}-${statusFilter}-${orderSourceFilter}`;
+        const fetchKey = `${storeId}-${searchValue}-${statusFilter}-${orderSourceFilter}-${startDate}-${endDate}`;
         if (lastFetchRef.current === fetchKey) return;
 
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter) return;
+        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter && last.startDate === startDate && last.endDate === endDate) return;
 
         lastFetchRef.current = fetchKey;
 
@@ -61,26 +67,33 @@ const SalesOrderListHeader = ({
             cursor: null,
             isFreshLoad: true,
             status: statusFilter !== "all" ? statusFilter : undefined,
-            orderSource: orderSourceFilter !== "all" ? orderSourceFilter : undefined
+            orderSource: orderSourceFilter !== "all" ? orderSourceFilter : undefined,
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
         };
 
         try {
             await dispatch(getSalesOrders(params));
-            hasFetchedRef.current = { fetched: true, storeId, searchValue, statusFilter, orderSourceFilter };
+            hasFetchedRef.current = { fetched: true, storeId, searchValue, statusFilter, orderSourceFilter, startDate, endDate };
         } catch {
             lastFetchRef.current = null;
         }
-    }, [dispatch, storeId, searchValue, statusFilter, orderSourceFilter]);
+    }, [dispatch, storeId, searchValue, statusFilter, orderSourceFilter, startDate, endDate]);
 
     // Debounce hook replacement
     useEffect(() => {
         if (!storeId) return;
         const last = hasFetchedRef.current;
-        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter) return;
+        if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.statusFilter === statusFilter && last.orderSourceFilter === orderSourceFilter && last.startDate === startDate && last.endDate === endDate) return;
 
         const timer = setTimeout(() => fetchSalesOrders(), 350);
         return () => clearTimeout(timer);
-    }, [storeId, searchValue, statusFilter, orderSourceFilter, fetchSalesOrders]);
+    }, [storeId, searchValue, statusFilter, orderSourceFilter, startDate, endDate, fetchSalesOrders]);
+
+    const handleClearFilters = () => {
+        setStartDate("");
+        setEndDate("");
+    };
 
     const handleViewModeChange = useCallback((mode) => {
         dispatch(setViewMode(mode));
@@ -140,6 +153,26 @@ const SalesOrderListHeader = ({
                             ]}
                         />
                     </div>
+
+                    <DateRangeFilter
+                        startDate={startDate}
+                        endDate={endDate}
+                        onChange={({ startDate: nextStart, endDate: nextEnd }) => {
+                            setStartDate(nextStart);
+                            setEndDate(nextEnd);
+                        }}
+                    />
+
+                    {hasActiveFilters && (
+                        <Button
+                            variant="ghost"
+                            onClick={handleClearFilters}
+                            className="h-10 px-3 text-sm font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] flex items-center gap-2"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            {t("common.clearFilters")}
+                        </Button>
+                    )}
 
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                         <button

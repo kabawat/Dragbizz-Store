@@ -21,6 +21,8 @@ const PurchaseOrders = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [searchValue, setSearchValue] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const { list: purchaseOrders, isLoading, error } = useAppSelector(state => state.purchaseOrders);
 
   const {
@@ -44,7 +46,14 @@ const PurchaseOrders = () => {
   return (
     <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto w-full">
-        <PurchaseOrderListHeader searchValue={searchValue} setSearchValue={setSearchValue} />
+        <PurchaseOrderListHeader
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
         <div className="px-5">
           {(isLoading || permissionsLoading) && purchaseOrders.length === 0 && !error && (<PageLoader />)}
           {!(isLoading || permissionsLoading) && purchaseOrders.length === 0 && (
@@ -60,7 +69,13 @@ const PurchaseOrders = () => {
               } : null}
             />
           )}
-          {purchaseOrders.length > 0 && <PurchaseOrderListContent />}
+          {purchaseOrders.length > 0 && (
+            <PurchaseOrderListContent
+              searchValue={searchValue}
+              startDate={startDate}
+              endDate={endDate}
+            />
+          )}
         </div>
       </div>
     </div>

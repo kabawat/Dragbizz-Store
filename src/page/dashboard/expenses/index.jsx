@@ -1,10 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getExpenses } from "@/store/slices/expenses/expenseSlice";
+import { useAppSelector } from "@/store/hooks";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { EmptyState, PageLoader } from "@/components/ui";
 import { IndianRupee, Plus, Search } from "lucide-react";
@@ -17,28 +16,21 @@ const ExpensesPage = () => {
 
   useDashboardHeader(t("expenses.title"), t("expenses.description"));
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   const { expenses, isLoading, error } = useAppSelector((state) => state.expenses);
-  const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId;
 
   const [searchValue, setSearchValue] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const { can, loading: permissionLoading } = useModulePermissions("expense");
   const canRead = can("read");
-  const canCreate = can("create");
 
   useEffect(() => {
     if (!permissionLoading && !canRead) {
       router.replace("/dashboard");
     }
   }, [canRead, permissionLoading, router]);
-
-  useEffect(() => {
-    if (!storeId || expenses.length > 0) return;
-    dispatch(getExpenses({ store: storeId, isFreshLoad: true }));
-  }, [dispatch, storeId]);
 
   useCommonHotkeys({
     onBack: () => router.push("/dashboard"),
@@ -47,7 +39,14 @@ const ExpensesPage = () => {
   return (
     <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto">
-        <ExpenseListHeader onSearchChange={setSearchValue} />
+        <ExpenseListHeader
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
 
         <div className="px-5">
           {isLoading && expenses.length === 0 && !error && (<PageLoader />)}
@@ -68,7 +67,13 @@ const ExpensesPage = () => {
             />
           )}
 
-          {expenses.length > 0 && (<ExpenseListContent />)}
+          {expenses.length > 0 && (
+            <ExpenseListContent
+              searchValue={searchValue}
+              startDate={startDate}
+              endDate={endDate}
+            />
+          )}
         </div>
       </div>
     </div>
