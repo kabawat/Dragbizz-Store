@@ -220,7 +220,7 @@ const CustomDateRangePanel = ({
   };
 
   return (
-    <div className="flex min-w-[800px] max-w-[92vw]">
+    <div className="flex w-full min-w-0 max-w-full">
       <aside className="w-48 shrink-0 border-r border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/35 py-3">
         {DATE_RANGE_PRESET_ORDER.map((preset) => {
           const isCustom = preset === DATE_RANGE_PRESETS.CUSTOM;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, ChevronDown } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import CustomDateRangePanel from "./CustomDateRangePanel";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -9,12 +9,11 @@ import {
   DATE_RANGE_PRESETS,
   DATE_RANGE_PRESET_ORDER,
   formatDisplayDate,
+  getDateRangeDropdownPosition,
   getPresetDateRange,
   getPresetLabelKey,
   inferPresetFromDates,
 } from "@/utils/dateRange.util";
-
-const PANEL_WIDTH = 820;
 
 const DateRangeFilter = ({
   startDate = "",
@@ -26,12 +25,46 @@ const DateRangeFilter = ({
   const { t, locale } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [showCustomPanel, setShowCustomPanel] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState(null);
   const triggerRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const activePreset = useMemo(
     () => inferPresetFromDates(startDate, endDate),
     [startDate, endDate],
   );
+
+  const updateDropdownPosition = useCallback(() => {
+    if (!isOpen || !triggerRef.current) {
+      setDropdownPosition(null);
+      return;
+    }
+
+    const measuredHeight = dropdownRef.current?.offsetHeight ?? null;
+    setDropdownPosition(
+      getDateRangeDropdownPosition(triggerRef.current, {
+        isCustomPanel: showCustomPanel,
+        measuredHeight,
+      }),
+    );
+  }, [isOpen, showCustomPanel]);
+
+  useLayoutEffect(() => {
+    updateDropdownPosition();
+    if (!isOpen) return undefined;
+
+    const rafId = requestAnimationFrame(updateDropdownPosition);
+    const handleReposition = () => updateDropdownPosition();
+
+    window.addEventListener("resize", handleReposition);
+    window.addEventListener("scroll", handleReposition, true);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", handleReposition);
+      window.removeEventListener("scroll", handleReposition, true);
+    };
+  }, [isOpen, showCustomPanel, updateDropdownPosition]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -92,22 +125,6 @@ const DateRangeFilter = ({
     return t("common.dateRange.placeholder", "Date range");
   }, [activePreset, startDate, endDate, locale, t]);
 
-  const dropdownPosition = isOpen && triggerRef.current
-    ? (() => {
-        const rect = triggerRef.current.getBoundingClientRect();
-        const width = showCustomPanel ? PANEL_WIDTH : Math.max(rect.width, 208);
-        let left = rect.left;
-        const maxLeft = window.innerWidth - width - 16;
-        if (left > maxLeft) left = Math.max(16, maxLeft);
-
-        return {
-          top: rect.bottom + 4,
-          left,
-          width,
-        };
-      })()
-    : null;
-
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
       <div className="relative min-w-[160px]" ref={triggerRef}>
@@ -126,10 +143,12 @@ const DateRangeFilter = ({
 
         {isOpen && dropdownPosition && typeof document !== "undefined" && createPortal(
           <div
+            ref={dropdownRef}
             style={{
               top: dropdownPosition.top,
               left: dropdownPosition.left,
               width: dropdownPosition.width,
+              maxWidth: `calc(100vw - 24px)`,
             }}
             className="date-range-dropdown-portal fixed z-[999999] bg-[rgb(var(--color-bg-primary))] rounded-xl shadow-xl border border-[rgb(var(--color-border-primary))] overflow-hidden"
             onMouseDown={(e) => e.stopPropagation()}
