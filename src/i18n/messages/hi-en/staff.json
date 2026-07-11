@@ -35,10 +35,29 @@
     "period": "Pay period",
     "paymentMode": "Payment mode",
     "record": "Salary record karo",
+    "recordTitle": "Salary record karo",
+    "recordDescription": "Active team member ke liye salary payment record karo.",
+    "recordsTitle": "Monthly payments",
+    "thisMonth": "Is mahine",
+    "previousMonth": "Pichla mahina",
+    "nextMonth": "Agla mahina",
+    "emptyTitle": "Abhi koi salary payment nahi",
+    "formHint": "Salary selected pay period ke liye record hoti hai.",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional note",
+    "totalAmount": "Total paid",
+    "totalPayments": "Payments",
+    "noActiveStaff": "Koi active staff member nahi mila. Salary record karne se pehle team members add ya activate karo.",
     "loading": "Salary payments load ho rahe hain...",
-    "empty": "Abhi tak koi salary payment record nahi hai.",
+    "empty": "Is mahine ke liye koi salary payment record nahi hai.",
     "saved": "Salary payment save ho gayi",
     "noAttendanceConfirm": "Is pay period ke liye attendance nahi mili. Phir bhi salary record karne ke liye confirm karo.",
-    "confirmPay": "Confirm karo aur pay karo"
+    "confirmPay": "Confirm karo aur pay karo",
+    "paymentModes": {
+      "CASH": "Cash",
+      "UPI": "UPI",
+      "BANK_TRANSFER": "Bank transfer",
+      "CHEQUE": "Cheque"
+    }
   }
 }

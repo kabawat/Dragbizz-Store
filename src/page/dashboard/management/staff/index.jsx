@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Users, UserPlus, Search, Loader2, CalendarCheck } from "lucide-react";
+import { Users, UserPlus, Search, Loader2, CalendarCheck, IndianRupee } from "lucide-react";
 import { SideDrawer, Button } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
 import InviteStaffDrawer from "@/components/staff/InviteStaffDrawer";
@@ -10,6 +10,7 @@ import StaffEmptyState from "@/components/staff/StaffEmptyState";
 import StaffAttendanceTab from "@/components/staff/StaffAttendanceTab";
 import StaffSalaryTab from "@/components/staff/StaffSalaryTab";
 import MarkAttendanceDrawer from "@/components/staff/MarkAttendanceDrawer";
+import RecordSalaryDrawer from "@/components/staff/RecordSalaryDrawer";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import staffService from "@/service/retailer/staff.service";
@@ -41,6 +42,9 @@ const StaffPage = () => {
     const [showMarkAttendanceDrawer, setShowMarkAttendanceDrawer] = useState(false);
     const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
     const [attendanceSavedDate, setAttendanceSavedDate] = useState(null);
+    const [showRecordSalaryDrawer, setShowRecordSalaryDrawer] = useState(false);
+    const [salaryRefreshKey, setSalaryRefreshKey] = useState(0);
+    const [salarySavedPeriodMonth, setSalarySavedPeriodMonth] = useState(null);
     const [editingStaff, setEditingStaff] = useState(null);
     const [searchValue, setSearchValue] = useState("");
     const [activeTab, setActiveTab] = useState("ALL");
@@ -140,7 +144,13 @@ const StaffPage = () => {
                         onOpenMarkDrawer={() => setShowMarkAttendanceDrawer(true)}
                     />
                 ) : pageTab === "SALARY" ? (
-                    <StaffSalaryTab storeId={storeId} staffList={staffList} />
+                    <StaffSalaryTab
+                        storeId={storeId}
+                        staffList={staffList}
+                        refreshKey={salaryRefreshKey}
+                        savedPeriodMonth={salarySavedPeriodMonth}
+                        onOpenRecordDrawer={() => setShowRecordSalaryDrawer(true)}
+                    />
                 ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
                     <div className="lg:col-span-3 space-y-4">
@@ -259,6 +269,30 @@ const StaffPage = () => {
                         setAttendanceRefreshKey((key) => key + 1);
                     }}
                     onCancel={() => setShowMarkAttendanceDrawer(false)}
+                />
+            </SideDrawer>
+
+            <SideDrawer
+                isOpen={showRecordSalaryDrawer}
+                onClose={() => setShowRecordSalaryDrawer(false)}
+                title={t("staff.salary.recordTitle") || "Record salary"}
+                description={
+                    t("staff.salary.recordDescription") ||
+                    "Record salary payment for an active team member."
+                }
+                icon={IndianRupee}
+                width="w-full md:w-[500px]"
+                closeOnOutsideClick={false}
+            >
+                <RecordSalaryDrawer
+                    storeId={storeId}
+                    staffList={staffList}
+                    onSuccess={(periodMonth) => {
+                        setShowRecordSalaryDrawer(false);
+                        setSalarySavedPeriodMonth(periodMonth || null);
+                        setSalaryRefreshKey((key) => key + 1);
+                    }}
+                    onCancel={() => setShowRecordSalaryDrawer(false)}
                 />
             </SideDrawer>
 

@@ -35,10 +35,29 @@
     "period": "Pay period",
     "paymentMode": "Payment mode",
     "record": "Record salary",
+    "recordTitle": "Record salary",
+    "recordDescription": "Record salary payment for an active team member.",
+    "recordsTitle": "Monthly payments",
+    "thisMonth": "This month",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "emptyTitle": "No salary payments yet",
+    "formHint": "Salary is recorded for the selected pay period.",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional note",
+    "totalAmount": "Total paid",
+    "totalPayments": "Payments",
+    "noActiveStaff": "No active staff members found. Add or activate team members before recording salary.",
     "loading": "Loading salary payments...",
-    "empty": "No salary payments recorded yet.",
+    "empty": "No salary payments recorded for this month.",
     "saved": "Salary payment saved",
     "noAttendanceConfirm": "No attendance found for this pay period. Confirm to record salary anyway.",
-    "confirmPay": "Confirm and pay"
+    "confirmPay": "Confirm and pay",
+    "paymentModes": {
+      "CASH": "Cash",
+      "UPI": "UPI",
+      "BANK_TRANSFER": "Bank transfer",
+      "CHEQUE": "Cheque"
+    }
   }
 }
