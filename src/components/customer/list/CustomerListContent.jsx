@@ -11,6 +11,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { Users } from "lucide-react";
 import { buildCustomerListParams } from "@/utils/customer/customerList.util";
+import { filterCustomersByBalance } from "@/utils/customer/customerKhataBalance.util";
 import KhataQuickEntry from "@/components/khata/KhataQuickEntry";
 
 function findCustomerQuickEntryTarget(customers, customerId) {
@@ -30,7 +31,7 @@ const CustomerListContent = ({
     source = "",
     startDate = "",
     endDate = "",
-    hasDueOnly = false,
+    balanceFilter = "",
 }) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -39,9 +40,8 @@ const CustomerListContent = ({
     const { customers, viewMode, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.customers);
 
     const visibleCustomers = useMemo(() => {
-        if (!hasDueOnly) return customers;
-        return customers.filter((customer) => Number(customer.account?.totalDue ?? customer.totalDue ?? 0) > 0);
-    }, [customers, hasDueOnly]);
+        return filterCustomersByBalance(customers, balanceFilter);
+    }, [customers, balanceFilter]);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
 
@@ -133,6 +133,28 @@ const CustomerListContent = ({
         return () => observer.disconnect();
     }, [dispatch, pagination.hasNextPage]);
 
+    useEffect(() => {
+        if (!balanceFilter || visibleCustomers.length > 0 || !pagination.hasNextPage) return;
+        if (isFetchingMore || isLoading || !storeIdRef.current) return;
+
+        const { searchValue: search, isActive: active, source: src, startDate: start, endDate: end } =
+            filtersRef.current;
+        dispatch(
+            getCustomers(
+                buildCustomerListParams({
+                    storeId: storeIdRef.current,
+                    search,
+                    isActive: active,
+                    source: src,
+                    startDate: start,
+                    endDate: end,
+                    nextCursor: paginationRef.current.nextCursor,
+                    isFreshLoad: false,
+                }),
+            ),
+        );
+    }, [dispatch, balanceFilter, visibleCustomers.length, pagination.hasNextPage, isFetchingMore, isLoading]);
+
     useCommonHotkeys({
         onClose: () => {
             if (editCustomerId) setEditCustomerId(null);
@@ -141,10 +163,19 @@ const CustomerListContent = ({
 
     if (!isLoading && customers.length === 0) return null;
 
-    if (!isLoading && hasDueOnly && visibleCustomers.length === 0) {
+    if (!isLoading && balanceFilter && visibleCustomers.length === 0) {
+        if (pagination.hasNextPage || isFetchingMore) {
+            return (
+                <div className="flex items-center justify-center gap-2 py-12 text-sm text-[rgb(var(--color-text-secondary))]">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
+                    {t("khata.loadingBalanceCustomers") || "Looking for customers with balance..."}
+                </div>
+            );
+        }
+
         return (
             <div className="py-12 text-center text-sm text-[rgb(var(--color-text-secondary))]">
-                {t("khata.hasDueFilter")}: {t("common.noResults")}
+                {t("khata.balanceFilter")}: {t("common.noResults")}
             </div>
         );
     }

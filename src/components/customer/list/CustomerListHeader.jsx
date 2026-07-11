@@ -31,8 +31,8 @@ const CustomerListHeader = ({
     setStartDate,
     endDate,
     setEndDate,
-    hasDueOnly,
-    setHasDueOnly,
+    balanceFilter,
+    setBalanceFilter,
     onSuccess,
 }) => {
     const dispatch = useAppDispatch();
@@ -81,7 +81,16 @@ const CustomerListHeader = ({
     });
 
     const sourceOptions = useMemo(() => getCustomerSourceOptions(t), [t]);
-    const hasActiveFilters = Boolean(isActive || source || startDate || endDate);
+    const hasActiveFilters = Boolean(isActive || source || startDate || endDate || balanceFilter);
+
+    const balanceFilterOptions = useMemo(
+        () => [
+            { value: "both", label: t("khata.balanceFilterBoth") },
+            { value: "due", label: t("khata.due") },
+            { value: "advance", label: t("khata.advance") },
+        ],
+        [t],
+    );
 
     useEffect(() => {
         lastFetchRef.current = null;
@@ -101,6 +110,7 @@ const CustomerListHeader = ({
         setSource("");
         setStartDate("");
         setEndDate("");
+        setBalanceFilter("");
     };
 
     const fetchCustomers = useCallback(async () => {
@@ -236,14 +246,15 @@ const CustomerListHeader = ({
                             clearable
                         />
                     </div>
-                    <Button
-                        type="button"
-                        variant={hasDueOnly ? "primary" : "outline"}
-                        size="sm"
-                        onClick={() => setHasDueOnly((value) => !value)}
-                    >
-                        {t("khata.hasDueFilter")}
-                    </Button>
+                    <div className="min-w-[150px]">
+                        <Select
+                            placeholder={t("khata.balanceFilter")}
+                            value={balanceFilter}
+                            onChange={setBalanceFilter}
+                            options={balanceFilterOptions}
+                            clearable
+                        />
+                    </div>
                     <DateRangeFilter
                         startDate={startDate}
                         endDate={endDate}

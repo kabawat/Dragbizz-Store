@@ -23,7 +23,7 @@ const CustomersPage = () => {
   const [source, setSource] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [hasDueOnly, setHasDueOnly] = useState(false);
+  const [balanceFilter, setBalanceFilter] = useState("");
 
   const { customers, isLoading, error } = useAppSelector((state) => state.customers);
 
@@ -40,7 +40,7 @@ const CustomersPage = () => {
 
   const handleBulkSuccess = useCallback(() => {}, []);
 
-  const isFiltered = Boolean(searchValue || isActive || source || startDate || endDate || hasDueOnly);
+  const isFiltered = Boolean(searchValue || isActive || source || startDate || endDate || balanceFilter);
 
   return (
     <div className="overflow-hidden">
@@ -56,8 +56,8 @@ const CustomersPage = () => {
           setStartDate={setStartDate}
           endDate={endDate}
           setEndDate={setEndDate}
-          hasDueOnly={hasDueOnly}
-          setHasDueOnly={setHasDueOnly}
+          balanceFilter={balanceFilter}
+          setBalanceFilter={setBalanceFilter}
           onSuccess={handleBulkSuccess}
         />
 
@@ -87,7 +87,7 @@ const CustomersPage = () => {
               source={source}
               startDate={startDate}
               endDate={endDate}
-              hasDueOnly={hasDueOnly}
+              balanceFilter={balanceFilter}
             />
           )}
         </div>
