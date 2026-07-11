@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InvoiceDownloadDrawer } from "@/components/invoice";
 import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
-import { Button, Input, Select } from "@/components/ui";
+import { Button, Select, DateRangeFilter } from "@/components/ui";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -39,6 +39,17 @@ const InvoiceListHeader = () => {
             isFreshLoad: true,
             ...filters,
             [key]: actualValue
+        }));
+    };
+
+    const handleDateRangeChange = ({ startDate: nextStart, endDate: nextEnd }) => {
+        dispatch(setFilters({ startDate: nextStart, endDate: nextEnd }));
+        dispatch(getInvoices({
+            store: storeId,
+            isFreshLoad: true,
+            ...filters,
+            startDate: nextStart,
+            endDate: nextEnd,
         }));
     };
 
@@ -105,35 +116,11 @@ const InvoiceListHeader = () => {
                         />
                     </div>
 
-                    {/* Start Date */}
-                    <div className="w-[140px]">
-                        <Input
-                            type={startDate ? "date" : "text"}
-                            onFocus={(e) => (e.target.type = "date")}
-                            onBlur={(e) => {
-                                if (!e.target.value) e.target.type = "text";
-                            }}
-                            value={startDate}
-                            onChange={(val) => handleFilterChange("startDate", val)}
-                            max={endDate || undefined}
-                            placeholder={t("common.startDate")}
-                        />
-                    </div>
-
-                    {/* End Date */}
-                    <div className="w-[140px]">
-                        <Input
-                            type={endDate ? "date" : "text"}
-                            onFocus={(e) => (e.target.type = "date")}
-                            onBlur={(e) => {
-                                if (!e.target.value) e.target.type = "text";
-                            }}
-                            value={endDate}
-                            onChange={(val) => handleFilterChange("endDate", val)}
-                            min={startDate || undefined}
-                            placeholder={t("common.endDate")}
-                        />
-                    </div>
+                    <DateRangeFilter
+                        startDate={startDate}
+                        endDate={endDate}
+                        onChange={handleDateRangeChange}
+                    />
 
                     {/* Clear Filters */}
                     {hasActiveFilters && (
