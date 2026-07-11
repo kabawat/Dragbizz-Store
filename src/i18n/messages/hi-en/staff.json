@@ -1,4 +1,44 @@
 {
   "title": "Staff Management",
-  "description": "Manage your store team and access permissions"
+  "description": "Apni store team, attendance aur salary manage karo",
+  "pendingSync": "Sync pending",
+  "attendance": {
+    "staff": "Staff member",
+    "selectStaff": "Staff select karo",
+    "date": "Date",
+    "status": "Status",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional note",
+    "mark": "Attendance mark karo",
+    "markTitle": "Attendance mark karo",
+    "markDescription": "Apni active team members ki daily attendance record karo.",
+    "formHint": "Attendance selected date ke liye save hoti hai.",
+    "recordsTitle": "Monthly records",
+    "thisMonth": "Is mahine",
+    "previousMonth": "Pichla mahina",
+    "nextMonth": "Agla mahina",
+    "emptyTitle": "Abhi koi attendance nahi",
+    "loading": "Attendance load ho rahi hai...",
+    "empty": "Is mahine ke liye koi attendance record nahi hai.",
+    "saved": "Attendance save ho gayi",
+    "noActiveStaff": "Koi active staff member nahi mila. Attendance mark karne se pehle team members add ya activate karo.",
+    "statuses": {
+      "PRESENT": "Present",
+      "ABSENT": "Absent",
+      "HALF_DAY": "Half day",
+      "LEAVE": "Leave"
+    }
+  },
+  "salary": {
+    "staff": "Staff member",
+    "amount": "Amount",
+    "period": "Pay period",
+    "paymentMode": "Payment mode",
+    "record": "Salary record karo",
+    "loading": "Salary payments load ho rahe hain...",
+    "empty": "Abhi tak koi salary payment record nahi hai.",
+    "saved": "Salary payment save ho gayi",
+    "noAttendanceConfirm": "Is pay period ke liye attendance nahi mili. Phir bhi salary record karne ke liye confirm karo.",
+    "confirmPay": "Confirm karo aur pay karo"
+  }
 }
