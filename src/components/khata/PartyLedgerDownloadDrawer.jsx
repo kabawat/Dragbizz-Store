@@ -1,10 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Download } from "lucide-react";
-import { Button, DateRangeFilter, Select, SideDrawer } from "@/components/ui";
+import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import { Button, DateRangeFilter, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
+
+const FORMAT_OPTIONS = [
+  { value: "csv", labelKey: "khata.downloadCsv", Icon: FileText },
+  { value: "xlsx", labelKey: "khata.downloadXlsx", Icon: FileSpreadsheet },
+];
 
 export function PartyLedgerDownloadDrawer({
   isOpen,
@@ -17,7 +22,7 @@ export function PartyLedgerDownloadDrawer({
   const { showError } = useGlobalToast();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [format, setFormat] = useState("pdf");
+  const [format, setFormat] = useState("csv");
 
   const handleDownload = async () => {
     if (!startDate || !endDate) {
@@ -25,7 +30,7 @@ export function PartyLedgerDownloadDrawer({
       return;
     }
 
-    if (new Date(endDate) <= new Date(startDate)) {
+    if (new Date(endDate) < new Date(startDate)) {
       showError(t("customers.endDateMustBeAfterStart"));
       return;
     }
@@ -36,7 +41,7 @@ export function PartyLedgerDownloadDrawer({
   const handleClose = () => {
     setStartDate("");
     setEndDate("");
-    setFormat("pdf");
+    setFormat("csv");
     onClose?.();
   };
 
@@ -49,7 +54,9 @@ export function PartyLedgerDownloadDrawer({
     >
       <div className="space-y-5">
         <div>
-          <label className="block text-sm font-medium mb-2">{t("khata.exportPeriod")}</label>
+          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+            {t("khata.exportPeriod")}
+          </label>
           <DateRangeFilter
             startDate={startDate}
             endDate={endDate}
@@ -61,18 +68,38 @@ export function PartyLedgerDownloadDrawer({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">{t("khata.exportFormat")}</label>
-          <Select
-            value={format}
-            onChange={(e) => setFormat(e.target.value)}
-            options={[
-              { value: "pdf", label: t("khata.downloadPdf") },
-              { value: "csv", label: t("khata.downloadCsv") },
-            ]}
-          />
+          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+            {t("khata.exportFormat")}
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            {FORMAT_OPTIONS.map(({ value, labelKey, Icon }) => {
+              const isSelected = format === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormat(value)}
+                  aria-pressed={isSelected}
+                  className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer ${
+                    isSelected
+                      ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/8 text-[rgb(var(--color-primary))]"
+                      : "border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+                  }`}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {t(labelKey)}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <Button onClick={handleDownload} disabled={isExporting || !startDate || !endDate} className="w-full">
+        <Button
+          onClick={handleDownload}
+          disabled={isExporting || !startDate || !endDate}
+          loading={isExporting}
+          className="w-full"
+        >
           <Download className="h-4 w-4 mr-2" />
           {isExporting ? t("common.loading") : t("khata.exportStatement")}
         </Button>

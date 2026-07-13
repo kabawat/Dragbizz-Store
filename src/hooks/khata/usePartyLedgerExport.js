@@ -4,19 +4,21 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerAccountService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { exportToCSV } from "@/utils/exportUtils";
+import { exportToCSV, exportToXLSX } from "@/utils/exportUtils";
 import { ledgerExportToCsvRows } from "@/utils/khata/partyLedgerExport.utils";
-
-const REPORT_ID = "party-ledger-report";
 
 function unwrapExportData(response) {
   return response?.data?.data ?? response?.data ?? null;
 }
 
-export function usePartyLedgerExport({ storeId, customerId, selectedStore }) {
+function buildExportFilename(partyName) {
+  const safeName = (partyName || "party").replace(/\s+/g, "-").toLowerCase();
+  return `${safeName}-ledger`;
+}
+
+export function usePartyLedgerExport({ storeId, customerId }) {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
-  const [exportData, setExportData] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
 
   const fetchExportData = useCallback(
@@ -38,60 +40,25 @@ export function usePartyLedgerExport({ storeId, customerId, selectedStore }) {
     [storeId, customerId, t],
   );
 
-  const downloadPdf = useCallback(
-    async (data) => {
-      setExportData(data);
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const report = document.getElementById(REPORT_ID);
-      if (!report) {
-        showError(t("khata.exportFailed"));
-        return;
-      }
-
-      try {
-        const { default: html2canvas } = await import("html2canvas");
-        const { default: jsPDF } = await import("jspdf");
-
-        const canvas = await html2canvas(report, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        });
-
-        const imgData = canvas.toDataURL("image/jpeg", 0.85);
-        const pdf = new jsPDF("p", "mm", "a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        let heightLeft = pdfHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft > 0) {
-          position = heightLeft - pdfHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, pdfHeight);
-          heightLeft -= pageHeight;
-        }
-
-        const safeName = (data?.party?.name || "party").replace(/\s+/g, "-").toLowerCase();
-        pdf.save(`${safeName}-ledger-${new Date().toISOString().split("T")[0]}.pdf`);
-        showSuccess(t("khata.exportPdfSuccess"));
-      } catch {
-        showError(t("khata.exportFailed"));
-      }
+  const downloadCsv = useCallback(
+    (data) => {
+      const rows = ledgerExportToCsvRows(data, t);
+      const filename = buildExportFilename(data?.party?.name);
+      exportToCSV(rows, filename, (msg) => showError(msg));
+      showSuccess(t("khata.exportCsvSuccess"));
     },
     [showError, showSuccess, t],
   );
 
-  const downloadCsv = useCallback(
-    (data) => {
+  const downloadXlsx = useCallback(
+    async (data) => {
       const rows = ledgerExportToCsvRows(data, t);
-      exportToCSV(rows, `${data?.party?.name || "party"}-ledger`, (msg) => showError(msg));
-      showSuccess(t("khata.exportCsvSuccess"));
+      const filename = buildExportFilename(data?.party?.name);
+      await exportToXLSX(rows, filename, {
+        sheetName: t("khata.partyLedger"),
+        onError: () => showError(t("khata.exportFailed")),
+      });
+      showSuccess(t("khata.exportXlsxSuccess"));
     },
     [showError, showSuccess, t],
   );
@@ -101,8 +68,8 @@ export function usePartyLedgerExport({ storeId, customerId, selectedStore }) {
       setIsExporting(true);
       try {
         const data = await fetchExportData({ startDate, endDate });
-        if (format === "pdf") {
-          await downloadPdf(data);
+        if (format === "xlsx") {
+          await downloadXlsx(data);
         } else {
           downloadCsv(data);
         }
@@ -114,14 +81,12 @@ export function usePartyLedgerExport({ storeId, customerId, selectedStore }) {
         setIsExporting(false);
       }
     },
-    [downloadCsv, downloadPdf, fetchExportData, showError, t],
+    [downloadCsv, downloadXlsx, fetchExportData, showError, t],
   );
 
   return {
-    exportData,
     isExporting,
     runExport,
-    selectedStore,
   };
 }
 

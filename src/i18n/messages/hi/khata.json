@@ -62,5 +62,21 @@
   "noCustomerEmail": "अनुस्मारक भेजने के लिए ग्राहक का ईमेल आवश्यक है",
   "reminderPermissionDenied": "आपके पास भुगतान अनुस्मारक भेजने की अनुमति नहीं है",
   "reminderPlanRequired": "आपके वर्तमान प्लान में भुगतान अनुस्मारक उपलब्ध नहीं हैं",
-  "reminderCooldown": "हाल ही में अनुस्मारक भेजा गया था। कृपया बाद में पुनः प्रयास करें।"
+  "reminderCooldown": "हाल ही में अनुस्मारक भेजा गया था। कृपया बाद में पुनः प्रयास करें।",
+  "exportStatement": "स्टेटमेंट डाउनलोड करें",
+  "exportStatementTitle": "पार्टी खाता स्टेटमेंट",
+  "exportPeriod": "स्टेटमेंट अवधि",
+  "exportFormat": "फ़ॉर्मैट",
+  "downloadCsv": "CSV",
+  "downloadXlsx": "Excel (XLSX)",
+  "openingBalance": "प्रारंभिक बैलेंस",
+  "closingBalance": "अंतिम बैलेंस",
+  "colDate": "तारीख",
+  "colDescription": "विवरण",
+  "colDebit": "डेबिट",
+  "colCredit": "क्रेडिट",
+  "exportDateRequired": "स्टेटमेंट के लिए तारीख सीमा चुनें",
+  "exportFailed": "पार्टी खाता निर्यात विफल",
+  "exportCsvSuccess": "पार्टी खाता CSV डाउनलोड हो गया",
+  "exportXlsxSuccess": "पार्टी खाता Excel फ़ाइल डाउनलोड हो गई"
 }

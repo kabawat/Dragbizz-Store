@@ -67,13 +67,8 @@
   "exportStatementTitle": "PARTY LEDGER STATEMENT",
   "exportPeriod": "Statement period",
   "exportFormat": "Format",
-  "periodToday": "Today",
-  "periodThisMonth": "This month",
-  "periodCustom": "Custom range",
-  "startDate": "Start date",
-  "endDate": "End date",
-  "downloadPdf": "PDF",
   "downloadCsv": "CSV",
+  "downloadXlsx": "Excel (XLSX)",
   "openingBalance": "Opening balance",
   "closingBalance": "Closing balance",
   "colDate": "Date",
@@ -82,6 +77,6 @@
   "colCredit": "Credit",
   "exportDateRequired": "Select a date range for the statement",
   "exportFailed": "Failed to export party ledger",
-  "exportPdfSuccess": "Party ledger PDF downloaded",
-  "exportCsvSuccess": "Party ledger CSV downloaded"
+  "exportCsvSuccess": "Party ledger CSV downloaded",
+  "exportXlsxSuccess": "Party ledger Excel file downloaded"
 }

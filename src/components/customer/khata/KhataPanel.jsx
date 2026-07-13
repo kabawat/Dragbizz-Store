@@ -5,11 +5,9 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useKhataLedger } from "@/hooks/khata/useKhataLedger";
 import { usePartyLedgerExport } from "@/hooks/khata/usePartyLedgerExport";
-import { useAppSelector } from "@/store/hooks";
 import KhataBalanceCard from "@/components/khata/KhataBalanceCard";
 import KhataLedgerList from "@/components/khata/KhataLedgerList";
 import PartyLedgerDownloadDrawer from "@/components/khata/PartyLedgerDownloadDrawer";
-import PartyLedgerReportTemplate from "@/components/khata/PartyLedgerReportTemplate";
 import { KhataQuickEntry } from "@/components/khata/KhataQuickEntry";
 
 const KhataPanel = ({
@@ -22,7 +20,6 @@ const KhataPanel = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const { selectedStore } = useAppSelector((state) => state.profile);
   const [showRecordDrawer, setShowRecordDrawer] = useState(false);
   const [showExportDrawer, setShowExportDrawer] = useState(false);
   const { can } = useModulePermissions("customer");
@@ -34,10 +31,9 @@ const KhataPanel = ({
     refreshKey,
   });
 
-  const { exportData, isExporting, runExport, selectedStore: store } = usePartyLedgerExport({
+  const { isExporting, runExport } = usePartyLedgerExport({
     storeId,
     customerId,
-    selectedStore,
   });
 
   const handleRecordSuccess = () => {
@@ -76,12 +72,6 @@ const KhataPanel = ({
         isExporting={isExporting}
         partyName={customerName}
       />
-
-      {exportData ? (
-        <div className="fixed left-[-9999px] top-0 opacity-0 pointer-events-none" aria-hidden>
-          <PartyLedgerReportTemplate exportData={exportData} selectedStore={store} t={t} />
-        </div>
-      ) : null}
 
       <KhataQuickEntry
         open={showRecordDrawer}
