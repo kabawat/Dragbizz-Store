@@ -182,8 +182,8 @@ const InvoiceCard = ({
 
     return (
       <div className="flex flex-col gap-1">
-        <Badge variant={config.variant || "outline"} style={config.style} size="xs" className="text-[10px] px-2 py-0 w-fit">{config.text}</Badge>
-        <Badge variant={paymentConfig.variant || "outline"} style={paymentConfig.style} size="xs" className="text-[10px] px-2 py-0 w-fit">{paymentConfig.text}</Badge>
+        <Badge variant={config.variant || "outline"} style={config.style} size="xs" className="text-[0.625rem] px-2 py-0 w-fit">{config.text}</Badge>
+        <Badge variant={paymentConfig.variant || "outline"} style={paymentConfig.style} size="xs" className="text-[0.625rem] px-2 py-0 w-fit">{paymentConfig.text}</Badge>
       </div>
     );
   };
@@ -261,7 +261,7 @@ const InvoiceCard = ({
             }}
             title={invoice.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
           >
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
+            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
               {t("invoice.customer")}
             </span>
             <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ const InvoiceCard = ({
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
+            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
               {t("common.date")}
             </span>
             <div className="flex items-center gap-2">
@@ -291,13 +291,13 @@ const InvoiceCard = ({
         {/* Status Section */}
         <div className="flex items-center justify-between pb-4 border-b border-[rgb(var(--color-border-primary))]/50">
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))]">
+            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))]">
               {t("common.status")}
             </span>
             {getStatusDisplay()}
           </div>
           <div className="text-right">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block mb-1">
+            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block mb-1">
               {t("invoice.total")}
             </span>
             <span className="text-xl font-bold text-[rgb(var(--color-primary))]">
@@ -324,7 +324,7 @@ const InvoiceCard = ({
             <div className="flex flex-col">
               <span className="text-[rgb(var(--color-text-secondary))] font-medium">{t("products.gst")}</span>
               {invoice.gst?.breakdown?.total > 0 && (
-                <span className="text-[9px] text-[rgb(var(--color-text-tertiary))] leading-none">
+                <span className="text-[0.5625rem] text-[rgb(var(--color-text-tertiary))] leading-none">
                   {[
                     invoice.gst.breakdown.cgst > 0 ? "C" : "",
                     invoice.gst.breakdown.sgst > 0 ? "S" : "",

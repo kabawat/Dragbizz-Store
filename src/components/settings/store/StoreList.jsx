@@ -172,7 +172,7 @@ const StoreList = ({
                   className="w-full bg-[rgb(var(--color-primary))]/5 px-3 py-2 rounded-lg border border-[rgb(var(--color-primary))]/10 hover:bg-[rgb(var(--color-primary))]/10 transition-all flex items-center justify-between gap-2 overflow-hidden group"
                 >
                   <div className="flex flex-col items-start truncate text-left">
-                    <span className="text-[10px] uppercase tracking-wider font-bold text-[rgb(var(--color-primary))] mb-0.5">
+                    <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[rgb(var(--color-primary))] mb-0.5">
                       {t("settings.publicCatalog")}
                     </span>
                     <code className="text-xs text-[rgb(var(--color-primary))] truncate w-full">
@@ -189,7 +189,7 @@ const StoreList = ({
             {/* Current Store Badge */}
             {isCurrent && (
               <div className={store.catalogId ? "pt-3 text-right" : "mt-auto pt-4 text-right"}>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-600 border border-green-500/20">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[0.625rem] font-bold uppercase tracking-wider bg-green-500/10 text-green-600 border border-green-500/20">
                   {t("settings.currentStore")}
                 </span>
               </div>

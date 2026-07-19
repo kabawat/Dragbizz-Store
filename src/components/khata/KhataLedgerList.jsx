@@ -91,7 +91,7 @@ export function KhataLedgerList({
           return (
             <li key={`${entry.kind}-${entry.id}`}>
               {showHeader ? (
-                <div className="px-5 py-2 text-[11px] font-semibold tracking-wide bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))]">
+                <div className="px-5 py-2 text-[0.6875rem] font-semibold tracking-wide bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))]">
                   {dateHeader}
                 </div>
               ) : null}

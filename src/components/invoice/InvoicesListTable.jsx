@@ -219,10 +219,10 @@ const InvoicesListTable = ({
             <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.amount")}
             </th>
-            <th className="px-4 py-4 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-[0.625rem] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.status")}
             </th>
-            <th className="px-4 py-4 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-[0.625rem] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.payment")}
             </th>
             <th className="px-4 py-4 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
@@ -286,7 +286,7 @@ const InvoicesListTable = ({
                       {formatCurrency(invoice.gstAmount || (invoice.gst?.amount || 0))}
                     </span>
                     {invoice.gst?.breakdown?.total > 0 && (
-                      <span className="text-[9px] text-[rgb(var(--color-text-tertiary))] leading-none">
+                      <span className="text-[0.5625rem] text-[rgb(var(--color-text-tertiary))] leading-none">
                         {[
                           invoice.gst.breakdown.cgst > 0 ? "CGST" : "",
                           invoice.gst.breakdown.sgst > 0 ? "SGST" : "",

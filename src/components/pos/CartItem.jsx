@@ -30,8 +30,8 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDis
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate mb-0.5">{name}</p>
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-[rgb(var(--color-text-secondary))]">{fmt(price)} / unit</span>
-                    {item.discount > 0 && <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1 rounded">-{item.discount}%</span>}
+                    <span className="text-[0.625rem] font-medium text-[rgb(var(--color-text-secondary))]">{fmt(price)} / unit</span>
+                    {item.discount > 0 && <span className="text-[0.625rem] font-bold text-red-500 bg-red-50 px-1 rounded">-{item.discount}%</span>}
                 </div>
 
                 {/* Qty & Discount Trigger */}
@@ -46,7 +46,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDis
                         </button>
                     </div>
 
-                    <button onClick={() => onDiscount(item.id)} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--color-primary))] hover:opacity-80 transition-opacity cursor-pointer">
+                    <button onClick={() => onDiscount(item.id)} className="flex items-center gap-1.5 text-[0.625rem] font-bold uppercase tracking-wider text-[rgb(var(--color-primary))] hover:opacity-80 transition-opacity cursor-pointer">
                         <Tag className="w-3 h-3" />
                         Discount
                     </button>

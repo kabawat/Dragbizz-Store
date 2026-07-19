@@ -17,7 +17,7 @@ const AddressDetails = ({ order }) => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("salesOrder.shippingAddress")}</p>
+                    <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("salesOrder.shippingAddress")}</p>
                     <div className="text-sm font-medium text-[rgb(var(--color-text-primary))] leading-relaxed">
                         <p className="font-semibold">{order.shipping?.address?.name || order.customer?.name}</p>
                         {(order.shipping?.address?.line1 || order.customer?.address?.line1) && (
@@ -29,7 +29,7 @@ const AddressDetails = ({ order }) => {
                             {order.shipping?.address?.pincode || order.customer?.address?.pincode ? ` - ${order.shipping?.address?.pincode || order.customer?.address?.pincode}` : ""}
                         </p>
                         <p className="mt-1 flex items-center gap-1.5 text-[rgb(var(--color-text-secondary))]">
-                            <span className="text-[10px] font-bold uppercase tracking-wider">{t("common.phone")}:</span>
+                            <span className="text-[0.625rem] font-bold uppercase tracking-wider">{t("common.phone")}:</span>
                             {order.shipping?.address?.phone || order.customer?.phone || t("common.na")}
                         </p>
                     </div>

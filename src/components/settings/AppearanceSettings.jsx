@@ -162,7 +162,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
                         <p className={`text-sm font-bold ${isSelected ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"}`}>
                           {t(`settings.themes.${themeKey}.name`) || theme.name}
                         </p>
-                        <p className="text-[10px] text-[rgb(var(--color-text-secondary))] truncate uppercase tracking-widest font-bold opacity-70">
+                        <p className="text-[0.625rem] text-[rgb(var(--color-text-secondary))] truncate uppercase tracking-widest font-bold opacity-70">
                           {t(`settings.${activeCategory}Category`)}
                         </p>
                       </div>
@@ -225,10 +225,10 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="h-10 bg-[rgb(var(--color-primary))] text-white text-[10px] font-bold rounded-lg flex items-center justify-center">
+                  <div className="h-10 bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold rounded-lg flex items-center justify-center">
                     {t("settings.mainButton")}
                   </div>
-                  <div className="h-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] text-[10px] font-bold rounded-lg flex items-center justify-center">
+                  <div className="h-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] text-[0.625rem] font-bold rounded-lg flex items-center justify-center">
                     {t("settings.secondaryButton")}
                   </div>
                 </div>
@@ -236,7 +236,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
 
               {/* Overlay Badge */}
               <div className="absolute top-14 right-4 animate-bounce">
-                <div className="bg-emerald-500 text-white text-[8px] font-bold px-2 py-1 rounded-full">
+                <div className="bg-emerald-500 text-white text-[0.5rem] font-bold px-2 py-1 rounded-full">
                   {t("settings.activeNow")}
                 </div>
               </div>

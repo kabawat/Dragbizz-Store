@@ -67,19 +67,19 @@ const SocketNotification = ({ data, onClose }) => {
 
                 <div className="relative flex-1">
                     <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-[rgb(var(--color-primary))] uppercase tracking-[0.2em]">
+                        <span className="text-[0.625rem] font-bold text-[rgb(var(--color-primary))] uppercase tracking-[0.2em]">
                             New Activity
                         </span>
                     </div>
-                    <p className="text-[13px] font-semibold text-[rgb(var(--color-text-primary))] mt-1 leading-snug">
+                    <p className="text-[0.8125rem] font-semibold text-[rgb(var(--color-text-primary))] mt-1 leading-snug">
                         {data.message}
                     </p>
                     <div className="flex items-center gap-1.5 mt-2.5">
-                        <span className="text-[11px] text-[rgb(var(--color-text-tertiary))] font-medium group-hover:text-[rgb(var(--color-primary))] transition-colors">
+                        <span className="text-[0.6875rem] text-[rgb(var(--color-text-tertiary))] font-medium group-hover:text-[rgb(var(--color-primary))] transition-colors">
                             Tap to view details
                         </span>
                         <div className="w-1 h-1 rounded-full bg-[rgb(var(--color-text-tertiary))] opacity-30" />
-                        <span className="text-[11px] text-[rgb(var(--color-text-tertiary))] font-medium">
+                        <span className="text-[0.6875rem] text-[rgb(var(--color-text-tertiary))] font-medium">
                             Just now
                         </span>
                     </div>

@@ -158,7 +158,7 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl, amount,
             </p>
           )}
           <div className="bg-[rgb(var(--color-bg-secondary))] p-4 rounded-xl border border-[rgb(var(--color-border-primary))]/40">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-[rgb(var(--color-text-tertiary))] block mb-1">
+            <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[rgb(var(--color-text-tertiary))] block mb-1">
               {t("settings.upi.upiId")}
             </span>
             <code className="text-sm text-[rgb(var(--color-primary))] font-mono break-all">

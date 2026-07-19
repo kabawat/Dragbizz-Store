@@ -4,7 +4,7 @@ body {
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 14px;
+  font-size: 0.875rem; /* --text-sm; scales with html root ladder in typography.css */
   line-height: 1.4;
 
   /* Theme-aware background */
@@ -80,19 +80,6 @@ input:-webkit-autofill:active {
 @media (max-width: 640px) {
   .mobile-optimized {
     padding: 0.75rem;
-  }
-}
-
-/* Responsive Font Scaling */
-@media (max-width: 1440px) {
-  html {
-    font-size: 87.5%;
-  }
-}
-
-@media (max-width: 1366px) {
-  html {
-    font-size: 81.25%;
   }
 }
 

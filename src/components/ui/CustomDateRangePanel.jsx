@@ -105,7 +105,7 @@ const MonthCalendar = ({
         {WEEKDAY_LABELS.map((weekday, index) => (
           <div
             key={`${weekday}-${index}`}
-            className="h-8 flex items-center justify-center text-[11px] font-semibold uppercase text-[rgb(var(--color-text-tertiary))]"
+            className="h-8 flex items-center justify-center text-[0.6875rem] font-semibold uppercase text-[rgb(var(--color-text-tertiary))]"
           >
             {weekday}
           </div>

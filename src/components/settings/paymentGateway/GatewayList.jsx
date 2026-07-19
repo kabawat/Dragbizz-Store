@@ -96,7 +96,7 @@ const GatewayList = ({
                   {gateway.gatewayType}
                 </span>
                 <span
-                  className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full flex-shrink-0 ${
+                  className={`text-[0.625rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full flex-shrink-0 ${
                     gateway.mode === "LIVE"
                       ? "bg-green-500/10 text-green-600 dark:text-green-400"
                       : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
@@ -107,7 +107,7 @@ const GatewayList = ({
                     : t("settings.paymentGateway.modeTest")}
                 </span>
                 {gateway.isDefault && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] flex-shrink-0">
+                  <span className="text-[0.625rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] flex-shrink-0">
                     {t("settings.paymentGateway.defaultBadge")}
                   </span>
                 )}

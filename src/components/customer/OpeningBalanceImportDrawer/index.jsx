@@ -180,19 +180,19 @@ const OpeningBalanceImportDrawer = ({ isOpen, onClose, onSuccess }) => {
           <div className="grid grid-cols-3 divide-x divide-[rgb(var(--color-border-primary))]">
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-green-500">{summary.imported}</span>
-              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("customers.importedCount", "Imported")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-amber-500">{summary.skipped}</span>
-              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("customers.skippedCount", "Skipped")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-red-500">{summary.failed}</span>
-              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("customers.failedCount", "Failed")}
               </span>
             </div>
@@ -208,7 +208,7 @@ const OpeningBalanceImportDrawer = ({ isOpen, onClose, onSuccess }) => {
               <span className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 {t("customers.errorsFound", "Errors Found")}
-                <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                <span className="ml-1 px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
                   {errors.length}
                 </span>
               </span>
@@ -218,7 +218,7 @@ const OpeningBalanceImportDrawer = ({ isOpen, onClose, onSuccess }) => {
               <div className="max-h-[280px] overflow-y-auto divide-y divide-[rgb(var(--color-border-primary))]">
                 {errors.map((error, idx) => (
                   <div key={idx} className="p-4 space-y-2">
-                    <span className="text-[10px] font-bold text-red-500 uppercase">{t("customers.rowNumber", { row: error.row })}</span>
+                    <span className="text-[0.625rem] font-bold text-red-500 uppercase">{t("customers.rowNumber", { row: error.row })}</span>
                     <p className="text-sm">{error.reason}</p>
                   </div>
                 ))}

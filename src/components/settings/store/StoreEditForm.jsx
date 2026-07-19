@@ -56,7 +56,7 @@ const StoreEditForm = ({
             {t("settings.businessInformation") || "Business Details"}
           </h3>
           {form.gst?.length >= 15 && !errors.gst && (
-            <span className="text-[10px] bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] px-2 py-0.5 rounded-full font-semibold animate-pulse">
+            <span className="text-[0.625rem] bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] px-2 py-0.5 rounded-full font-semibold animate-pulse">
               GST Ready to Verify
             </span>
           )}
@@ -120,7 +120,7 @@ const StoreEditForm = ({
           />
         </div>
 
-        <p className="text-[11px] text-[rgb(var(--color-text-tertiary))] italic">
+        <p className="text-[0.6875rem] text-[rgb(var(--color-text-tertiary))] italic">
           Tip: Enter GST and click Verify to automatically pre-fill store name and address.
         </p>
       </section>

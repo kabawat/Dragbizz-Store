@@ -195,7 +195,7 @@ const FileUpload = ({
               </button>
             </div>
             {!loading && (
-              <p className="mt-4 text-[10px] uppercase tracking-widest font-bold text-[rgb(var(--color-text-tertiary))]">
+              <p className="mt-4 text-[0.625rem] uppercase tracking-widest font-bold text-[rgb(var(--color-text-tertiary))]">
                 {typeof value[0] === 'string' ? "Cloud Storage Active" : "Local File Ready"}
               </p>
             )}
@@ -239,7 +239,7 @@ const FileUpload = ({
                     className={`w-5 h-5 ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
                   />
                 </div>
-                <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] truncate px-1">
+                <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] truncate px-1">
                   {t("common.add") || "Add More"}
                 </span>
               </div>
@@ -305,7 +305,7 @@ const FileUpload = ({
                   <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">
                     {typeof file === "string" ? file.split('/').pop() : file.name}
                   </p>
-                  <p className="text-[10px] uppercase font-bold text-[rgb(var(--color-text-tertiary))]">
+                  <p className="text-[0.625rem] uppercase font-bold text-[rgb(var(--color-text-tertiary))]">
                     {typeof file === "string" ? "Stored" : formatFileSize(file.size)}
                   </p>
                 </div>

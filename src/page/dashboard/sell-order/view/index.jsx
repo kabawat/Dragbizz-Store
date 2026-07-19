@@ -77,7 +77,7 @@ const StatusBadge = ({ order, statusField = 'status' }) => {
   };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider border ${styles[status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[0.6875rem] font-bold uppercase tracking-wider border ${styles[status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
       <Icon className="w-3.5 h-3.5" />
       {getStatusLabel(status)}
     </span>
@@ -236,7 +236,7 @@ const ViewSellOrderPage = ({ orderId }) => {
 
             {/* Additional Info Footer */}
             <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-transparent rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] border-l-[4px] border-l-[rgb(var(--color-primary))]">
-              <h4 className="text-[10px] font-bold text-[rgb(var(--color-text-primary))] mb-2 uppercase tracking-[0.2em]">{t("salesOrder.termsConditions")}</h4>
+              <h4 className="text-[0.625rem] font-bold text-[rgb(var(--color-text-primary))] mb-2 uppercase tracking-[0.2em]">{t("salesOrder.termsConditions")}</h4>
               <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed font-medium">{t("salesOrder.standardTerms")}</p>
             </div>
           </div>

@@ -252,7 +252,7 @@ export const SettingsDrawer = () => {
                       </span>
                     </div>
                     <p
-                      className={`text-[10px] leading-tight text-left transition-colors font-medium ${
+                      className={`text-[0.625rem] leading-tight text-left transition-colors font-medium ${
                         currentTheme === themeKey
                           ? "text-[rgb(var(--color-text-primary))]"
                           : "text-[rgb(var(--color-text-secondary))]"

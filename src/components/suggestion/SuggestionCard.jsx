@@ -52,7 +52,7 @@ const SuggestionCard = ({ item, onVote }) => {
                         {getStatusBadge(item.status)}
                         {getCategoryBadge(item.category)}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5 text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium uppercase tracking-wider">
                         <Calendar className="w-3 h-3" />
                         {new Date(item.createdAt).toLocaleDateString()}
                     </div>
@@ -94,7 +94,7 @@ const SuggestionCard = ({ item, onVote }) => {
 
                 <Link
                     href={`/dashboard/support/view/${suggestionId}`}
-                    className="flex items-center gap-1 text-[10px] font-bold text-[rgb(var(--color-primary))] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
+                    className="flex items-center gap-1 text-[0.625rem] font-bold text-[rgb(var(--color-primary))] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                 >
                     {t("common.viewDetails") || "View Details"}
                     <ChevronRight className="w-3 h-3" />

@@ -82,7 +82,7 @@ const HelpTab = () => {
                             </div>
                             <div className="min-w-0">
                                 <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">{t("help.ui.docsTitle") || "Feature Guides"}</h3>
-                                <p className="text-[rgb(var(--color-text-secondary))] text-[11px] leading-tight line-clamp-1 mt-0.5">
+                                <p className="text-[rgb(var(--color-text-secondary))] text-[0.6875rem] leading-tight line-clamp-1 mt-0.5">
                                     {t("help.ui.docsDesc") || "Step-by-step documentation for every feature."}
                                 </p>
                             </div>
@@ -97,7 +97,7 @@ const HelpTab = () => {
                             </div>
                             <div className="min-w-0">
                                 <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">{t("help.ui.contactTitle") || "Direct Support"}</h3>
-                                <p className="text-[rgb(var(--color-text-secondary))] text-[11px] leading-tight line-clamp-1 mt-0.5">
+                                <p className="text-[rgb(var(--color-text-secondary))] text-[0.6875rem] leading-tight line-clamp-1 mt-0.5">
                                     {t("help.ui.contactDesc") || "Talk to our team for personalized assistance."}
                                 </p>
                             </div>
@@ -136,7 +136,7 @@ const HelpTab = () => {
                                         >
                                             <div className="flex flex-col gap-1">
                                                 {faq.category && (
-                                                    <span className="text-[10px] uppercase tracking-wider font-bold text-[rgb(var(--color-primary))] opacity-70">
+                                                    <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[rgb(var(--color-primary))] opacity-70">
                                                         {faq.category}
                                                     </span>
                                                 )}
@@ -167,7 +167,7 @@ const HelpTab = () => {
 
                     {/* Related Module Links */}
                     <div className="bg-[rgb(var(--color-bg-primary))]/40 backdrop-blur-sm rounded-2xl border border-[rgb(var(--color-border-primary))] p-5">
-                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--color-text-tertiary))] mb-4 flex items-center gap-2">
+                        <h4 className="text-[0.625rem] font-bold uppercase tracking-widest text-[rgb(var(--color-text-tertiary))] mb-4 flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
                             {t("help.ui.quickAccess") || "Quick Access"}
                         </h4>
@@ -185,7 +185,7 @@ const HelpTab = () => {
                                         </div>
                                         <div className="min-w-0">
                                             <p className="text-xs font-bold text-[rgb(var(--color-text-primary))] truncate">{link.title}</p>
-                                            <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] truncate font-medium">{link.desc}</p>
+                                            <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] truncate font-medium">{link.desc}</p>
                                         </div>
                                     </Link>
                                 );
@@ -213,7 +213,7 @@ const HelpTab = () => {
                                             <div className="w-5 h-5 rounded-full border-2 border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] group-hover:border-[rgb(var(--color-primary))]/40 transition-colors" />
                                         )}
                                     </div>
-                                    <span className={`text-[11px] font-bold leading-tight ${step.completed ? "text-[rgb(var(--color-text-tertiary))] line-through opacity-60" : "text-[rgb(var(--color-text-primary))]"}`}>
+                                    <span className={`text-[0.6875rem] font-bold leading-tight ${step.completed ? "text-[rgb(var(--color-text-tertiary))] line-through opacity-60" : "text-[rgb(var(--color-text-primary))]"}`}>
                                         {step.text}
                                     </span>
                                 </div>
@@ -224,13 +224,13 @@ const HelpTab = () => {
                     {/* Pro Tip Card */}
                     <div className="bg-gradient-to-br from-[rgb(var(--color-primary))] to-indigo-600 p-6 rounded-2xl text-white overflow-hidden relative group">
                         <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-700" />
-                        <h4 className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Pro Tip</h4>
+                        <h4 className="text-[0.625rem] font-bold uppercase tracking-widest opacity-80 mb-2">Pro Tip</h4>
                         <p className="text-xs font-semibold leading-relaxed mb-4 antialiased">
                             Try <span className="underline decoration-white/40">Voice AI</span> for adding customers. Just say "Add John from Mumbai" and let us handle the rest!
                         </p>
                         <div className="flex gap-2">
-                            <span className="text-[9px] font-bold bg-white/20 px-2 py-1 rounded-md border border-white/10 uppercase">Alt + V</span>
-                            <span className="text-[9px] font-bold bg-white/20 px-2 py-1 rounded-md border border-white/10 uppercase tracking-tighter">AI Assistant</span>
+                            <span className="text-[0.5625rem] font-bold bg-white/20 px-2 py-1 rounded-md border border-white/10 uppercase">Alt + V</span>
+                            <span className="text-[0.5625rem] font-bold bg-white/20 px-2 py-1 rounded-md border border-white/10 uppercase tracking-tighter">AI Assistant</span>
                         </div>
                     </div>
                 </div>

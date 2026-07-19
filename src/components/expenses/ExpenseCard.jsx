@@ -180,7 +180,7 @@ const ExpenseCard = ({
           </div>
           {gst && gst.amount > 0 && (
             <div className="flex justify-end mt-0.5">
-              <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">
+              <span className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">
                 Incl. GST ({gst.percentage}%): ₹{formatCurrency(gst.amount)}
               </span>
             </div>

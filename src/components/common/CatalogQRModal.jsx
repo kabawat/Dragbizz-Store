@@ -310,10 +310,10 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                         {/* Shareable Link Box */}
                         <div className="bg-[rgb(var(--color-bg-secondary))] p-4 rounded-xl border border-[rgb(var(--color-border-primary)/0.4)] flex items-center justify-between gap-4">
                             <div className="flex flex-col truncate">
-                                <span className="text-[10px] uppercase tracking-widest font-bold text-[rgb(var(--color-text-tertiary))] mb-1">
+                                <span className="text-[0.625rem] uppercase tracking-widest font-bold text-[rgb(var(--color-text-tertiary))] mb-1">
                                     Catalog URL
                                 </span>
-                                <code className="text-[13px] text-[rgb(var(--color-primary))] font-mono font-bold truncate">
+                                <code className="text-[0.8125rem] text-[rgb(var(--color-primary))] font-mono font-bold truncate">
                                     {displayUrl}
                                 </code>
                             </div>

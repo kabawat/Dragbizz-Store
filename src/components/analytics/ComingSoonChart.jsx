@@ -224,7 +224,7 @@ const ComingSoonChart = ({ type = 'line' }) => {
                     </span>
                 </div>
 
-                <p className="mt-3 text-[9px] text-[rgb(var(--color-text-tertiary))] uppercase tracking-[0.2em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <p className="mt-3 text-[0.5625rem] text-[rgb(var(--color-text-tertiary))] uppercase tracking-[0.2em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                     Advanced Insights
                 </p>
             </div>

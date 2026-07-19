@@ -133,7 +133,7 @@ export const PermissionGuard = ({ children }) => {
                             <div className="flex flex-col items-center select-none">
                                 <div className="relative">
                                     {/* Big 403 number */}
-                                    <span className="text-[140px] font-black leading-none tracking-tighter text-[rgb(var(--color-text-primary))]/5 select-none">
+                                    <span className="text-[8.75rem] font-black leading-none tracking-tighter text-[rgb(var(--color-text-primary))]/5 select-none">
                                         403
                                     </span>
 

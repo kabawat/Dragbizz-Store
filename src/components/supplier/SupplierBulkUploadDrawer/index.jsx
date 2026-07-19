@@ -178,19 +178,19 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
           <div className="grid grid-cols-3 divide-x divide-[rgb(var(--color-border-primary))]">
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-green-500">{summary.created}</span>
-              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("suppliers.createdCount", "Created")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-amber-500">{summary.skipped}</span>
-              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("suppliers.skippedCount", "Skipped")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-red-500">{summary.failed}</span>
-              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("suppliers.failedCount", "Failed")}
               </span>
             </div>
@@ -209,7 +209,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
               <span className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 {t("suppliers.errorsFound", "Errors Found")}
-                <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                <span className="ml-1 px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
                   {errors.length}
                 </span>
               </span>
@@ -226,7 +226,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                     {/* Row label + reason */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <span className="inline-block text-[10px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 border border-red-500/20 rounded px-1.5 py-0.5 mb-1.5">
+                        <span className="inline-block text-[0.625rem] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 border border-red-500/20 rounded px-1.5 py-0.5 mb-1.5">
                           {t("suppliers.rowNumber", { row: error.row }, `Row ${error.row}`)}
                         </span>
                         <p className="text-sm text-[rgb(var(--color-text-primary))] leading-snug">
@@ -238,12 +238,12 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                     {/* Row data preview */}
                     {error.data && Object.keys(error.data).length > 0 && (
                       <div className="rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] p-2.5">
-                        <p className="text-[10px] font-semibold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1.5">
+                        <p className="text-[0.625rem] font-semibold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1.5">
                           {t("suppliers.rowData", "Data")}
                         </p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                           {Object.entries(error.data).map(([key, val]) => (
-                            <div key={key} className="flex gap-1.5 text-[11px] font-mono">
+                            <div key={key} className="flex gap-1.5 text-[0.6875rem] font-mono">
                               <span className="text-[rgb(var(--color-text-tertiary))] shrink-0">{key}:</span>
                               <span className="text-[rgb(var(--color-text-secondary))] truncate">{val || "—"}</span>
                             </div>

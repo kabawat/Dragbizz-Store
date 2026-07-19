@@ -107,7 +107,7 @@ const UpiList = ({
                     </span>
                   )}
                   {item.isDefault && (
-                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] flex-shrink-0">
+                    <span className="text-[0.625rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] flex-shrink-0">
                       {t("settings.upi.defaultBadge")}
                     </span>
                   )}
@@ -181,7 +181,7 @@ const UpiList = ({
                   className="w-full bg-[rgb(var(--color-primary))]/5 px-3 py-2 rounded-lg border border-[rgb(var(--color-primary))]/10 hover:bg-[rgb(var(--color-primary))]/10 transition-all flex items-center justify-between gap-2 overflow-hidden group cursor-pointer"
                 >
                   <div className="flex flex-col items-start truncate text-left">
-                    <span className="text-[10px] uppercase tracking-wider font-bold text-[rgb(var(--color-primary))] mb-0.5">
+                    <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[rgb(var(--color-primary))] mb-0.5">
                       {t("settings.upi.upiQrCode")}
                     </span>
                     <span className="text-xs text-[rgb(var(--color-primary))] truncate">

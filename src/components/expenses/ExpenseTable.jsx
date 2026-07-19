@@ -206,7 +206,7 @@ const ExpenseTable = ({
                 <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
                   {expense.title}
                 </div>
-                <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                <div className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
                   {expense.billNumber || t("expenses.noBillNumber")}
                 </div>
               </td>
@@ -366,7 +366,7 @@ const ExpenseTable = ({
                     <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
                       {expense.title}
                     </div>
-                    <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                    <div className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
                       {expense.billNumber || t("expenses.noBillNumber")}
                     </div>
                   </td>

@@ -118,7 +118,7 @@ export default function ForcePasswordModal({ isOpen }) {
                             Set Your Login Password
                         </h2>
                         <div className="flex flex-col items-center justify-center mt-3 p-3.5 bg-[rgba(var(--color-primary),0.05)] rounded-xl text-center">
-                            <p className="text-[13px] sm:text-sm font-medium text-[rgb(var(--color-primary))] leading-relaxed flex flex-col sm:flex-row items-center justify-center gap-2">
+                            <p className="text-[0.8125rem] sm:text-sm font-medium text-[rgb(var(--color-primary))] leading-relaxed flex flex-col sm:flex-row items-center justify-center gap-2">
                                 {/* <AlertCircle className="w-5 h-5 shrink-0 opacity-80" /> */}
                                 <span className="opacity-90">You must set a login password before continuing. You cannot skip this step. This password will secure your account.</span>
                             </p>

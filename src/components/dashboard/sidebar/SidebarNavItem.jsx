@@ -115,7 +115,7 @@ export const SidebarNavItem = ({
                                             <Crown size={12} className="absolute right-3 text-[#f59e0b] opacity-100 fill-[#f59e0b]/20" />
                                         )}
                                         {subItem.shortcut && !locked && (
-                                            <kbd className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none bg-[rgb(var(--color-bg-secondary))]">
+                                            <kbd className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[0.5625rem] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none bg-[rgb(var(--color-bg-secondary))]">
                                                 ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
                                             </kbd>
                                         )}

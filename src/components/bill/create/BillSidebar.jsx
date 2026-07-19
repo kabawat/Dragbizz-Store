@@ -217,7 +217,7 @@ const BillSidebar = ({
                                         <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                             {t("bills.stockInGoods")}
                                         </span>
-                                        <p className="text-[10px] text-[rgb(var(--color-text-secondary))] mt-1">
+                                        <p className="text-[0.625rem] text-[rgb(var(--color-text-secondary))] mt-1">
                                             {t("bills.stockInGoodsDescription")}
                                         </p>
                                     </div>

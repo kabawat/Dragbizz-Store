@@ -130,7 +130,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
             {isTempStaff && (
                 <div className="px-4 pt-2.5 pb-0 flex items-center gap-1.5">
                     <Mail size={11} className="text-yellow-500" />
-                    <span className="text-[10px] font-medium text-yellow-500 uppercase tracking-wide">
+                    <span className="text-[0.625rem] font-medium text-yellow-500 uppercase tracking-wide">
                         Invitation Pending · Expires {new Date(staff.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
                     </span>
                 </div>
@@ -209,7 +209,7 @@ const StaffCard = ({ staff, onDeleteTemp, onResendInvite, onRemoveStaff, onEditS
                                     {ACTION_LABELS.map((action) => (
                                         <span
                                             key={action}
-                                            className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${perm[action]
+                                            className={`text-[0.625rem] px-2 py-0.5 rounded-full font-medium capitalize ${perm[action]
                                                 ? "bg-green-500/10 text-green-600"
                                                 : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] opacity-40"
                                                 }`}

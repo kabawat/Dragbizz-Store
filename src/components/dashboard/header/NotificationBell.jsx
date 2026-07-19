@@ -97,7 +97,7 @@ const NotificationBell = () => {
             >
                 <Bell className={`w-[18px] h-[18px] transition-all duration-300 ${isNotificationDropdownOpen ? "scale-110" : "group-hover:rotate-12"} ${shouldAnimateBell ? "animate-[ring_0.5s_ease-in-out_infinite]" : ""}`} />
                 {unreadCount > 0 && (
-                    <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-[rgb(var(--color-danger))] text-white text-[10px] font-bold rounded-full border-2 border-[rgb(var(--color-bg-primary))] flex items-center justify-center animate-bounce">
+                    <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-[rgb(var(--color-danger))] text-white text-[0.625rem] font-bold rounded-full border-2 border-[rgb(var(--color-bg-primary))] flex items-center justify-center animate-bounce">
                         {unreadCount}
                     </span>
                 )}
@@ -112,7 +112,7 @@ const NotificationBell = () => {
                             <h3 className="font-bold text-sm text-[rgb(var(--color-text-primary))]">
                                 {t("notifications.title") || "Notifications"}
                             </h3>
-                            <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-0.5">
+                            <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] mt-0.5">
                                 You have {unreadCount} unread messages
                             </p>
                         </div>
@@ -155,14 +155,14 @@ const NotificationBell = () => {
 
                                         {/* Text Content */}
                                         <div className="flex-1 min-w-0">
-                                            <p className={`text-[13px] leading-snug ${notification.unread
+                                            <p className={`text-[0.8125rem] leading-snug ${notification.unread
                                                 ? "font-semibold text-[rgb(var(--color-text-primary))]"
                                                 : "text-[rgb(var(--color-text-secondary))]"
                                                 }`}>
                                                 {notification.message}
                                             </p>
                                             <div className="flex items-center justify-between mt-1.5">
-                                                <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium uppercase tracking-wider">
+                                                <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium uppercase tracking-wider">
                                                     {notification.time}
                                                 </span>
                                                 {notification.unread && (

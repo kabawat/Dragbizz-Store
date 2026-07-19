@@ -143,7 +143,7 @@ const BillCard = ({
               {formatCurrency(bill.totalAmount)}
             </div>
           </div>
-          <div className="flex justify-end gap-3 text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">
+          <div className="flex justify-end gap-3 text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">
             <span>Sub: {formatCurrency(bill.subtotal || 0)}</span>
             <span>GST: {formatCurrency(bill.gstAmount || 0)}</span>
           </div>

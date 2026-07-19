@@ -54,7 +54,7 @@ const StatusBadge = ({ order, statusField = 'status' }) => {
     };
 
     return (
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${styles[status] || "bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))]"}`}>
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.625rem] font-bold uppercase tracking-wide border ${styles[status] || "bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))]"}`}>
             <Icon size={12} />
             {getStatusLabel(status)}
         </span>

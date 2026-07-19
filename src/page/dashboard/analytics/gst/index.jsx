@@ -283,25 +283,25 @@ const GstAnalyticsContent = () => {
                                 </div>
                                 <div>
                                   <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{card.title}</h3>
-                                  <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-semibold">GSTR-1 Section</p>
+                                  <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-semibold">GSTR-1 Section</p>
                                 </div>
                               </div>
-                              <span className="text-[10px] font-bold px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-md border border-green-500/20">Invoices ({outward.invoiceCount || 0})</span>
+                              <span className="text-[0.625rem] font-bold px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-md border border-green-500/20">Invoices ({outward.invoiceCount || 0})</span>
                             </div>
                             <div className="p-5 space-y-1">
                               <StatRow label={t("gst.taxableValue")} value={formatCurrency(outward.taxableAmount)} icon={Receipt} />
                               <div className="grid grid-cols-2 gap-3 py-3">
                                 <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                  <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.b2bSales")}</p>
+                                  <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.b2bSales")}</p>
                                   <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(outward.b2bTaxable)}</p>
                                 </div>
                                 <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                  <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.b2cSales")}</p>
+                                  <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.b2cSales")}</p>
                                   <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(outward.b2cTaxable)}</p>
                                 </div>
                               </div>
                               <div className="pt-2 space-y-1">
-                                <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">GST Distribution</p>
+                                <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">GST Distribution</p>
                                 <StatRow label={t("gst.cgst")} value={formatCurrency(outward.cgst)} color="text-green-600 dark:text-green-400" />
                                 <StatRow label={t("gst.sgst")} value={formatCurrency(outward.sgst)} color="text-green-600 dark:text-green-400" />
                                 <StatRow label={t("gst.igst")} value={formatCurrency(outward.igst)} color="text-green-600 dark:text-green-400" />
@@ -314,7 +314,7 @@ const GstAnalyticsContent = () => {
                               </div>
                               {outward.totalItemsWithGst > 0 && (
                                 <div className="mt-4 p-2 bg-[rgb(var(--color-bg-secondary))]/30 rounded-lg flex items-center justify-between">
-                                  <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">{t("gst.hsnCoverage")}</span>
+                                  <span className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">{t("gst.hsnCoverage")}</span>
                                   <span className="text-xs font-bold text-[rgb(var(--color-text-primary))]">
                                     {Math.round((outward.itemsWithHsn / outward.totalItemsWithGst) * 100)}%
                                   </span>
@@ -338,25 +338,25 @@ const GstAnalyticsContent = () => {
                                 </div>
                                 <div>
                                   <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{card.title}</h3>
-                                  <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-semibold">GSTR-2B Section</p>
+                                  <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-semibold">GSTR-2B Section</p>
                                 </div>
                               </div>
-                              <span className="text-[10px] font-bold px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-md border border-blue-500/20">Bills ({inward.billCount || 0})</span>
+                              <span className="text-[0.625rem] font-bold px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-md border border-blue-500/20">Bills ({inward.billCount || 0})</span>
                             </div>
                             <div className="p-5 space-y-1">
                               <StatRow label={t("gst.taxableValueInward")} value={formatCurrency(inward.taxableAmount)} icon={Receipt} />
                               <div className="grid grid-cols-2 gap-3 py-3">
                                 <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                  <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.itcEligible")}</p>
+                                  <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.itcEligible")}</p>
                                   <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatCurrency(inward.b2bTaxable)}</p>
                                 </div>
                                 <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                  <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.nonItcPurchase")}</p>
+                                  <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.nonItcPurchase")}</p>
                                   <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(inward.b2cTaxable)}</p>
                                 </div>
                               </div>
                               <div className="pt-2 space-y-1">
-                                <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">ITC Breakdown</p>
+                                <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">ITC Breakdown</p>
                                 <StatRow label={t("gst.cgstInward")} value={formatCurrency(inward.cgst)} color="text-blue-600 dark:text-blue-400" />
                                 <StatRow label={t("gst.sgstInward")} value={formatCurrency(inward.sgst)} color="text-blue-600 dark:text-blue-400" />
                                 <StatRow label={t("gst.igstInward")} value={formatCurrency(inward.igst)} color="text-blue-600 dark:text-blue-400" />
@@ -369,7 +369,7 @@ const GstAnalyticsContent = () => {
                               </div>
                               {inward.totalItemsWithGst > 0 && (
                                 <div className="mt-4 p-2 bg-[rgb(var(--color-bg-secondary))]/30 rounded-lg flex items-center justify-between">
-                                  <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">{t("gst.compliance")}</span>
+                                  <span className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">{t("gst.compliance")}</span>
                                   <span className="text-xs font-bold text-[rgb(var(--color-text-primary))]">
                                     {Math.round((inward.itemsWithHsn / inward.totalItemsWithGst) * 100)}% HSN
                                   </span>

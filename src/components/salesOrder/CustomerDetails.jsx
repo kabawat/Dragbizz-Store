@@ -17,15 +17,15 @@ const CustomerDetails = ({ customer, shipping }) => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/5 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/30">
-                    <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">{t("common.name")}</p>
+                    <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">{t("common.name")}</p>
                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{customer?.name || t("common.na")}</p>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-500/5 dark:from-blue-500/5 dark:to-blue-500/2 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/30">
-                    <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">{t("common.phone")}</p>
+                    <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">{t("common.phone")}</p>
                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{customer?.phone || shipping?.address?.phone || t("common.na")}</p>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-500/5 dark:from-purple-500/5 dark:to-purple-500/2 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/30">
-                    <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">{t("common.email")}</p>
+                    <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">{t("common.email")}</p>
                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] break-all">{customer?.email || t("common.na")}</p>
                 </div>
             </div>

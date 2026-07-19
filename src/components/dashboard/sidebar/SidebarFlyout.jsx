@@ -61,7 +61,7 @@ export const SidebarFlyout = ({
                                 />
                                 <span className="text-sm font-medium flex-1 pr-6">{subItem.name}</span>
                                 {subItem.shortcut && (
-                                    <kbd className="absolute right-2 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
+                                    <kbd className="absolute right-2 text-[0.5625rem] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
                                         ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
                                     </kbd>
                                 )}
@@ -87,7 +87,7 @@ export const SidebarFlyout = ({
                             {hoveredItem.item.name}
                         </span>
                         {hoveredItem.item.shortcut && (
-                            <kbd className="absolute right-2 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
+                            <kbd className="absolute right-2 text-[0.5625rem] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
                                 ⌥{hoveredItem.item.shortcut === "," ? "," : hoveredItem.item.shortcut.toUpperCase()}
                             </kbd>
                         )}

@@ -125,7 +125,7 @@ const MediaSection = ({
           {uploading && (
             <div className="flex items-center space-x-1.5 px-2 py-0.5 border border-blue-500/20 bg-blue-500/5 rounded-full">
               <Loader2 className="w-3 h-3 text-blue-500 animate-spin" />
-              <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Uploading...</span>
+              <span className="text-[0.625rem] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Uploading...</span>
             </div>
           )}
         </div>
@@ -168,7 +168,7 @@ const MediaSection = ({
                   />
 
                   {/* Index Badge */}
-                  <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-md text-[10px] text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-md text-[0.625rem] text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                     #{index + 1}
                   </div>
 

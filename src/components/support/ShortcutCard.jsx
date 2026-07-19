@@ -19,7 +19,7 @@ const ShortcutCard = ({ category, isOpen, onToggle }) => {
                     <h3 className="font-bold text-[rgb(var(--color-text-primary))]">{category.title}</h3>
                     <p className="text-xs text-[rgb(var(--color-text-tertiary))] font-medium">{category.description}</p>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20 flex-shrink-0">
+                <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20 flex-shrink-0">
                     {category.items.length}
                 </span>
                 <ChevronDown

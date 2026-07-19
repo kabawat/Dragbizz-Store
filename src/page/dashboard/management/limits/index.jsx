@@ -246,7 +246,7 @@ const UsageLimitsPage = () => {
                                 <selectedFeature.icon size={20} className="stroke-[2]" />
                             </div>
                             <div>
-                                <h4 className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-[0.1em] mb-0.5">{t("limits.details.usageTitle")}</h4>
+                                <h4 className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-[0.1em] mb-0.5">{t("limits.details.usageTitle")}</h4>
                                 <p className="text-lg font-black text-[rgb(var(--color-text-primary))] tabular-nums leading-none">
                                     {selectedFeature.isNotIncluded ? "0" : selectedFeature.used.toLocaleString()} 
                                     <span className="text-xs font-medium text-[rgb(var(--color-text-tertiary))] ml-1 opacity-60">
@@ -258,13 +258,13 @@ const UsageLimitsPage = () => {
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[rgb(var(--color-border-primary))]/20 group transition-all duration-300 hover:border-[rgb(var(--color-primary))]/20">
-                                <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1">{t("limits.details.remaining")}</p>
+                                <p className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1">{t("limits.details.remaining")}</p>
                                 <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] tabular-nums">
                                     {selectedFeature.limit === Infinity ? "∞" : selectedFeature.isNotIncluded ? "0" : Math.max(0, selectedFeature.limit - selectedFeature.used).toLocaleString()}
                                 </p>
                             </div>
                             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[rgb(var(--color-border-primary))]/20 group transition-all duration-300 hover:border-[rgb(var(--color-primary))]/20">
-                                <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1">{t("limits.details.type")}</p>
+                                <p className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1">{t("limits.details.type")}</p>
                                 <p className="text-xs font-bold text-[rgb(var(--color-text-primary))] capitalize truncate">
                                     {selectedFeature.usageType?.toLowerCase()?.replace('_', ' ') || "Standard"}
                                 </p>
@@ -276,9 +276,9 @@ const UsageLimitsPage = () => {
                                 <div className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-900 shadow-sm flex items-center justify-center">
                                     <BarChart3 size={14} className="text-[rgb(var(--color-primary))]" />
                                 </div>
-                                <span className="text-[11px] font-semibold text-[rgb(var(--color-text-secondary))]">{t("limits.details.analytics")}</span>
+                                <span className="text-[0.6875rem] font-semibold text-[rgb(var(--color-text-secondary))]">{t("limits.details.analytics")}</span>
                             </div>
-                            <Badge variant={selectedFeature.hasAnalytics ? "success" : "secondary"} className="text-[8px] font-bold uppercase tracking-wider px-2 py-0 rounded-md border-none shadow-sm">
+                            <Badge variant={selectedFeature.hasAnalytics ? "success" : "secondary"} className="text-[0.5rem] font-bold uppercase tracking-wider px-2 py-0 rounded-md border-none shadow-sm">
                                 {selectedFeature.hasAnalytics ? t("limits.details.active") : t("limits.details.inactive")}
                             </Badge>
                         </div>
@@ -286,7 +286,7 @@ const UsageLimitsPage = () => {
                         {!selectedFeature.isNotIncluded && selectedFeature.limit !== Infinity && (
                             <div className="pt-1">
                                 <Button 
-                                    className="w-full rounded-lg font-bold text-[11px] py-2.5 shadow-sm"
+                                    className="w-full rounded-lg font-bold text-[0.6875rem] py-2.5 shadow-sm"
                                     onClick={() => window.location.href = "/pricing"}
                                 >
                                     Boost Limits
@@ -296,7 +296,7 @@ const UsageLimitsPage = () => {
                         {selectedFeature.isNotIncluded && (
                             <div className="pt-1">
                                 <Button 
-                                    className="w-full rounded-lg font-bold text-[11px] py-2.5 shadow-sm"
+                                    className="w-full rounded-lg font-bold text-[0.6875rem] py-2.5 shadow-sm"
                                     onClick={() => window.location.href = "/pricing"}
                                 >
                                     Unlock Feature

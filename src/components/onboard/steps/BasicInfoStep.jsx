@@ -20,7 +20,7 @@ export default function BasicInfoStep({
                         GST Verification
                     </h3>
                     {formData.gst?.length >= 15 && !errors.gst && (
-                        <span className="text-[10px] bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] px-2 py-0.5 rounded-full font-semibold animate-pulse">
+                        <span className="text-[0.625rem] bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] px-2 py-0.5 rounded-full font-semibold animate-pulse">
                             Ready to Verify
                         </span>
                     )}
@@ -65,7 +65,7 @@ export default function BasicInfoStep({
                         }
                     />
                     {(fieldErrors.gst || errors.gst) && (
-                        <p className="text-red-500 text-[11px] flex items-center mt-1.5 ml-1">
+                        <p className="text-red-500 text-[0.6875rem] flex items-center mt-1.5 ml-1">
                             <AlertCircle className="w-3.5 h-3.5 mr-1" />
                             {fieldErrors.gst || errors.gst}
                         </p>
@@ -93,7 +93,7 @@ export default function BasicInfoStep({
                             required={true}
                         />
                         {(fieldErrors.name || errors.name) && (
-                            <p className="text-red-500 text-[11px] flex items-center mt-1.5 ml-1">
+                            <p className="text-red-500 text-[0.6875rem] flex items-center mt-1.5 ml-1">
                                 <AlertCircle className="w-3.5 h-3.5 mr-1" />
                                 {fieldErrors.name || errors.name}
                             </p>
@@ -111,7 +111,7 @@ export default function BasicInfoStep({
                             error={fieldErrors.pan || errors.pan}
                         />
                         {(fieldErrors.pan || errors.pan) && (
-                            <p className="text-red-500 text-[11px] flex items-center mt-1.5 ml-1">
+                            <p className="text-red-500 text-[0.6875rem] flex items-center mt-1.5 ml-1">
                                 <AlertCircle className="w-3.5 h-3.5 mr-1" />
                                 {fieldErrors.pan || errors.pan}
                             </p>
@@ -133,7 +133,7 @@ export default function BasicInfoStep({
                             required={true}
                         />
                         {(fieldErrors.phone || errors.phone) && (
-                            <p className="text-red-500 text-[11px] flex items-center mt-1.5 ml-1">
+                            <p className="text-red-500 text-[0.6875rem] flex items-center mt-1.5 ml-1">
                                 <AlertCircle className="w-3.5 h-3.5 mr-1" />
                                 {fieldErrors.phone || errors.phone}
                             </p>
@@ -151,7 +151,7 @@ export default function BasicInfoStep({
                             error={fieldErrors.email || errors.email}
                         />
                         {(fieldErrors.email || errors.email) && (
-                            <p className="text-red-500 text-[11px] flex items-center mt-1.5 ml-1">
+                            <p className="text-red-500 text-[0.6875rem] flex items-center mt-1.5 ml-1">
                                 <AlertCircle className="w-3.5 h-3.5 mr-1" />
                                 {fieldErrors.email || errors.email}
                             </p>

@@ -11,17 +11,17 @@ const OrderItems = ({ order }) => {
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] overflow-hidden flex flex-col">
                 <div className="px-6 py-4 border-b border-[rgb(var(--color-border-primary)/0.5)] bg-[rgb(var(--color-bg-secondary))]/30 flex justify-between items-center">
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{t("salesOrder.orderItems")}</h2>
-                    <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider">{order.items.length} {t("common.products")}</Badge>
+                    <Badge variant="outline" className="font-bold text-[0.625rem] uppercase tracking-wider">{order.items.length} {t("common.products")}</Badge>
                 </div>
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-[rgb(var(--color-bg-secondary))]/50">
                             <tr>
-                                <th className="px-6 py-4 text-left text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.product")}</th>
-                                <th className="px-6 py-4 text-center text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("products.qty")}</th>
-                                <th className="px-6 py-4 text-right text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.price")}</th>
-                                <th className="px-6 py-4 text-right text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("invoice.gst")}</th>
-                                <th className="px-6 py-4 text-right text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.total")}</th>
+                                <th className="px-6 py-4 text-left text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.product")}</th>
+                                <th className="px-6 py-4 text-center text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("products.qty")}</th>
+                                <th className="px-6 py-4 text-right text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.price")}</th>
+                                <th className="px-6 py-4 text-right text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("invoice.gst")}</th>
+                                <th className="px-6 py-4 text-right text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.total")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
@@ -47,10 +47,10 @@ const OrderItems = ({ order }) => {
                                                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{item.product?.name || item.name}</span>
                                                 <div className="flex flex-wrap gap-2 mt-1">
                                                     {item.product?.sku && (
-                                                        <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">{t("common.sku")}: {item.product.sku}</span>
+                                                        <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">{t("common.sku")}: {item.product.sku}</span>
                                                     )}
                                                     {item.product?.barcode && (
-                                                        <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">{t("common.barcode")}: {item.product.barcode}</span>
+                                                        <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">{t("common.barcode")}: {item.product.barcode}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -62,7 +62,7 @@ const OrderItems = ({ order }) => {
                                         {(item.gst || item.gstAmount > 0) ? (
                                             <div className="flex flex-col items-end">
                                                 <span>₹{(item.gstAmount || item.gst?.breakdown?.total || 0).toLocaleString()}</span>
-                                                <span className="text-[10px] text-[rgb(var(--color-text-tertiary))]">({item.gstRate || item.gst?.rate || 0}%)</span>
+                                                <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))]">({item.gstRate || item.gst?.rate || 0}%)</span>
                                             </div>
                                         ) : (
                                             "-"

@@ -29,12 +29,12 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency, gstBreakdown }) =
         <table className="min-w-full text-sm">
           <thead>
             <tr className="text-left text-[rgb(var(--color-text-tertiary))] border-b border-[rgb(var(--color-border-primary))]/40">
-              <th className="py-3 px-6 font-bold uppercase tracking-wider text-[10px]">Product</th>
-              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[10px]">HSN</th>
-              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[10px] text-center">Qty</th>
-              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[10px] text-right">Unit Price</th>
-              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[10px] text-center">GST %</th>
-              <th className="py-3 px-6 font-bold uppercase tracking-wider text-[10px] text-right">Amount</th>
+              <th className="py-3 px-6 font-bold uppercase tracking-wider text-[0.625rem]">Product</th>
+              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[0.625rem]">HSN</th>
+              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[0.625rem] text-center">Qty</th>
+              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[0.625rem] text-right">Unit Price</th>
+              <th className="py-3 px-4 font-bold uppercase tracking-wider text-[0.625rem] text-center">GST %</th>
+              <th className="py-3 px-6 font-bold uppercase tracking-wider text-[0.625rem] text-right">Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]/20">
@@ -71,7 +71,7 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency, gstBreakdown }) =
         <div className="w-full md:w-1/2">
           {gstBreakdown && (gstBreakdown.cgst > 0 || gstBreakdown.sgst > 0 || gstBreakdown.igst > 0) ? (
             <div className="space-y-4">
-              <h4 className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Inward GST Summary</h4>
+              <h4 className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Inward GST Summary</h4>
               <div className="grid grid-cols-2 gap-x-8 gap-y-3 py-2">
                 {gstBreakdown.cgst > 0 && (
                   <div className="flex justify-between items-center text-xs">
@@ -92,7 +92,7 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency, gstBreakdown }) =
                   </div>
                 )}
                 <div className="col-span-2 pt-2 border-t border-[rgb(var(--color-border-primary))]/20 flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-[rgb(var(--color-primary))] uppercase">Total Tax (ITC)</span>
+                  <span className="text-[0.625rem] font-bold text-[rgb(var(--color-primary))] uppercase">Total Tax (ITC)</span>
                   <span className="text-sm text-[rgb(var(--color-primary))] font-black">{formatCurrency(gstBreakdown.total || itemsSummary?.gstAmount || 0)}</span>
                 </div>
               </div>

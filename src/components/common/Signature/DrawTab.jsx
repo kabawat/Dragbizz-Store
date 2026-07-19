@@ -44,7 +44,7 @@ const DrawTab = ({
                     onTouchEnd={stopDrawing}
                 />
             </div>
-            <p className="text-[10px] text-center text-[rgb(var(--color-text-tertiary))] uppercase font-bold tracking-widest">
+            <p className="text-[0.625rem] text-center text-[rgb(var(--color-text-tertiary))] uppercase font-bold tracking-widest">
                 {t("invoice.signInstructions")}
             </p>
         </div>

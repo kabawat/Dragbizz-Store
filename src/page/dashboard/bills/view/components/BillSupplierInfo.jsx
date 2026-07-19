@@ -23,7 +23,7 @@ const BillSupplierInfo = ({ supplier }) => {
         <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
           <div className="flex items-center gap-3">
             <div className="space-y-0.5">
-              <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Phone</p>
+              <p className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Phone</p>
               <p className="text-xs font-bold text-[rgb(var(--color-text-primary))]">{supplier?.phone || "N/A"}</p>
             </div>
             <div className="h-6 w-px bg-[rgb(var(--color-border-primary))]/40 hidden sm:block" />
@@ -31,7 +31,7 @@ const BillSupplierInfo = ({ supplier }) => {
 
           <div className="flex items-center gap-3">
             <div className="space-y-0.5">
-              <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Email</p>
+              <p className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Email</p>
               <p className="text-xs font-bold text-[rgb(var(--color-text-primary))] lowercase">{supplier?.email || "N/A"}</p>
             </div>
             <div className="h-6 w-px bg-[rgb(var(--color-border-primary))]/40 hidden sm:block" />
@@ -39,7 +39,7 @@ const BillSupplierInfo = ({ supplier }) => {
 
           {supplier?.gstNumber && (
             <div className="space-y-0.5">
-              <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">GSTIN</p>
+              <p className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">GSTIN</p>
               <p className="text-xs font-black text-[rgb(var(--color-primary))] tracking-wide">{supplier.gstNumber}</p>
             </div>
           )}

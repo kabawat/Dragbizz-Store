@@ -216,7 +216,7 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
                         placeholder="Select stores the staff can manage..."
                         required
                     />
-                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-2 italic">
+                    <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] mt-2 italic">
                         * Staff will be able to switch between these stores after login.
                     </p>
                 </div>
@@ -238,7 +238,7 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
                                     }`}
                             >
                                 <p className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{preset.label}</p>
-                                <p className="text-[10px] text-[rgb(var(--color-text-secondary))] mt-0.5 leading-tight">{preset.description}</p>
+                                <p className="text-[0.625rem] text-[rgb(var(--color-text-secondary))] mt-0.5 leading-tight">{preset.description}</p>
                             </button>
                         ))}
                     </div>

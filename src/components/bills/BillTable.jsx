@@ -186,7 +186,7 @@ const BillTable = ({
                     <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">
                       {formatCurrency(bill.totalAmount)}
                     </div>
-                    <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                    <div className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
                       Sub: {formatCurrency(bill.subtotal || 0)}
                     </div>
                   </td>

@@ -29,14 +29,14 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                         <span className="text-3xl opacity-50">📦</span>
                     )}
                     {/* Price Badge Overlay */}
-                    <div className="absolute bottom-1 right-1 bg-[rgb(var(--color-primary))] text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    <div className="absolute bottom-1 right-1 bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold px-1.5 py-0.5 rounded">
                         {fmt(product.pricing?.sellingPrice)}
                     </div>
                 </div>
                 <div className="min-w-0 w-full px-1 flex-1 flex flex-col justify-between pb-1">
                     <div>
-                        <p className="text-[11px] font-bold text-[rgb(var(--color-text-primary))] leading-[1.2] line-clamp-2 mb-0.5">{product.name}</p>
-                        <p className="text-[9px] text-[rgb(var(--color-text-secondary))] font-medium truncate uppercase tracking-wider">{product.sku || "NO SKU"}</p>
+                        <p className="text-[0.6875rem] font-bold text-[rgb(var(--color-text-primary))] leading-[1.2] line-clamp-2 mb-0.5">{product.name}</p>
+                        <p className="text-[0.5625rem] text-[rgb(var(--color-text-secondary))] font-medium truncate uppercase tracking-wider">{product.sku || "NO SKU"}</p>
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                         <span className="text-xs font-black text-[rgb(var(--color-primary))]">{fmt(product.pricing?.sellingPrice)}</span>
@@ -68,7 +68,7 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                     <span className="text-sm font-black text-[rgb(var(--color-primary))] whitespace-nowrap">{fmt(product.pricing?.sellingPrice)}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] font-mono">{product.sku || "N/A"}</span>
+                    <span className="text-[0.625rem] bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] font-mono">{product.sku || "N/A"}</span>
                 </div>
             </div>
             <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">

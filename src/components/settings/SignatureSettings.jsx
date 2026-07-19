@@ -133,7 +133,7 @@ const SignatureSettings = () => {
                                                 <div className="text-center text-[rgb(var(--color-primary))]">
                                                     <Fingerprint className="w-6 h-6 mx-auto mb-1 opacity-70" />
                                                     <p className="font-bold tracking-widest text-lg">{sig.content}</p>
-                                                    <p className="text-[10px] uppercase font-black opacity-50">
+                                                    <p className="text-[0.625rem] uppercase font-black opacity-50">
                                                         {sig.verificationDetails?.idType || "Verified ID"}
                                                     </p>
                                                 </div>
@@ -141,7 +141,7 @@ const SignatureSettings = () => {
                                         </div>
                                     </div>
 
-                                    <div className="text-[10px] text-center text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-medium">
+                                    <div className="text-[0.625rem] text-center text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-medium">
                                         {sig.method === "type" ? t("invoice.typeName") :
                                             sig.method === "draw" ? t("invoice.draw") :
                                                 t("invoice.uploadImage")}
