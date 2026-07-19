@@ -1,28 +1,41 @@
 "use client";
 
-import { Plus, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { useState } from "react";
-import { FormDrawer } from "@/components/common";
-import { Input, MultiSelect, Toggle } from "@/components/ui";
-import { createStoreUpi, getStoreUpi } from "@/store/slices/storeUpiSlice";
-import { useAppDispatch } from "@/store/hooks";
+import { Button, Input, Modal, MultiSelect, Toggle } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch } from "@/store/hooks";
+import { createStoreUpi, getStoreUpi } from "@/store/slices/storeUpiSlice";
 import { pickStoreId } from "@/utils/store.util";
 
 const UPI_ID_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
 
-const UpiAddDrawer = ({ isOpen, storeId, stores = [], onClose, onSuccess, onError }) => {
+const UpiAddDrawer = ({
+  isOpen,
+  storeId,
+  stores = [],
+  onClose,
+  onSuccess,
+  onError,
+}) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const [form, setForm] = useState({ upiId: "", label: "", storeIds: [], isDefault: false });
+  const [form, setForm] = useState({
+    upiId: "",
+    label: "",
+    storeIds: [],
+    isDefault: false,
+  });
   const [errors, setErrors] = useState({});
   const [isCreating, setIsCreating] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
     if (!form.upiId?.trim()) newErrors.upiId = t("settings.upi.upiIdRequired");
-    else if (!UPI_ID_REGEX.test(form.upiId.trim().toLowerCase())) newErrors.upiId = t("settings.upi.invalidUpiFormat");
-    if (!form.storeIds?.length) newErrors.storeIds = t("settings.upi.storeIdsRequired");
+    else if (!UPI_ID_REGEX.test(form.upiId.trim().toLowerCase()))
+      newErrors.upiId = t("settings.upi.invalidUpiFormat");
+    if (!form.storeIds?.length)
+      newErrors.storeIds = t("settings.upi.storeIdsRequired");
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -35,11 +48,15 @@ const UpiAddDrawer = ({ isOpen, storeId, stores = [], onClose, onSuccess, onErro
       const payload = {
         upiId: form.upiId.trim().toLowerCase(),
         label: form.label?.trim() || undefined,
-        storeIds: form.storeIds.map((id) => (typeof id === "string" ? id : id?.toString?.() || id)),
+        storeIds: form.storeIds.map((id) =>
+          typeof id === "string" ? id : id?.toString?.() || id
+        ),
         isDefault: form.isDefault,
       };
       await dispatch(createStoreUpi({ storeId, payload })).unwrap();
-      await dispatch(getStoreUpi({ storeId, scope: "agency", forceRefresh: true })).unwrap();
+      await dispatch(
+        getStoreUpi({ storeId, scope: "agency", forceRefresh: true })
+      ).unwrap();
       onSuccess?.(t("settings.upi.addedSuccess"));
       handleCancel();
     } catch (error) {
@@ -61,22 +78,19 @@ const UpiAddDrawer = ({ isOpen, storeId, stores = [], onClose, onSuccess, onErro
   }));
 
   return (
-    <FormDrawer
+    <Modal
       isOpen={isOpen}
       onClose={handleCancel}
       title={t("settings.upi.addNewUpi")}
-      icon={Plus}
-      description={t("settings.upi.manageUpiDescription")}
-      width="w-full md:w-[420px]"
-      onSave={handleSave}
-      onCancel={handleCancel}
-      saveLabel={isCreating ? "Adding..." : t("settings.upi.addUpi")}
-      cancelLabel={t("common.cancel")}
-      isSaving={isCreating}
-      saveIcon={Save}
-      saveVariant="primary"
+      size="md"
+      closeOnOverlayClick={!isCreating}
+      closeOnEscape={!isCreating}
+      className="!shadow-none"
     >
       <div className="space-y-4">
+        <p className="text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
+          {t("settings.upi.manageUpiDescription")}
+        </p>
         <Input
           label={t("settings.upi.upiId")}
           placeholder="merchant@paytm"
@@ -109,8 +123,25 @@ const UpiAddDrawer = ({ isOpen, storeId, stores = [], onClose, onSuccess, onErro
           checked={form.isDefault}
           onChange={(checked) => setForm((p) => ({ ...p, isDefault: checked }))}
         />
+        <div className="flex justify-end gap-3 border-t border-[rgb(var(--color-border-primary))]/60 pt-4">
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isCreating}
+          >
+            {t("common.cancel")}
+          </Button>
+          <Button
+            variant="primary"
+            leftIcon={Save}
+            onClick={handleSave}
+            isLoading={isCreating}
+          >
+            {isCreating ? "Adding..." : t("settings.upi.addUpi")}
+          </Button>
+        </div>
       </div>
-    </FormDrawer>
+    </Modal>
   );
 };
 

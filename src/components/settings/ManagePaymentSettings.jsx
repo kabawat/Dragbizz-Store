@@ -1,8 +1,8 @@
 "use client";
 
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCallback, useMemo } from "react";
 import { CreditCard, Wallet } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import ManageUpiSettings from "./ManageUpiSettings";
 import { ManagePaymentGatewaySettings } from "./paymentGateway";
@@ -35,11 +35,11 @@ const ManagePaymentSettings = () => {
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname);
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams]
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex gap-2 border-b border-[rgb(var(--color-border-primary))]/50 pb-1">
         {PAYMENT_SUB_TABS.map(({ id, icon: Icon }) => {
           const isActive = activeSubTab === id;
@@ -52,7 +52,7 @@ const ManagePaymentSettings = () => {
               key={id}
               type="button"
               onClick={() => handleSubTabChange(id)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer ${
+              className={`flex cursor-pointer items-center gap-2 rounded-t-lg px-3 py-2 text-sm font-medium leading-5 transition-colors ${
                 isActive
                   ? "text-[rgb(var(--color-primary))] border-b-2 border-[rgb(var(--color-primary))] -mb-[1px]"
                   : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
@@ -65,7 +65,11 @@ const ManagePaymentSettings = () => {
         })}
       </div>
 
-      {activeSubTab === "upi" ? <ManageUpiSettings /> : <ManagePaymentGatewaySettings />}
+      {activeSubTab === "upi" ? (
+        <ManageUpiSettings />
+      ) : (
+        <ManagePaymentGatewaySettings />
+      )}
     </div>
   );
 };

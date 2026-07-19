@@ -1,15 +1,11 @@
 "use client";
 
-import { Loader2, Save, Wallet } from "lucide-react";
-import { useState, useEffect } from "react";
-import { FormDrawer } from "@/components/common";
-import { Input, MultiSelect, Toggle } from "@/components/ui";
-import {
-  updateStoreUpi,
-  getStoreUpi,
-} from "@/store/slices/storeUpiSlice";
-import { useAppDispatch } from "@/store/hooks";
+import { Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button, Input, Modal, MultiSelect, Toggle } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch } from "@/store/hooks";
+import { getStoreUpi, updateStoreUpi } from "@/store/slices/storeUpiSlice";
 import { pickStoreId } from "@/utils/store.util";
 
 const UPI_ID_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
@@ -84,9 +80,7 @@ const UpiEditDrawer = ({
       onSuccess?.(t("settings.upi.updatedSuccess"));
       handleCancel();
     } catch (error) {
-      onError?.(
-        error?.message || error || "Failed to update UPI ID"
-      );
+      onError?.(error?.message || error || "Failed to update UPI ID");
     } finally {
       setIsSaving(false);
     }
@@ -104,22 +98,19 @@ const UpiEditDrawer = ({
   }));
 
   return (
-    <FormDrawer
+    <Modal
       isOpen={isOpen}
       onClose={handleCancel}
-      title={t("settings.upi.edit") + " UPI"}
-      icon={Wallet}
-      description={t("settings.upi.manageUpiDescription")}
-      width="w-full md:w-[420px]"
-      onSave={handleSave}
-      onCancel={handleCancel}
-      saveLabel={isSaving ? "Saving..." : t("common.save")}
-      cancelLabel={t("common.cancel")}
-      isSaving={isSaving}
-      saveIcon={Save}
-      saveVariant="primary"
+      title={`${t("settings.upi.edit")} UPI`}
+      size="md"
+      closeOnOverlayClick={!isSaving}
+      closeOnEscape={!isSaving}
+      className="!shadow-none"
     >
       <div className="space-y-4">
+        <p className="text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
+          {t("settings.upi.manageUpiDescription")}
+        </p>
         <Input
           label={t("settings.upi.upiId")}
           placeholder="merchant@paytm"
@@ -142,9 +133,7 @@ const UpiEditDrawer = ({
           placeholder={t("settings.upi.selectStores")}
           options={storeOptions}
           value={form.storeIds?.map((id) => String(id)) || []}
-          onChange={(vals) =>
-            setForm((p) => ({ ...p, storeIds: vals || [] }))
-          }
+          onChange={(vals) => setForm((p) => ({ ...p, storeIds: vals || [] }))}
           error={!!errors.storeIds}
           errorMessage={errors.storeIds}
           clearable={false}
@@ -154,8 +143,21 @@ const UpiEditDrawer = ({
           checked={form.isDefault}
           onChange={(checked) => setForm((p) => ({ ...p, isDefault: checked }))}
         />
+        <div className="flex justify-end gap-3 border-t border-[rgb(var(--color-border-primary))]/60 pt-4">
+          <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+            {t("common.cancel")}
+          </Button>
+          <Button
+            variant="primary"
+            leftIcon={Save}
+            onClick={handleSave}
+            isLoading={isSaving}
+          >
+            {isSaving ? "Saving..." : t("common.save")}
+          </Button>
+        </div>
       </div>
-    </FormDrawer>
+    </Modal>
   );
 };
 

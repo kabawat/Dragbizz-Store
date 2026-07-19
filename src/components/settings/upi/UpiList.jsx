@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
 import {
   Copy,
   Edit2,
@@ -10,10 +9,11 @@ import {
   Trash2,
   Wallet,
 } from "lucide-react";
+import React from "react";
+import { UpiQrModal } from "@/components/common";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 import { pickStoreId } from "@/utils/store.util";
-import { UpiQrModal } from "@/components/common";
 
 const COPIED_DURATION_MS = 2500;
 
@@ -24,7 +24,6 @@ const UpiList = ({
   onAddUpi,
   onEditUpi,
   onDeleteUpi,
-  showSuccess,
 }) => {
   const { t } = useTranslation();
   const [qrModalItem, setQrModalItem] = React.useState(null);
@@ -32,15 +31,17 @@ const UpiList = ({
 
   const getStoreNames = (storeIds = []) => {
     if (!storeIds.length || !stores.length) return "-";
-    return storeIds
-      .map((storeId) => {
-        const store = stores.find(
-          (entry) => pickStoreId(entry) === String(storeId)
-        );
-        return store?.storeName ?? storeId;
-      })
-      .filter(Boolean)
-      .join(", ") || "-";
+    return (
+      storeIds
+        .map((storeId) => {
+          const store = stores.find(
+            (entry) => pickStoreId(entry) === String(storeId)
+          );
+          return store?.storeName ?? storeId;
+        })
+        .filter(Boolean)
+        .join(", ") || "-"
+    );
   };
 
   const handleCopyUpi = async (upiId, itemId) => {
@@ -72,9 +73,13 @@ const UpiList = ({
           {t("settings.upi.noUpiAdded")}
         </h3>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-          {t("settings.upi.addFirstUpiDescription", "Add your first UPI ID to accept payments")}
+          {t(
+            "settings.upi.addFirstUpiDescription",
+            "Add your first UPI ID to accept payments"
+          )}
         </p>
         <button
+          type="button"
           onClick={onAddUpi}
           className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-[rgb(var(--color-primary))]/90 transition-colors cursor-pointer mx-auto"
         >
@@ -87,19 +92,19 @@ const UpiList = ({
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {upiIds.map((item) => {
           const id = item.id;
           return (
             <div
               key={id}
-              className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/70 p-6 relative flex flex-col h-full"
+              className="relative flex h-full flex-col rounded-lg border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-primary))]/20 p-4"
             >
               {/* Card Header - Icon + Label + Action Buttons (like Store card) */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="mb-3 flex items-start justify-between">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Wallet className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[rgb(var(--color-primary))]/10">
+                    <Wallet className="h-4 w-4 text-[rgb(var(--color-primary))]" />
                   </div>
                   {item.label && (
                     <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))] truncate">
@@ -114,6 +119,7 @@ const UpiList = ({
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <button
+                    type="button"
                     onClick={() => onEditUpi?.(item)}
                     className="w-8 h-8 flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors cursor-pointer"
                     title={t("settings.upi.edit")}
@@ -121,6 +127,7 @@ const UpiList = ({
                     <Edit2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => onDeleteUpi?.(item)}
                     className="w-8 h-8 flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors cursor-pointer"
                     title={t("settings.upi.delete")}
@@ -131,22 +138,26 @@ const UpiList = ({
               </div>
 
               {/* UPI ID - prominent like Store name */}
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-3 break-all">
+              <h3 className="mb-2 break-all text-base font-semibold leading-5 text-[rgb(var(--color-text-primary))]">
                 {item.upiId}
               </h3>
 
               {/* Accessible by stores - like GST, PAN (bold label + value) */}
-              <div className="space-y-1 mb-4">
+              <div className="mb-3 space-y-1">
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {t("settings.upi.accessibleByStores", "Accessible by stores")}:
+                    {t(
+                      "settings.upi.accessibleByStores",
+                      "Accessible by stores"
+                    )}
+                    :
                   </span>{" "}
                   {getStoreNames(item.storeIds)}
                 </p>
               </div>
 
               {/* Divider + Action buttons (like Manage UPI & Public Catalog) */}
-              <div className="mt-auto pt-4 border-t border-[rgb(var(--color-border-primary))]/40 space-y-2">
+              <div className="mt-auto space-y-2 border-t border-[rgb(var(--color-border-primary))]/40 pt-3">
                 <button
                   type="button"
                   onClick={() => handleCopyUpi(item.upiId, id)}
@@ -201,10 +212,10 @@ const UpiList = ({
         <button
           type="button"
           onClick={onAddUpi}
-          className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-dashed border-[rgb(var(--color-border-primary))]/70 p-6 relative flex flex-col items-center justify-center h-full min-h-[220px] hover:border-[rgb(var(--color-primary))]/60 hover:bg-[rgb(var(--color-primary))]/5 transition-colors cursor-pointer"
+          className="relative flex min-h-[190px] h-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-primary))]/20 p-4 transition-colors hover:border-[rgb(var(--color-primary))]/60 hover:bg-[rgb(var(--color-primary))]/5"
         >
-          <div className="w-12 h-12 mb-4 rounded-full bg-[rgb(var(--color-primary))]/10 flex items-center justify-center">
-            <Plus className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[rgb(var(--color-primary))]/10">
+            <Plus className="h-5 w-5 text-[rgb(var(--color-primary))]" />
           </div>
           <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-1">
             {t("settings.upi.addNewUpi")}

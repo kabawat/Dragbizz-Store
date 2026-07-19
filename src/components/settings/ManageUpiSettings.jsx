@@ -1,13 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  UpiAddDrawer,
+  UpiDeleteModal,
+  UpiEditDrawer,
+  UpiHeader,
+  UpiList,
+} from "@/components/settings/upi";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { getStoreUpi } from "@/store/slices/storeUpiSlice";
-import { UpiHeader, UpiList, UpiAddDrawer, UpiEditDrawer, UpiDeleteModal, } from "@/components/settings/upi";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getStoreUpi } from "@/store/slices/storeUpiSlice";
 
 const ManageUpiSettings = () => {
   const { t } = useTranslation();
@@ -93,7 +99,6 @@ const ManageUpiSettings = () => {
         onAddUpi={handleAddUpi}
         onEditUpi={handleEditUpi}
         onDeleteUpi={handleDeleteUpi}
-        showSuccess={showSuccess}
       />
 
       <UpiAddDrawer
