@@ -1,13 +1,14 @@
 "use client";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAppSelector } from "@/store/hooks";
-import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
-import { ensureSubdomain } from "@/utils/helper/domain";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
-import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
+import VoiceCommandLauncher from "@/components/voice/VoiceCommandLauncher";
 import { HeaderProvider } from "@/contexts/HeaderContext";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
+import { useAppSelector } from "@/store/hooks";
+import { ensureSubdomain } from "@/utils/helper/domain";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -22,11 +23,12 @@ export default function DashboardLayout({ children }) {
     isAuthenticated,
     authProfile,
     authProfileLoading,
-    staffProfileLoading
+    staffProfileLoading,
   } = useAppSelector((state) => state.profile);
 
   const { ready: storeReady } = useSelectedStoreId();
-  const isProfileLoading = isLoading || authProfileLoading || staffProfileLoading;
+  const isProfileLoading =
+    isLoading || authProfileLoading || staffProfileLoading;
 
   useEffect(() => {
     if (isProfileLoading) {
@@ -58,7 +60,6 @@ export default function DashboardLayout({ children }) {
       ensureSubdomain(authProfile.tenant);
     }
   }, [authProfile?.tenant]);
-
 
   if (isProfileLoading || !storeReady) {
     return (
@@ -98,7 +99,9 @@ export default function DashboardLayout({ children }) {
     <HeaderProvider>
       <PermissionGuard>
         {isCustomerPayment ? (
-          <main className="min-h-[100dvh] bg-[rgb(var(--color-bg-primary))]">{children}</main>
+          <main className="min-h-[100dvh] bg-[rgb(var(--color-bg-primary))]">
+            {children}
+          </main>
         ) : (
           <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
             <div className="no-print">
@@ -114,6 +117,9 @@ export default function DashboardLayout({ children }) {
             </div>
           </div>
         )}
+        <div className="no-print">
+          <VoiceCommandLauncher />
+        </div>
       </PermissionGuard>
     </HeaderProvider>
   );

@@ -1,0 +1,30 @@
+{
+  "title": "DragBizz Voice",
+  "subtitle": "Aapka hands-free business assistant",
+  "open": "Voice command",
+  "move": "Voice assistant ko move karne ke liye drag karein",
+  "startListening": "Sunna shuru karein",
+  "stopListening": "Sunna band karein",
+  "transcript": "Live transcript",
+  "transcriptPlaceholder": "Microphone tap karke apna command boliye...",
+  "clear": "Clear",
+  "privacy": "Microphone sirf listening ke waqt chalta hai",
+  "shortcut": "Alt + V",
+  "permissionHelp": "Browser settings mein microphone allow karke dobara try karein.",
+  "status": {
+    "ready": "Jab aap ready hon",
+    "listening": "Aapka command sun raha hoon...",
+    "hearing": "Main aapko sun sakta hoon",
+    "unsupported": "Is browser mein voice capture support nahi hai"
+  },
+  "errors": {
+    "unsupported": "Is browser mein voice capture support nahi hai",
+    "insecure_context": "Microphone ke liye DragBizz ko HTTPS ya localhost par kholein",
+    "permission_denied": "Microphone permission deny ho gayi",
+    "not_found": "Koi microphone nahi mila",
+    "device_busy": "Microphone kisi doosri application mein use ho raha hai",
+    "recognition_error": "Speech recognition command samajh nahi paya",
+    "network": "Speech recognition ke liye internet connection chahiye",
+    "unknown": "Microphone start nahi ho saka"
+  }
+}

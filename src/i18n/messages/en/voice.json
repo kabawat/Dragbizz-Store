@@ -1,0 +1,30 @@
+{
+  "title": "DragBizz Voice",
+  "subtitle": "Your hands-free business assistant",
+  "open": "Voice command",
+  "move": "Drag to move voice assistant",
+  "startListening": "Start listening",
+  "stopListening": "Stop listening",
+  "transcript": "Live transcript",
+  "transcriptPlaceholder": "Tap the microphone and speak a command...",
+  "clear": "Clear",
+  "privacy": "Microphone runs only while listening",
+  "shortcut": "Alt + V",
+  "permissionHelp": "Allow microphone access in your browser settings, then try again.",
+  "status": {
+    "ready": "Ready when you are",
+    "listening": "Listening for your command...",
+    "hearing": "I can hear you",
+    "unsupported": "Voice capture is not supported in this browser"
+  },
+  "errors": {
+    "unsupported": "Voice capture is not supported in this browser",
+    "insecure_context": "Open DragBizz over HTTPS or localhost to use the microphone",
+    "permission_denied": "Microphone permission was denied",
+    "not_found": "No microphone was found",
+    "device_busy": "Your microphone is being used by another application",
+    "recognition_error": "Speech recognition could not understand the command",
+    "network": "Speech recognition needs a working internet connection",
+    "unknown": "The microphone could not be started"
+  }
+}
