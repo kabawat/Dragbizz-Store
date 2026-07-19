@@ -115,6 +115,14 @@ class StoreService extends BaseService {
   async verifyGst(gstNo) {
     return this.post(API_CONFIG?.RETAILER?.GST_VERIFY, { gstNo });
   }
+
+  async getInvoiceNumberTemplates() {
+    return this.get(`${this.endpoint}/invoice-number-templates`);
+  }
+
+  async getInvoiceNumberPreview(storeId, params = {}) {
+    return this.get(`${this.endpoint}/${storeId}/invoice-number-preview`, params);
+  }
 }
 
 // Create and export a singleton instance

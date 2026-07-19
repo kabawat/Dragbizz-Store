@@ -1,8 +1,8 @@
 "use client";
 
-import { Bell, ChevronRight, CreditCard, Palette, Settings as SettingsIcon, Shield, Store, User, PenTool, Languages, Plug, } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, Hash, Palette, Settings as SettingsIcon, Shield, Store, User, PenTool, Languages, Plug, } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     AccountSettings,
     AppearanceSettings,
@@ -14,6 +14,7 @@ import {
     SignatureSettings,
     LanguageSettings,
     IntegrationsSettings,
+    InvoiceNumberSettings,
 } from "@/components/settings";
 import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -33,6 +34,7 @@ const SettingsPage = () => {
     const { toggleVariant } = useTheme();
     const [activeTab, setActiveTab] = useState("appearance");
     const [animationKey, setAnimationKey] = useState(0);
+    const contentRef = useRef(null);
 
     const allTabs = [
         { id: "appearance", label: t("settings.appearance"), icon: Palette },
@@ -43,6 +45,7 @@ const SettingsPage = () => {
         { id: "signature", label: t("settings.digitalSignatures") || "Signatures", icon: PenTool },
         { id: "payment", label: t("settings.payment"), icon: CreditCard },
         { id: "integrations", label: t("integrations.title"), icon: Plug },
+        { id: "invoiceNumber", label: t("invoiceNumber.title"), icon: Hash },
         { id: "security", label: t("settings.security"), icon: Shield },
         {
             id: "notifications",
@@ -68,6 +71,12 @@ const SettingsPage = () => {
         }
     }, [searchParams, settingsTabs]);
 
+    useEffect(() => {
+        if (contentRef.current) {
+            contentRef.current.scrollTop = 0;
+        }
+    }, [activeTab]);
+
     const handleTabChange = (tabId) => {
         setActiveTab(tabId);
         const params = new URLSearchParams(searchParams.toString());
@@ -81,7 +90,7 @@ const SettingsPage = () => {
     };
 
     return (
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
             {/* Left Sidebar Navigation */}
             <div className="w-64 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/50 flex-shrink-0">
                 <div className="p-4">
@@ -112,7 +121,14 @@ const SettingsPage = () => {
 
             {/* Content Area */}
             <div className="flex-1 min-h-0 overflow-hidden p-4 sm:p-6">
-                <div className="w-full h-full mx-auto overflow-y-auto custom-scrollbar">
+                <div
+                    ref={contentRef}
+                    className={`w-full h-full mx-auto custom-scrollbar ${
+                        activeTab === "invoiceNumber"
+                            ? "overflow-y-auto lg:overflow-hidden"
+                            : "overflow-y-auto"
+                    }`}
+                >
                     {activeTab === "appearance" && (
                         <AppearanceSettings
                             animationKey={animationKey}
@@ -126,6 +142,7 @@ const SettingsPage = () => {
                     {activeTab === "signature" && <SignatureSettings />}
                     {activeTab === "payment" && <ManagePaymentSettings />}
                     {activeTab === "integrations" && <IntegrationsSettings />}
+                    {activeTab === "invoiceNumber" && <InvoiceNumberSettings />}
                     {activeTab === "security" && <SecuritySettings />}
                     {activeTab === "notifications" && <NotificationsSettings />}
                 </div>

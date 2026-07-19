@@ -1,6 +1,5 @@
 "use client";
 import {
-  Calendar,
   CheckCircle,
   Copy,
   CreditCard,
@@ -24,7 +23,7 @@ import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { formatCurrencySimple as formatCurrency } from "@/utils/currencyFormatter";
-import { formatDateLong as formatDate } from "@/utils/dateFormatter";
+import { formatDateLong as formatDate, formatTime } from "@/utils/dateFormatter";
 import {
   buildInvoiceShareUrl,
   copyInvoiceShareLink,
@@ -207,7 +206,7 @@ const InvoicesListTable = ({
             <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.customer")}
             </th>
-            <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.date")}
             </th>
             <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
@@ -267,11 +266,13 @@ const InvoicesListTable = ({
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-2">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                <td className="px-4 py-2 text-right">
+                  <div className="flex flex-col items-end leading-tight">
                     <span className="text-sm text-[rgb(var(--color-text-secondary))]">
                       {formatDate(invoice.createdAt)}
+                    </span>
+                    <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                      {formatTime(invoice.createdAt)}
                     </span>
                   </div>
                 </td>

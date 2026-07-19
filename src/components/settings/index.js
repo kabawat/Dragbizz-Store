@@ -9,3 +9,4 @@ export { default as StoreSettings } from "./store";
 export { default as SignatureSettings } from "./SignatureSettings";
 export { default as LanguageSettings } from "./LanguageSettings";
 export { default as IntegrationsSettings } from "./integrations";
+export { default as InvoiceNumberSettings } from "./invoiceNumber";

@@ -23,6 +23,7 @@ import {
 } from "@/utils/invoice/invoiceShare.utils";
 import { Card, Badge, IconButton } from "../ui";
 import { useTheme } from "@/contexts/ThemeContext";
+import { formatDateLong, formatTime } from "@/utils/dateFormatter";
 
 const InvoiceCard = ({
   invoice,
@@ -159,11 +160,12 @@ const InvoiceCard = ({
 
   const formatDate = (dateString) => {
     if (!dateString) return t("common.notAvailable");
-    return new Date(dateString).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return formatDateLong(dateString);
+  };
+
+  const formatInvoiceTime = (dateString) => {
+    if (!dateString) return t("common.notAvailable");
+    return formatTime(dateString);
   };
 
   const formatCurrency = (amount) => {
@@ -273,17 +275,22 @@ const InvoiceCard = ({
               </span>
             </div>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 text-right">
             <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
               {t("common.date")}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-start justify-end gap-2">
+              <div className="flex flex-col items-end leading-tight">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {formatDate(invoice.createdAt)}
+                </span>
+                <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                  {formatInvoiceTime(invoice.createdAt)}
+                </span>
+              </div>
               <div className="w-5 h-5 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
                 <Calendar className="w-3 h-3 text-orange-500" />
               </div>
-              <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                {formatDate(invoice.createdAt)}
-              </span>
             </div>
           </div>
         </div>

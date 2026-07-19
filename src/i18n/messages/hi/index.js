@@ -8,6 +8,7 @@ import expenses from "./expenses.json";
 import cashbook from "./cashbook.json";
 import gst from "./gst.json";
 import integrations from "./integrations.json";
+import invoiceNumber from "./invoiceNumber.json";
 import header from "./header.json";
 import inventory from "./inventory.json";
 import khata from "./khata.json";
@@ -44,6 +45,7 @@ export default {
   cashbook,
   gst,
   integrations,
+  invoiceNumber,
   header,
   inventory,
   khata,
