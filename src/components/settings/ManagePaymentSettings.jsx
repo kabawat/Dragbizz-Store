@@ -26,13 +26,14 @@ const ManagePaymentSettings = () => {
   const handleSubTabChange = useCallback(
     (subId) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.set("tab", "payment");
+      params.delete("tab");
       if (subId === "upi") {
         params.delete("sub");
       } else {
         params.set("sub", subId);
       }
-      router.replace(`${pathname}?${params.toString()}`);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname);
     },
     [pathname, router, searchParams],
   );

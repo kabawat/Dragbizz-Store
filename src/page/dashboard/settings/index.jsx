@@ -1,27 +1,29 @@
 "use client";
 
-import { Bell, ChevronRight, CreditCard, Hash, Palette, Settings as SettingsIcon, Shield, Store, User, PenTool, Languages, Plug, } from "lucide-react";
+import { Bell, ChevronRight, Hash, Palette, Settings as SettingsIcon, Shield, Store, User, PenTool, Languages, } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
     AccountSettings,
     AppearanceSettings,
-    ManagePaymentSettings,
     NotificationsSettings,
     ProfileSettings,
     SecuritySettings,
     StoreSettings,
     SignatureSettings,
     LanguageSettings,
-    IntegrationsSettings,
     InvoiceNumberSettings,
 } from "@/components/settings";
-import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppSelector } from "@/store/hooks";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
+
+const LEGACY_TAB_REDIRECTS = {
+    integrations: "/dashboard/integrations/tally",
+    payment: "/dashboard/integrations/payment",
+};
 
 const SettingsPage = () => {
     const { t } = useTranslation();
@@ -43,8 +45,6 @@ const SettingsPage = () => {
         { id: "account", label: t("settings.account"), icon: SettingsIcon },
         { id: "store", label: t("settings.store"), icon: Store },
         { id: "signature", label: t("settings.digitalSignatures") || "Signatures", icon: PenTool },
-        { id: "payment", label: t("settings.payment"), icon: CreditCard },
-        { id: "integrations", label: t("integrations.title"), icon: Plug },
         { id: "invoiceNumber", label: t("invoiceNumber.title"), icon: Hash },
         { id: "security", label: t("settings.security"), icon: Shield },
         {
@@ -60,16 +60,23 @@ const SettingsPage = () => {
 
     useEffect(() => {
         const tabFromUrl = searchParams.get("tab");
-        if (tabFromUrl) {
-            const isValidTab = settingsTabs.some((tab) => tab.id === tabFromUrl);
-            if (isValidTab) {
-                setActiveTab(tabFromUrl);
-            } else if (settingsTabs.length > 0) {
-                // If URL has an invalid tab for the user's role, redirect to their first available tab
-                setActiveTab(settingsTabs[0].id);
-            }
+        if (!tabFromUrl) return;
+
+        const legacyTarget = LEGACY_TAB_REDIRECTS[tabFromUrl];
+        if (legacyTarget) {
+            const sub = searchParams.get("sub");
+            const suffix = sub ? `?sub=${encodeURIComponent(sub)}` : "";
+            router.replace(`${legacyTarget}${suffix}`);
+            return;
         }
-    }, [searchParams, settingsTabs]);
+
+        const isValidTab = settingsTabs.some((tab) => tab.id === tabFromUrl);
+        if (isValidTab) {
+            setActiveTab(tabFromUrl);
+        } else if (settingsTabs.length > 0) {
+            setActiveTab(settingsTabs[0].id);
+        }
+    }, [searchParams, settingsTabs, router]);
 
     useEffect(() => {
         if (contentRef.current) {
@@ -140,8 +147,6 @@ const SettingsPage = () => {
                     {activeTab === "account" && <AccountSettings />}
                     {activeTab === "store" && <StoreSettings selectedStore={selectedStore} />}
                     {activeTab === "signature" && <SignatureSettings />}
-                    {activeTab === "payment" && <ManagePaymentSettings />}
-                    {activeTab === "integrations" && <IntegrationsSettings />}
                     {activeTab === "invoiceNumber" && <InvoiceNumberSettings />}
                     {activeTab === "security" && <SecuritySettings />}
                     {activeTab === "notifications" && <NotificationsSettings />}

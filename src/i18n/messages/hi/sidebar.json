@@ -28,5 +28,8 @@
   "pos": "पीओएस (POS)",
   "subscription": "सदस्यता",
   "planLimits": "योजना सीमाएँ (Plan Limits)",
-  "management": "प्रबंधन"
+  "management": "प्रबंधन",
+  "integrations": "इंटीग्रेशन",
+  "tally": "Tally",
+  "paymentGateway": "पेमेंट गेटवे"
 }

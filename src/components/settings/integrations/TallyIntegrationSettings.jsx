@@ -1,11 +1,33 @@
 "use client";
 
-import { Button, Input } from "@/components/ui";
+import {
+  ChevronDown,
+  ChevronUp,
+  CircleDollarSign,
+  FileCog,
+  Loader2,
+  Plus,
+  ReceiptIndianRupee,
+  Save,
+  Trash2,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  Modal,
+  Toggle,
+} from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getRetailerDetails, setSelectedStore } from "@/store/slices/profileSlice";
+import {
+  getRetailerDetails,
+  setSelectedStore,
+} from "@/store/slices/profileSlice";
 import {
   buildTallyFormState,
   buildTallyIntegrationPayload,
@@ -13,8 +35,6 @@ import {
   LEDGER_FIELD_KEYS,
   pickStoreId,
 } from "@/utils/tallyIntegration.util";
-import { ChevronDown, ChevronUp, Loader2, Save } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 
 const TallyIntegrationSettings = () => {
   const { t } = useTranslation();
@@ -27,6 +47,7 @@ const TallyIntegrationSettings = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [newCategory, setNewCategory] = useState({ name: "", ledger: "" });
 
   const loadStore = useCallback(async () => {
@@ -64,7 +85,7 @@ const TallyIntegrationSettings = () => {
           setSelectedStore({
             ...selectedStore,
             tallyIntegration: updated.tallyIntegration,
-          }),
+          })
         );
       }
       await dispatch(getRetailerDetails({ forceRefresh: true })).unwrap();
@@ -83,9 +104,18 @@ const TallyIntegrationSettings = () => {
     if (!name || !ledger) return;
     setForm((prev) => ({
       ...prev,
-      expenseCategoryLedgers: { ...prev.expenseCategoryLedgers, [name]: ledger },
+      expenseCategoryLedgers: {
+        ...prev.expenseCategoryLedgers,
+        [name]: ledger,
+      },
     }));
     setNewCategory({ name: "", ledger: "" });
+    setIsExpenseModalOpen(false);
+  };
+
+  const closeExpenseModal = () => {
+    setNewCategory({ name: "", ledger: "" });
+    setIsExpenseModalOpen(false);
   };
 
   const removeExpenseCategory = (key) => {
@@ -104,124 +134,279 @@ const TallyIntegrationSettings = () => {
     );
   }
 
+  const expenseMappings = Object.entries(form.expenseCategoryLedgers);
+
   return (
-    <div className="max-w-3xl space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">{t("integrations.tallySettings")}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{t("integrations.tallySettingsDesc")}</p>
+    <div className="w-full space-y-4 pb-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card
+          padding="md"
+          className="h-full border-[rgb(var(--color-border-primary))]/60"
+        >
+          <Toggle
+            label={t("integrations.enableTally")}
+            helperText={t("integrations.enableTallyHint")}
+            checked={form.enabled}
+            onChange={(enabled) => setForm((prev) => ({ ...prev, enabled }))}
+            className="w-full"
+          />
+        </Card>
+
+        <Card
+          padding="md"
+          className="h-full border-[rgb(var(--color-border-primary))]/60"
+        >
+          <div className="mb-4 flex items-start gap-3">
+            <div className="rounded-lg bg-[rgb(var(--color-primary))]/10 p-2 text-[rgb(var(--color-primary))]">
+              <FileCog className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold leading-5 text-[rgb(var(--color-text-primary))]">
+                {t("integrations.companyName")}
+              </h3>
+              <p className="mt-1 text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
+                {t("integrations.companyNamePlaceholder")}
+              </p>
+            </div>
+          </div>
+          <Input
+            label={t("integrations.companyName")}
+            value={form.companyName}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, companyName: value }))
+            }
+            placeholder={
+              selectedStore?.name || t("integrations.companyNamePlaceholder")
+            }
+          />
+        </Card>
       </div>
 
-      <div className="bg-card rounded-xl border p-6 space-y-5">
-        <label className="flex items-center justify-between gap-4 cursor-pointer">
-          <div>
-            <p className="font-medium">{t("integrations.enableTally")}</p>
-            <p className="text-sm text-muted-foreground">{t("integrations.enableTallyHint")}</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={form.enabled}
-            onChange={(e) => setForm((prev) => ({ ...prev, enabled: e.target.checked }))}
-            className="h-5 w-5 accent-primary"
-          />
-        </label>
-
-        <Input
-          label={t("integrations.companyName")}
-          value={form.companyName}
-          onChange={(e) => setForm((prev) => ({ ...prev, companyName: e.target.value }))}
-          placeholder={selectedStore?.name || t("integrations.companyNamePlaceholder")}
-        />
-
+      <Card
+        padding="none"
+        className="overflow-hidden border-[rgb(var(--color-border-primary))]/60"
+      >
         <button
           type="button"
-          onClick={() => setShowAdvanced((v) => !v)}
-          className="flex items-center gap-2 text-sm font-medium text-primary"
+          onClick={() => setShowAdvanced((value) => !value)}
+          aria-expanded={showAdvanced}
+          className="flex w-full items-center justify-between gap-4 p-4 text-left transition-colors hover:bg-[rgb(var(--color-bg-secondary))]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary))]/40 sm:p-5"
         >
-          {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          {t("integrations.ledgerMapping")}
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-[rgb(var(--color-primary))]/10 p-2 text-[rgb(var(--color-primary))]">
+              <ReceiptIndianRupee className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold leading-5 text-[rgb(var(--color-text-primary))]">
+                {t("integrations.ledgerMapping")}
+              </h3>
+              <p className="mt-1 text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
+                {t("integrations.importGuideHint")}
+              </p>
+            </div>
+          </div>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/50">
+            {showAdvanced ? (
+              <ChevronUp className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
+            )}
+          </span>
         </button>
 
         {showAdvanced && (
-          <div className="space-y-4 pt-2 border-t">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {LEDGER_FIELD_KEYS.map((key) => (
-                <Input
-                  key={key}
-                  label={t(`integrations.ledger.${key}`, key)}
-                  value={form.defaultLedgers[key] || ""}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      defaultLedgers: { ...prev.defaultLedgers, [key]: e.target.value },
-                    }))
-                  }
-                />
-              ))}
-            </div>
-
-            <div>
-              <p className="text-sm font-medium mb-2">{t("integrations.paymentMethodLedgers")}</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {Object.keys(DEFAULT_PAYMENT_METHOD_LEDGERS).map((method) => (
+          <div className="divide-y divide-[rgb(var(--color-border-primary))]/60 border-t border-[rgb(var(--color-border-primary))]/60">
+            <section className="p-4 sm:p-5">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {LEDGER_FIELD_KEYS.map((key) => (
                   <Input
-                    key={method}
-                    label={method}
-                    value={form.paymentMethodLedgers[method] || ""}
-                    onChange={(e) =>
+                    key={key}
+                    size="md"
+                    label={t(`integrations.ledger.${key}`, key)}
+                    value={form.defaultLedgers[key] || ""}
+                    onChange={(value) =>
                       setForm((prev) => ({
                         ...prev,
-                        paymentMethodLedgers: {
-                          ...prev.paymentMethodLedgers,
-                          [method]: e.target.value,
+                        defaultLedgers: {
+                          ...prev.defaultLedgers,
+                          [key]: value,
                         },
                       }))
                     }
                   />
                 ))}
               </div>
-            </div>
+            </section>
 
-            <div>
-              <p className="text-sm font-medium mb-2">{t("integrations.expenseCategoryLedgers")}</p>
-              <div className="space-y-2">
-                {Object.entries(form.expenseCategoryLedgers).map(([name, ledger]) => (
-                  <div key={name} className="flex items-center gap-2">
-                    <span className="text-sm flex-1">
-                      {name} → {ledger}
-                    </span>
-                    <Button variant="secondary" size="sm" onClick={() => removeExpenseCategory(name)}>
-                      {t("common.remove")}
-                    </Button>
+            <div className="grid divide-y divide-[rgb(var(--color-border-primary))]/60 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+              <section className="p-4 sm:p-5">
+                <div className="mb-5 flex items-start gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                    <CircleDollarSign className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <h4 className="text-base font-semibold leading-5 text-[rgb(var(--color-text-primary))]">
+                      {t("integrations.paymentMethodLedgers")}
+                    </h4>
+                    <p className="mt-1 text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
+                      {t("integrations.paymentMethodLedgersDesc")}
+                    </p>
                   </div>
-                ))}
-                <div className="flex flex-wrap gap-2 items-end">
-                  <Input
-                    label={t("integrations.categoryName")}
-                    value={newCategory.name}
-                    onChange={(e) => setNewCategory((p) => ({ ...p, name: e.target.value }))}
-                  />
-                  <Input
-                    label={t("integrations.ledgerName")}
-                    value={newCategory.ledger}
-                    onChange={(e) => setNewCategory((p) => ({ ...p, ledger: e.target.value }))}
-                  />
-                  <Button variant="secondary" onClick={addExpenseCategory}>
+                </div>
+                <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+                  {Object.keys(DEFAULT_PAYMENT_METHOD_LEDGERS).map((method) => (
+                    <Input
+                      key={method}
+                      size="md"
+                      label={method.replaceAll("_", " ")}
+                      value={form.paymentMethodLedgers[method] || ""}
+                      onChange={(value) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          paymentMethodLedgers: {
+                            ...prev.paymentMethodLedgers,
+                            [method]: value,
+                          },
+                        }))
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+
+              <section className="p-4 sm:p-5">
+                <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                      <ReceiptIndianRupee className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <h4 className="text-base font-semibold leading-5 text-[rgb(var(--color-text-primary))]">
+                        {t("integrations.expenseCategoryLedgers")}
+                      </h4>
+                      <p className="mt-1 text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
+                        {t("integrations.expenseCategoryLedgersDesc")}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={Plus}
+                    onClick={() => setIsExpenseModalOpen(true)}
+                  >
                     {t("common.add")}
                   </Button>
                 </div>
-              </div>
+
+                {expenseMappings.length > 0 ? (
+                  <div className="grid gap-2 xl:grid-cols-2">
+                    {expenseMappings.map(([name, ledger]) => (
+                      <div
+                        key={name}
+                        className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/40 px-3 py-2.5"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                            {name}
+                          </p>
+                          <p className="truncate text-xs text-[rgb(var(--color-text-secondary))]">
+                            {ledger}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => removeExpenseCategory(name)}
+                          aria-label={`${t("common.remove")} ${name}`}
+                        >
+                          <Trash2 className="h-4 w-4 text-[rgb(var(--color-danger))]" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    size="sm"
+                    icon={ReceiptIndianRupee}
+                    title={t("integrations.expenseCategoryEmpty")}
+                    description={t("integrations.expenseCategoryLedgersDesc")}
+                    className="!py-5 [&_h2]:!mb-1 [&_h2]:!text-sm [&_h2]:!font-semibold [&_p]:!mb-4 [&_p]:!text-xs [&_p]:!leading-5"
+                    actionButton={{
+                      label: t("common.add"),
+                      icon: Plus,
+                      onClick: () => setIsExpenseModalOpen(true),
+                    }}
+                  />
+                )}
+              </section>
             </div>
           </div>
         )}
+      </Card>
 
-        <p className="text-xs text-muted-foreground">{t("integrations.importGuideHint")}</p>
-
-        <div className="flex justify-end pt-2">
-          <Button onClick={handleSave} isLoading={saving}>
-            <Save className="w-4 h-4 mr-2" />
-            {t("common.save")}
-          </Button>
+      <Modal
+        isOpen={isExpenseModalOpen}
+        onClose={closeExpenseModal}
+        title={t("integrations.addExpenseCategory")}
+        size="md"
+        className="!shadow-none"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+            {t("integrations.expenseCategoryLedgersDesc")}
+          </p>
+          <Input
+            size="md"
+            label={t("integrations.categoryName")}
+            value={newCategory.name}
+            onChange={(value) =>
+              setNewCategory((prev) => ({
+                ...prev,
+                name: value,
+              }))
+            }
+          />
+          <Input
+            size="md"
+            label={t("integrations.ledgerName")}
+            value={newCategory.ledger}
+            onChange={(value) =>
+              setNewCategory((prev) => ({
+                ...prev,
+                ledger: value,
+              }))
+            }
+          />
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={closeExpenseModal}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="primary"
+              leftIcon={Plus}
+              onClick={addExpenseCategory}
+              disabled={!newCategory.name.trim() || !newCategory.ledger.trim()}
+            >
+              {t("common.add")}
+            </Button>
+          </div>
         </div>
+      </Modal>
+
+      <div className="sticky bottom-0 flex items-center justify-between gap-4 rounded-xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-primary))]/95 p-3 backdrop-blur sm:p-4">
+        <p className="hidden text-sm leading-5 text-[rgb(var(--color-text-secondary))] sm:block">
+          {t("integrations.importGuideHint")}
+        </p>
+        <Button
+          size="md"
+          onClick={handleSave}
+          isLoading={saving}
+          leftIcon={Save}
+          className="ml-auto"
+        >
+          {t("common.save")}
+        </Button>
       </div>
     </div>
   );

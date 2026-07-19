@@ -26,5 +26,8 @@
   "pos": "પીઓએસ (POS)",
   "subscription": "સબ્સ્ક્રિપ્શન",
   "planLimits": "પ્લાન લિમિટ",
-  "management": "મેનેજમેન્ટ"
+  "management": "મેનેજમેન્ટ",
+  "integrations": "ઇન્ટિગ્રેશન્સ",
+  "tally": "Tally",
+  "paymentGateway": "પેમેન્ટ ગેટવે"
 }

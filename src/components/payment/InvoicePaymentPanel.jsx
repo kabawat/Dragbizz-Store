@@ -200,7 +200,7 @@ const InvoicePaymentPanel = ({
                   : t("invoice.collectPayment.noDefaultUpi")}
               </p>
               <Link
-                href="/dashboard/settings?tab=payment"
+                href="/dashboard/integrations/payment"
                 className="text-[rgb(var(--color-primary))] underline text-xs font-medium"
               >
                 {t("invoice.collectPayment.configureSettings")}

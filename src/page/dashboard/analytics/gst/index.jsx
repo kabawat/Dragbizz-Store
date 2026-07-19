@@ -147,7 +147,7 @@ const GstAnalyticsContent = () => {
   const openTallyExport = () => {
     if (!selectedStore?.tallyIntegration?.enabled) {
       showError(t("integrations.enableFirst"));
-      router.push("/dashboard/settings?tab=integrations");
+      router.push("/dashboard/integrations/tally");
       return;
     }
     setShowTallyExportDrawer(true);

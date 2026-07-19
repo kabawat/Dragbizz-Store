@@ -28,5 +28,8 @@
   "pos": "POS",
   "subscription": "Subscription",
   "planLimits": "Plan Limits",
-  "management": "Management"
+  "management": "Management",
+  "integrations": "Integrations",
+  "tally": "Tally",
+  "paymentGateway": "Payment Gateway"
 }

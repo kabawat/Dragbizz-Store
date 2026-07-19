@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function ManageUpiRoute() {
-  redirect("/dashboard/settings?tab=payment");
+  redirect("/dashboard/integrations/payment");
 }

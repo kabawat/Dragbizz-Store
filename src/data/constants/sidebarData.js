@@ -11,6 +11,7 @@ import {
     LineChart,
     Package,
     PieChart,
+    Plug,
     Receipt,
     Settings,
     ShoppingCart,
@@ -70,7 +71,24 @@ export const getManagementSubMenuItems = (t) => [
     { name: t("sidebar.planLimits") || "Plan Limits", icon: Activity, href: "/dashboard/management/limits", shortcut: "l" },
 ];
 
-export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems, managementSubMenuItems) => [
+export const getIntegrationsSubMenuItems = (t) => [
+    { name: t("sidebar.tally") || "Tally", icon: FileText, href: "/dashboard/integrations/tally" },
+    {
+        name: t("sidebar.paymentGateway") || "Payment Gateway",
+        icon: CreditCard,
+        href: "/dashboard/integrations/payment",
+    },
+];
+
+export const getNavigationItems = (
+    t,
+    salesSubMenuItems,
+    inventorySubMenuItems,
+    purchaseSubMenuItems,
+    analyticsSubMenuItems,
+    managementSubMenuItems,
+    integrationsSubMenuItems,
+) => [
     { name: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/dashboard", shortcut: "d" },
     {
         name: t("sidebar.salesTransactions"),
@@ -111,6 +129,14 @@ export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, 
         hasSubMenu: true,
         subMenuItems: managementSubMenuItems,
         key: "management",
+    },
+    {
+        name: t("sidebar.integrations") || "Integrations",
+        icon: Plug,
+        href: "/dashboard/integrations/tally",
+        hasSubMenu: true,
+        subMenuItems: integrationsSubMenuItems,
+        key: "integrations",
     },
 ];
 
