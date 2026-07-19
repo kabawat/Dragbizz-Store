@@ -91,7 +91,11 @@ export const SidebarNavItem = ({
               : "max-h-0 opacity-0"
           }`}
         >
-          <div className="ml-5 space-y-0.5 border-l border-[rgb(var(--color-border-primary))]/50 pl-2">
+          <div className="relative ml-5 space-y-0.5 pl-2">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-1 left-0 border-l border-dashed border-[rgb(var(--color-border-primary))]/70"
+            />
             {item.subMenuItems?.map((subItem) => {
               const SubIcon = subItem.icon;
               const isSubActive =
@@ -116,7 +120,7 @@ export const SidebarNavItem = ({
                   }}
                   className={`group relative flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-all duration-200 ${
                     isSubActive
-                      ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
+                      ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
                       : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                   } ${locked ? "opacity-75" : ""}`}
                   title={
@@ -125,6 +129,12 @@ export const SidebarNavItem = ({
                       : ""
                   }
                 >
+                  {!isSubActive && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute top-1/2 -left-[11px] h-1.5 w-1.5 -translate-y-1/2 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]"
+                    />
+                  )}
                   <div className="relative shrink-0">
                     <SubIcon
                       className={`h-4 w-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
@@ -147,6 +157,12 @@ export const SidebarNavItem = ({
                         : subItem.shortcut.toUpperCase()}
                     </kbd>
                   )}
+                  {isSubActive && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute top-1/2 -left-2.5 h-4/5 w-1 -translate-y-1/2 rounded-full bg-[rgb(var(--color-primary))]"
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -159,11 +175,7 @@ export const SidebarNavItem = ({
   const isActive = pathname === item.href;
   const bottomSpecificClasses = isBottomItem
     ? `min-h-9 px-2 py-1.5 ${isCollapsed ? "justify-center" : "gap-3"}`
-    : `min-h-9 py-1.5 ${isCollapsed ? "justify-center px-0" : "gap-3 px-2"} ${
-        isActive && !isBottomItem
-          ? "border-r-2 border-[rgb(var(--color-primary))]"
-          : ""
-      }`;
+    : `min-h-9 py-1.5 ${isCollapsed ? "justify-center px-0" : "gap-3 px-2"}`;
 
   const iconClasses = isBottomItem
     ? `${isCollapsed ? "w-[24px] h-[24px]" : "w-5 h-5"} text-[rgb(var(--color-text-tertiary))]`
@@ -193,7 +205,7 @@ export const SidebarNavItem = ({
             item.requireCapability || null
           )();
         }}
-        className={`w-full flex items-center rounded-lg transition-all duration-300 cursor-pointer ${bottomSpecificClasses} ${
+        className={`relative flex w-full items-center overflow-hidden rounded-lg transition-all duration-300 cursor-pointer ${bottomSpecificClasses} ${
           isActive
             ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
             : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
@@ -225,6 +237,12 @@ export const SidebarNavItem = ({
           <Crown
             size={14}
             className="shrink-0 fill-[#f59e0b]/20 text-[#f59e0b]"
+          />
+        )}
+        {isActive && !isBottomItem && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 left-0 h-4/5 w-1 -translate-y-1/2 rounded-r-full bg-[rgb(var(--color-primary))]"
           />
         )}
       </Link>
