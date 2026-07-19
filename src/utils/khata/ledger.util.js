@@ -4,6 +4,16 @@ export const KHATA_PAYMENT_MODES = [
   { value: "BANK_TRANSFER", labelKey: "khata.bankTransfer" },
 ];
 
+/** Frontend-only quick labels for notes auto-fill (not sent as a separate API field). */
+export const KHATA_NOTE_PRESETS = [
+  { id: "creditSale", labelKey: "khata.notePresetCreditSale", noteKey: "khata.noteDetailCreditSale" },
+  { id: "paymentReceived", labelKey: "khata.notePresetPaymentReceived", noteKey: "khata.noteDetailPaymentReceived" },
+  { id: "advance", labelKey: "khata.notePresetAdvance", noteKey: "khata.noteDetailAdvance" },
+  { id: "openingBalance", labelKey: "khata.notePresetOpeningBalance", noteKey: "khata.noteDetailOpeningBalance" },
+  { id: "settlement", labelKey: "khata.notePresetSettlement", noteKey: "khata.noteDetailSettlement" },
+  { id: "adjustment", labelKey: "khata.notePresetAdjustment", noteKey: "khata.noteDetailAdjustment" },
+];
+
 export function toLedgerEntry(item, kind) {
   if (kind === "transaction") {
     const isDebit = item.type === "DEBIT" || item.type === "CREDIT";

@@ -22,13 +22,17 @@ export function usePartyLedgerExport({ storeId, customerId }) {
   const [isExporting, setIsExporting] = useState(false);
 
   const fetchExportData = useCallback(
-    async ({ startDate, endDate }) => {
+    async ({ startDate, endDate } = {}) => {
       if (!storeId || !customerId) {
         throw new Error(t("khata.noCustomer"));
       }
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
       const response = await customerAccountService.exportLedger(
         customerId,
-        { startDate, endDate },
+        params,
         storeId,
       );
       const data = unwrapExportData(response);

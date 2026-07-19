@@ -25,17 +25,24 @@ export function PartyLedgerDownloadDrawer({
   const [format, setFormat] = useState("csv");
 
   const handleDownload = async () => {
-    if (!startDate || !endDate) {
+    const hasStart = Boolean(startDate);
+    const hasEnd = Boolean(endDate);
+
+    if (hasStart !== hasEnd) {
       showError(t("khata.exportDateRequired"));
       return;
     }
 
-    if (new Date(endDate) < new Date(startDate)) {
+    if (hasStart && hasEnd && new Date(endDate) < new Date(startDate)) {
       showError(t("customers.endDateMustBeAfterStart"));
       return;
     }
 
-    await onExport?.({ startDate, endDate, format });
+    await onExport?.({
+      startDate: hasStart ? startDate : undefined,
+      endDate: hasEnd ? endDate : undefined,
+      format,
+    });
   };
 
   const handleClose = () => {
@@ -50,25 +57,40 @@ export function PartyLedgerDownloadDrawer({
       isOpen={isOpen}
       onClose={handleClose}
       title={t("khata.exportStatement")}
-      subtitle={partyName || undefined}
+      icon={Download}
+      description={partyName || t("khata.exportStatementHint")}
+      width="w-full sm:w-[480px]"
+      position="center"
+      autoHeight
+      draggable={false}
+      resizable={false}
     >
-      <div className="space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            {t("khata.exportPeriod")}
-          </label>
+      <div className="p-4 sm:p-6 space-y-6 overflow-y-auto">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <label className="block text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+              {t("khata.exportPeriod")}
+            </label>
+            <span className="text-xs text-[rgb(var(--color-text-secondary))]">
+              {t("khata.exportPeriodOptional")}
+            </span>
+          </div>
           <DateRangeFilter
             startDate={startDate}
             endDate={endDate}
+            className="w-full [&>div]:w-full"
             onChange={({ startDate: nextStart, endDate: nextEnd }) => {
               setStartDate(nextStart);
               setEndDate(nextEnd);
             }}
           />
+          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+            {t("khata.exportPeriodHint")}
+          </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-[rgb(var(--color-text-primary))]">
             {t("khata.exportFormat")}
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -80,13 +102,13 @@ export function PartyLedgerDownloadDrawer({
                   type="button"
                   onClick={() => setFormat(value)}
                   aria-pressed={isSelected}
-                  className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer ${
+                  className={`min-h-[76px] flex flex-col items-center justify-center gap-1.5 rounded-xl border px-3 py-3 text-sm font-semibold transition-all cursor-pointer ${
                     isSelected
-                      ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/8 text-[rgb(var(--color-primary))]"
-                      : "border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+                      ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] shadow-sm ring-1 ring-[rgb(var(--color-primary))]/20"
+                      : "border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/40 hover:bg-[rgb(var(--color-bg-secondary))]"
                   }`}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   {t(labelKey)}
                 </button>
               );
@@ -94,15 +116,20 @@ export function PartyLedgerDownloadDrawer({
           </div>
         </div>
 
-        <Button
-          onClick={handleDownload}
-          disabled={isExporting || !startDate || !endDate}
-          loading={isExporting}
-          className="w-full"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          {isExporting ? t("common.loading") : t("khata.exportStatement")}
-        </Button>
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-1">
+          <Button variant="outline" onClick={handleClose} disabled={isExporting}>
+            {t("common.cancel")}
+          </Button>
+          <Button
+            onClick={handleDownload}
+            disabled={isExporting}
+            loading={isExporting}
+            className="sm:min-w-[190px]"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {isExporting ? t("common.loading") : t("khata.exportStatement")}
+          </Button>
+        </div>
       </div>
     </SideDrawer>
   );

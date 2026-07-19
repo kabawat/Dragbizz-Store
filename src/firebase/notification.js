@@ -292,6 +292,11 @@ export async function setupForegroundFcmListener(onPayload) {
     return;
   }
 
+  if (!isFirebaseConfigured()) {
+    fcmDebugWarn("setupForegroundFcmListener: Firebase not configured");
+    return;
+  }
+
   const messaging = await getFirebaseMessaging();
   if (!messaging || foregroundListenerAttached) {
     return;

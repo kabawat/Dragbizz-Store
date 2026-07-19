@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { Button, Input } from "@/components/ui";
+import { useCallback, useMemo, useState } from "react";
+import { Button, Input, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { KHATA_PAYMENT_MODES } from "@/utils/khata/ledger.util";
+import { KHATA_NOTE_PRESETS, KHATA_PAYMENT_MODES } from "@/utils/khata/ledger.util";
 
 function KhataAmountInput({
   value,
@@ -125,16 +125,49 @@ export function KhataRecordTransaction({
   const [amount, setAmount] = useState("");
   const [paymentMode, setPaymentMode] = useState("CASH");
   const [notes, setNotes] = useState("");
+  const [selectedNotePresetId, setSelectedNotePresetId] = useState("");
 
   const numericAmount = Number(amount);
   const canSubmit = Boolean(customerId) && Number.isFinite(numericAmount) && numericAmount > 0;
   const isDisabled = disabled || !customerId;
   const payload = { amount: numericAmount, paymentMode, notes };
 
+  const notePresetOptions = useMemo(
+    () =>
+      KHATA_NOTE_PRESETS.map((preset) => ({
+        value: preset.id,
+        label: t(preset.labelKey),
+      })),
+    [t],
+  );
+
   const resetForm = useCallback(() => {
     setAmount("");
     setNotes("");
+    setSelectedNotePresetId("");
   }, []);
+
+  const handleNotePresetSelect = (presetId) => {
+    if (!presetId) {
+      setSelectedNotePresetId("");
+      return;
+    }
+    const preset = KHATA_NOTE_PRESETS.find((item) => item.id === presetId);
+    if (!preset) return;
+    setSelectedNotePresetId(presetId);
+    setNotes(t(preset.noteKey));
+  };
+
+  const handleNotesChange = (event) => {
+    const nextNotes = event.target.value;
+    setNotes(nextNotes);
+
+    if (!selectedNotePresetId) return;
+    const selected = KHATA_NOTE_PRESETS.find((preset) => preset.id === selectedNotePresetId);
+    if (!selected || nextNotes !== t(selected.noteKey)) {
+      setSelectedNotePresetId("");
+    }
+  };
 
   const handleYouGave = async () => {
     onClearError?.();
@@ -195,13 +228,21 @@ export function KhataRecordTransaction({
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2 text-[rgb(var(--color-text-secondary))]">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))]">
             {t("khata.notes")}
           </label>
+          <Select
+            value={selectedNotePresetId}
+            onChange={handleNotePresetSelect}
+            options={notePresetOptions}
+            placeholder={t("khata.notePresetPlaceholder")}
+            disabled={isDisabled || loading}
+            clearable
+          />
           <textarea
             value={notes}
-            onChange={(event) => setNotes(event.target.value)}
+            onChange={handleNotesChange}
             rows={2}
             disabled={isDisabled || loading}
             placeholder={t("khata.notesPlaceholder")}
