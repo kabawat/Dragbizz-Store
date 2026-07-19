@@ -5,6 +5,8 @@
   "move": "Drag to move voice assistant",
   "startListening": "Start listening",
   "stopListening": "Stop listening",
+  "startHint": "Tap the microphone to start",
+  "stopHint": "Tap again when you are done",
   "transcript": "Live transcript",
   "transcriptPlaceholder": "Tap the microphone and speak a command...",
   "clear": "Clear",

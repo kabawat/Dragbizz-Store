@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  GripHorizontal,
   Keyboard,
   Mic,
   MicOff,
@@ -17,7 +16,19 @@ import useVoiceCapture, {
 } from "@/hooks/media/useVoiceCapture";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-const AUDIO_BAR_MULTIPLIERS = [0.55, 0.8, 1, 0.7, 0.9, 0.6, 0.75];
+const AUDIO_BARS = [
+  { id: "a", multiplier: 0.45, idleHeight: 8 },
+  { id: "b", multiplier: 0.65, idleHeight: 12 },
+  { id: "c", multiplier: 0.85, idleHeight: 17 },
+  { id: "d", multiplier: 0.6, idleHeight: 11 },
+  { id: "e", multiplier: 1, idleHeight: 21 },
+  { id: "f", multiplier: 0.75, idleHeight: 15 },
+  { id: "g", multiplier: 0.9, idleHeight: 19 },
+  { id: "h", multiplier: 0.55, idleHeight: 10 },
+  { id: "i", multiplier: 0.8, idleHeight: 16 },
+  { id: "j", multiplier: 0.6, idleHeight: 12 },
+  { id: "k", multiplier: 0.4, idleHeight: 7 },
+];
 const POSITION_STORAGE_KEY = "dragbizz.voice.position";
 const VIEWPORT_MARGIN = 8;
 const DRAG_THRESHOLD = 4;
@@ -27,21 +38,23 @@ const VoiceLevel = ({ audioLevel, active }) => (
     className="flex h-9 items-center justify-center gap-1"
     aria-hidden="true"
   >
-    {AUDIO_BAR_MULTIPLIERS.map((multiplier) => {
+    {AUDIO_BARS.map(({ id, multiplier, idleHeight }) => {
       const reactiveHeight = Math.min(
         32,
-        Math.max(5, audioLevel * 380 * multiplier)
+        Math.max(7, audioLevel * 420 * multiplier)
       );
 
       return (
         <span
-          className={`w-1 rounded-full transition-[height,background-color] duration-100 ${
+          className={`w-1 rounded-full transition-[height,background-color,opacity] duration-100 ${
             active
-              ? "bg-[rgb(var(--color-primary))]"
-              : "bg-[rgb(var(--color-border-primary))]"
+              ? "bg-[rgb(var(--color-primary))] opacity-75"
+              : "bg-[rgb(var(--color-primary))] opacity-20"
           }`}
-          key={multiplier}
-          style={{ height: active ? `${reactiveHeight}px` : "5px" }}
+          key={id}
+          style={{
+            height: active ? `${reactiveHeight}px` : `${idleHeight}px`,
+          }}
         />
       );
     })}
@@ -271,7 +284,7 @@ const VoiceCommandLauncher = () => {
 
   return (
     <div
-      className={`pointer-events-none fixed bottom-5 left-1/2 z-[300] w-[min(430px,calc(100vw-24px))] -translate-x-1/2 sm:bottom-6 ${
+      className={`pointer-events-none fixed bottom-5 left-1/2 z-[300] w-[min(400px,calc(100vw-24px))] -translate-x-1/2 sm:bottom-6 ${
         isDragging ? "select-none" : ""
       }`}
       ref={launcherRef}
@@ -284,123 +297,146 @@ const VoiceCommandLauncher = () => {
           <section
             aria-label={t("voice.title")}
             aria-modal="false"
-            className="w-full overflow-hidden rounded-[28px] border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-primary))]/95 shadow-[0_24px_80px_-20px_rgba(15,23,42,0.45)] backdrop-blur-2xl"
+            className="relative w-full overflow-hidden rounded-3xl border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-primary))]/95 backdrop-blur-2xl"
             role="dialog"
           >
-            <div className="relative overflow-hidden px-5 pb-5 pt-4 sm:px-6">
+            <button
+              aria-label={t("voice.move")}
+              className={`group absolute inset-x-16 top-0 z-10 flex h-7 touch-none items-center justify-center text-[rgb(var(--color-text-tertiary))] transition-colors hover:text-[rgb(var(--color-text-secondary))] focus-visible:outline-none ${
+                isDragging ? "cursor-grabbing" : "cursor-grab"
+              }`}
+              onPointerCancel={handleDragEnd}
+              onPointerDown={handleDragStart}
+              onPointerMove={handleDragMove}
+              onPointerUp={handleDragEnd}
+              title={t("voice.move")}
+              type="button"
+            >
+              <span className="h-1 w-9 rounded-full bg-[rgb(var(--color-border-secondary))] transition-[width,background-color] group-hover:w-11" />
+            </button>
+
+            <div className="relative overflow-hidden px-4 pb-4 pt-7 sm:px-5">
               <div
                 aria-hidden="true"
-                className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[rgb(var(--color-primary))]/10 blur-3xl"
+                className="absolute -right-20 -top-24 h-52 w-52 rounded-full bg-[rgb(var(--color-primary))]/12 blur-3xl"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute -left-20 top-20 h-40 w-40 rounded-full bg-[rgb(var(--color-primary))]/5 blur-3xl"
               />
 
-              <header className="relative flex items-start justify-between gap-4">
+              <header className="relative flex select-none items-center justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
-                    <Sparkles className="h-5 w-5" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] ring-1 ring-[rgb(var(--color-primary))]/15">
+                    <Sparkles className="h-[18px] w-[18px]" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="truncate text-sm font-semibold text-[rgb(var(--color-text-primary))] sm:text-base">
+                    <h2 className="truncate text-sm font-semibold tracking-tight text-[rgb(var(--color-text-primary))]">
                       {t("voice.title")}
                     </h2>
-                    <p className="mt-0.5 text-xs text-[rgb(var(--color-text-secondary))]">
+                    <p className="mt-0.5 truncate text-[11px] text-[rgb(var(--color-text-secondary))]">
                       {t("voice.subtitle")}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    aria-label={t("voice.move")}
-                    className={`flex h-8 w-8 cursor-grab touch-none items-center justify-center rounded-full text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))] ${
-                      isDragging ? "cursor-grabbing" : ""
-                    }`}
-                    onPointerCancel={handleDragEnd}
-                    onPointerDown={handleDragStart}
-                    onPointerMove={handleDragMove}
-                    onPointerUp={handleDragEnd}
-                    title={t("voice.move")}
-                    type="button"
-                  >
-                    <GripHorizontal className="h-4 w-4" />
-                  </button>
-                  <button
-                    aria-label={t("common.close")}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]"
-                    onClick={closePanel}
-                    type="button"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
+                <button
+                  aria-label={t("common.close")}
+                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]"
+                  onClick={closePanel}
+                  type="button"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </header>
 
-              <div className="relative mt-5 flex flex-col items-center">
-                <div className="relative flex h-28 w-28 items-center justify-center">
+              <div className="relative mt-4 flex min-h-[112px] items-center gap-4 overflow-hidden rounded-[22px] border border-[rgb(var(--color-primary))]/15 bg-[rgb(var(--color-primary))]/[0.07] p-4">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--color-primary))]/5 via-transparent to-[rgb(var(--color-primary))]/10"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute -right-10 -top-20 h-44 w-44 rounded-full bg-[rgb(var(--color-primary))]/10 blur-3xl"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute -bottom-24 left-12 h-40 w-40 rounded-full bg-[rgb(var(--color-primary))]/5 blur-3xl"
+                />
+
+                <div className="relative flex h-[78px] w-[78px] shrink-0 items-center justify-center">
                   {isListening && (
-                    <>
-                      <span className="absolute inset-1 animate-ping rounded-full bg-[rgb(var(--color-primary))]/15 [animation-duration:1.8s]" />
-                      <span className="absolute inset-3 rounded-full border border-[rgb(var(--color-primary))]/25" />
-                    </>
+                    <span className="absolute inset-0 animate-ping rounded-full bg-[rgb(var(--color-primary))]/10 [animation-duration:1.8s]" />
                   )}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute inset-1 rounded-full border transition-colors ${
+                      isListening
+                        ? "border-[rgb(var(--color-primary))]/30"
+                        : "border-[rgb(var(--color-primary))]/15"
+                    }`}
+                  />
                   <button
                     aria-label={
                       isListening
                         ? t("voice.stopListening")
                         : t("voice.startListening")
                     }
-                    className={`relative flex h-20 w-20 cursor-pointer items-center justify-center rounded-full text-white shadow-[0_16px_32px_-12px_rgb(var(--color-primary))] transition-all duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-primary))]/25 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    className={`relative flex h-[58px] w-[58px] cursor-pointer items-center justify-center rounded-full text-white transition-all duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-primary))]/20 disabled:cursor-not-allowed disabled:opacity-50 ${
                       isListening
-                        ? "bg-gradient-to-br from-rose-500 to-red-600"
-                        : "bg-gradient-to-br from-[rgb(var(--color-primary))] to-indigo-600"
+                        ? "bg-[rgb(var(--color-danger))]"
+                        : "bg-[rgb(var(--color-primary))]/80 ring-1 ring-[rgb(var(--color-primary))]/20 hover:bg-[rgb(var(--color-primary))]/90"
                     }`}
                     disabled={!isSupported}
                     onClick={handleMicrophoneClick}
                     type="button"
                   >
                     {isListening ? (
-                      <MicOff className="h-7 w-7" />
+                      <MicOff className="h-6 w-6" />
                     ) : (
-                      <Mic className="h-7 w-7" />
+                      <Mic className="h-6 w-6" />
                     )}
                   </button>
                 </div>
 
-                <VoiceLevel active={isListening} audioLevel={audioLevel} />
-
-                <div className="mt-1 flex items-center gap-2">
-                  <span
-                    aria-hidden="true"
-                    className={`h-2 w-2 rounded-full ${
-                      error
-                        ? "bg-rose-500"
-                        : isSpeaking
-                          ? "animate-pulse bg-emerald-500"
-                          : isListening
-                            ? "bg-[rgb(var(--color-primary))]"
-                            : "bg-[rgb(var(--color-text-secondary))]/50"
-                    }`}
-                  />
-                  <p
-                    aria-live="polite"
-                    className={`text-xs font-medium ${
-                      error
-                        ? "text-rose-600 dark:text-rose-400"
-                        : "text-[rgb(var(--color-text-secondary))]"
-                    }`}
-                  >
-                    {statusText}
+                <div className="relative min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span
+                      aria-hidden="true"
+                      className={`h-2 w-2 shrink-0 rounded-full ${
+                        error
+                          ? "bg-[rgb(var(--color-danger))]"
+                          : isSpeaking
+                            ? "animate-pulse bg-[rgb(var(--color-success))]"
+                            : isListening
+                              ? "bg-[rgb(var(--color-primary))]"
+                              : "bg-[rgb(var(--color-text-tertiary))]"
+                      }`}
+                    />
+                    <p
+                      aria-live="polite"
+                      className="truncate text-xs font-semibold text-[rgb(var(--color-text-primary))]"
+                    >
+                      {statusText}
+                    </p>
+                  </div>
+                  <p className="mt-1 text-[10px] text-[rgb(var(--color-text-secondary))]">
+                    {isListening ? t("voice.stopHint") : t("voice.startHint")}
                   </p>
+                  <div className="mt-1 flex h-9 items-center justify-start">
+                    <VoiceLevel active={isListening} audioLevel={audioLevel} />
+                  </div>
                 </div>
               </div>
 
-              <div className="relative mt-5 rounded-2xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/65 p-4">
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--color-text-secondary))]">
+              <div className="relative mt-3 rounded-2xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/65 p-3.5">
+                <div className="mb-1.5 flex items-center justify-between gap-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--color-text-secondary))]">
                     {t("voice.transcript")}
                   </span>
                   {(transcript || interimTranscript) && (
                     <button
-                      className="flex cursor-pointer items-center gap-1 text-[11px] font-medium text-[rgb(var(--color-primary))] transition-opacity hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]"
+                      className="flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-[rgb(var(--color-primary))] transition-colors hover:bg-[rgb(var(--color-primary))]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]"
                       onClick={handleReset}
                       type="button"
                     >
@@ -410,7 +446,7 @@ const VoiceCommandLauncher = () => {
                   )}
                 </div>
                 <p
-                  className={`min-h-12 text-sm leading-6 ${
+                  className={`max-h-20 min-h-10 overflow-y-auto text-[13px] leading-5 ${
                     transcript || interimTranscript
                       ? "text-[rgb(var(--color-text-primary))]"
                       : "text-[rgb(var(--color-text-secondary))]"
@@ -421,18 +457,18 @@ const VoiceCommandLauncher = () => {
               </div>
 
               {isPermissionError && (
-                <p className="mt-3 text-center text-xs leading-5 text-rose-600 dark:text-rose-400">
+                <p className="mt-2.5 text-center text-[11px] leading-4 text-[rgb(var(--color-danger))]">
                   {t("voice.permissionHelp")}
                 </p>
               )}
 
-              <footer className="relative mt-4 flex items-center justify-between gap-3 text-[11px] text-[rgb(var(--color-text-secondary))]">
+              <footer className="relative mt-3 flex select-none items-center justify-between gap-3 px-0.5 text-[10px] text-[rgb(var(--color-text-secondary))]">
                 <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <ShieldCheck className="h-3 w-3" />
                   {t("voice.privacy")}
                 </span>
                 <span className="hidden items-center gap-1.5 sm:flex">
-                  <Keyboard className="h-3.5 w-3.5" />
+                  <Keyboard className="h-3 w-3" />
                   {t("voice.shortcut")}
                 </span>
               </footer>
@@ -443,7 +479,7 @@ const VoiceCommandLauncher = () => {
         {!isOpen && (
           <button
             aria-label={`${t("voice.open")} — ${t("voice.shortcut")}`}
-            className={`group flex touch-none items-center gap-2.5 rounded-full border border-white/20 bg-slate-950/90 py-2.5 pl-3 pr-4 text-white shadow-[0_14px_40px_-12px_rgba(15,23,42,0.8)] backdrop-blur-xl transition-[background-color,box-shadow] duration-300 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-primary))]/25 ${
+            className={`group flex touch-none items-center gap-2.5 rounded-full border border-[rgb(var(--color-primary))]/20 bg-[rgb(var(--color-bg-primary))]/95 py-2.5 pl-3 pr-4 text-[rgb(var(--color-text-primary))] backdrop-blur-xl transition-colors duration-300 hover:bg-[rgb(var(--color-primary))]/5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-primary))]/20 ${
               isDragging ? "cursor-grabbing" : "cursor-grab"
             }`}
             onClick={handleLauncherClick}
@@ -453,11 +489,11 @@ const VoiceCommandLauncher = () => {
             onPointerUp={handleDragEnd}
             type="button"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[rgb(var(--color-primary))] to-indigo-500 shadow-lg">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] ring-1 ring-[rgb(var(--color-primary))]/15">
               <Mic className="h-4 w-4" />
             </span>
             <span className="text-sm font-medium">{t("voice.open")}</span>
-            <kbd className="hidden rounded-md border border-white/15 bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/65 sm:inline">
+            <kbd className="hidden rounded-md border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 text-[10px] font-medium text-[rgb(var(--color-text-secondary))] sm:inline">
               Alt V
             </kbd>
           </button>

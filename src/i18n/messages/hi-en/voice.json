@@ -5,6 +5,8 @@
   "move": "Voice assistant ko move karne ke liye drag karein",
   "startListening": "Sunna shuru karein",
   "stopListening": "Sunna band karein",
+  "startHint": "Shuru karne ke liye microphone tap karein",
+  "stopHint": "Command poora hone par dobara tap karein",
   "transcript": "Live transcript",
   "transcriptPlaceholder": "Microphone tap karke apna command boliye...",
   "clear": "Clear",
