@@ -1,25 +1,24 @@
 "use client";
-import { useEffect, useRef, useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { expandMenu } from "@/store/slices/uiSlice";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { ROLES } from "@/hooks/permissions/useModulePermissions";
-
+import { useEffect, useMemo, useRef, useState } from "react";
 import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
+import {
+  getAnalyticsSubMenuItems,
+  getBottomItems,
+  getIntegrationsSubMenuItems,
+  getInventorySubMenuItems,
+  getManagementSubMenuItems,
+  getNavigationItems,
+  getPurchaseSubMenuItems,
+  getSalesSubMenuItems,
+} from "@/data/constants/sidebarData";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { expandMenu } from "@/store/slices/uiSlice";
+import { SidebarFlyout } from "./SidebarFlyout";
 import { SidebarHeader } from "./SidebarHeader";
 import { SidebarNavItem } from "./SidebarNavItem";
-import { SidebarFlyout } from "./SidebarFlyout";
-import {
-  getSalesSubMenuItems,
-  getInventorySubMenuItems,
-  getPurchaseSubMenuItems,
-  getAnalyticsSubMenuItems,
-  getManagementSubMenuItems,
-  getIntegrationsSubMenuItems,
-  getNavigationItems,
-  getBottomItems,
-} from "@/data/constants/sidebarData";
 
 const Sidebar = ({ onStoreChange }) => {
   const pathname = usePathname();
@@ -29,7 +28,7 @@ const Sidebar = ({ onStoreChange }) => {
     authProfile,
     authProfileLoading,
     staffProfile,
-    staffProfileLoading
+    staffProfileLoading,
   } = useAppSelector((state) => state.profile);
   const isCollapsed = useAppSelector((state) => state.ui.isSidebarCollapsed);
 
@@ -47,8 +46,14 @@ const Sidebar = ({ onStoreChange }) => {
     () => getAnalyticsSubMenuItems(t, selectedStore),
     [t, selectedStore]
   );
-  const managementSubMenuItems = useMemo(() => getManagementSubMenuItems(t), [t]);
-  const integrationsSubMenuItems = useMemo(() => getIntegrationsSubMenuItems(t), [t]);
+  const managementSubMenuItems = useMemo(
+    () => getManagementSubMenuItems(t),
+    [t]
+  );
+  const integrationsSubMenuItems = useMemo(
+    () => getIntegrationsSubMenuItems(t),
+    [t]
+  );
 
   const rawNavigationItems = useMemo(
     () =>
@@ -59,7 +64,7 @@ const Sidebar = ({ onStoreChange }) => {
         purchaseSubMenuItems,
         analyticsSubMenuItems,
         managementSubMenuItems,
-        integrationsSubMenuItems,
+        integrationsSubMenuItems
       ),
     [
       t,
@@ -69,18 +74,25 @@ const Sidebar = ({ onStoreChange }) => {
       analyticsSubMenuItems,
       managementSubMenuItems,
       integrationsSubMenuItems,
-    ],
+    ]
   );
   const navigationItems = useMemo(() => {
     // If profiles are still loading, return a skeleton or nothing to prevent flashing
-    const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile);
+    const isLoading =
+      (authProfileLoading && !authProfile) ||
+      (staffProfileLoading && !staffProfile);
     if (isLoading) return [];
 
     if (authProfile?.role === ROLES.OWNER) return rawNavigationItems;
 
     const hasPermission = (href) => {
       // Default always allowed routes for staff
-      if (["/dashboard", "/dashboard/support", "/dashboard/settings",].includes(href)) return true;
+      if (
+        ["/dashboard", "/dashboard/support", "/dashboard/settings"].includes(
+          href
+        )
+      )
+        return true;
 
       // Staff cannot manage other staff, plan settings, or integrations
       if (href.startsWith("/dashboard/management")) return false;
@@ -90,7 +102,9 @@ const Sidebar = ({ onStoreChange }) => {
 
       // Check analytics routes
       if (href.startsWith("/dashboard/analytics")) {
-        const pm = permissions.find(p => p.module === "analytics" || p.module === "reports");
+        const pm = permissions.find(
+          (p) => p.module === "analytics" || p.module === "reports"
+        );
         return pm?.read || pm?.analytics || pm?.report || false;
       }
 
@@ -111,25 +125,35 @@ const Sidebar = ({ onStoreChange }) => {
 
       const moduleName = ROUTE_MODULE_MAP[href];
       if (moduleName) {
-        const pm = permissions.find(p => p.module === moduleName);
+        const pm = permissions.find((p) => p.module === moduleName);
         return pm?.read === true;
       }
 
       return true; // Unmapped routes allowed by default
     };
 
-    return rawNavigationItems.map(item => {
-      if (item.hasSubMenu) {
-        const filteredSubItems = item.subMenuItems.filter(sub => hasPermission(sub.href));
-        return { ...item, subMenuItems: filteredSubItems };
-      }
-      return item;
-    }).filter(item => {
-      if (item.hasSubMenu && item.subMenuItems.length === 0) return false;
-      if (!item.hasSubMenu && !hasPermission(item.href)) return false;
-      return true;
-    });
-  }, [rawNavigationItems, authProfile, staffProfile, authProfileLoading, staffProfileLoading]);
+    return rawNavigationItems
+      .map((item) => {
+        if (item.hasSubMenu) {
+          const filteredSubItems = item.subMenuItems.filter((sub) =>
+            hasPermission(sub.href)
+          );
+          return { ...item, subMenuItems: filteredSubItems };
+        }
+        return item;
+      })
+      .filter((item) => {
+        if (item.hasSubMenu && item.subMenuItems.length === 0) return false;
+        if (!item.hasSubMenu && !hasPermission(item.href)) return false;
+        return true;
+      });
+  }, [
+    rawNavigationItems,
+    authProfile,
+    staffProfile,
+    authProfileLoading,
+    staffProfileLoading,
+  ]);
 
   const bottomItems = useMemo(() => getBottomItems(t), [t]);
 
@@ -149,7 +173,7 @@ const Sidebar = ({ onStoreChange }) => {
         dispatch(expandMenu(activeItem.key));
       }
     }
-  }, [pathname, navigationItems]);
+  }, [dispatch, pathname, navigationItems]);
 
   // Close flyout when sidebar expands
   useEffect(() => {
@@ -168,9 +192,7 @@ const Sidebar = ({ onStoreChange }) => {
     if (!isCollapsed) return;
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     const rect = e.currentTarget.getBoundingClientRect();
-    const anchorBottom = isBottom
-      ? window.innerHeight - rect.bottom
-      : null;
+    const anchorBottom = isBottom ? window.innerHeight - rect.bottom : null;
     setHoveredItem({ item, rect, anchorBottom });
   };
 
@@ -194,18 +216,22 @@ const Sidebar = ({ onStoreChange }) => {
         width: isCollapsed ? "64px" : "256px",
         minWidth: isCollapsed ? "64px" : "256px",
         maxWidth: isCollapsed ? "64px" : "256px",
-        transition: "width 0.3s ease-in-out, min-width 0.3s ease-in-out, max-width 0.3s ease-in-out",
+        transition:
+          "width 0.3s ease-in-out, min-width 0.3s ease-in-out, max-width 0.3s ease-in-out",
         willChange: "width",
       }}
     >
       {/* Fixed Header Section */}
       <div className="flex-shrink-0">
         <SidebarHeader />
-        <StoreSelector isCollapsed={isCollapsed} onStoreChange={onStoreChange} />
+        <StoreSelector
+          isCollapsed={isCollapsed}
+          onStoreChange={onStoreChange}
+        />
       </div>
 
       {/* Scrollable Navigation Section */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <nav className="p-3 space-y-1">
           {navigationItems.map((item) => (
             <SidebarNavItem

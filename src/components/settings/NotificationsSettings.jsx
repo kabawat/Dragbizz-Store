@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Percent,
   RotateCcw,
+  Settings2,
   Shield,
   ShoppingCart,
   Smartphone,
@@ -379,7 +380,7 @@ const NotificationsSettings = () => {
         isOpen={isPushHelpOpen}
         onClose={() => setIsPushHelpOpen(false)}
         title={t("settings.notifications.pushIssueTitle")}
-        size="sm"
+        size="lg"
         className="!shadow-none"
       >
         <div className="space-y-4">
@@ -393,11 +394,45 @@ const NotificationsSettings = () => {
             <h4 className="text-sm font-semibold leading-5 text-[rgb(var(--color-text-primary))]">
               {t("settings.notifications.pushIssueSolutionTitle")}
             </h4>
-            <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
-              <li>{t("settings.notifications.pushIssueStep1")}</li>
-              <li>{t("settings.notifications.pushIssueStep2")}</li>
-              <li>{t("settings.notifications.pushIssueStep3")}</li>
-            </ol>
+            <div className="mt-3 space-y-2">
+              {[
+                {
+                  icon: Settings2,
+                  title: t("settings.notifications.pushIssueStep1Title"),
+                  description: t("settings.notifications.pushIssueStep1"),
+                },
+                {
+                  icon: Bell,
+                  title: t("settings.notifications.pushIssueStep2Title"),
+                  description: t("settings.notifications.pushIssueStep2"),
+                },
+                {
+                  icon: RotateCcw,
+                  title: t("settings.notifications.pushIssueStep3Title"),
+                  description: t("settings.notifications.pushIssueStep3"),
+                },
+              ].map(({ icon: StepIcon, title, description }, index) => (
+                <div
+                  key={title}
+                  className="flex gap-3 rounded-lg border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/30 p-3"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                    <StepIcon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold leading-5 text-[rgb(var(--color-text-primary))]">
+                      {index + 1}. {title}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
+                      {description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 rounded-lg bg-[rgb(var(--color-bg-secondary))]/50 px-3 py-2 text-xs leading-5 text-[rgb(var(--color-text-secondary))]">
+              {t("settings.notifications.pushIssueNote")}
+            </p>
           </div>
           <div className="flex justify-end border-t border-[rgb(var(--color-border-primary))]/60 pt-4">
             <Button variant="primary" onClick={() => setIsPushHelpOpen(false)}>

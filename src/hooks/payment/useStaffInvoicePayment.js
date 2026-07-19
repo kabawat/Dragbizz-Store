@@ -1,22 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import useApiResponse from "@/hooks/useApiResponse";
-import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
 import usePaymentDisplayScope from "@/hooks/payment/usePaymentDisplayScope";
 import usePaymentDisplaySession from "@/hooks/payment/usePaymentDisplaySession";
+import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
+import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
 import { getStorePaymentGateways } from "@/store/slices/storePaymentGatewaySlice";
-import { pickStoreId } from "@/utils/store.util";
 import {
   clearPaymentDisplaySession,
   createAwaitingSession,
   writePaymentDisplaySession,
 } from "@/utils/payment/paymentDisplaySession";
+import { pickStoreId } from "@/utils/store.util";
+import { generateUUID } from "@/utils/uuid.util";
 
 const PAYMENT_MODE_MAP = {
   cash: "CASH",
@@ -31,7 +32,11 @@ export const resolveStaffPaymentRedirect = (invoiceId, source) => {
   return `/dashboard/invoices/${invoiceId}`;
 };
 
-export function useStaffInvoicePayment({ invoiceId, source = "create", open = false }) {
+export function useStaffInvoicePayment({
+  invoiceId,
+  source = "create",
+  open = false,
+}) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -63,7 +68,10 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
   const onlineGatewayAvailable = useMemo(() => {
     const gateways = byStoreId?.[storeId]?.gateways || [];
     return gateways.some(
-      (gateway) => gateway.gatewayType === "RAZORPAY" && gateway.isActive && gateway.isDefault,
+      (gateway) =>
+        gateway.gatewayType === "RAZORPAY" &&
+        gateway.isActive &&
+        gateway.isDefault
     );
   }, [byStoreId, storeId]);
 
@@ -87,7 +95,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
         ...overrides,
       };
       if (!sessionIdRef.current) {
-        sessionIdRef.current = crypto.randomUUID();
+        sessionIdRef.current = generateUUID();
       }
 
       const session = createAwaitingSession({
@@ -99,7 +107,10 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
         paidAmount: paidAmount || grandTotal,
         paymentMethod: mode,
         defaultUpi: defaultUpi?.upiId
-          ? { upiId: defaultUpi.upiId, payeeName: storeName || defaultUpi.label || "Merchant" }
+          ? {
+              upiId: defaultUpi.upiId,
+              payeeName: storeName || defaultUpi.label || "Merchant",
+            }
           : null,
         storeName: storeName || "",
         customerName,
@@ -107,7 +118,16 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
       });
       writePaymentDisplaySession(scope, session);
     },
-    [scope, invoice, open, invoiceNumber, grandTotal, defaultUpi, storeName, customerName],
+    [
+      scope,
+      invoice,
+      open,
+      invoiceNumber,
+      grandTotal,
+      defaultUpi,
+      storeName,
+      customerName,
+    ]
   );
 
   const markDisplayPaid = useCallback(
@@ -129,7 +149,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
         customerName,
       });
     },
-    [scope, invoice, invoiceNumber, grandTotal, storeName, customerName],
+    [scope, invoice, invoiceNumber, grandTotal, storeName, customerName]
   );
 
   const clearDisplaySession = useCallback(() => {
@@ -145,7 +165,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
       paymentStateRef.current = { mode, paidAmount };
       syncDisplaySession({ mode, paidAmount });
     },
-    [syncDisplaySession],
+    [syncDisplaySession]
   );
 
   const loadInvoice = useCallback(async () => {
@@ -153,7 +173,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
 
     const result = await execute(
       invoiceService.getInvoices({ id: invoiceId, store: storeId }),
-      { showToast: false },
+      { showToast: false }
     );
 
     if (!result?.success) {
@@ -205,7 +225,12 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
   const refreshInvoiceList = useCallback(async () => {
     if (!storeId) return;
     await dispatch(
-      getInvoices({ store: storeId, limit: 20, cursor: null, isFreshLoad: true }),
+      getInvoices({
+        store: storeId,
+        limit: 20,
+        cursor: null,
+        isFreshLoad: true,
+      })
     );
   }, [dispatch, storeId]);
 
@@ -215,11 +240,17 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
       const redirectPath = resolveStaffPaymentRedirect(id, source);
       router.replace(redirectPath);
     },
-    [refreshInvoiceList, router, source],
+    [refreshInvoiceList, router, source]
   );
 
   useEffect(() => {
-    if (!open || !invoice?.id || !waitingForCustomer || onlineCompletedRef.current) return;
+    if (
+      !open ||
+      !invoice?.id ||
+      !waitingForCustomer ||
+      onlineCompletedRef.current
+    )
+      return;
     if (
       displaySession?.status === "paid" &&
       displaySession.paymentMethod === "online" &&
@@ -244,9 +275,9 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
             "PAID",
             storeId,
             paidAmount,
-            PAYMENT_MODE_MAP[paymentMode] || "CASH",
+            PAYMENT_MODE_MAP[paymentMode] || "CASH"
           ),
-          { message: "Payment Recorded Successfully!" },
+          { message: "Payment Recorded Successfully!" }
         );
 
         if (result?.success) {
@@ -258,7 +289,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
         setIsProcessing(false);
       }
     },
-    [invoice, storeId, execute, markDisplayPaid, navigateAfterSuccess],
+    [invoice, storeId, execute, markDisplayPaid, navigateAfterSuccess]
   );
 
   const handleOnlinePay = useCallback(() => {
@@ -281,7 +312,7 @@ export function useStaffInvoicePayment({ invoiceId, source = "create", open = fa
     try {
       const result = await execute(
         invoiceService.releaseInvoice(invoice.id, "UNPAID", storeId),
-        { message: "Invoice released successfully" },
+        { message: "Invoice released successfully" }
       );
 
       if (result?.success) {

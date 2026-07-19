@@ -1,186 +1,233 @@
 "use client";
-import React from "react";
-import Link from "next/link";
 import { ChevronDown, Crown } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleExpandedMenu } from "@/store/slices/uiSlice";
-import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 
 function isNavItemLocked(hasAccess, item) {
-    if (!item?.module) return false;
-    return !hasAccess(
-        item.module,
-        item.requireAnalytics,
-        item.requireReport,
-        item.requireCapability,
-    );
+  if (!item?.module) return false;
+  return !hasAccess(
+    item.module,
+    item.requireAnalytics,
+    item.requireReport,
+    item.requireCapability
+  );
 }
 
 export const SidebarNavItem = ({
-    item,
-    isCollapsed,
-    onMouseEnterItem,
-    onMouseLeaveItem,
-    isBottomItem = false,
+  item,
+  isCollapsed,
+  onMouseEnterItem,
+  onMouseLeaveItem,
+  isBottomItem = false,
 }) => {
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-    const pathname = usePathname();
-    const expandedMenus = useAppSelector((state) => state.ui.expandedMenus);
-    const { withAccess, hasAccess } = useSubscriptionAccess();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
+  const expandedMenus = useAppSelector((state) => state.ui.expandedMenus);
+  const { withAccess, hasAccess } = useSubscriptionAccess();
 
-    const handleToggleSubMenu = (item, e) => {
-        e?.preventDefault();
-        e?.stopPropagation();
-        dispatch(toggleExpandedMenu(item.key));
-    };
-    const Icon = item.icon;
+  const handleToggleSubMenu = (item, e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    dispatch(toggleExpandedMenu(item.key));
+  };
+  const Icon = item.icon;
 
-
-    if (item.hasSubMenu && item.key) {
-        const isExpanded = expandedMenus[item.key];
-        const isChildActive = isCollapsed && item.subMenuItems?.some(
-            (sub) => pathname === sub.href || pathname.startsWith(`${sub.href}/`)
-        );
-
-        return (
-            <div
-                className="relative"
-                onMouseEnter={(e) => onMouseEnterItem(item, e, isBottomItem)}
-                onMouseLeave={onMouseLeaveItem}
-            >
-                <div
-                    onClick={(e) => !isCollapsed && handleToggleSubMenu(item, e)}
-                    className={`w-full group flex items-center ${isCollapsed ? "justify-center px-0" : "justify-between px-2"
-                        } py-2 cursor-pointer rounded-lg transition-colors text-[rgb(var(--color-text-secondary))] ${isChildActive
-                            ? "bg-[rgb(var(--color-primary))]/10"
-                            : "hover:bg-[rgb(var(--color-bg-secondary))]"
-                        } ${isExpanded && !isCollapsed ? "bg-[rgb(var(--color-bg-secondary))]" : ""}`}
-                    title={isCollapsed ? item.name : ""}
-                >
-                    {!isCollapsed ? (
-                        <div className="flex items-center space-x-3 text-[rgb(var(--color-text-secondary))]">
-                            <Icon className={`w-4 h-4 transition-colors ${isExpanded ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
-                            <span className={`font-semibold tracking-wide uppercase text-xs transition-colors ${isExpanded ? "text-[rgb(var(--color-primary))]" : ""}`}>
-                                {item.name}
-                            </span>
-                        </div>
-                    ) : (
-                        <Icon className={`w-[18px] h-[18px] transition-colors ${isChildActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
-                    )}
-
-                    {!isCollapsed && (
-                        <ChevronDown className={`w-4 h-4 text-[rgb(var(--color-text-tertiary))] transition-all duration-200 ${isExpanded ? "rotate-180 opacity-100 text-[rgb(var(--color-primary))]" : "opacity-50 group-hover:opacity-100"}`} />
-                    )}
-                </div>
-
-                <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded && !isCollapsed ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0"
-                        }`}
-                >
-                    <div className="ml-6 space-y-1">
-                        {item.subMenuItems &&
-                            item.subMenuItems.map((subItem) => {
-                                const SubIcon = subItem.icon;
-                                const isSubActive = pathname === subItem.href || pathname.startsWith(`${subItem.href}/`);
-                                const locked = isNavItemLocked(hasAccess, subItem);
-                                return (
-                                    <Link
-                                        key={subItem.name}
-                                        href={subItem.href}
-                                        prefetch={false}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            withAccess(
-                                                subItem.module,
-                                                () => router.push(subItem.href),
-                                                subItem.requireAnalytics || false,
-                                                subItem.requireReport || false,
-                                                true,
-                                                subItem.requireCapability || null,
-                                            )();
-                                        }}
-                                        className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${isSubActive
-                                            ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
-                                            : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                                            } ${locked ? "opacity-75" : ""}`}
-                                        title={subItem.shortcut ? `Alt+${subItem.shortcut.toUpperCase()}` : ""}
-                                    >
-                                        <div className="relative">
-                                            <SubIcon className={`w-4 h-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
-                                        </div>
-                                        <span className="text-sm font-medium flex-1">{subItem.name}</span>
-                                        {locked && (
-                                            <Crown size={12} className="absolute right-3 text-[#f59e0b] opacity-100 fill-[#f59e0b]/20" />
-                                        )}
-                                        {subItem.shortcut && !locked && (
-                                            <kbd className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[0.5625rem] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none bg-[rgb(var(--color-bg-secondary))]">
-                                                ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
-                                            </kbd>
-                                        )}
-                                    </Link>
-                                );
-                            })}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const isActive = pathname === item.href;
-    const bottomSpecificClasses = isBottomItem
-        ? `px-2 py-2 ${isCollapsed ? "justify-center" : "space-x-3"}`
-        : `py-1.5 ${isCollapsed ? "justify-center px-0" : "space-x-2 px-2"} ${isActive && !isBottomItem ? "border-r-2 border-[rgb(var(--color-primary))]" : ""
-        }`;
-
-    const iconClasses = isBottomItem
-        ? `${isCollapsed ? "w-[24px] h-[24px]" : "w-5 h-5"} text-[rgb(var(--color-text-tertiary))]`
-        : `${isCollapsed ? "w-[18px] h-[18px]" : "w-4 h-4"} ${isActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"
-        }`;
-
-    const locked = isNavItemLocked(hasAccess, item);
+  if (item.hasSubMenu && item.key) {
+    const isExpanded = expandedMenus[item.key];
+    const isChildActive =
+      isCollapsed &&
+      item.subMenuItems?.some(
+        (sub) => pathname === sub.href || pathname.startsWith(`${sub.href}/`)
+      );
 
     return (
-        <div
-            onMouseEnter={(e) => onMouseEnterItem(item, e, isBottomItem)}
-            onMouseLeave={onMouseLeaveItem}
+      <div className="relative">
+        <button
+          type="button"
+          onClick={(e) => !isCollapsed && handleToggleSubMenu(item, e)}
+          onMouseEnter={(e) => onMouseEnterItem(item, e, isBottomItem)}
+          onMouseLeave={onMouseLeaveItem}
+          className={`group flex min-h-9 w-full items-center ${
+            isCollapsed ? "justify-center px-0" : "justify-between gap-2 px-2"
+          } py-1.5 cursor-pointer rounded-lg transition-colors text-[rgb(var(--color-text-secondary))] ${
+            isChildActive
+              ? "bg-[rgb(var(--color-primary))]/10"
+              : "hover:bg-[rgb(var(--color-bg-secondary))]"
+          } ${isExpanded && !isCollapsed ? "bg-[rgb(var(--color-bg-secondary))]" : ""}`}
+          title={isCollapsed ? item.name : ""}
         >
-            <Link
-                href={item.href}
-                prefetch={false}
-                onClick={(e) => {
+          {!isCollapsed ? (
+            <div className="flex min-w-0 items-center gap-3 text-[rgb(var(--color-text-secondary))]">
+              <Icon
+                className={`h-4 w-4 shrink-0 transition-colors ${isExpanded ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
+              />
+              <span
+                className={`min-w-0 truncate whitespace-nowrap text-xs font-semibold uppercase leading-5 tracking-wide transition-colors ${isExpanded ? "text-[rgb(var(--color-primary))]" : ""}`}
+              >
+                {item.name}
+              </span>
+            </div>
+          ) : (
+            <Icon
+              className={`w-[18px] h-[18px] transition-colors ${isChildActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
+            />
+          )}
+
+          {!isCollapsed && (
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-[rgb(var(--color-text-tertiary))] transition-all duration-200 ${isExpanded ? "rotate-180 opacity-100 text-[rgb(var(--color-primary))]" : "opacity-50 group-hover:opacity-100"}`}
+            />
+          )}
+        </button>
+
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            isExpanded && !isCollapsed
+              ? "max-h-[640px] opacity-100 mt-1"
+              : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="ml-5 space-y-0.5 border-l border-[rgb(var(--color-border-primary))]/50 pl-2">
+            {item.subMenuItems?.map((subItem) => {
+              const SubIcon = subItem.icon;
+              const isSubActive =
+                pathname === subItem.href ||
+                pathname.startsWith(`${subItem.href}/`);
+              const locked = isNavItemLocked(hasAccess, subItem);
+              return (
+                <Link
+                  key={subItem.name}
+                  href={subItem.href}
+                  prefetch={false}
+                  onClick={(e) => {
                     e.preventDefault();
                     withAccess(
-                        item.module,
-                        () => router.push(item.href),
-                        item.requireAnalytics || false,
-                        item.requireReport || false,
-                        true,
-                        item.requireCapability || null,
+                      subItem.module,
+                      () => router.push(subItem.href),
+                      subItem.requireAnalytics || false,
+                      subItem.requireReport || false,
+                      true,
+                      subItem.requireCapability || null
                     )();
-                }}
-                className={`w-full flex items-center rounded-lg transition-all duration-300 cursor-pointer ${bottomSpecificClasses} ${isActive
-                    ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
-                    : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                    } ${locked ? "opacity-75" : ""}`}
-                title={isCollapsed && item.shortcut ? `${item.name}  ⌥${item.shortcut.toUpperCase()}` : isCollapsed ? item.name : ""}
-            >
-                <div className="relative">
-                    <Icon className={`transition-all duration-300 ${iconClasses}`} />
-                    {isCollapsed && locked && (
-                        <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
-                            <Crown size={8} className="fill-white/30" />
-                        </div>
-                    )}
-                </div>
-                {!isCollapsed && (
-                    <span className={`font-medium ${isBottomItem ? "" : "text-sm"} ml-3 flex-1`}>{item.name}</span>
-                )}
-                {!isCollapsed && locked && (
-                    <Crown size={14} className="absolute right-3 text-[#f59e0b] opacity-100 fill-[#f59e0b]/20" />
-                )}
-            </Link>
+                  }}
+                  className={`group relative flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-all duration-200 ${
+                    isSubActive
+                      ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
+                      : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                  } ${locked ? "opacity-75" : ""}`}
+                  title={
+                    subItem.shortcut
+                      ? `Alt+${subItem.shortcut.toUpperCase()}`
+                      : ""
+                  }
+                >
+                  <div className="relative shrink-0">
+                    <SubIcon
+                      className={`h-4 w-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
+                    />
+                  </div>
+                  <span className="min-w-0 flex-1 truncate whitespace-nowrap text-sm font-medium leading-5">
+                    {subItem.name}
+                  </span>
+                  {locked && (
+                    <Crown
+                      size={12}
+                      className="shrink-0 fill-[#f59e0b]/20 text-[#f59e0b]"
+                    />
+                  )}
+                  {subItem.shortcut && !locked && (
+                    <kbd className="pointer-events-none shrink-0 rounded border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-1 py-px font-mono text-[0.5625rem] text-[rgb(var(--color-text-tertiary))] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      ⌥
+                      {subItem.shortcut === ","
+                        ? ","
+                        : subItem.shortcut.toUpperCase()}
+                    </kbd>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         </div>
+      </div>
     );
+  }
+
+  const isActive = pathname === item.href;
+  const bottomSpecificClasses = isBottomItem
+    ? `min-h-9 px-2 py-1.5 ${isCollapsed ? "justify-center" : "gap-3"}`
+    : `min-h-9 py-1.5 ${isCollapsed ? "justify-center px-0" : "gap-3 px-2"} ${
+        isActive && !isBottomItem
+          ? "border-r-2 border-[rgb(var(--color-primary))]"
+          : ""
+      }`;
+
+  const iconClasses = isBottomItem
+    ? `${isCollapsed ? "w-[24px] h-[24px]" : "w-5 h-5"} text-[rgb(var(--color-text-tertiary))]`
+    : `${isCollapsed ? "w-[18px] h-[18px]" : "w-4 h-4"} ${
+        isActive
+          ? "text-[rgb(var(--color-primary))]"
+          : "text-[rgb(var(--color-text-tertiary))]"
+      }`;
+
+  const locked = isNavItemLocked(hasAccess, item);
+
+  return (
+    <div>
+      <Link
+        href={item.href}
+        prefetch={false}
+        onMouseEnter={(e) => onMouseEnterItem(item, e, isBottomItem)}
+        onMouseLeave={onMouseLeaveItem}
+        onClick={(e) => {
+          e.preventDefault();
+          withAccess(
+            item.module,
+            () => router.push(item.href),
+            item.requireAnalytics || false,
+            item.requireReport || false,
+            true,
+            item.requireCapability || null
+          )();
+        }}
+        className={`w-full flex items-center rounded-lg transition-all duration-300 cursor-pointer ${bottomSpecificClasses} ${
+          isActive
+            ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
+            : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+        } ${locked ? "opacity-75" : ""}`}
+        title={
+          isCollapsed && item.shortcut
+            ? `${item.name}  ⌥${item.shortcut.toUpperCase()}`
+            : isCollapsed
+              ? item.name
+              : ""
+        }
+      >
+        <div className="relative shrink-0">
+          <Icon className={`transition-all duration-300 ${iconClasses}`} />
+          {isCollapsed && locked && (
+            <div className="absolute -top-1 -right-1 bg-[#f59e0b] text-white rounded-full p-0.5 shadow-sm">
+              <Crown size={8} className="fill-white/30" />
+            </div>
+          )}
+        </div>
+        {!isCollapsed && (
+          <span
+            className={`min-w-0 flex-1 truncate whitespace-nowrap font-medium leading-5 ${isBottomItem ? "" : "text-sm"}`}
+          >
+            {item.name}
+          </span>
+        )}
+        {!isCollapsed && locked && (
+          <Crown
+            size={14}
+            className="shrink-0 fill-[#f59e0b]/20 text-[#f59e0b]"
+          />
+        )}
+      </Link>
+    </div>
+  );
 };
