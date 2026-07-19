@@ -91,7 +91,7 @@ export const SidebarNavItem = ({
               : "max-h-0 opacity-0"
           }`}
         >
-          <div className="relative ml-5 space-y-0.5 pl-2">
+          <div className="relative ml-4 space-y-0.5 pl-2">
             <span
               aria-hidden="true"
               className="pointer-events-none absolute inset-y-1 left-0 border-l border-dashed border-[rgb(var(--color-border-primary))]/70"
