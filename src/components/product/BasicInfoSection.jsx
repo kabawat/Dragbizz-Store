@@ -1,5 +1,5 @@
 "use client";
-import { Barcode, Package, Tag } from "lucide-react";
+import { Barcode, Hash, Package, Tag } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Input, Select, Toggle } from "../ui";
@@ -81,6 +81,21 @@ const BasicInfoSection = ({
               { value: "GOODS", label: t("products.productTypeGoods") },
               { value: "SERVICE", label: t("products.productTypeService") },
             ]}
+          />
+        </div>
+
+        {/* SKU */}
+        <div>
+          <Input
+            label={t("products.sku")}
+            placeholder={t("products.enterSku")}
+            value={formData.sku || ""}
+            onChange={(value) =>
+              handleFieldChange("sku", (value || "").toUpperCase())
+            }
+            error={errors.sku}
+            errorMessage={errors.sku}
+            leftIcon={Hash}
           />
         </div>
       </div>

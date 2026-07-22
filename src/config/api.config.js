@@ -62,6 +62,15 @@ const API_CONFIG = {
     FCM_SEND: "/utility/v1/fcm/send",
   },
 
+  // AI / Voice orchestration (nginx → dragbizz-ai :4004)
+  AI: {
+    BASE_URL: "/brain",
+    CHAT: "/brain/api/v1/chat",
+    HEALTH: "/brain/api/v1/health",
+    READY: "/brain/api/v1/ready",
+    CHAT_TIMEOUT_MS: 45_000,
+  },
+
   // Subscription Service Endpoints
   SUBSCRIPTION: {
     SUBSCRIPTIONS: "/plans/subscription",

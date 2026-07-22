@@ -8,6 +8,14 @@
   "startHint": "Shuru karne ke liye microphone tap karein",
   "stopHint": "Command poora hone par dobara tap karein",
   "transcript": "Live transcript",
+  "message": "Message",
+  "messagePlaceholder": "Command type karein ya microphone use karein…",
+  "send": "Send",
+  "sendHint": "Enter se bhejein · Shift+Enter nayi line",
+  "assistant": "Assistant",
+  "tool": "Tool",
+  "toolSuccess": "ho gaya",
+  "toolFailed": "fail",
   "transcriptPlaceholder": "Microphone tap karke apna command boliye...",
   "clear": "Clear",
   "privacy": "Microphone sirf listening ke waqt chalta hai",
@@ -17,6 +25,9 @@
     "ready": "Jab aap ready hon",
     "listening": "Aapka command sun raha hoon...",
     "hearing": "Main aapko sun sakta hoon",
+    "thinking": "Soch raha hoon…",
+    "noStore": "Voice command ke liye store select karein",
+    "typeOnly": "Mic available nahi — command type karein",
     "unsupported": "Is browser mein voice capture support nahi hai"
   },
   "errors": {
@@ -27,6 +38,7 @@
     "device_busy": "Microphone kisi doosri application mein use ho raha hai",
     "recognition_error": "Speech recognition command samajh nahi paya",
     "network": "Speech recognition ke liye internet connection chahiye",
-    "unknown": "Microphone start nahi ho saka"
+    "unknown": "Microphone start nahi ho saka",
+    "ai_failed": "Assistant request complete nahi kar paya"
   }
 }

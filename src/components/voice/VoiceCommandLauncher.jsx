@@ -5,11 +5,13 @@ import {
   Mic,
   MicOff,
   RotateCcw,
+  Send,
   ShieldCheck,
   Sparkles,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAiVoiceChat } from "@/hooks/ai/useAiVoiceChat";
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import useVoiceCapture, {
   VOICE_CAPTURE_ERRORS,
@@ -66,6 +68,7 @@ const VoiceCommandLauncher = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [draftText, setDraftText] = useState("");
   const launcherRef = useRef(null);
   const dragStateRef = useRef(null);
   const positionRef = useRef(position);
@@ -90,6 +93,22 @@ const VoiceCommandLauncher = () => {
     abortListening,
     resetTranscript,
   } = useVoiceCapture({ language });
+
+  const {
+    reply,
+    toolResults,
+    isSending,
+    chatError,
+    sendChat,
+    resetChat,
+    storeId,
+  } = useAiVoiceChat({ language });
+
+  useEffect(() => {
+    if (!isListening && !interimTranscript) return;
+    const live = [transcript, interimTranscript].filter(Boolean).join(" ").trim();
+    if (live) setDraftText(live);
+  }, [transcript, interimTranscript, isListening]);
 
   const closePanel = useCallback(() => {
     abortListening();
@@ -256,28 +275,54 @@ const VoiceCommandLauncher = () => {
 
   const handleMicrophoneClick = async () => {
     if (isListening) {
-      stopListening();
+      const finalText = stopListening();
+      if (finalText) {
+        setDraftText(finalText);
+        await sendChat(finalText);
+      }
       return;
     }
 
     await startListening();
   };
 
+  const handleSend = async () => {
+    const text = draftText.trim();
+    if (!text || isSending || !storeId) return;
+    if (isListening) stopListening();
+    await sendChat(text);
+  };
+
+  const handleDraftKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSend();
+    }
+  };
+
   const handleReset = () => {
     resetTranscript();
+    resetChat();
+    setDraftText("");
   };
 
   const statusText = (() => {
-    if (!isSupported) return t("voice.status.unsupported");
+    if (!storeId) return t("voice.status.noStore");
     if (error) return t(`voice.errors.${error.code}`);
+    if (isSending) return t("voice.status.thinking");
+    if (chatError) {
+      if (chatError.code === "STORE_REQUIRED") {
+        return t("voice.status.noStore");
+      }
+      return chatError.message || t("voice.errors.ai_failed");
+    }
     if (isSpeaking) return t("voice.status.hearing");
     if (isListening) return t("voice.status.listening");
+    if (!isSupported) return t("voice.status.typeOnly");
     return t("voice.status.ready");
   })();
 
-  const displayTranscript =
-    [transcript, interimTranscript].filter(Boolean).join(" ") ||
-    t("voice.transcriptPlaceholder");
+  const canSend = Boolean(draftText.trim()) && Boolean(storeId) && !isSending;
 
   const isPermissionError =
     error?.code === VOICE_CAPTURE_ERRORS.PERMISSION_DENIED;
@@ -387,7 +432,7 @@ const VoiceCommandLauncher = () => {
                         ? "bg-[rgb(var(--color-danger))]"
                         : "bg-[rgb(var(--color-primary))]/80 ring-1 ring-[rgb(var(--color-primary))]/20 hover:bg-[rgb(var(--color-primary))]/90"
                     }`}
-                    disabled={!isSupported}
+                    disabled={!isSupported || isSending || !storeId}
                     onClick={handleMicrophoneClick}
                     type="button"
                   >
@@ -432,9 +477,9 @@ const VoiceCommandLauncher = () => {
               <div className="relative mt-3 rounded-2xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/65 p-3.5">
                 <div className="mb-1.5 flex items-center justify-between gap-3">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--color-text-secondary))]">
-                    {t("voice.transcript")}
+                    {t("voice.message")}
                   </span>
-                  {(transcript || interimTranscript) && (
+                  {draftText && (
                     <button
                       className="flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-[rgb(var(--color-primary))] transition-colors hover:bg-[rgb(var(--color-primary))]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]"
                       onClick={handleReset}
@@ -445,16 +490,76 @@ const VoiceCommandLauncher = () => {
                     </button>
                   )}
                 </div>
-                <p
-                  className={`max-h-20 min-h-10 overflow-y-auto text-[13px] leading-5 ${
-                    transcript || interimTranscript
-                      ? "text-[rgb(var(--color-text-primary))]"
-                      : "text-[rgb(var(--color-text-secondary))]"
-                  }`}
-                >
-                  {displayTranscript}
+                <div className="flex items-end gap-2">
+                  <textarea
+                    aria-label={t("voice.message")}
+                    className="max-h-28 min-h-10 w-full resize-none bg-transparent text-[13px] leading-5 text-[rgb(var(--color-text-primary))] outline-none placeholder:text-[rgb(var(--color-text-secondary))]"
+                    disabled={isSending || !storeId}
+                    onChange={(event) => setDraftText(event.target.value)}
+                    onKeyDown={handleDraftKeyDown}
+                    placeholder={t("voice.messagePlaceholder")}
+                    rows={2}
+                    value={draftText}
+                  />
+                  <button
+                    aria-label={t("voice.send")}
+                    className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[rgb(var(--color-primary))] text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))] disabled:cursor-not-allowed disabled:opacity-40"
+                    disabled={!canSend}
+                    onClick={handleSend}
+                    type="button"
+                  >
+                    <Send className="h-4 w-4" />
+                  </button>
+                </div>
+                <p className="mt-1.5 text-[10px] text-[rgb(var(--color-text-secondary))]">
+                  {t("voice.sendHint")}
                 </p>
               </div>
+
+              {(isSending || reply || chatError) && (
+                <div className="relative mt-3 rounded-2xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/65 p-3.5">
+                  <div className="mb-1.5 flex items-center justify-between gap-3">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--color-text-secondary))]">
+                      {t("voice.assistant")}
+                    </span>
+                  </div>
+                  {isSending ? (
+                    <p className="text-[13px] leading-5 text-[rgb(var(--color-text-secondary))]">
+                      {t("voice.status.thinking")}
+                    </p>
+                  ) : chatError ? (
+                    <p className="text-[13px] leading-5 text-[rgb(var(--color-danger))]">
+                      {chatError.code === "STORE_REQUIRED"
+                        ? t("voice.status.noStore")
+                        : chatError.message || t("voice.errors.ai_failed")}
+                    </p>
+                  ) : (
+                    <>
+                      <p className="max-h-28 overflow-y-auto text-[13px] leading-5 text-[rgb(var(--color-text-primary))]">
+                        {reply}
+                      </p>
+                      {toolResults.length > 0 && (
+                        <ul className="mt-2 space-y-1 border-t border-[rgb(var(--color-border-primary))]/50 pt-2">
+                          {toolResults.map((item, index) => (
+                            <li
+                              className="text-[11px] leading-4 text-[rgb(var(--color-text-secondary))]"
+                              key={`${item?.tool || "tool"}-${index}`}
+                            >
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {item?.tool || t("voice.tool")}
+                              </span>
+                              {": "}
+                              {item?.success
+                                ? t("voice.toolSuccess")
+                                : t("voice.toolFailed")}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
 
               {isPermissionError && (
                 <p className="mt-2.5 text-center text-[11px] leading-4 text-[rgb(var(--color-danger))]">

@@ -66,6 +66,7 @@
   "loadingCategories": "Loading categories...",
   "addNewCategory": "Add New Category",
   "enterBarcode": "Enter barcode (optional)",
+  "enterSku": "Enter SKU (optional, e.g. ABC-123)",
   "mrp": "MRP",
   "enterAmount": "0.00",
   "mrpHelperText": "Maximum retail price as per regulations",

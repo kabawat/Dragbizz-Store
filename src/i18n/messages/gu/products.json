@@ -64,6 +64,7 @@
   "loadingCategories": "શ્રેણીઓ લોડ થઈ રહ્યા છે...",
   "addNewCategory": "નવી શ્રેણી ઉમેરો",
   "enterBarcode": "બારકોડ દાખલ કરો (વૈકલ્પિક)",
+  "enterSku": "SKU દાખલ કરો (વૈકલ્પિક, દા.ત. ABC-123)",
   "mrp": "MRP",
   "enterAmount": "0.00",
   "mrpHelperText": "નિયમો અનુસાર મહત્તમ રિટેલ કિંમત",

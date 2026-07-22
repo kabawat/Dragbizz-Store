@@ -52,6 +52,8 @@ const UpdateProductPage = ({ productId }) => {
     name: "",
     brand: "",
     category: "",
+    sku: "",
+    barcode: "",
     basePrice: "",
     mrp: "",
     sellingPrice: "",

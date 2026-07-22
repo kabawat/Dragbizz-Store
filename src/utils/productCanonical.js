@@ -204,7 +204,7 @@ export function fromProductForm(formData = {}) {
     brand: formData.brand ?? normalized.brand,
     category: formData.category ?? resolveCategoryId(normalized.category),
     barcode: formData.barcode ?? normalized.barcode,
-    sku: formData.sku ?? normalized.sku,
+    sku: String(formData.sku ?? normalized.sku ?? "").trim(),
     images: images.length > 0 ? images : normalized.images,
     discount,
     status: formData.status ?? normalized.status,
@@ -220,6 +220,9 @@ export function fromProductForm(formData = {}) {
 
   delete payload.stock;
   delete payload.features;
+
+  // Backend rejects empty-string SKU; omit it when not provided
+  if (!payload.sku) delete payload.sku;
 
   return payload;
 }

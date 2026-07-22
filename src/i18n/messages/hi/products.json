@@ -72,6 +72,7 @@
   "loadingCategories": "श्रेणियां लोड हो रही हैं...",
   "addNewCategory": "नई श्रेणी जोड़ें",
   "enterBarcode": "बारकोड दर्ज करें (वैकल्पिक)",
+  "enterSku": "SKU दर्ज करें (वैकल्पिक, जैसे ABC-123)",
   "mrp": "MRP",
   "enterAmount": "0.00",
   "mrpHelperText": "नियमों के अनुसार अधिकतम खुदरा मूल्य",

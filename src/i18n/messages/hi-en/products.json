@@ -64,6 +64,7 @@
   "loadingCategories": "Categories load ho rahi hain...",
   "addNewCategory": "Naya Category add karo",
   "enterBarcode": "Barcode enter karo (optional)",
+  "enterSku": "SKU enter karo (optional, jaise ABC-123)",
   "mrp": "MRP",
   "enterAmount": "0.00",
   "mrpHelperText": "Regulations ke according maximum retail price",

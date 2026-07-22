@@ -545,6 +545,7 @@ export function useVoiceCapture({
     }
 
     cleanupResources();
+    return finalTranscriptRef.current.trim();
   }, [cleanupResources]);
 
   const abortListening = useCallback(() => {

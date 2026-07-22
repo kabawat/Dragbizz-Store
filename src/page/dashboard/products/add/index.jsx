@@ -44,6 +44,7 @@ const AddProductPage = () => {
     name: "",
     brand: "",
     category: "",
+    sku: "",
     barcode: "",
     images: [],
     basePrice: "",

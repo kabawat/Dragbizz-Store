@@ -8,6 +8,14 @@
   "startHint": "Tap the microphone to start",
   "stopHint": "Tap again when you are done",
   "transcript": "Live transcript",
+  "message": "Message",
+  "messagePlaceholder": "Type a command or use the microphone…",
+  "send": "Send",
+  "sendHint": "Enter to send · Shift+Enter for new line",
+  "assistant": "Assistant",
+  "tool": "Tool",
+  "toolSuccess": "done",
+  "toolFailed": "failed",
   "transcriptPlaceholder": "Tap the microphone and speak a command...",
   "clear": "Clear",
   "privacy": "Microphone runs only while listening",
@@ -17,6 +25,9 @@
     "ready": "Ready when you are",
     "listening": "Listening for your command...",
     "hearing": "I can hear you",
+    "thinking": "Thinking…",
+    "noStore": "Select a store to use voice commands",
+    "typeOnly": "Mic unavailable — type your command instead",
     "unsupported": "Voice capture is not supported in this browser"
   },
   "errors": {
@@ -27,6 +38,7 @@
     "device_busy": "Your microphone is being used by another application",
     "recognition_error": "Speech recognition could not understand the command",
     "network": "Speech recognition needs a working internet connection",
-    "unknown": "The microphone could not be started"
+    "unknown": "The microphone could not be started",
+    "ai_failed": "Assistant could not complete the request"
   }
 }
