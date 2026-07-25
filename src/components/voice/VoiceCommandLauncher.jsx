@@ -283,14 +283,14 @@ const VoiceCommandLauncher = () => {
                 {t("voice.permissionHelp")}
               </p>
             )}
-            <div className="flex items-end gap-2 rounded-2xl border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-secondary))]/70 px-2.5 py-2">
+            <div className="flex items-end gap-1.5 rounded-[22px] border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-secondary))]/80 p-1.5 transition-[border-color] focus-within:border-[rgb(var(--color-primary))]/55">
               <button
                 aria-label={
                   isListening
                     ? t("voice.stopListening")
                     : t("voice.startListening")
                 }
-                className={`flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))] disabled:cursor-not-allowed disabled:opacity-40 ${
+                className={`mb-0.5 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]/40 disabled:cursor-not-allowed disabled:opacity-40 ${
                   isListening
                     ? "bg-[rgb(var(--color-danger))] text-white"
                     : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))] hover:text-[rgb(var(--color-primary))]"
@@ -307,7 +307,7 @@ const VoiceCommandLauncher = () => {
               </button>
               <textarea
                 aria-label={t("voice.message")}
-                className="max-h-28 min-h-9 w-full resize-none bg-transparent py-1.5 text-[13px] leading-5 text-[rgb(var(--color-text-primary))] outline-none placeholder:text-[rgb(var(--color-text-secondary))]"
+                className="max-h-28 min-h-9 w-full resize-none !border-0 bg-transparent px-1 py-2 text-[13px] leading-5 text-[rgb(var(--color-text-primary))] !shadow-none outline-none ring-0 placeholder:text-[rgb(var(--color-text-secondary))] focus:!border-0 focus:!shadow-none focus:outline-none focus:ring-0"
                 disabled={isSending || !storeId}
                 onChange={(event) => setDraftText(event.target.value)}
                 onKeyDown={handleDraftKeyDown}
@@ -318,7 +318,7 @@ const VoiceCommandLauncher = () => {
               />
               <button
                 aria-label={t("voice.send")}
-                className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[rgb(var(--color-primary))] text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))] disabled:cursor-not-allowed disabled:opacity-40"
+                className="mb-0.5 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[rgb(var(--color-primary))] text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]/40 disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={!canSend}
                 onClick={handleSend}
                 type="button"
@@ -326,7 +326,7 @@ const VoiceCommandLauncher = () => {
                 <Send className="h-4 w-4" />
               </button>
             </div>
-            <p className="mt-1.5 px-1 text-[10px] text-[rgb(var(--color-text-secondary))]">
+            <p className="mt-1.5 px-1 text-center text-[10px] text-[rgb(var(--color-text-secondary))]">
               {t("voice.sendHint")} · {t("voice.shortcut")}
             </p>
           </div>
