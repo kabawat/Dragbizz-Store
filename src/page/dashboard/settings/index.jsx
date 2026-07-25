@@ -11,6 +11,7 @@ import {
     User,
     PenTool,
     Languages,
+    MessageCircle,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,6 +25,7 @@ import {
     StoreSettings,
     SignatureSettings,
     LanguageSettings,
+    TelegramIntegrationSettings,
 } from "@/components/settings";
 import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -58,6 +60,7 @@ const SettingsPage = () => {
             label: t("settings.notificationsLabel"),
             icon: Bell,
         },
+        { id: "telegram", label: t("settings.telegram"), icon: MessageCircle },
     ];
 
     const settingsTabs = authProfile?.role === ROLES.STAFF
@@ -136,6 +139,7 @@ const SettingsPage = () => {
                     {activeTab === "payment" && <ManagePaymentSettings />}
                     {activeTab === "security" && <SecuritySettings />}
                     {activeTab === "notifications" && <NotificationsSettings />}
+                    {activeTab === "telegram" && <TelegramIntegrationSettings />}
                 </div>
             </div>
         </div>

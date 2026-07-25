@@ -61,6 +61,14 @@ const API_CONFIG = {
     FCM_SEND: "/utility/v1/fcm/send",
   },
 
+  // Telegram Integration Endpoints
+  TELEGRAM: {
+    LINK_TOKEN: "/telegram/link-token",
+    STATUS: "/telegram/status",
+    DISCONNECT: "/telegram/disconnect",
+    PREFERENCES: "/telegram/preferences",
+  },
+
   // Subscription Service Endpoints
   SUBSCRIPTION: {
     SUBSCRIPTIONS: "/plans/subscription",
