@@ -6,9 +6,19 @@ import { useAppSelector } from "@/store/hooks";
 import { pickStoreId } from "@/utils/store.util";
 import { generateUUID } from "@/utils/uuid.util";
 
+function createMessage(role, content, extras = {}) {
+  return {
+    id: generateUUID(),
+    role,
+    content,
+    createdAt: Date.now(),
+    ...extras,
+  };
+}
+
 /**
- * Owns AI chat session + send for the voice launcher.
- * Does not own mic/STT — call sendChat with a final transcript.
+ * Owns AI chat session + send for the store assistant.
+ * Does not own mic/STT — call sendChat with final text.
  */
 export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -16,18 +26,14 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
 
   const sessionIdRef = useRef(generateUUID());
   const inflightRef = useRef(false);
-  const lastSentRef = useRef("");
 
-  const [reply, setReply] = useState(null);
-  const [toolResults, setToolResults] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
   const [chatError, setChatError] = useState(null);
 
   const resetChat = useCallback(() => {
     sessionIdRef.current = generateUUID();
-    lastSentRef.current = "";
-    setReply(null);
-    setToolResults([]);
+    setMessages([]);
     setChatError(null);
   }, []);
 
@@ -41,13 +47,12 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
         return null;
       }
 
-      if (trimmed === lastSentRef.current) {
-        return null;
-      }
-
       inflightRef.current = true;
       setIsSending(true);
       setChatError(null);
+
+      const userMessage = createMessage("user", trimmed);
+      setMessages((current) => [...current, userMessage]);
 
       try {
         const result = await aiChatService.chat({
@@ -66,8 +71,6 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
             code: typeof code === "string" ? code : "AI_CHAT_FAILED",
             message: result.message,
           });
-          setReply(null);
-          setToolResults([]);
           return null;
         }
 
@@ -80,17 +83,16 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
             ? payload.tool_results
             : [];
 
-        lastSentRef.current = trimmed;
-        setReply(message);
-        setToolResults(tools);
+        const assistantMessage = createMessage("assistant", message, {
+          toolResults: tools,
+        });
+        setMessages((current) => [...current, assistantMessage]);
         return { message, toolResults: tools };
       } catch (err) {
         setChatError({
           code: "AI_CHAT_FAILED",
           message: err?.message || null,
         });
-        setReply(null);
-        setToolResults([]);
         return null;
       } finally {
         inflightRef.current = false;
@@ -100,9 +102,17 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     [storeId, language]
   );
 
+  const reply =
+    [...messages].reverse().find((item) => item.role === "assistant")
+      ?.content ?? null;
+  const toolResults =
+    [...messages].reverse().find((item) => item.role === "assistant")
+      ?.toolResults ?? [];
+
   return {
     storeId,
     sessionId: sessionIdRef.current,
+    messages,
     reply,
     toolResults,
     isSending,
