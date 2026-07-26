@@ -15,7 +15,7 @@ export function CashbookDashboardCard({ storeId }) {
   useEffect(() => {
     if (!storeId) return;
     let cancelled = false;
-    execute(cashbookService.getAnalytics(), { showToast: false })
+    execute(cashbookService.getAnalytics({ store: storeId }), { showToast: false })
       .then((result) => {
         if (!cancelled) setAnalytics(result?.data ?? null);
       })

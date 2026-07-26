@@ -32,6 +32,7 @@ export function useCashbookEntry({ storeId, onSuccess }) {
 
       const result = await execute(
         cashbookService.createEntry({
+          store: storeId,
           type,
           amount: numericAmount,
           category,

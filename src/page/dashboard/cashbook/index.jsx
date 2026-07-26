@@ -60,8 +60,8 @@ export default function CashbookPage() {
     const key = todayKey();
     try {
       const [listResult, summaryResult] = await Promise.all([
-        execute(cashbookService.getEntries({ from: key, to: key, limit: 50 }), { showToast: false }),
-        execute(cashbookService.getSummary({ from: key, to: key }), { showToast: false }),
+        execute(cashbookService.getEntries({ store: storeId, from: key, to: key, limit: 50 }), { showToast: false }),
+        execute(cashbookService.getSummary({ store: storeId, from: key, to: key }), { showToast: false }),
       ]);
       setEntries(Array.isArray(listResult?.data) ? listResult.data : listResult?.data?.data ?? []);
       setSummary(summaryResult?.data ?? summaryResult?.data?.data ?? null);
