@@ -17,6 +17,10 @@ import useVoiceCapture, {
   VOICE_CAPTURE_ERRORS,
 } from "@/hooks/media/useVoiceCapture";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import ENV_CONFIG from "@/config/env.config";
+
+// Tool-call trace ("search_customer: done") is a debug aid — dev/test only.
+const SHOW_TOOL_TRACE = !ENV_CONFIG.ENV.IS_PRODUCTION;
 
 const VoiceCommandLauncher = () => {
   const { t, locale } = useTranslation();
@@ -46,8 +50,11 @@ const VoiceCommandLauncher = () => {
   const {
     messages,
     isSending,
+    isConfirming,
     chatError,
     sendChat,
+    confirmPending,
+    rejectPending,
     resetChat,
     storeId,
   } = useAiVoiceChat({ language });
@@ -61,7 +68,7 @@ const VoiceCommandLauncher = () => {
   useEffect(() => {
     if (!isOpen) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [isOpen, messages, isSending, chatError]);
+  }, [isOpen, messages, isSending, isConfirming, chatError]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -138,16 +145,35 @@ const VoiceCommandLauncher = () => {
     setDraftText("");
   };
 
-  const canSend = Boolean(draftText.trim()) && Boolean(storeId) && !isSending;
+  const canSend =
+    Boolean(draftText.trim()) &&
+    Boolean(storeId) &&
+    !isSending &&
+    !isConfirming;
   const isPermissionError =
     error?.code === VOICE_CAPTURE_ERRORS.PERMISSION_DENIED;
-  const hasThread = messages.length > 0 || isSending || Boolean(chatError);
+  const hasThread =
+    messages.length > 0 || isSending || isConfirming || Boolean(chatError);
 
   const emptyHint = !storeId
     ? t("voice.status.noStore")
     : !isSupported
       ? t("voice.status.typeOnly")
       : t("voice.emptyHint");
+
+  const formatConfirmSummary = (pending) => {
+    const summary = pending?.summary || {};
+    const parts = [];
+    if (typeof summary.total === "number") {
+      parts.push(`₹${summary.total}`);
+    }
+    if (summary.invoiceNumber) {
+      parts.push(String(summary.invoiceNumber));
+    }
+    return parts.length > 0
+      ? parts.join(" · ")
+      : t("voice.confirm.defaultSummary");
+  };
 
   return (
     <div className="pointer-events-none fixed bottom-5 right-5 z-[300] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
@@ -170,7 +196,7 @@ const VoiceCommandLauncher = () => {
                 <p className="mt-0.5 truncate text-[11px] text-[rgb(var(--color-text-secondary))]">
                   {isListening
                     ? t("voice.status.listening")
-                    : isSending
+                    : isSending || isConfirming
                       ? t("voice.status.thinking")
                       : t("voice.subtitle")}
                 </p>
@@ -232,7 +258,8 @@ const VoiceCommandLauncher = () => {
                 >
                   <div className="max-w-[94%] rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/90 px-3.5 py-3">
                     <ChatAssistantMessage message={item.content} />
-                    {Array.isArray(item.toolResults) &&
+                    {SHOW_TOOL_TRACE &&
+                      Array.isArray(item.toolResults) &&
                       item.toolResults.length > 0 && (
                         <ul className="mt-2 space-y-1 border-t border-[rgb(var(--color-border-primary))]/50 pt-2">
                           {item.toolResults.map((tool, index) => (
@@ -251,15 +278,50 @@ const VoiceCommandLauncher = () => {
                           ))}
                         </ul>
                       )}
+                    {item.pendingConfirmation && (
+                      <div className="mt-3 space-y-2 border-t border-[rgb(var(--color-border-primary))]/50 pt-3">
+                        <p className="text-[12px] leading-4 text-[rgb(var(--color-text-secondary))]">
+                          {t("voice.confirm.prompt")}
+                          {": "}
+                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                            {formatConfirmSummary(item.pendingConfirmation)}
+                          </span>
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            className="cursor-pointer rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-[12px] font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={isConfirming || isSending}
+                            onClick={() =>
+                              confirmPending(item.pendingConfirmation)
+                            }
+                            type="button"
+                          >
+                            {t("voice.confirm.approve")}
+                          </button>
+                          <button
+                            className="cursor-pointer rounded-lg border border-[rgb(var(--color-border-primary))] px-3 py-1.5 text-[12px] font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:bg-[rgb(var(--color-bg-primary))] disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={isConfirming || isSending}
+                            onClick={() =>
+                              rejectPending(item.pendingConfirmation)
+                            }
+                            type="button"
+                          >
+                            {t("voice.confirm.reject")}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )
             )}
 
-            {isSending && (
+            {(isSending || isConfirming) && (
               <div className="flex justify-start">
                 <div className="rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/80 px-3.5 py-2.5 text-[13px] text-[rgb(var(--color-text-secondary))]">
-                  {t("voice.status.thinking")}
+                  {isConfirming
+                    ? t("voice.status.confirming")
+                    : t("voice.status.thinking")}
                 </div>
               </div>
             )}
@@ -295,7 +357,7 @@ const VoiceCommandLauncher = () => {
                     ? "bg-[rgb(var(--color-danger))] text-white"
                     : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))] hover:text-[rgb(var(--color-primary))]"
                 }`}
-                disabled={!isSupported || isSending || !storeId}
+                disabled={!isSupported || isSending || isConfirming || !storeId}
                 onClick={handleMicrophoneClick}
                 type="button"
               >
@@ -308,7 +370,7 @@ const VoiceCommandLauncher = () => {
               <textarea
                 aria-label={t("voice.message")}
                 className="max-h-28 min-h-9 w-full resize-none !border-0 bg-transparent px-1 py-2 text-[13px] leading-5 text-[rgb(var(--color-text-primary))] !shadow-none outline-none ring-0 placeholder:text-[rgb(var(--color-text-secondary))] focus:!border-0 focus:!shadow-none focus:outline-none focus:ring-0"
-                disabled={isSending || !storeId}
+                disabled={isSending || isConfirming || !storeId}
                 onChange={(event) => setDraftText(event.target.value)}
                 onKeyDown={handleDraftKeyDown}
                 placeholder={t("voice.messagePlaceholder")}

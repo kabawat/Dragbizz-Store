@@ -6,6 +6,7 @@ class AiChatService extends BaseService {
   constructor() {
     super();
     this.endpoint = API_CONFIG?.AI?.CHAT;
+    this.confirmEndpoint = API_CONFIG?.AI?.CONFIRM;
     this.timeout = Number(API_CONFIG?.AI?.CHAT_TIMEOUT_MS) || 45_000;
   }
 
@@ -31,6 +32,48 @@ class AiChatService extends BaseService {
         error?.response?.data?.error?.message ||
         error?.response?.data?.error?.code;
       const fallback = handleApiErrorResponse(error, "ai-chat");
+      if (nested && typeof nested === "string") {
+        return { ...fallback, message: nested };
+      }
+      return fallback;
+    }
+  }
+
+  /**
+   * POST /brain/api/v1/chat/confirm — approve or reject a pending sensitive action.
+   * @param {{
+   *   sessionId: string,
+   *   storeId: string,
+   *   confirmationId: string,
+   *   draftId: string,
+   *   action: "approve" | "reject"
+   * }} payload
+   */
+  async confirm({
+    sessionId,
+    storeId,
+    confirmationId,
+    draftId,
+    action,
+  }) {
+    try {
+      const response = await this.authAxios.post(
+        this.confirmEndpoint,
+        {
+          sessionId,
+          storeId,
+          confirmationId,
+          draftId,
+          action,
+        },
+        { timeout: this.timeout }
+      );
+      return handleApiSuccess(response, "Confirmation completed");
+    } catch (error) {
+      const nested =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.error?.code;
+      const fallback = handleApiErrorResponse(error, "ai-confirm");
       if (nested && typeof nested === "string") {
         return { ...fallback, message: nested };
       }

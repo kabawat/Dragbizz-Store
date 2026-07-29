@@ -66,6 +66,7 @@ const API_CONFIG = {
   AI: {
     BASE_URL: "/brain",
     CHAT: "/brain/api/v1/chat",
+    CONFIRM: "/brain/api/v1/chat/confirm",
     HEALTH: "/brain/api/v1/health",
     READY: "/brain/api/v1/ready",
     CHAT_TIMEOUT_MS: 45_000,

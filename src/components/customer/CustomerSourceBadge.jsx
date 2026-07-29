@@ -1,5 +1,6 @@
 "use client";
 import {
+  AudioLines,
   FileText,
   Globe,
   MessageCircle,
@@ -49,6 +50,10 @@ const SOURCE_CONFIG = {
   QR_CATALOG: {
     icon: QrCode,
     badgeStyle: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20",
+  },
+  VOICE_AI: {
+    icon: AudioLines,
+    badgeStyle: "bg-rose-500/10 text-rose-600 border-rose-500/20",
   },
 };
 

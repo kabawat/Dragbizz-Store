@@ -23,11 +23,18 @@
   "privacy": "Microphone runs only while listening",
   "shortcut": "Alt + V",
   "permissionHelp": "Allow microphone access in your browser settings, then try again.",
+  "confirm": {
+    "prompt": "Release this invoice",
+    "defaultSummary": "draft invoice",
+    "approve": "Confirm",
+    "reject": "Cancel"
+  },
   "status": {
     "ready": "Ready when you are",
     "listening": "Listening…",
     "hearing": "I can hear you",
     "thinking": "Thinking…",
+    "confirming": "Confirming…",
     "noStore": "Select a store to use chat",
     "typeOnly": "Mic unavailable — type your question instead",
     "unsupported": "Voice capture is not supported in this browser"

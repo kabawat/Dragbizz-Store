@@ -23,11 +23,18 @@
   "privacy": "Mic sirf sunte waqt chalta hai",
   "shortcut": "Alt + V",
   "permissionHelp": "Browser settings mein mic allow karo, phir try karo.",
+  "confirm": {
+    "prompt": "Ye invoice release karo",
+    "defaultSummary": "draft invoice",
+    "approve": "Confirm",
+    "reject": "Cancel"
+  },
   "status": {
     "ready": "Jab ready ho",
     "listening": "Sun raha hoon…",
     "hearing": "Aapki awaaz aa rahi hai",
     "thinking": "Soch raha hoon…",
+    "confirming": "Confirm ho raha hai…",
     "noStore": "Chat ke liye store select karo",
     "typeOnly": "Mic nahi hai — sawaal type karo",
     "unsupported": "Is browser mein voice support nahi hai"

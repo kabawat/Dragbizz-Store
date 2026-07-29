@@ -88,7 +88,8 @@
     "IN_STORE": "इन-स्टोर",
     "WHATSAPP": "WhatsApp",
     "PHONE": "फ़ोन",
-    "QR_CATALOG": "QR कैटलॉग"
+    "QR_CATALOG": "QR कैटलॉग",
+    "VOICE_AI": "वॉइस AI"
   },
   "download": "डाउनलोड",
   "export": "ग्राहक निर्यात करें",
