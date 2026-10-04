@@ -5,42 +5,37 @@ import {
   fcmDebug,
   fcmDebugToken,
   fcmDebugWarn,
-  logFcmEnvironmentDiagnostics,
 } from "./fcmDebug";
-import { getFcmDeviceInfo } from "./deviceInfo";
 import { getFirebaseMessaging } from "./firebase";
-import fcmService from "@/service/utility/fcm.service";
+import fcmService, { getStoredFcmDeviceId } from "@/service/utility/fcm.service";
 import { getFcmServiceWorkerRegistration } from "./serviceWorker";
 import logger from "@/utils/logger";
 
-/** Current browser notification permission. */
-export function getNotificationPermissionState() {
+export function getPushPermission() {
   if (typeof window === "undefined" || typeof Notification === "undefined") {
     return "unsupported";
   }
   return Notification.permission;
 }
 
-/** Request browser permission only (no token). */
-export async function requestBrowserNotificationPermission() {
+async function askPushPermission() {
   if (typeof window === "undefined" || typeof Notification === "undefined") {
     return "unsupported";
   }
   return Notification.requestPermission();
 }
 
-/** FCM device token using registered service worker. */
-export async function getFcmDeviceToken() {
-  fcmDebug("getFcmDeviceToken: start");
+async function getPushToken() {
+  fcmDebug("getPushToken: start");
   const messaging = await getFirebaseMessaging();
   if (!messaging) {
-    fcmDebugWarn("getFcmDeviceToken: messaging unavailable");
+    fcmDebugWarn("getPushToken: messaging unavailable");
     return null;
   }
 
   const serviceWorkerRegistration = await getFcmServiceWorkerRegistration();
   if (!serviceWorkerRegistration) {
-    fcmDebugWarn("getFcmDeviceToken: service worker not registered");
+    fcmDebugWarn("getPushToken: service worker not registered");
     return null;
   }
 
@@ -48,28 +43,43 @@ export async function getFcmDeviceToken() {
     vapidKey: getFirebaseVapidKey(),
     serviceWorkerRegistration,
   });
-  fcmDebugToken("getFcmDeviceToken: result", token);
+  fcmDebugToken("getPushToken: result", token);
   return token;
 }
 
-/** Persist token to utility API (auth cookie via authAxios). */
-export async function saveFcmTokenToServer(token, options = {}) {
-  return fcmService.saveToken(token, options);
+const FCM_PROMPTED_KEY = "dragbizz.fcm.prompted";
+let saveDevicePromise = null;
+
+export async function saveDevice() {
+  const existingDeviceId = getStoredFcmDeviceId();
+  if (existingDeviceId) {
+    return { success: true, reused: true, deviceId: existingDeviceId };
+  }
+
+  if (
+    typeof window !== "undefined" &&
+    typeof Notification !== "undefined" &&
+    Notification.permission === "default" &&
+    window.localStorage.getItem(FCM_PROMPTED_KEY) === "1"
+  ) {
+    return { success: false, permission: "default" };
+  }
+
+  if (!saveDevicePromise) {
+    if (typeof window !== "undefined" && typeof Notification !== "undefined" && Notification.permission === "default") {
+      window.localStorage.setItem(FCM_PROMPTED_KEY, "1");
+    }
+    saveDevicePromise = enablePush().finally(() => {
+      saveDevicePromise = null;
+    });
+  }
+  return saveDevicePromise;
 }
 
-/** Remove token from utility when push is disabled. */
-export async function deleteFcmTokenFromServer(deviceId = "default") {
-  return fcmService.deleteToken(deviceId);
-}
-
-/**
- * Full push enable flow: permission → FCM token → save to utility.
- * @returns {{ success: boolean, permission: string, token?: string, message?: string }}
- */
-export async function registerPushNotifications() {
-  fcmDebug("registerPushNotifications: start");
+export async function enablePush() {
+  fcmDebug("enablePush: start");
   if (!isFirebaseConfigured()) {
-    fcmDebugWarn("registerPushNotifications: Firebase not configured");
+    fcmDebugWarn("enablePush: Firebase not configured");
     return {
       success: false,
       permission: "unsupported",
@@ -77,17 +87,17 @@ export async function registerPushNotifications() {
     };
   }
 
-  const permission = await requestBrowserNotificationPermission();
-  fcmDebug("registerPushNotifications: permission", { permission });
+  const permission = await askPushPermission();
+  fcmDebug("enablePush: permission", { permission });
 
   if (permission !== "granted") {
-    return { success: false, permission, message: getPermissionMessageKey(permission) };
+    return { success: false, permission, message: pushMessageKey(permission) };
   }
 
   try {
-    const token = await getFcmDeviceToken();
+    const token = await getPushToken();
     if (!token) {
-      fcmDebugWarn("registerPushNotifications: no FCM token");
+      fcmDebugWarn("enablePush: no FCM token");
       return {
         success: false,
         permission,
@@ -95,23 +105,23 @@ export async function registerPushNotifications() {
       };
     }
 
-    const saveResult = await saveFcmTokenToServer(token);
-    fcmDebug("registerPushNotifications: save-token response", {
-      success: saveResult?.success,
-      message: saveResult?.message,
+    const registered = await fcmService.registerDevice(token);
+    fcmDebug("enablePush: device response", {
+      success: registered?.success,
+      deviceId: registered?.data?.deviceId,
     });
-    if (!saveResult?.success) {
+    if (!registered?.success || !registered?.data?.deviceId) {
       return {
         success: false,
         permission,
-        message: saveResult?.message || "fcmSaveFailed",
+        message: registered?.message || "fcmSaveFailed",
       };
     }
 
-    fcmDebug("registerPushNotifications: done", { success: true });
-    return { success: true, permission, token };
+    fcmDebug("enablePush: done", { success: true, deviceId: registered.data.deviceId });
+    return { success: true, permission, token, deviceId: registered.data.deviceId };
   } catch (error) {
-    logger.error("[FCM] registerPushNotifications failed", error);
+    logger.error("[FCM] enablePush failed", error);
     return {
       success: false,
       permission,
@@ -120,160 +130,13 @@ export async function registerPushNotifications() {
   }
 }
 
-/** Disable push — remove server token. */
-export async function unregisterPushNotifications() {
-  const result = await deleteFcmTokenFromServer();
+export async function disablePush() {
+  const deviceId = getStoredFcmDeviceId() || "default";
+  const result = await fcmService.deleteToken(deviceId);
   return { success: result?.success !== false, message: result?.message };
 }
 
-let refreshFcmSyncPromise = null;
-
-/**
- * After /auth/refresh: register SW, save token if permission granted,
- * or prompt + save when push is enabled in notification settings.
- */
-export async function syncFcmTokenAfterAuthRefresh() {
-  fcmDebug("syncFcmTokenAfterAuthRefresh: start (after /auth/refresh)");
-  logFcmEnvironmentDiagnostics("after /auth/refresh");
-  if (!isFirebaseConfigured()) {
-    fcmDebugWarn("syncFcmTokenAfterAuthRefresh: Firebase not configured");
-    return { success: false, permission: "unsupported" };
-  }
-
-  if (refreshFcmSyncPromise) {
-    fcmDebug("syncFcmTokenAfterAuthRefresh: reusing in-flight sync");
-    return refreshFcmSyncPromise;
-  }
-
-  refreshFcmSyncPromise = navigator.locks ? navigator.locks.request("fcm-sync", { ifAvailable: true }, async (lock) => {
-    if (!lock) {
-      fcmDebug("syncFcmTokenAfterAuthRefresh: skipped — another tab is syncing");
-      return { success: true, message: "Skipped: another tab is syncing" };
-    }
-    
-    await getFcmServiceWorkerRegistration();
-
-    const permission = getNotificationPermissionState();
-    fcmDebug("syncFcmTokenAfterAuthRefresh: permission", { permission });
-
-    if (permission === "granted") {
-      try {
-        const token = await getFcmDeviceToken();
-        if (!token) {
-          fcmDebugWarn("syncFcmTokenAfterAuthRefresh: granted but no token");
-          return { success: false, permission, message: "fcmTokenUnavailable" };
-        }
-        const saveResult = await saveFcmTokenToServer(token);
-        fcmDebug("syncFcmTokenAfterAuthRefresh: save-token", {
-          success: saveResult?.success,
-          message: saveResult?.message,
-        });
-        return {
-          success: saveResult?.success === true,
-          permission,
-          message: saveResult?.message,
-        };
-      } catch (error) {
-        logger.error("[FCM] sync after auth refresh failed", error);
-        return { success: false, permission, message: "fcmRegisterFailed" };
-      }
-    }
-
-    if (permission === "default") {
-      const { default: authService } = await import("@/service/auth/auth.service");
-      const settingsResult = await authService.getNotificationSettings();
-      const pushEnabled =
-        settingsResult?.success === true &&
-        settingsResult.data?.channels?.push !== false;
-
-      fcmDebug("syncFcmTokenAfterAuthRefresh: notification settings", {
-        settingsOk: settingsResult?.success,
-        pushEnabled,
-      });
-
-      if (pushEnabled) {
-        fcmDebug("syncFcmTokenAfterAuthRefresh: prompting registerPushNotifications");
-        return registerPushNotifications();
-      }
-    }
-
-    if (permission === "denied") {
-      fcmDebugWarn(
-        "syncFcmTokenAfterAuthRefresh: skipped — unblock notifications in browser site settings, then reload"
-      );
-    } else {
-      fcmDebug("syncFcmTokenAfterAuthRefresh: skipped", { permission });
-    }
-    return { success: false, permission };
-  }) : (async () => {
-    // Fallback if navigator.locks is not supported
-    await getFcmServiceWorkerRegistration();
-
-    const permission = getNotificationPermissionState();
-    fcmDebug("syncFcmTokenAfterAuthRefresh: permission", { permission });
-
-    if (permission === "granted") {
-      try {
-        const token = await getFcmDeviceToken();
-        if (!token) {
-          fcmDebugWarn("syncFcmTokenAfterAuthRefresh: granted but no token");
-          return { success: false, permission, message: "fcmTokenUnavailable" };
-        }
-        const saveResult = await saveFcmTokenToServer(token);
-        fcmDebug("syncFcmTokenAfterAuthRefresh: save-token", {
-          success: saveResult?.success,
-          message: saveResult?.message,
-        });
-        return {
-          success: saveResult?.success === true,
-          permission,
-          message: saveResult?.message,
-        };
-      } catch (error) {
-        logger.error("[FCM] sync after auth refresh failed", error);
-        return { success: false, permission, message: "fcmRegisterFailed" };
-      }
-    }
-
-    if (permission === "default") {
-      const { default: authService } = await import("@/service/auth/auth.service");
-      const settingsResult = await authService.getNotificationSettings();
-      const pushEnabled =
-        settingsResult?.success === true &&
-        settingsResult.data?.channels?.push !== false;
-
-      fcmDebug("syncFcmTokenAfterAuthRefresh: notification settings", {
-        settingsOk: settingsResult?.success,
-        pushEnabled,
-      });
-
-      if (pushEnabled) {
-        fcmDebug("syncFcmTokenAfterAuthRefresh: prompting registerPushNotifications");
-        return registerPushNotifications();
-      }
-    }
-
-    if (permission === "denied") {
-      fcmDebugWarn(
-        "syncFcmTokenAfterAuthRefresh: skipped — unblock notifications in browser site settings, then reload"
-      );
-    } else {
-      fcmDebug("syncFcmTokenAfterAuthRefresh: skipped", { permission });
-    }
-    return { success: false, permission };
-  })();
-
-  try {
-    const result = await refreshFcmSyncPromise;
-    fcmDebug("syncFcmTokenAfterAuthRefresh: done", result);
-    return result;
-  } finally {
-    refreshFcmSyncPromise = null;
-  }
-}
-
-/** i18n key for permission UI (4.7). */
-export function getPermissionMessageKey(permission) {
+export function pushMessageKey(permission) {
   if (permission === "denied") return "pushPermissionDenied";
   if (permission === "default") return "pushPermissionDefault";
   if (permission === "unsupported") return "pushNotSupported";
@@ -282,18 +145,14 @@ export function getPermissionMessageKey(permission) {
 
 let foregroundListenerAttached = false;
 
-/**
- * Foreground FCM handler — attach once. Requires onPayload (in-app UI);
- * does not use native Notification when the tab is focused.
- */
-export async function setupForegroundFcmListener(onPayload) {
+export async function onForegroundPush(onPayload) {
   if (!onPayload) {
-    console.warn("[FCM] setupForegroundFcmListener requires onPayload handler");
+    console.warn("[FCM] onForegroundPush requires onPayload handler");
     return;
   }
 
   if (!isFirebaseConfigured()) {
-    fcmDebugWarn("setupForegroundFcmListener: Firebase not configured");
+    fcmDebugWarn("onForegroundPush: Firebase not configured");
     return;
   }
 
@@ -308,6 +167,3 @@ export async function setupForegroundFcmListener(onPayload) {
     onPayload(payload);
   });
 }
-
-/** @deprecated Use registerPushNotifications */
-export const requestNotificationPermission = registerPushNotifications;

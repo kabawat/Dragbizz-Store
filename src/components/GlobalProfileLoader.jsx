@@ -11,6 +11,7 @@ import {
   setInitialized,
 } from "@/store/slices/profileSlice";
 import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
+import { saveDevice } from "@/firebase/notification";
 
 
 export default function GlobalProfileLoader() {
@@ -29,14 +30,15 @@ export default function GlobalProfileLoader() {
   useEffect(() => {
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
 
-    // If no session cookie, we know we're not logged in.
-    if (!hasSessionCookie) {
-      dispatch(setInitialized(true));
-      return;
-    }
-
     const load = async () => {
       try {
+        await saveDevice().catch(() => {});
+
+        if (!hasSessionCookie) {
+          dispatch(setInitialized(true));
+          return;
+        }
+
         if (!hasRefreshedRef.current) {
           hasRefreshedRef.current = true;
           try {

@@ -57,7 +57,7 @@ const API_CONFIG = {
     SOCKET: "/utility/socket.io",
     UPLOAD_URL: "/utility/v1/storage/upload-url",
     DELETE_URL: "/utility/v1/storage/file",
-    FCM_SAVE_TOKEN: "/utility/v1/fcm/save-token",
+    FCM_REGISTER_DEVICE: "/utility/v1/fcm/device",
     FCM_DELETE_TOKEN: "/utility/v1/fcm/token",
     FCM_SEND: "/utility/v1/fcm/send",
   },

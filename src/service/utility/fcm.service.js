@@ -1,41 +1,52 @@
 import API_CONFIG from "@/config/api.config";
-import { fcmDebug, fcmDebugToken, fcmDebugWarn } from "@/firebase/fcmDebug";
+import { fcmDebug, fcmDebugWarn } from "@/firebase/fcmDebug";
 import { getFcmDeviceInfo } from "@/firebase/deviceInfo";
-import { authAxios } from "@/service/config/axiosConfig";
+import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
 import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import logger from "@/utils/logger";
 
+const FCM_DEVICE_ID_KEY = "dragbizz.fcm.deviceId";
+
+function readStoredDeviceId() {
+  if (typeof window === "undefined") return undefined;
+  return window.localStorage.getItem(FCM_DEVICE_ID_KEY) || undefined;
+}
+
+function storeDeviceId(deviceId) {
+  if (typeof window === "undefined" || !deviceId) return;
+  window.localStorage.setItem(FCM_DEVICE_ID_KEY, deviceId);
+}
+
+export function getStoredFcmDeviceId() {
+  return readStoredDeviceId();
+}
+
 class FcmService {
-  async saveToken(token, options = {}) {
+  async registerDevice(token, options = {}) {
     const { device, browser } = getFcmDeviceInfo();
     const payload = {
       token,
       device: options.device ?? device,
       browser: options.browser ?? browser,
-      deviceId: options.deviceId ?? "default",
+      deviceId: options.deviceId ?? readStoredDeviceId(),
     };
-    fcmDebug("API save-token → POST", {
-      url: API_CONFIG.UTILITY.FCM_SAVE_TOKEN,
+    fcmDebug("API device → POST", {
+      url: API_CONFIG.UTILITY.FCM_REGISTER_DEVICE,
       deviceId: payload.deviceId,
-      device: payload.device,
-      browser: payload.browser,
     });
-    fcmDebugToken("API save-token token", token);
     try {
-      const response = await authAxios.post(API_CONFIG.UTILITY.FCM_SAVE_TOKEN, payload);
-      const result = handleApiSuccess(response, "FCM token saved");
-      fcmDebug("API save-token ← response", {
-        status: response?.status,
-        success: result?.success,
-      });
+      const response = await unauthAxios.post(API_CONFIG.UTILITY.FCM_REGISTER_DEVICE, payload);
+      const result = handleApiSuccess(response, "FCM device registered");
+      const deviceId = result?.data?.deviceId;
+      if (deviceId) storeDeviceId(deviceId);
       return result;
     } catch (error) {
-      fcmDebugWarn("API save-token ← error", {
+      fcmDebugWarn("API device ← error", {
         status: error?.response?.status,
         message: error?.response?.data?.message ?? error?.message,
       });
-      logger.error("[FCM] API save-token failed", error);
-      return handleApiErrorResponse(error, "fcm-save-token");
+      logger.error("[FCM] API device register failed", error);
+      return handleApiErrorResponse(error, "fcm-register-device");
     }
   }
 

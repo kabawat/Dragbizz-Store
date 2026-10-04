@@ -19,10 +19,10 @@ import { Button, Modal } from "@/components/ui";
 import { useFcmContext } from "@/contexts/FcmContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import {
-  getNotificationPermissionState,
-  getPermissionMessageKey,
-  registerPushNotifications,
-  unregisterPushNotifications,
+  getPushPermission,
+  pushMessageKey,
+  enablePush,
+  disablePush,
 } from "@/firebase/notification";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -58,7 +58,7 @@ const NotificationsSettings = () => {
     (state) => state.notificationSettings?.loading
   );
   const { permission: fcmPermission } = useFcmContext();
-  const pushPermission = getNotificationPermissionState();
+  const pushPermission = getPushPermission();
   const effectivePushPermission =
     pushPermission !== "default" ? pushPermission : fcmPermission;
 
@@ -123,12 +123,12 @@ const NotificationsSettings = () => {
 
       if (willEnable) {
         setIsUpdating(true);
-        const result = await registerPushNotifications();
+        const result = await enablePush();
         setIsUpdating(false);
 
         if (!result.success) {
           const messageKey =
-            result.message || getPermissionMessageKey(result.permission);
+            result.message || pushMessageKey(result.permission);
           if (messageKey === "pushPermissionDenied") {
             setIsPushHelpOpen(true);
             return;
@@ -142,7 +142,7 @@ const NotificationsSettings = () => {
         showSuccess(t("settings.notifications.pushEnabledSuccess"));
       } else {
         setIsUpdating(true);
-        await unregisterPushNotifications();
+        await disablePush();
         setIsUpdating(false);
         showSuccess(t("settings.notifications.pushDisabledSuccess"));
       }

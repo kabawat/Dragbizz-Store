@@ -3,6 +3,7 @@
 import { API_CONFIG } from "@/config";
 import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { authAxios, unauthAxios } from "../config/axiosConfig";
+import { getStoredFcmDeviceId } from "@/service/utility/fcm.service";
 
 // Single in-flight refresh promise so /auth/refresh is only called once at a time
 let refreshPromise = null;
@@ -17,23 +18,13 @@ class AuthService {
     if (refreshPromise) return refreshPromise;
     refreshPromise = (async () => {
       try {
-        const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH);
+        const fcmDeviceId = getStoredFcmDeviceId();
+        const body = fcmDeviceId ? { fcmDeviceId } : {};
+        const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH, body);
         const result = handleApiSuccess(response, "Token refreshed successfully");
         if (!result.data) {
           return { success: false, message: "Refresh failed", error: "null_data" };
         }
-        import("@/firebase/fcmDebug")
-          .then(({ fcmDebug }) => fcmDebug("auth/refresh OK → triggering FCM sync"))
-          .catch(() => {});
-        import("@/firebase/notification")
-          .then(({ syncFcmTokenAfterAuthRefresh }) =>
-            syncFcmTokenAfterAuthRefresh().catch((err) => {
-              import("@/firebase/fcmDebug").then(({ fcmDebugWarn }) =>
-                fcmDebugWarn("FCM sync after refresh failed", err?.message ?? err)
-              );
-            })
-          )
-          .catch(() => {});
         return result;
       } catch (error) {
         return handleApiErrorResponse(error, "token-refresh");

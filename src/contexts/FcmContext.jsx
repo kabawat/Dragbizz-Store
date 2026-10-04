@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { isFirebaseConfigured } from "@/firebase/config";
 import { fcmDebug, fcmDebugWarn, logFcmEnvironmentDiagnostics } from "@/firebase/fcmDebug";
-import { registerPushNotifications } from "@/firebase/notification";
+import { enablePush, saveDevice } from "@/firebase/notification";
 import { registerFcmServiceWorker } from "@/firebase/serviceWorker";
 import { getNotificationSettings } from "@/store/slices/notificationSettingsSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -80,7 +80,7 @@ export function FcmProvider({ children }) {
       return { success: false, permission: Notification?.permission ?? "unsupported" };
     }
 
-    const result = await registerPushNotifications();
+    const result = await enablePush();
     if (typeof Notification !== "undefined") {
       setPermission(Notification.permission);
     }
@@ -91,6 +91,11 @@ export function FcmProvider({ children }) {
     if (typeof Notification !== "undefined") {
       setPermission(Notification.permission);
     }
+    saveDevice()
+      .then((result) => {
+        if (result?.permission) setPermission(result.permission);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
