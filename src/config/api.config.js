@@ -66,6 +66,7 @@ const API_CONFIG = {
   AI: {
     BASE_URL: "/brain",
     CHAT: "/brain/api/v1/chat",
+    CHAT_STREAM: "/brain/api/v1/chat/stream",
     CONFIRM: "/brain/api/v1/chat/confirm",
     HEALTH: "/brain/api/v1/health",
     READY: "/brain/api/v1/ready",

@@ -5,8 +5,6 @@ import Link from "next/link";
 import { Fragment, useMemo } from "react";
 
 const STEP_CHUNK = /\s*(?=\d+\.\s+)/;
-const STEP_LINE =
-  /^(\d+)\.\s+(?:\*\*(.+?)\*\*|([^:\n*]+?))\s*:?\s*([\s\S]*)$/;
 const TABLE_SEP =
   /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/;
 const SHORTCUT_RE =
@@ -42,6 +40,40 @@ function normalizeShortcut(label) {
 }
 
 /**
+ * Parse one "1. …" chunk into title/body.
+ * Title only when the model used **Title** or a short "Label: rest" form —
+ * never peel the first letter off a plain sentence (e.g. "Agar …").
+ */
+function parseStepChunk(chunk) {
+  const trimmed = String(chunk || "").trim();
+  const numbered = trimmed.match(/^(\d+)\.\s+([\s\S]+)$/);
+  if (!numbered) return null;
+
+  const number = Number(numbered[1]);
+  const rest = numbered[2].trim();
+
+  const bold = rest.match(/^\*\*(.+?)\*\*\s*:?\s*([\s\S]*)$/);
+  if (bold) {
+    return {
+      number,
+      title: bold[1].trim().replace(/:$/, ""),
+      body: (bold[2] || "").trim(),
+    };
+  }
+
+  const colon = rest.match(/^([^:\n*]{1,48}):\s+([\s\S]+)$/);
+  if (colon) {
+    return {
+      number,
+      title: colon[1].trim(),
+      body: colon[2].trim(),
+    };
+  }
+
+  return { number, title: "", body: rest };
+}
+
+/**
  * Split assistant text into intro + numbered steps + outro.
  */
 export function parseStepGuide(text) {
@@ -51,22 +83,16 @@ export function parseStepGuide(text) {
   }
 
   const chunks = trimmed.split(STEP_CHUNK).filter((part) => part.trim());
-  const introParts = [];                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-  const outroParts = [];                                                                                                                                                                                                                                                                                                                                                                                                             
+  const introParts = [];
+  const outroParts = [];
   const steps = [];
   let seenStep = false;
 
   for (const chunk of chunks) {
-    const match = chunk.trim().match(STEP_LINE);
-    if (match) {
+    const step = parseStepChunk(chunk);
+    if (step) {
       seenStep = true;
-      const title = (match[2] || match[3] || "").trim().replace(/:$/, "");
-      const body = (match[4] || "").trim();
-      steps.push({
-        number: Number(match[1]),
-        title,
-        body,
-      });
+      steps.push(step);
       continue;
     }
 
@@ -353,8 +379,10 @@ function StepsBlock({ steps }) {
               ) : null}
               {step.body ? (
                 <p
-                  className={`text-[12.5px] leading-5 text-[rgb(var(--color-text-secondary))] ${
-                    step.title ? "mt-0.5" : ""
+                  className={`leading-5 ${
+                    step.title
+                      ? "mt-0.5 text-[12.5px] text-[rgb(var(--color-text-secondary))]"
+                      : "text-[13px] text-[rgb(var(--color-text-primary))]"
                   }`}
                 >
                   {renderInline(step.body, `sb-${step.number}`)}

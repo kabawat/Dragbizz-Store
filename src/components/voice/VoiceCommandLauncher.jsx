@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ChatAssistantMessage from "@/components/voice/ChatAssistantMessage";
+import KhataDownloadButtons from "@/components/voice/KhataDownloadButtons";
 import { useAiVoiceChat } from "@/hooks/ai/useAiVoiceChat";
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import useVoiceCapture, {
@@ -164,6 +165,11 @@ const VoiceCommandLauncher = () => {
   const formatConfirmSummary = (pending) => {
     const summary = pending?.summary || {};
     const parts = [];
+    if (summary.action === "payment") {
+      parts.push("Payment");
+    } else if (summary.action === "debit") {
+      parts.push("Debit");
+    }
     if (typeof summary.total === "number") {
       parts.push(`₹${summary.total}`);
     }
@@ -258,6 +264,10 @@ const VoiceCommandLauncher = () => {
                 >
                   <div className="max-w-[94%] rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/90 px-3.5 py-3">
                     <ChatAssistantMessage message={item.content} />
+                    <KhataDownloadButtons
+                      storeId={storeId}
+                      toolResults={item.toolResults}
+                    />
                     {SHOW_TOOL_TRACE &&
                       Array.isArray(item.toolResults) &&
                       item.toolResults.length > 0 && (

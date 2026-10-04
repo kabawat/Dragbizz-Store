@@ -48,6 +48,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
 
   const sessionIdRef = useRef(generateUUID());
   const inflightRef = useRef(false);
+  const abortRef = useRef(null);
 
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
@@ -55,6 +56,10 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   const [chatError, setChatError] = useState(null);
 
   const resetChat = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
     sessionIdRef.current = generateUUID();
     setMessages([]);
     setChatError(null);
@@ -94,18 +99,43 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
       const userMessage = createMessage("user", trimmed);
       setMessages((current) => [...current, userMessage]);
 
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       try {
-        const result = await aiChatService.chat({
+        const result = await aiChatService.chatStream({
           text: trimmed,
           sessionId: sessionIdRef.current,
           storeId,
           language,
+          signal: controller.signal,
+          onEvent: (event, data) => {
+            if (event !== "assistant.delta" || typeof data?.text !== "string") {
+              return;
+            }
+            setMessages((current) => {
+              const last = current[current.length - 1];
+              if (last?.role === "assistant" && last?.streaming) {
+                const next = current.slice(0, -1);
+                next.push({
+                  ...last,
+                  content: `${last.content || ""}${data.text}`,
+                });
+                return next;
+              }
+              return [
+                ...current,
+                createMessage("assistant", data.text, { streaming: true }),
+              ];
+            });
+          },
         });
 
         if (!result.success) {
           const code =
             result?.error?.error?.code ||
             result?.error?.code ||
+            result?.code ||
             "AI_CHAT_FAILED";
           setChatError({
             code: typeof code === "string" ? code : "AI_CHAT_FAILED",
@@ -114,6 +144,12 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           return null;
         }
 
+        setMessages((current) => {
+          if (current[current.length - 1]?.streaming) {
+            return current.slice(0, -1);
+          }
+          return current;
+        });
         return appendAssistantFromPayload(result.data || {});
       } catch (err) {
         setChatError({
@@ -122,6 +158,9 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
         });
         return null;
       } finally {
+        if (abortRef.current === controller) {
+          abortRef.current = null;
+        }
         inflightRef.current = false;
         setIsSending(false);
       }
