@@ -2,6 +2,52 @@
   "title": "DragBizz Chat",
   "subtitle": "Sale, stock, invoice aur app ke sawaal poochho",
   "open": "Chat kholo",
+  "expand": "Full screen mein kholo",
+  "collapse": "Full screen band karo",
+  "newChat": "New chat",
+  "online": "Online",
+  "ask": "Poochho →",
+  "liveContext": "Live context",
+  "aiWork": "AI ka kaam",
+  "storeFallback": "Aapka store",
+  "welcomeHint": "Boliye ya likhiye — main sales, stock, invoice aur GST sambhal lunga.",
+  "history": {
+    "today": "Aaj",
+    "yesterday": "Kal",
+    "week": "Is hafte",
+    "older": "Purane",
+    "empty": "Abhi koi chat nahi. Kuch poochh ke shuru karo."
+  },
+  "greet": {
+    "morning": "Shubh prabhat",
+    "afternoon": "Namaste",
+    "evening": "Shubh sandhya"
+  },
+  "quick": {
+    "revenueTitle": "Revenue & profit",
+    "revenueHint": "Poora sales summary",
+    "revenuePrompt": "Aaj ki sales aur profit dikhao",
+    "duesTitle": "Customer dues",
+    "duesHint": "Kisse paisa lena hai",
+    "duesPrompt": "Pending customer dues dikhao",
+    "stockTitle": "Inventory",
+    "stockHint": "Low stock aur reorder",
+    "stockPrompt": "Low stock products dikhao",
+    "invoiceTitle": "Create invoice",
+    "invoiceHint": "Bolo, baaki main karunga",
+    "invoicePrompt": "Naya invoice kaise banau?",
+    "payablesPrompt": "Supplier payables dikhao",
+    "chipRevenue": "Revenue",
+    "chipDues": "Dues",
+    "chipStock": "Stock",
+    "chipInvoice": "+ Invoice"
+  },
+  "metrics": {
+    "askRevenue": "Revenue",
+    "askCustomers": "Customers / dues",
+    "askStock": "Products / stock",
+    "askPayables": "Payables"
+  },
   "move": "Assistant ko drag karke move karo",
   "startListening": "Sunna shuru karo",
   "stopListening": "Sunna band karo",
@@ -9,9 +55,9 @@
   "stopHint": "Command ke baad dobara dabao",
   "transcript": "Live transcript",
   "message": "Message",
-  "messagePlaceholder": "Apne store ke baare mein kuch poochho…",
+  "messagePlaceholder": "Kuch bhi poochho… (/ for commands)",
   "send": "Bhejo",
-  "sendHint": "Enter se bhejo · Shift+Enter nayi line",
+  "sendHint": "Enter se bhejo · Shift+Enter nayi line · / commands",
   "assistant": "Assistant",
   "tool": "Tool",
   "toolSuccess": "ho gaya",
@@ -26,6 +72,90 @@
   "privacy": "Mic sirf sunte waqt chalta hai",
   "shortcut": "Alt + V",
   "permissionHelp": "Browser settings mein mic allow karo, phir try karo.",
+  "slash": {
+    "cat": {
+      "revenue": "Revenue",
+      "customers": "Customers",
+      "inventory": "Inventory",
+      "create": "Create",
+      "suppliers": "Suppliers",
+      "ledger": "Ledger",
+      "reports": "Reports",
+      "help": "Help"
+    },
+    "sales": {
+      "label": "Aaj ki sales dikhao",
+      "prompt": "Aaj ki sales dikhao"
+    },
+    "revenue": {
+      "label": "Revenue aur profit dikhao",
+      "prompt": "Aaj ki sales aur profit dikhao"
+    },
+    "dues": {
+      "label": "Customer dues dikhao",
+      "prompt": "Pending customer dues dikhao"
+    },
+    "findCustomer": {
+      "label": "Customer dhoondo",
+      "prompt": "Customer dhoondo "
+    },
+    "createCustomer": {
+      "label": "Naya customer banao",
+      "prompt": "Naya customer banao naam "
+    },
+    "updateCustomer": {
+      "label": "Customer update karo",
+      "prompt": "Customer update karo "
+    },
+    "payments": {
+      "label": "Recent payments dikhao",
+      "prompt": "Recent payments dikhao"
+    },
+    "khata": {
+      "label": "Customer khata dikhao",
+      "prompt": "Customer ka khata dikhao "
+    },
+    "stock": {
+      "label": "Stock summary dikhao",
+      "prompt": "Stock summary dikhao"
+    },
+    "findProduct": {
+      "label": "Product dhoondo",
+      "prompt": "Product dhoondo "
+    },
+    "lowStock": {
+      "label": "Low stock products dikhao",
+      "prompt": "Low stock products dikhao"
+    },
+    "invoice": {
+      "label": "Invoice draft banao",
+      "prompt": "Customer ke liye invoice draft banao "
+    },
+    "releaseInvoice": {
+      "label": "Draft invoice release karo",
+      "prompt": "Draft invoice release karo"
+    },
+    "payables": {
+      "label": "Supplier payables dikhao",
+      "prompt": "Supplier payables dikhao"
+    },
+    "credit": {
+      "label": "Ledger credit add karo",
+      "prompt": "Customer ke liye ledger credit add karo "
+    },
+    "debit": {
+      "label": "Ledger debit add karo",
+      "prompt": "Customer ke liye ledger debit add karo "
+    },
+    "gst": {
+      "label": "GST summary dikhao",
+      "prompt": "GST summary dikhao"
+    },
+    "help": {
+      "label": "Chat kaise use karein",
+      "prompt": "DragBizz chat kaise use karein?"
+    }
+  },
   "confirm": {
     "prompt": "Ye invoice release karo",
     "defaultSummary": "draft invoice",
@@ -38,6 +168,7 @@
     "hearing": "Aapki awaaz aa rahi hai",
     "thinking": "Soch raha hoon…",
     "confirming": "Confirm ho raha hai…",
+    "waiting": "Waiting",
     "noStore": "Chat ke liye store select karo",
     "typeOnly": "Mic nahi hai — sawaal type karo",
     "unsupported": "Is browser mein voice support nahi hai"

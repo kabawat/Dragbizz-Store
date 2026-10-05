@@ -46,7 +46,8 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = pickStoreId(selectedStore);
 
-  const sessionIdRef = useRef(generateUUID());
+  const [sessionId, setSessionId] = useState(() => generateUUID());
+  const sessionIdRef = useRef(sessionId);
   const inflightRef = useRef(false);
   const abortRef = useRef(null);
 
@@ -60,8 +61,28 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
       abortRef.current.abort();
       abortRef.current = null;
     }
-    sessionIdRef.current = generateUUID();
+    const nextId = generateUUID();
+    sessionIdRef.current = nextId;
+    setSessionId(nextId);
     setMessages([]);
+    setChatError(null);
+  }, []);
+
+  const loadChat = useCallback(({ sessionId: nextSessionId, messages: nextMessages }) => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    inflightRef.current = false;
+    setIsSending(false);
+    setIsConfirming(false);
+    const nextId =
+      typeof nextSessionId === "string" && nextSessionId.trim()
+        ? nextSessionId.trim()
+        : generateUUID();
+    sessionIdRef.current = nextId;
+    setSessionId(nextId);
+    setMessages(Array.isArray(nextMessages) ? nextMessages : []);
     setChatError(null);
   }, []);
 
@@ -246,7 +267,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
 
   return {
     storeId,
-    sessionId: sessionIdRef.current,
+    sessionId,
     messages,
     reply,
     toolResults,
@@ -257,6 +278,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     confirmPending,
     rejectPending,
     resetChat,
+    loadChat,
   };
 }
 

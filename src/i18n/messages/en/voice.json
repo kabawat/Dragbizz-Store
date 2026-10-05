@@ -2,6 +2,52 @@
   "title": "DragBizz Chat",
   "subtitle": "Ask about sales, stock, invoices & more",
   "open": "Open chat",
+  "expand": "Expand to full screen",
+  "collapse": "Exit full screen",
+  "newChat": "New chat",
+  "online": "Online",
+  "ask": "Ask →",
+  "liveContext": "Live context",
+  "aiWork": "AI activity",
+  "storeFallback": "Your store",
+  "welcomeHint": "Speak or type — I'll handle sales, stock, invoices & GST.",
+  "history": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "week": "This week",
+    "older": "Older",
+    "empty": "No chats yet. Start by asking something."
+  },
+  "greet": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "quick": {
+    "revenueTitle": "Revenue & profit",
+    "revenueHint": "Full sales summary",
+    "revenuePrompt": "Show today's sales and profit",
+    "duesTitle": "Customer dues",
+    "duesHint": "Who owes money",
+    "duesPrompt": "Show pending customer dues",
+    "stockTitle": "Inventory",
+    "stockHint": "Low stock and reorder",
+    "stockPrompt": "Show low stock products",
+    "invoiceTitle": "Create invoice",
+    "invoiceHint": "Tell me, I'll handle the rest",
+    "invoicePrompt": "How do I create a new invoice?",
+    "payablesPrompt": "Show supplier payables",
+    "chipRevenue": "Revenue",
+    "chipDues": "Dues",
+    "chipStock": "Stock",
+    "chipInvoice": "+ Invoice"
+  },
+  "metrics": {
+    "askRevenue": "Revenue",
+    "askCustomers": "Customers / dues",
+    "askStock": "Products / stock",
+    "askPayables": "Payables"
+  },
   "move": "Drag to move assistant",
   "startListening": "Start listening",
   "stopListening": "Stop listening",
@@ -9,9 +55,9 @@
   "stopHint": "Tap again when you are done",
   "transcript": "Live transcript",
   "message": "Message",
-  "messagePlaceholder": "Ask anything about your store…",
+  "messagePlaceholder": "Ask anything… (/ for commands)",
   "send": "Send",
-  "sendHint": "Enter to send · Shift+Enter for new line",
+  "sendHint": "Enter to send · Shift+Enter for new line · / commands",
   "assistant": "Assistant",
   "tool": "Tool",
   "toolSuccess": "done",
@@ -26,6 +72,90 @@
   "privacy": "Microphone runs only while listening",
   "shortcut": "Alt + V",
   "permissionHelp": "Allow microphone access in your browser settings, then try again.",
+  "slash": {
+    "cat": {
+      "revenue": "Revenue",
+      "customers": "Customers",
+      "inventory": "Inventory",
+      "create": "Create",
+      "suppliers": "Suppliers",
+      "ledger": "Ledger",
+      "reports": "Reports",
+      "help": "Help"
+    },
+    "sales": {
+      "label": "Show today's sales",
+      "prompt": "Show today's sales"
+    },
+    "revenue": {
+      "label": "Show revenue and profit",
+      "prompt": "Show today's sales and profit"
+    },
+    "dues": {
+      "label": "Show customer dues",
+      "prompt": "Show pending customer dues"
+    },
+    "findCustomer": {
+      "label": "Find a customer",
+      "prompt": "Find customer "
+    },
+    "createCustomer": {
+      "label": "Create a new customer",
+      "prompt": "Create a new customer named "
+    },
+    "updateCustomer": {
+      "label": "Update customer details",
+      "prompt": "Update customer "
+    },
+    "payments": {
+      "label": "Recent payment history",
+      "prompt": "Show recent payments"
+    },
+    "khata": {
+      "label": "Customer khata / ledger",
+      "prompt": "Show khata for customer "
+    },
+    "stock": {
+      "label": "Stock summary",
+      "prompt": "Show stock summary"
+    },
+    "findProduct": {
+      "label": "Find a product",
+      "prompt": "Find product "
+    },
+    "lowStock": {
+      "label": "Low stock products",
+      "prompt": "Show low stock products"
+    },
+    "invoice": {
+      "label": "Generate invoice draft",
+      "prompt": "Create invoice draft for customer "
+    },
+    "releaseInvoice": {
+      "label": "Release draft invoice",
+      "prompt": "Release the draft invoice"
+    },
+    "payables": {
+      "label": "Supplier payables",
+      "prompt": "Show supplier payables"
+    },
+    "credit": {
+      "label": "Add ledger credit",
+      "prompt": "Add ledger credit for customer "
+    },
+    "debit": {
+      "label": "Add ledger debit",
+      "prompt": "Add ledger debit for customer "
+    },
+    "gst": {
+      "label": "GST summary",
+      "prompt": "Show GST summary"
+    },
+    "help": {
+      "label": "How to use DragBizz chat",
+      "prompt": "How do I use DragBizz chat?"
+    }
+  },
   "confirm": {
     "prompt": "Release this invoice",
     "defaultSummary": "draft invoice",
@@ -38,6 +168,7 @@
     "hearing": "I can hear you",
     "thinking": "Thinking…",
     "confirming": "Confirming…",
+    "waiting": "Waiting",
     "noStore": "Select a store to use chat",
     "typeOnly": "Mic unavailable — type your question instead",
     "unsupported": "Voice capture is not supported in this browser"
