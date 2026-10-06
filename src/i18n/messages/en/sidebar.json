@@ -40,6 +40,9 @@
   "variants": "Variant",
   "stockManagement": "Stock Management",
   "categoriesDescription": "Manage product categories",
-  "brandsDescription": "Brands used across your products",
-  "variantsDescription": "Product variants and pricing"
+  "brandsDescription": "Manage product brands",
+  "variantsDescription": "Product variants and pricing",
+  "addBrand": "Add Brand",
+  "noBrands": "No brands yet",
+  "noBrandsDescription": "Create brands to organize your products"
 }

@@ -38,6 +38,9 @@
   "variants": "વેરિયન્ટ",
   "stockManagement": "સ્ટોક મેનેજમેન્ટ",
   "categoriesDescription": "ઉત્પાદન કેટેગરીઓ મેનેજ કરો",
-  "brandsDescription": "તમારા ઉત્પાદનોમાં વપરાતા બ્રાન્ડ્સ",
-  "variantsDescription": "ઉત્પાદન વેરિયન્ટ્સ અને કિંમત"
+  "brandsDescription": "ઉત્પાદન બ્રાન્ડ્સ મેનેજ કરો",
+  "variantsDescription": "ઉત્પાદન વેરિયન્ટ્સ અને કિંમત",
+  "addBrand": "બ્રાન્ડ ઉમેરો",
+  "noBrands": "હજુ કોઈ બ્રાન્ડ નથી",
+  "noBrandsDescription": "તમારા ઉત્પાદનોને વ્યવસ્થિત કરવા માટે બ્રાન્ડ્સ બનાવો"
 }

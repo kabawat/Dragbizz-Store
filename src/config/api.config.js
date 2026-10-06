@@ -22,6 +22,7 @@ const API_CONFIG = {
     CUSTOMER_ACCOUNT_TRANSACTIONS: "/retailer/customer-account/transactions",
     SUPPLIER: "/retailer/supplier",
     CATEGORY: "/retailer/category",
+    BRAND: "/retailer/brand",
     PRODUCT: "/retailer/product",
     VARIANT: "/retailer/variant",
     ACCOUNT: "/retailer/account",

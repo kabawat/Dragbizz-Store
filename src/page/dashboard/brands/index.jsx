@@ -1,19 +1,24 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Award } from "lucide-react";
-import { EmptyState, PageLoader } from "@/components/ui";
+import { Award, Plus } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Button, EmptyState, PageLoader } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useAppSelector } from "@/store/hooks";
 import useApiResponse from "@/hooks/useApiResponse";
-import { productService } from "@/service";
+import { brandService } from "@/service";
+
+const BrandDrawer = dynamic(() => import("@/components/product/BrandDrawer"), {
+  ssr: false,
+});
 
 function unwrapList(data) {
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.products)) return data.products;
+  if (Array.isArray(data?.brands)) return data.brands;
   return [];
 }
 
@@ -21,22 +26,24 @@ const BrandsPage = () => {
   const { t } = useTranslation();
   useDashboardHeader(
     t("sidebar.brands"),
-    t("sidebar.brandsDescription") || "Brands used across your products"
+    t("sidebar.brandsDescription") || "Manage product brands"
   );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
-  const { can, loading: permissionsLoading } = useModulePermissions("product");
+  const { can, create: canCreate, loading: permissionsLoading } = useModulePermissions("product");
   const { execute, loading } = useApiResponse();
-  const [products, setProducts] = useState([]);
 
-  const fetchProducts = useCallback(async () => {
+  const [brands, setBrands] = useState([]);
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  const fetchBrands = useCallback(async () => {
     if (!storeId) return;
     const result = await execute(
-      productService.getProducts({ store: storeId, limit: 500, lightweight: true }),
+      brandService.getBrands({ store: storeId, limit: 200 }),
       { showToast: false }
     );
-    setProducts(unwrapList(result?.data));
+    setBrands(unwrapList(result?.data));
   }, [storeId, execute]);
 
   useEffect(() => {
@@ -46,19 +53,8 @@ const BrandsPage = () => {
   }, [can, permissionsLoading, router]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  const brands = useMemo(() => {
-    const map = new Map();
-    products.forEach((p) => {
-      const name = (p.brand || "").trim();
-      if (!name) return;
-      const key = name.toLowerCase();
-      map.set(key, { name, count: (map.get(key)?.count || 0) + 1 });
-    });
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [products]);
+    fetchBrands();
+  }, [fetchBrands]);
 
   return (
     <div className="overflow-hidden">
@@ -72,6 +68,11 @@ const BrandsPage = () => {
               {brands.length} {t("common.items") || "items"}
             </p>
           </div>
+          {canCreate && (
+            <Button leftIcon={Plus} onClick={() => setShowDrawer(true)}>
+              {t("products.addNewBrand") || "Add Brand"}
+            </Button>
+          )}
         </div>
 
         <div className="px-5 pb-6">
@@ -84,7 +85,16 @@ const BrandsPage = () => {
               title={t("sidebar.noBrands") || "No brands yet"}
               description={
                 t("sidebar.noBrandsDescription") ||
-                "Brands appear here when you add them on products"
+                "Create brands to organize your products"
+              }
+              actionButton={
+                canCreate
+                  ? {
+                      label: t("products.addNewBrand") || "Add Brand",
+                      onClick: () => setShowDrawer(true),
+                      icon: Plus,
+                    }
+                  : null
               }
             />
           )}
@@ -94,18 +104,24 @@ const BrandsPage = () => {
               <table className="w-full text-sm">
                 <thead className="bg-[rgb(var(--color-bg-secondary))] text-left text-[rgb(var(--color-text-secondary))]">
                   <tr>
-                    <th className="px-4 py-3 font-medium">{t("sidebar.brands")}</th>
+                    <th className="px-4 py-3 font-medium">{t("common.name") || "Name"}</th>
+                    <th className="px-4 py-3 font-medium">
+                      {t("common.description") || "Description"}
+                    </th>
                     <th className="px-4 py-3 font-medium">{t("sidebar.products")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
                   {brands.map((brand) => (
-                    <tr key={brand.name}>
+                    <tr key={brand.id || brand._id || brand.name}>
                       <td className="px-4 py-3 font-medium text-[rgb(var(--color-text-primary))]">
                         {brand.name}
                       </td>
                       <td className="px-4 py-3 text-[rgb(var(--color-text-secondary))]">
-                        {brand.count}
+                        {brand.description || "—"}
+                      </td>
+                      <td className="px-4 py-3 text-[rgb(var(--color-text-secondary))]">
+                        {brand.productCount || 0}
                       </td>
                     </tr>
                   ))}
@@ -115,6 +131,16 @@ const BrandsPage = () => {
           )}
         </div>
       </div>
+
+      <BrandDrawer
+        isOpen={showDrawer}
+        onClose={() => setShowDrawer(false)}
+        storeId={storeId}
+        onBrandAdded={() => {
+          setShowDrawer(false);
+          fetchBrands();
+        }}
+      />
     </div>
   );
 };

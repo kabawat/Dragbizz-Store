@@ -38,6 +38,9 @@
   "variants": "Variant",
   "stockManagement": "Stock Management",
   "categoriesDescription": "Product categories manage karo",
-  "brandsDescription": "Products me use hone wale brands",
-  "variantsDescription": "Product variants aur pricing"
+  "brandsDescription": "Product brands manage karo",
+  "variantsDescription": "Product variants aur pricing",
+  "addBrand": "Brand add karo",
+  "noBrands": "Abhi koi brand nahi",
+  "noBrandsDescription": "Apne products organize karne ke liye brands banao"
 }

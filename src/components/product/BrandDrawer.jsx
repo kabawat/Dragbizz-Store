@@ -1,8 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
-import { Save, Tags } from "lucide-react";
+import { Award, Save } from "lucide-react";
 import {
-  Checkbox,
   FileUpload,
   Input,
   TagInput,
@@ -10,16 +9,15 @@ import {
 } from "@/components/ui";
 import { FormDrawer } from "@/components/common";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { categoryService, utilityService, productService } from "@/service";
+import { brandService, utilityService, productService } from "@/service";
 import useApiResponse from "@/hooks/useApiResponse";
 
-const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
+const BrandDrawer = ({ isOpen, onClose, storeId, onBrandAdded }) => {
   const { t } = useTranslation();
 
-  const [newCategoryData, setNewCategoryData] = useState({
+  const [newBrandData, setNewBrandData] = useState({
     name: "",
     description: "",
-    hasExpiryDate: false,
     metadata: {
       icon: null,
       tags: [],
@@ -27,13 +25,12 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
   });
 
   const [iconUploading, setIconUploading] = useState(false);
-  const { execute: executeCreate, loading: addCategoryLoading } = useApiResponse();
+  const { execute: executeCreate, loading: addBrandLoading } = useApiResponse();
 
-  const resetCategoryData = useCallback(() => {
-    setNewCategoryData({
+  const resetBrandData = useCallback(() => {
+    setNewBrandData({
       name: "",
       description: "",
-      hasExpiryDate: false,
       metadata: {
         icon: null,
         tags: [],
@@ -43,12 +40,12 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
   }, []);
 
   const handleClose = () => {
-    resetCategoryData();
+    resetBrandData();
     onClose();
   };
 
   const handleRemoveIcon = async () => {
-    const currentIcon = newCategoryData.metadata.icon;
+    const currentIcon = newBrandData.metadata.icon;
     if (
       currentIcon &&
       typeof currentIcon === "string" &&
@@ -57,11 +54,11 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
       try {
         await utilityService.deleteFile(currentIcon);
       } catch (err) {
-        console.warn("Failed to delete category icon from storage:", err);
+        console.warn("Failed to delete brand icon from storage:", err);
       }
     }
 
-    setNewCategoryData((prev) => ({
+    setNewBrandData((prev) => ({
       ...prev,
       metadata: { ...prev.metadata, icon: null },
     }));
@@ -71,15 +68,15 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
     const file = files?.[0];
     if (!file) return;
 
-    if (newCategoryData.metadata.icon && typeof newCategoryData.metadata.icon === "string") {
+    if (newBrandData.metadata.icon && typeof newBrandData.metadata.icon === "string") {
       await handleRemoveIcon();
     }
 
     try {
       setIconUploading(true);
-      const uploadResult = await utilityService.uploadFile(file, "category");
+      const uploadResult = await utilityService.uploadFile(file, "brand");
 
-      setNewCategoryData((prev) => ({
+      setNewBrandData((prev) => ({
         ...prev,
         metadata: { ...prev.metadata, icon: uploadResult.publicFileUrl },
       }));
@@ -90,53 +87,50 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
     }
   };
 
-  const handleAddCategory = async () => {
-    if (!newCategoryData.name.trim()) return;
+  const handleAddBrand = async () => {
+    if (!newBrandData.name.trim()) return;
 
     try {
-      const iconUrl = newCategoryData.metadata.icon;
+      const iconUrl = newBrandData.metadata.icon;
 
       const apiPayload = {
-        name: newCategoryData.name.trim(),
-        description: newCategoryData.description.trim(),
-        hasExpiryDate: newCategoryData.hasExpiryDate === true,
+        name: newBrandData.name.trim(),
+        description: newBrandData.description.trim(),
         metadata: {
-          ...newCategoryData.metadata,
-          icon: iconUrl || "category",
+          ...newBrandData.metadata,
+          icon: iconUrl || "brand",
         },
       };
 
-      const result = await executeCreate(
-        categoryService.createCategory(apiPayload, storeId)
-      );
+      const result = await executeCreate(brandService.createBrand(apiPayload, storeId));
 
       if (result?.success) {
         const body = result.data?.data || result.data;
-        const categoryId = body?.id || body?._id;
+        const brandId = body?.id || body?._id;
 
-        if (iconUrl && categoryId) {
+        if (iconUrl && brandId) {
           try {
             await productService.saveProductImage({
-              entityId: categoryId,
-              entityType: "Category",
+              entityId: brandId,
+              entityType: "Brand",
               url: iconUrl,
               isPrimary: true,
-              metadata: { name: newCategoryData.name },
+              metadata: { name: newBrandData.name },
             });
           } catch (err) {
-            console.warn("Category image metadata sync failed:", err);
+            console.warn("Brand image metadata sync failed:", err);
           }
         }
 
-        onCategoryAdded?.({
-          value: categoryId,
-          label: newCategoryData.name.trim(),
+        onBrandAdded?.({
+          value: brandId,
+          label: newBrandData.name.trim(),
         });
-        resetCategoryData();
+        resetBrandData();
         onClose();
       }
     } catch (error) {
-      console.error("Category creation failed:", error);
+      console.error("Brand creation failed:", error);
     }
   };
 
@@ -144,16 +138,16 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
     <FormDrawer
       isOpen={isOpen}
       onClose={handleClose}
-      title={t("products.addNewCategory")}
-      icon={Tags}
+      title={t("products.addNewBrand")}
+      icon={Award}
       width="w-full md:w-2/3 lg:w-1/2"
-      onSave={handleAddCategory}
+      onSave={handleAddBrand}
       onCancel={handleClose}
-      saveLabel={addCategoryLoading ? t("common.saving") : t("products.addCategory")}
+      saveLabel={addBrandLoading ? t("common.saving") : t("products.addBrand")}
       cancelLabel={t("common.cancel")}
-      isSaving={addCategoryLoading}
+      isSaving={addBrandLoading}
       saveIcon={Save}
-      disabled={!newCategoryData.name.trim() || iconUploading}
+      disabled={!newBrandData.name.trim() || iconUploading}
     >
       <div className="space-y-6">
         <div className="space-y-4">
@@ -162,42 +156,34 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
           </h3>
 
           <Input
-            label={t("products.categoryName")}
-            placeholder={t("products.categoryNamePlaceholder")}
-            value={newCategoryData.name}
-            onChange={(value) => setNewCategoryData((prev) => ({ ...prev, name: value }))}
+            label={t("products.brandName")}
+            placeholder={t("products.brandNamePlaceholder")}
+            value={newBrandData.name}
+            onChange={(value) => setNewBrandData((prev) => ({ ...prev, name: value }))}
             required
           />
 
           <Textarea
             label={t("common.description")}
-            placeholder={t("products.enterCategoryDescription")}
-            value={newCategoryData.description}
+            placeholder={t("products.enterBrandDescription")}
+            value={newBrandData.description}
             onChange={(value) =>
-              setNewCategoryData((prev) => ({ ...prev, description: value }))
+              setNewBrandData((prev) => ({ ...prev, description: value }))
             }
             rows={3}
-          />
-
-          <Checkbox
-            label={t("products.categoryRequiresExpiryDate")}
-            checked={newCategoryData.hasExpiryDate === true}
-            onChange={(checked) =>
-              setNewCategoryData((prev) => ({ ...prev, hasExpiryDate: checked }))
-            }
           />
         </div>
 
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">
-            {t("products.categorySettings")}
+            {t("products.brandSettings")}
           </h3>
 
           <FileUpload
-            label={t("products.categoryIcon")}
+            label={t("products.brandIcon")}
             accept="image/*"
             multiple={false}
-            value={newCategoryData.metadata.icon ? [newCategoryData.metadata.icon] : []}
+            value={newBrandData.metadata.icon ? [newBrandData.metadata.icon] : []}
             onChange={handleIconUpload}
             onRemove={handleRemoveIcon}
             loading={iconUploading}
@@ -210,9 +196,9 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
             label={t("products.tags")}
             placeholder={t("products.addTagsPlaceholder")}
             countLabel={t("products.tagCount")}
-            value={newCategoryData.metadata.tags}
+            value={newBrandData.metadata.tags}
             onChange={(value) =>
-              setNewCategoryData((prev) => ({
+              setNewBrandData((prev) => ({
                 ...prev,
                 metadata: { ...prev.metadata, tags: value },
               }))
@@ -222,10 +208,10 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
 
         <div className="rounded-lg p-4 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))]">
           <h3 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            {t("products.aboutCategories")}
+            {t("products.aboutBrands")}
           </h3>
           <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {t("products.aboutCategoriesDescription")}
+            {t("products.aboutBrandsDescription")}
           </p>
         </div>
       </div>
@@ -233,4 +219,4 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
   );
 };
 
-export default CategoryDrawer;
+export default BrandDrawer;
