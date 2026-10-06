@@ -53,7 +53,7 @@ const UpdateProductPage = ({ productId }) => {
   const getInitialFormData = () => ({
     store: storeId,
     name: "",
-    brand: "",
+    brandId: "",
     category: "",
     sku: "",
     barcode: "",

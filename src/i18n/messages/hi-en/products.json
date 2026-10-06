@@ -62,6 +62,8 @@
   "enterBrandName": "Brand name enter karo",
   "selectCategory": "Ek category select karo",
   "loadingCategories": "Categories load ho rahi hain...",
+  "selectBrand": "Ek brand select karo",
+  "loadingBrands": "Brands load ho rahe hain...",
   "addNewCategory": "Naya Category add karo",
   "enterBarcode": "Barcode enter karo (optional)",
   "enterSku": "SKU enter karo (optional, jaise ABC-123)",

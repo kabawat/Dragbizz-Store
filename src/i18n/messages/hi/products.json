@@ -70,6 +70,8 @@
   "enterBrandName": "ब्रांड का नाम दर्ज करें",
   "selectCategory": "एक श्रेणी चुनें",
   "loadingCategories": "श्रेणियां लोड हो रही हैं...",
+  "selectBrand": "एक ब्रांड चुनें",
+  "loadingBrands": "ब्रांड लोड हो रहे हैं...",
   "addNewCategory": "नई श्रेणी जोड़ें",
   "enterBarcode": "बारकोड दर्ज करें (वैकल्पिक)",
   "enterSku": "SKU दर्ज करें (वैकल्पिक, जैसे ABC-123)",

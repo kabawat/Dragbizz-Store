@@ -63,6 +63,8 @@
   "brand": "Brand",
   "selectCategory": "Select a category",
   "loadingCategories": "Loading categories...",
+  "selectBrand": "Select a brand",
+  "loadingBrands": "Loading brands...",
   "addNewCategory": "Add New Category",
   "enterBarcode": "Enter barcode (optional)",
   "enterSku": "Enter SKU (optional, e.g. ABC-123)",

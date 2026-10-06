@@ -1,20 +1,20 @@
 "use client";
-import { Barcode, Hash, Package, Tag } from "lucide-react";
-import { useState } from "react";
+import { Barcode, Hash, Package } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { Input, Select, Toggle } from "../ui";
+import { Input, Select } from "../ui";
 
 const BasicInfoSection = ({
   formData,
   onChange,
   errors = {},
   onAddCategoryClick,
+  onAddBrandClick,
   apiCategories = [],
+  apiBrands = [],
   categoriesLoading = false,
-  ...props
+  brandsLoading = false,
 }) => {
   const { t } = useTranslation();
-  const [customCategories, _setCustomCategories] = useState([]);
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
@@ -28,10 +28,16 @@ const BasicInfoSection = ({
     }
   };
 
-  // Combine API categories with custom ones and add "Add New Category" option
+  const handleBrandChange = (value) => {
+    if (value === "add-new-brand") {
+      onAddBrandClick?.();
+    } else {
+      handleFieldChange("brandId", value);
+    }
+  };
+
   const allCategories = [
     ...apiCategories,
-    ...customCategories,
     {
       value: "add-new-category",
       label: `+ ${t("products.addNewCategory")}`,
@@ -39,11 +45,18 @@ const BasicInfoSection = ({
     },
   ];
 
+  const allBrands = [
+    ...apiBrands,
+    {
+      value: "add-new-brand",
+      label: `+ ${t("products.addNewBrand")}`,
+      isAddOption: true,
+    },
+  ];
+
   return (
     <>
-      {/* First Section - Product Name & Brand */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Product Name */}
         <div>
           <Input
             label={t("products.productName")}
@@ -57,22 +70,26 @@ const BasicInfoSection = ({
           />
         </div>
 
-        {/* Brand */}
         <div>
-          <Input
+          <Select
             label={t("products.brand")}
-            placeholder={t("products.enterBrandName")}
-            value={formData.brand || ""}
-            onChange={(value) => handleFieldChange("brand", value)}
-            error={errors.brand}
-            errorMessage={errors.brand}
-            leftIcon={Tag}
+            placeholder={
+              brandsLoading
+                ? t("products.loadingBrands")
+                : t("products.selectBrand")
+            }
+            value={formData.brandId || ""}
+            onChange={handleBrandChange}
+            error={errors.brandId}
+            errorMessage={errors.brandId}
+            searchable={true}
+            options={allBrands}
+            disabled={brandsLoading}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Category Selection */}
         <div>
           <Select
             label={t("products.category")}
@@ -92,7 +109,6 @@ const BasicInfoSection = ({
           />
         </div>
 
-        {/* SKU */}
         <div>
           <Input
             label={t("products.sku")}
@@ -109,7 +125,6 @@ const BasicInfoSection = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Barcode */}
         <div>
           <Input
             label={t("products.barcode")}

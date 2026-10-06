@@ -177,6 +177,7 @@ export function normalizeProductRecord(input) {
   const normalized = {
     name: input.name ?? "",
     brand: input.brand ?? "",
+    brandId: input.brandId ?? input.brand_id ?? null,
     category: resolveCategoryObject(input.category),
     sku: input.sku ?? "",
     barcode: input.barcode ?? "",
@@ -226,7 +227,8 @@ export function toProductForm(canonical, storeId = null) {
   return {
     store: storeId ?? canonical?.storeId ?? canonical?.store ?? "",
     name: record.name ?? "",
-    brand: record.brand ?? "",
+    brandId: record.brandId ?? "",
+    brandName: record.brand ?? "",
     category: resolveCategoryId(record.category),
     barcode: record.barcode ?? "",
     sku: record.sku ?? "",
@@ -310,7 +312,7 @@ export function splitProductAndVariantPayload(formData = {}) {
   const productPayload = {
     store: formData.store ?? formData.storeId ?? normalized.store,
     name: formData.name ?? normalized.name,
-    brand: formData.brand ?? normalized.brand,
+    brandId: formData.brandId || normalized.brandId || null,
     category: formData.category ?? resolveCategoryId(normalized.category),
     currency: formData.currency ?? normalized.currency ?? "INR",
     productType: formData.productType ?? normalized.productType ?? "GOODS",

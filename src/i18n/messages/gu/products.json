@@ -61,6 +61,8 @@
   "brand": "બ્રાન્ડ",
   "selectCategory": "શ્રેણી પસંદ કરો",
   "loadingCategories": "શ્રેણીઓ લોડ થઈ રહ્યા છે...",
+  "selectBrand": "બ્રાન્ડ પસંદ કરો",
+  "loadingBrands": "બ્રાન્ડ્સ લોડ થઈ રહ્યા છે...",
   "addNewCategory": "નવી શ્રેણી ઉમેરો",
   "enterBarcode": "બારકોડ દાખલ કરો (વૈકલ્પિક)",
   "enterSku": "SKU દાખલ કરો (વૈકલ્પિક, દા.ત. ABC-123)",

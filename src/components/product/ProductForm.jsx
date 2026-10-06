@@ -1,18 +1,15 @@
 "use client";
 
-// Import drag and drop
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, } from "@dnd-kit/sortable";
 import { Eye, Image as ImageIcon, IndianRupee, Package } from "lucide-react";
 import dynamic from "next/dynamic";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useAppSelector } from "@/store/hooks";
-import { categoryService } from "@/service/retailer";
+import { brandService, categoryService } from "@/service/retailer";
 import useApiResponse from "@/hooks/useApiResponse";
 
-// Import custom components
 import AdditionalDetailsSection from "./AdditionalDetailsSection";
 import BasicInfoSection from "./BasicInfoSection";
 import MediaSection from "./MediaSection";
@@ -21,6 +18,7 @@ import SortableSection from "./SortableSection";
 
 const ProductSectionInfoModal = dynamic(() => import("./ProductSectionInfoModal"), { ssr: false });
 const CategoryDrawer = dynamic(() => import("./CategoryDrawer"), { ssr: false });
+const BrandDrawer = dynamic(() => import("./BrandDrawer"), { ssr: false });
 
 const ProductForm = ({
   formData = {},
@@ -31,19 +29,17 @@ const ProductForm = ({
   className = "",
 }) => {
   const { t } = useTranslation();
-  const { selectedStore } = useAppSelector((state) => state.profile);
 
-  // Modal and Drawer States
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [currentInfoSection, setCurrentInfoSection] = useState(null);
   const [showAddCategoryDrawer, setShowAddCategoryDrawer] = useState(false);
+  const [showAddBrandDrawer, setShowAddBrandDrawer] = useState(false);
   const [apiCategories, setApiCategories] = useState([]);
+  const [apiBrands, setApiBrands] = useState([]);
 
-  // Use API response for fetching categories
-  const { execute: executeGet, loading: categoriesLoading } = useApiResponse();
-  const hasFetchedCategories = useRef(false);
+  const { execute: executeGetCategories, loading: categoriesLoading } = useApiResponse();
+  const { execute: executeGetBrands, loading: brandsLoading } = useApiResponse();
 
-  // Form Sections Configuration
   const [sections, setSections] = useState([
     {
       id: "basic",
@@ -75,7 +71,6 @@ const ProductForm = ({
     },
   ]);
 
-  // Section Help/Information Content
   const sectionInfo = {
     basic: {
       title: t("products.basicInformation"),
@@ -125,12 +120,10 @@ const ProductForm = ({
     },
   };
 
-  // Fetch Category List
   const fetchCategories = useCallback(async () => {
     if (!storeId) return;
-    hasFetchedCategories.current = true;
 
-    const result = await executeGet(
+    const result = await executeGetCategories(
       categoryService.getCategories({
         limit: 100,
         store: storeId,
@@ -141,27 +134,51 @@ const ProductForm = ({
 
     if (result) {
       const categories = result.data || [];
-      const formattedCategories = categories.map((category) => ({
-        value: category.id || category._id,
-        label: category.name,
-        hasExpiryDate: category.hasExpiryDate,
-      }));
-      setApiCategories(formattedCategories);
+      setApiCategories(
+        categories.map((category) => ({
+          value: category.id || category._id,
+          label: category.name,
+          hasExpiryDate: category.hasExpiryDate,
+        }))
+      );
     }
-  }, [storeId, executeGet]);
+  }, [storeId, executeGetCategories]);
 
-  // Initial fetch and refresh listener
+  const fetchBrands = useCallback(async () => {
+    if (!storeId) return;
+
+    const result = await executeGetBrands(
+      brandService.getBrands({
+        limit: 100,
+        store: storeId,
+        lightweight: true,
+      }),
+      { showToast: false }
+    );
+
+    if (result) {
+      const brands = result.data || [];
+      setApiBrands(
+        brands.map((brand) => ({
+          value: brand.id || brand._id,
+          label: brand.name,
+        }))
+      );
+    }
+  }, [storeId, executeGetBrands]);
+
   useEffect(() => {
-    if (storeId) fetchCategories();
-  }, [storeId, fetchCategories]);
+    if (storeId) {
+      fetchCategories();
+      fetchBrands();
+    }
+  }, [storeId, fetchCategories, fetchBrands]);
 
-  // Handle section help click
   const handleInfoClick = (sectionId) => {
     setCurrentInfoSection(sectionInfo[sectionId]);
     setShowInfoModal(true);
   };
 
-  // Drag & Drop Sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -180,10 +197,14 @@ const ProductForm = ({
     }
   };
 
-  // Callback when a new category is successfully added
   const handleCategoryAdded = async (newCategory) => {
     await fetchCategories();
     if (onChange) onChange("category", newCategory.value);
+  };
+
+  const handleBrandAdded = async (newBrand) => {
+    await fetchBrands();
+    if (onChange) onChange("brandId", newBrand.value);
   };
 
   return (
@@ -216,8 +237,11 @@ const ProductForm = ({
                       onChange={onChange}
                       errors={fieldErrors}
                       onAddCategoryClick={() => setShowAddCategoryDrawer(true)}
+                      onAddBrandClick={() => setShowAddBrandDrawer(true)}
                       apiCategories={apiCategories}
+                      apiBrands={apiBrands}
                       categoriesLoading={categoriesLoading}
+                      brandsLoading={brandsLoading}
                       storeId={storeId}
                       productId={productId}
                     />
@@ -237,19 +261,24 @@ const ProductForm = ({
         </SortableContext>
       </DndContext>
 
-      {/* Reusable Section Info Modal */}
       <ProductSectionInfoModal
         isOpen={showInfoModal}
         onClose={() => setShowInfoModal(false)}
         sectionInfo={currentInfoSection}
       />
 
-      {/* Reusable Add Category Drawer */}
       <CategoryDrawer
         isOpen={showAddCategoryDrawer}
         onClose={() => setShowAddCategoryDrawer(false)}
         storeId={storeId}
         onCategoryAdded={handleCategoryAdded}
+      />
+
+      <BrandDrawer
+        isOpen={showAddBrandDrawer}
+        onClose={() => setShowAddBrandDrawer(false)}
+        storeId={storeId}
+        onBrandAdded={handleBrandAdded}
       />
     </div>
   );
