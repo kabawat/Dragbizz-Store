@@ -42,6 +42,8 @@
   "categoriesDescription": "उत्पाद श्रेणियाँ प्रबंधित करें",
   "brandsDescription": "उत्पाद ब्रांड प्रबंधित करें",
   "variantsDescription": "उत्पाद वैरिएंट और मूल्य",
+  "noVariants": "No variants yet",
+  "noVariantsDescription": "Variants are created when you add products, or create one here",
   "addBrand": "ब्रांड जोड़ें",
   "noBrands": "अभी कोई ब्रांड नहीं",
   "noBrandsDescription": "अपने उत्पादों को व्यवस्थित करने के लिए ब्रांड बनाएं"

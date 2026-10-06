@@ -42,6 +42,8 @@
   "categoriesDescription": "Manage product categories",
   "brandsDescription": "Manage product brands",
   "variantsDescription": "Product variants and pricing",
+  "noVariants": "No variants yet",
+  "noVariantsDescription": "Variants are created when you add products, or create one here",
   "addBrand": "Add Brand",
   "noBrands": "No brands yet",
   "noBrandsDescription": "Create brands to organize your products"

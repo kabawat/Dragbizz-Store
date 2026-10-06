@@ -40,6 +40,8 @@
   "categoriesDescription": "Product categories manage karo",
   "brandsDescription": "Product brands manage karo",
   "variantsDescription": "Product variants aur pricing",
+  "noVariants": "Abhi koi variant nahi",
+  "noVariantsDescription": "Products add karte waqt variants banate hain, ya yahan create karo",
   "addBrand": "Brand add karo",
   "noBrands": "Abhi koi brand nahi",
   "noBrandsDescription": "Apne products organize karne ke liye brands banao"
