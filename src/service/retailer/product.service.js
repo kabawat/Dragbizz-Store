@@ -1,5 +1,29 @@
 import { API_CONFIG } from "@/config";
 import { BaseService } from "@/service/base/BaseService";
+import { mergeVariantsIntoProducts } from "@/utils/productCanonical";
+import { variantService } from "./variant.service";
+
+function unwrapList(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.products)) return data.products;
+  return [];
+}
+
+function applyEnrichedList(response, enriched) {
+  const body = response?.data;
+  if (!body || typeof body !== "object") return response;
+
+  if (Array.isArray(body.data)) {
+    body.data = enriched;
+  } else if (Array.isArray(body.products)) {
+    body.products = enriched;
+  } else if (Array.isArray(body)) {
+    response.data = enriched;
+  }
+
+  return response;
+}
 
 class ProductService extends BaseService {
   constructor() {
@@ -7,29 +31,44 @@ class ProductService extends BaseService {
     this.endpoint = API_CONFIG?.RETAILER?.PRODUCT;
   }
 
-  // Create a new product
   createProduct(productData) {
     return this.post(this.endpoint, productData);
   }
 
-  // Update an existing product
   updateProduct(productId, productData, storeId = null) {
     const url = this.buildResourceUrl(this.endpoint, productId, storeId);
     return this.put(url, productData);
   }
 
-  // Get all products with query parameters
-  getProducts(params = {}) {
-    return this.get(this.endpoint, params);
+  async getProducts(params = {}) {
+    const response = await this.get(this.endpoint, params);
+
+    // Single product fetch — caller merges variants separately when needed
+    if (params?.id) return response;
+
+    try {
+      const store = params.store;
+      if (!store) return response;
+
+      const variantsResponse = await variantService.getVariants({
+        store,
+        limit: 50,
+        lightweight: true,
+      });
+      const products = unwrapList(response?.data?.data ?? response?.data);
+      const variants = unwrapList(variantsResponse?.data?.data ?? variantsResponse?.data);
+      const enriched = mergeVariantsIntoProducts(products, variants);
+      return applyEnrichedList(response, enriched);
+    } catch {
+      return response;
+    }
   }
 
-  // Delete a product by ID
   deleteProduct(productId, storeId = null) {
     const url = this.buildResourceUrl(this.endpoint, productId, storeId);
     return this.delete(url);
   }
 
-  // Bulk upload products
   bulkUploadProducts(file, storeId) {
     const url = `${this.endpoint}/bulk`;
     const formData = new FormData();
@@ -39,19 +78,16 @@ class ProductService extends BaseService {
     return this.uploadAxios.post(url, formData);
   }
 
-  // Save product image metadata
   saveProductImage(imageData, params = {}) {
     const url = `${this.endpoint}/image`;
     return this.post(url, imageData, params);
   }
 
-  // Delete product image by ID
   deleteProductImage(imageId, storeId = null) {
     const url = this.buildResourceUrl(`${this.endpoint}/image`, imageId, storeId);
     return this.delete(url);
   }
 }
 
-// Create and export a singleton instance
 export const productService = new ProductService();
 export default productService;

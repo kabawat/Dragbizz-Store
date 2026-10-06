@@ -3,9 +3,7 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-// Import components
 import {
-  ProductAddSuccessModal,
   ProductForm,
   ProductInfoModal,
 } from "@/components/product";
@@ -13,10 +11,16 @@ import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
-import { productService } from "@/service";
+import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { fromProductForm, normalizeProductRecord, toProductForm } from "@/utils/productUtils";
+import {
+  mergeVariantIntoProduct,
+  normalizeProductRecord,
+  pickDefaultVariant,
+  splitProductAndVariantPayload,
+  toProductForm,
+} from "@/utils/productUtils";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -34,7 +38,6 @@ const UpdateProductPage = ({ productId }) => {
     }
   }, [can, permissionsLoading, router]);
 
-  // Separate hooks: one for fetching, one for saving
   const { execute: executeFetch, loading: initialLoading } = useApiResponse();
   const {
     execute: executeSave,
@@ -45,8 +48,8 @@ const UpdateProductPage = ({ productId }) => {
 
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [productNotFound, setProductNotFound] = useState(false);
+  const [defaultVariantId, setDefaultVariantId] = useState(null);
 
-  // Initial form data
   const getInitialFormData = () => ({
     store: storeId,
     name: "",
@@ -60,17 +63,17 @@ const UpdateProductPage = ({ productId }) => {
     discount: "",
     currency: "",
     uom: "",
+    productType: "GOODS",
     images: [],
     status: "",
-
     showInCatalog: true,
     featured: false,
     bestSeller: false,
     newArrival: false,
     stockQuantity: 0,
+    defaultVariantId: null,
     gstInfo: {
       gstRate: "",
-      gstCategory: "TAXABLE",
       hsnCode: "",
       isGstIncluded: true,
     },
@@ -85,28 +88,45 @@ const UpdateProductPage = ({ productId }) => {
 
   const [formData, setFormData] = useState(getInitialFormData());
 
-  // Fetch product data on component mount
   useEffect(() => {
     const fetchProductData = async () => {
       const result = await executeFetch(
         productService.getProducts({ store: storeId, id: productId }),
-        { showToast: false }
+        { showToast: false },
       );
 
-      if (result?.success) {
-        const product = normalizeProductRecord(result.data);
-        setFormData(toProductForm(product, storeId));
-      } else {
+      if (!result?.success) {
         setProductNotFound(true);
+        return;
       }
+
+      let product = result.data;
+      if (Array.isArray(product)) product = product[0];
+      if (product?.data && !product.name) product = product.data;
+
+      const variantsResult = await executeFetch(
+        variantService.getVariants({ store: storeId, product: productId, limit: 50 }),
+        { showToast: false },
+      );
+
+      const variantsRaw = variantsResult?.data;
+      const variants = Array.isArray(variantsRaw)
+        ? variantsRaw
+        : Array.isArray(variantsRaw?.data)
+          ? variantsRaw.data
+          : [];
+
+      const defaultVariant = pickDefaultVariant(variants);
+      const merged = mergeVariantIntoProduct(product, defaultVariant);
+      setDefaultVariantId(defaultVariant?.id ?? defaultVariant?._id ?? null);
+      setFormData(toProductForm(normalizeProductRecord(merged), storeId));
     };
 
     if (productId && storeId) {
       fetchProductData();
     }
-  }, [productId, storeId, executeFetch, t]);
+  }, [productId, storeId, executeFetch]);
 
-  // Update store ID when selectedStore changes
   useEffect(() => {
     if (selectedStore?.storeId) {
       setFormData((prevData) => ({
@@ -116,7 +136,6 @@ const UpdateProductPage = ({ productId }) => {
     }
   }, [selectedStore]);
 
-  // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
     if (typeof fieldName !== "string") return;
 
@@ -130,7 +149,7 @@ const UpdateProductPage = ({ productId }) => {
 
     setFormData((prevData) => {
       const newData = { ...prevData };
-      const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
+      const getNewValue = (current) => (typeof value === "function" ? value(current) : value);
 
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
@@ -146,31 +165,43 @@ const UpdateProductPage = ({ productId }) => {
     });
   };
 
-  // Handle save and update
   const handleSaveAndUpdate = async () => {
     setFieldErrors({});
 
-    const updateData = fromProductForm({
+    const { productPayload, variantPayload } = splitProductAndVariantPayload({
       ...formData,
       store: storeId,
     });
 
     const result = await executeSave(
-      productService.updateProduct(productId, updateData, storeId),
-      { message: t("products.updateSuccess") }
+      productService.updateProduct(productId, productPayload, storeId),
+      { message: t("products.updateSuccess") },
     );
 
-    if (result?.success) {
-      router.push("/dashboard/products");
+    if (!result?.success) return;
+
+    if (defaultVariantId) {
+      await executeSave(
+        variantService.updateVariant(defaultVariantId, variantPayload, storeId),
+        { showToast: false },
+      );
+    } else {
+      await executeSave(
+        variantService.createVariant({
+          ...variantPayload,
+          product: productId,
+        }),
+        { showToast: false },
+      );
     }
+
+    router.push("/dashboard/products");
   };
 
-  // Handle cancel
   const handleCancel = () => {
     router.push("/dashboard/products");
   };
 
-  // Loading state
   if (initialLoading || permissionsLoading) {
     return (
       <div className="p-6">
@@ -195,7 +226,6 @@ const UpdateProductPage = ({ productId }) => {
     );
   }
 
-  // Product not found state
   if (productNotFound) {
     return (
       <div className="p-6">
@@ -209,11 +239,7 @@ const UpdateProductPage = ({ productId }) => {
                 <p className="text-[rgb(var(--color-text-secondary))] mb-4">
                   {t("modals.notFound", { item: t("common.product") })}
                 </p>
-                <Button
-                  variant="outline"
-                  onClick={handleCancel}
-                  leftIcon={ArrowLeft}
-                >
+                <Button variant="outline" onClick={handleCancel} leftIcon={ArrowLeft}>
                   {t("common.backTo", { item: t("common.products") })}
                 </Button>
               </div>
@@ -233,9 +259,7 @@ const UpdateProductPage = ({ productId }) => {
             className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              {t("products.backToProducts")}
-            </span>
+            <span className="text-sm font-medium">{t("products.backToProducts")}</span>
           </Link>
         </div>
 
@@ -253,11 +277,7 @@ const UpdateProductPage = ({ productId }) => {
           <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 ml-auto">
-                <Button
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={loading}
-                >
+                <Button variant="outline" onClick={handleCancel} disabled={loading}>
                   {t("common.cancel")}
                 </Button>
                 <Button
@@ -275,11 +295,7 @@ const UpdateProductPage = ({ productId }) => {
         </div>
       </div>
 
-      {/* Info Modal */}
-      <ProductInfoModal
-        isOpen={showInfoModal}
-        onClose={() => setShowInfoModal(false)}
-      />
+      <ProductInfoModal isOpen={showInfoModal} onClose={() => setShowInfoModal(false)} />
     </div>
   );
 };

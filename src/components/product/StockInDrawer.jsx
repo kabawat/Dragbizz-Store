@@ -210,7 +210,6 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
               options={formattedSuppliers}
               loading={suppliersLoading}
               disabled={suppliersLoading}
-              helperText={t("inventory.optionalTypeToSearchSuppliers")}
             />
           </div>
 

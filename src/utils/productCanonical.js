@@ -1,4 +1,5 @@
-// Keep in sync with FE/dragbizz-desktop/packages/core/src/product.cjs
+// Keep in sync with FE/dragbizz-desktop/packages/core/src/product.js
+// Product = catalog identity; Variant = sellable SKU (price/sku/barcode/uom)
 
 function toNumber(value) {
   if (value == null || value === "") return undefined;
@@ -53,10 +54,7 @@ function normalizeGstInfo(input = {}) {
       gstInfo.isGstApplicable ??
       false,
     gstRate: gstRate ?? "",
-    gstCategory: gstInfo.gstCategory ?? input.gstCategory ?? "TAXABLE",
     hsnCode: gstInfo.hsnCode ?? input.hsnCode ?? input.hsn ?? "",
-    sacCode: gstInfo.sacCode ?? "",
-    cessRate: gstInfo.cessRate ?? 0,
   };
 }
 
@@ -67,7 +65,11 @@ function normalizeContent(input = {}) {
     shortDescription: content.shortDescription ?? "",
     longDescription: content.longDescription ?? "",
     tags: Array.isArray(content.tags) ? content.tags : [],
-    specifications: Array.isArray(content.specifications) ? content.specifications : [],
+    specifications: Array.isArray(content.specifications)
+      ? content.specifications
+      : Array.isArray(input.specifications)
+        ? input.specifications
+        : [],
     features,
   };
 }
@@ -86,6 +88,78 @@ function computeDiscount(mrp, sellingPrice, discount) {
   }
   const existing = toNumber(discount);
   return existing ?? 0;
+}
+
+function resolveVariantProductId(variant) {
+  if (!variant) return null;
+  const product = variant.product;
+  if (!product) return null;
+  if (typeof product === "string") return product;
+  return product.id ?? product._id ?? null;
+}
+
+/** Pick default variant, else first by sortOrder. */
+export function pickDefaultVariant(variants = []) {
+  if (!Array.isArray(variants) || variants.length === 0) return null;
+  const preferred = variants.find((v) => v?.isDefault === true);
+  if (preferred) return preferred;
+  return [...variants].sort((a, b) => (a?.sortOrder ?? 0) - (b?.sortOrder ?? 0))[0];
+}
+
+/** Merge sellable variant fields onto a product record for UI/forms. */
+export function mergeVariantIntoProduct(product, variant) {
+  if (!product) return null;
+  if (!variant) {
+    return {
+      ...product,
+      defaultVariantId: product.defaultVariantId ?? null,
+      variants: product.variants ?? [],
+    };
+  }
+
+  const variantGst = variant.gstInfo || {};
+  const productGst = product.gstInfo || {};
+
+  return {
+    ...product,
+    sku: variant.sku ?? product.sku ?? "",
+    barcode: variant.barcode ?? product.barcode ?? "",
+    mrp: variant.mrp ?? product.mrp ?? product.pricing?.mrp ?? "",
+    sellingPrice:
+      variant.sellingPrice ?? product.sellingPrice ?? product.pricing?.sellingPrice ?? "",
+    discount: variant.discount ?? product.discount ?? product.pricing?.discount ?? "",
+    uom: variant.uom ?? product.uom ?? product.pricing?.uom ?? "PCS",
+    basePrice: product.basePrice ?? product.pricing?.basePrice ?? "",
+    gstInfo: {
+      ...normalizeGstInfo({ gstInfo: { ...productGst, ...variantGst } }),
+      isGstIncluded:
+        productGst.isGstIncluded ??
+        variantGst.isGstIncluded ??
+        product.isGstIncluded ??
+        false,
+    },
+    defaultVariantId: variant.id ?? variant._id ?? null,
+    variants: product.variants ?? (variant ? [variant] : []),
+  };
+}
+
+export function mergeVariantsIntoProducts(products = [], variants = []) {
+  if (!Array.isArray(products) || products.length === 0) return products ?? [];
+
+  const byProduct = new Map();
+  for (const variant of variants) {
+    const productId = String(resolveVariantProductId(variant) ?? "");
+    if (!productId) continue;
+    if (!byProduct.has(productId)) byProduct.set(productId, []);
+    byProduct.get(productId).push(variant);
+  }
+
+  return products.map((product) => {
+    const id = String(product?.id ?? product?._id ?? "");
+    const productVariants = byProduct.get(id) ?? product.variants ?? [];
+    const merged = mergeVariantIntoProduct(product, pickDefaultVariant(productVariants));
+    return { ...merged, variants: productVariants };
+  });
 }
 
 export function normalizeProductRecord(input) {
@@ -112,6 +186,7 @@ export function normalizeProductRecord(input) {
     discount: discount ?? "",
     currency,
     uom,
+    productType: pickString(input.productType) ?? "GOODS",
     status: input.status ?? "",
     showInCatalog: input.showInCatalog !== false,
     featured: Boolean(input.featured),
@@ -127,6 +202,8 @@ export function normalizeProductRecord(input) {
     features: content.features,
     images: normalizeImages(input.images, input.image),
     stock: pickNumber(input.stock, input.stockQuantity) ?? 0,
+    defaultVariantId: input.defaultVariantId ?? null,
+    variants: Array.isArray(input.variants) ? input.variants : [],
   };
 
   if (input.version != null) normalized.version = input.version;
@@ -159,6 +236,7 @@ export function toProductForm(canonical, storeId = null) {
     discount: toFormValue(record.discount),
     currency: record.currency ?? "INR",
     uom: record.uom ?? "PCS",
+    productType: record.productType ?? "GOODS",
     images: Array.isArray(record.images) ? record.images : [],
     status: record.status ?? "",
     showInCatalog: record.showInCatalog !== false,
@@ -166,13 +244,11 @@ export function toProductForm(canonical, storeId = null) {
     bestSeller: Boolean(record.bestSeller),
     newArrival: Boolean(record.newArrival),
     stockQuantity: record.stock ?? 0,
+    defaultVariantId: record.defaultVariantId ?? null,
     gstInfo: {
       isGstIncluded: gstInfo.isGstIncluded === true,
       gstRate: gstInfo.gstRate ?? "",
-      gstCategory: gstInfo.gstCategory ?? "TAXABLE",
       hsnCode: gstInfo.hsnCode ?? "",
-      sacCode: gstInfo.sacCode ?? "",
-      cessRate: gstInfo.cessRate ?? 0,
     },
     content: {
       shortDescription: content.shortDescription ?? "",
@@ -184,7 +260,30 @@ export function toProductForm(canonical, storeId = null) {
   };
 }
 
-export function fromProductForm(formData = {}) {
+function buildGstPayload(gstInfo = {}, isGstIncluded) {
+  const payload = {};
+  const included =
+    isGstIncluded === true ||
+    isGstIncluded === "true" ||
+    gstInfo.isGstIncluded === true ||
+    gstInfo.isGstIncluded === "true";
+
+  payload.isGstIncluded = included;
+
+  // GST rate is resolved from HSN on the backend — do not send from the form
+  if (gstInfo.hsnCode != null && String(gstInfo.hsnCode).trim()) {
+    payload.hsnCode = String(gstInfo.hsnCode).trim();
+  }
+
+  return payload;
+}
+
+/**
+ * Build API payloads after product↔variant split.
+ * Product keeps catalog fields; variant keeps sellable fields.
+ * Product create still includes pricing temporarily so older BE validation passes.
+ */
+export function splitProductAndVariantPayload(formData = {}) {
   const normalized = normalizeProductRecord(formData) ?? {};
   const discount = computeDiscount(normalized.mrp, normalized.sellingPrice, normalized.discount);
 
@@ -197,34 +296,79 @@ export function fromProductForm(formData = {}) {
     })
     .filter(Boolean);
 
-  const payload = {
-    ...normalized,
+  const gstInfo = buildGstPayload(
+    formData.gstInfo ?? normalized.gstInfo,
+    formData.gstInfo?.isGstIncluded ?? normalized.gstInfo?.isGstIncluded,
+  );
+
+  const specifications = Array.isArray(formData.content?.specifications)
+    ? formData.content.specifications
+    : Array.isArray(normalized.content?.specifications)
+      ? normalized.content.specifications
+      : [];
+
+  const productPayload = {
     store: formData.store ?? formData.storeId ?? normalized.store,
     name: formData.name ?? normalized.name,
     brand: formData.brand ?? normalized.brand,
     category: formData.category ?? resolveCategoryId(normalized.category),
-    barcode: formData.barcode ?? normalized.barcode,
-    sku: String(formData.sku ?? normalized.sku ?? "").trim(),
+    currency: formData.currency ?? normalized.currency ?? "INR",
+    productType: formData.productType ?? normalized.productType ?? "GOODS",
     images: images.length > 0 ? images : normalized.images,
-    discount,
     status: formData.status ?? normalized.status,
     showInCatalog: formData.showInCatalog !== false,
     featured: Boolean(formData.featured),
     bestSeller: Boolean(formData.bestSeller),
     newArrival: Boolean(formData.newArrival),
+    gstInfo,
     content: {
-      ...(normalized.content ?? {}),
+      shortDescription: formData.content?.shortDescription ?? normalized.content?.shortDescription ?? "",
+      longDescription: formData.content?.longDescription ?? normalized.content?.longDescription ?? "",
+      tags: formData.content?.tags ?? normalized.content?.tags ?? [],
       features: formData.content?.features ?? normalized.features ?? [],
     },
+    specifications,
+    // Temporary compat: BE product validation still requires these until fully migrated
+    mrp: toNumber(formData.mrp ?? normalized.mrp),
+    sellingPrice: toNumber(formData.sellingPrice ?? normalized.sellingPrice),
+    discount,
+    uom: formData.uom ?? normalized.uom ?? "PCS",
+    barcode: formData.barcode ?? normalized.barcode ?? "",
   };
 
-  delete payload.stock;
-  delete payload.features;
+  const basePrice = toNumber(formData.basePrice ?? normalized.basePrice);
+  if (basePrice !== undefined) productPayload.basePrice = basePrice;
 
-  // Backend rejects empty-string SKU; omit it when not provided
-  if (!payload.sku) delete payload.sku;
+  const sku = String(formData.sku ?? normalized.sku ?? "").trim().toUpperCase();
+  if (sku) productPayload.sku = sku;
+  if (!productPayload.barcode) delete productPayload.barcode;
 
-  return payload;
+  const variantPayload = {
+    displayName: String(formData.name ?? normalized.name ?? "").trim() || undefined,
+    mrp: toNumber(formData.mrp ?? normalized.mrp),
+    sellingPrice: toNumber(formData.sellingPrice ?? normalized.sellingPrice),
+    discount,
+    uom: formData.uom ?? normalized.uom ?? "PCS",
+    gstInfo: {
+      ...(gstInfo.hsnCode ? { hsnCode: gstInfo.hsnCode } : {}),
+    },
+    status: formData.status || "ACTIVE",
+    isDefault: true,
+    showInCatalog: formData.showInCatalog !== false,
+    sortOrder: 0,
+  };
+
+  if (sku) variantPayload.sku = sku;
+  const barcode = String(formData.barcode ?? normalized.barcode ?? "").trim();
+  if (barcode) variantPayload.barcode = barcode;
+
+  return { productPayload, variantPayload };
+}
+
+/** @deprecated Prefer splitProductAndVariantPayload — kept for callers that still send a flat product body. */
+export function fromProductForm(formData = {}) {
+  const { productPayload } = splitProductAndVariantPayload(formData);
+  return productPayload;
 }
 
 function formatLastUpdated(timestamp) {
@@ -270,10 +414,10 @@ export function toProductListItem(input) {
     currency: record.currency,
     uom: record.uom,
     gst: toNumber(record.gstInfo?.gstRate) ?? 0,
-    gstCategory: record.gstInfo?.gstCategory ?? "TAXABLE",
     hsnCode: record.gstInfo?.hsnCode ?? "",
     isGstIncluded: record.gstInfo?.isGstIncluded === true,
     status: record.status || "DRAFT",
+    productType: record.productType ?? "GOODS",
     showInCatalog: record.showInCatalog !== false,
     featured: Boolean(record.featured),
     bestSeller: Boolean(record.bestSeller),
@@ -286,6 +430,7 @@ export function toProductListItem(input) {
     slug: input?.slug ?? "",
     image: imageUrl,
     stock: record.stock ?? 0,
+    defaultVariantId: record.defaultVariantId ?? null,
   };
 }
 
@@ -299,4 +444,16 @@ export function resolveProductUnitPrice(product) {
     if (parsed !== undefined && parsed > 0) return parsed;
   }
   return 0;
+}
+
+export function extractProductIdFromCreateResponse(data) {
+  if (!data) return null;
+  if (typeof data === "string") return data;
+  return (
+    data?.product?.id ??
+    data?.product?._id ??
+    data?.id ??
+    data?._id ??
+    null
+  );
 }

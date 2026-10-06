@@ -16,6 +16,9 @@ import {
     Settings,
     ShoppingCart,
     ShoppingBag,
+    Tags,
+    Layers,
+    Award,
     Users,
     UserCog,
     Warehouse,
@@ -24,20 +27,33 @@ import {
     Wallet,
 } from "lucide-react";
 
+/** Sales Management */
 export const getSalesSubMenuItems = (t) => [
     { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers", shortcut: "c", module: "customer" },
-    { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i", module: "invoice" },
-    { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e", module: "expense" },
-    { name: t("sidebar.cashbook"), icon: Wallet, href: "/dashboard/cashbook", shortcut: "b", module: "cashbook" },
     { name: t("sidebar.pos") || "POS", icon: ShoppingBag, href: "/dashboard/pos", shortcut: "k", module: "invoice", requireCapability: "pos" },
-    { name: t("sidebar.sellOrders") || "Sell Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o", module: "invoice" },
+    { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i", module: "invoice" },
+    { name: t("sidebar.sellOrders") || "Sales Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o", module: "invoice" },
+    { name: t("sidebar.cashbook"), icon: Wallet, href: "/dashboard/cashbook", shortcut: "b", module: "cashbook" },
+    { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e", module: "expense" },
 ];
 
-export const getInventorySubMenuItems = (t) => [
+/** Product Catalog — category, brand, product, variant */
+export const getProductSubMenuItems = (t) => [
+    { name: t("sidebar.categories"), icon: Tags, href: "/dashboard/categories", module: "product" },
+    { name: t("sidebar.brands"), icon: Award, href: "/dashboard/brands", module: "product" },
     { name: t("sidebar.products"), icon: Package, href: "/dashboard/products", shortcut: "p", module: "product" },
+    { name: t("sidebar.variants"), icon: Layers, href: "/dashboard/variants", module: "product" },
+];
+
+/** Stock Management */
+export const getStockSubMenuItems = (t) => [
     { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock", shortcut: "s", module: "inventory", requireCapability: "fifo" },
 ];
 
+/** @deprecated use getProductSubMenuItems */
+export const getInventorySubMenuItems = getProductSubMenuItems;
+
+/** Purchase Management */
 export const getPurchaseSubMenuItems = (t) => [
     { name: t("sidebar.suppliers"), icon: Building2, href: "/dashboard/suppliers", shortcut: "u", module: "supplier" },
     { name: t("sidebar.purchaseOrders"), icon: ShoppingCart, href: "/dashboard/purchase-orders", shortcut: "shift+o", module: "purchase_order" },
@@ -45,24 +61,93 @@ export const getPurchaseSubMenuItems = (t) => [
     { name: t("sidebar.payments"), icon: IndianRupee, href: "/dashboard/payments", shortcut: "y", module: "billing" },
 ];
 
+/** Analytics — `group` renders section headers in sidebar */
 export const getAnalyticsSubMenuItems = (t, selectedStore) => [
-    { name: t("dashboard.dailySales") || "Daily Sales", icon: Receipt, href: "/dashboard/analytics/daily-sales", module: "invoice", requireAnalytics: true },
-    { name: t("dashboard.revenueAnalytics") || "Revenue Analytics", icon: LineChart, href: "/dashboard/analytics/revenue", module: "invoice", requireAnalytics: true },
-    { name: t("dashboard.salesAnalytics") || "Sales Analytics", icon: BarChart3, href: "/dashboard/analytics/sales", module: "invoice", requireAnalytics: true },
-    { name: t("dashboard.stockAnalytics") || "Stock Analytics", icon: Warehouse, href: "/dashboard/analytics/stock", module: "inventory", requireAnalytics: true },
-    { name: t("dashboard.productAnalytics") || "Product Analytics", icon: PieChart, href: "/dashboard/analytics/products", module: "product", requireAnalytics: true },
-    { name: t("dashboard.customerAnalytics") || "Customer Analytics", icon: Activity, href: "/dashboard/analytics/customers", module: "customer", requireAnalytics: true },
-    { name: t("dashboard.supplierAnalytics") || "Supplier Analytics", icon: Building2, href: "/dashboard/analytics/suppliers", module: "supplier", requireAnalytics: true },
-    { name: t("dashboard.billAnalytics") || "Bill Analytics", icon: Receipt, href: "/dashboard/analytics/bills", module: "billing", requireAnalytics: true },
-    { name: t("dashboard.expenseAnalytics") || "Expense Analytics", icon: DollarSign, href: "/dashboard/analytics/expenses", module: "expense", requireAnalytics: true },
-    ...(selectedStore?.gst ? [{
-        name: t("gst.gstAnalytics") || "GST Analytics",
-        icon: BadgePercent,
-        href: "/dashboard/analytics/gst",
-        module: "reports",
+    {
+        name: t("dashboard.dailySales") || "Daily Sales",
+        icon: Receipt,
+        href: "/dashboard/analytics/daily-sales",
+        module: "invoice",
         requireAnalytics: true,
-        requireCapability: "gst",
-    }] : []),
+        group: t("sidebar.salesManagement"),
+    },
+    {
+        name: t("dashboard.revenueAnalytics") || "Revenue Analytics",
+        icon: LineChart,
+        href: "/dashboard/analytics/revenue",
+        module: "invoice",
+        requireAnalytics: true,
+        group: t("sidebar.salesManagement"),
+    },
+    {
+        name: t("dashboard.salesAnalytics") || "Sales Analytics",
+        icon: BarChart3,
+        href: "/dashboard/analytics/sales",
+        module: "invoice",
+        requireAnalytics: true,
+        group: t("sidebar.salesManagement"),
+    },
+    {
+        name: t("dashboard.customerAnalytics") || "Customer Analytics",
+        icon: Activity,
+        href: "/dashboard/analytics/customers",
+        module: "customer",
+        requireAnalytics: true,
+        group: t("sidebar.salesManagement"),
+    },
+    {
+        name: t("dashboard.expenseAnalytics") || "Expense Analytics",
+        icon: DollarSign,
+        href: "/dashboard/analytics/expenses",
+        module: "expense",
+        requireAnalytics: true,
+        group: t("sidebar.salesManagement"),
+    },
+    ...(selectedStore?.gst
+        ? [
+              {
+                  name: t("gst.gstAnalytics") || "GST Analytics",
+                  icon: BadgePercent,
+                  href: "/dashboard/analytics/gst",
+                  module: "reports",
+                  requireAnalytics: true,
+                  requireCapability: "gst",
+                  group: t("sidebar.salesManagement"),
+              },
+          ]
+        : []),
+    {
+        name: t("dashboard.productAnalytics") || "Product Analytics",
+        icon: PieChart,
+        href: "/dashboard/analytics/products",
+        module: "product",
+        requireAnalytics: true,
+        group: t("sidebar.productManagement"),
+    },
+    {
+        name: t("dashboard.stockAnalytics") || "Stock Analytics",
+        icon: Warehouse,
+        href: "/dashboard/analytics/stock",
+        module: "inventory",
+        requireAnalytics: true,
+        group: t("sidebar.productManagement"),
+    },
+    {
+        name: t("dashboard.supplierAnalytics") || "Supplier Analytics",
+        icon: Building2,
+        href: "/dashboard/analytics/suppliers",
+        module: "supplier",
+        requireAnalytics: true,
+        group: t("sidebar.purchaseManagement"),
+    },
+    {
+        name: t("dashboard.billAnalytics") || "Bill Analytics",
+        icon: Receipt,
+        href: "/dashboard/analytics/bills",
+        module: "billing",
+        requireAnalytics: true,
+        group: t("sidebar.purchaseManagement"),
+    },
 ];
 
 export const getManagementSubMenuItems = (t) => [
@@ -83,15 +168,16 @@ export const getIntegrationsSubMenuItems = (t) => [
 export const getNavigationItems = (
     t,
     salesSubMenuItems,
-    inventorySubMenuItems,
+    productSubMenuItems,
     purchaseSubMenuItems,
     analyticsSubMenuItems,
     managementSubMenuItems,
     integrationsSubMenuItems,
+    stockSubMenuItems = [],
 ) => [
     { name: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/dashboard", shortcut: "d" },
     {
-        name: t("sidebar.salesTransactions"),
+        name: t("sidebar.salesManagement"),
         icon: Receipt,
         href: "/dashboard/customers",
         hasSubMenu: true,
@@ -99,15 +185,27 @@ export const getNavigationItems = (
         key: "sales",
     },
     {
-        name: t("sidebar.inventory"),
+        name: t("sidebar.productManagement"),
         icon: Package,
         href: "/dashboard/products",
         hasSubMenu: true,
-        subMenuItems: inventorySubMenuItems,
-        key: "inventory",
+        subMenuItems: productSubMenuItems,
+        key: "products",
     },
+    ...(stockSubMenuItems.length
+        ? [
+              {
+                  name: t("sidebar.stockManagement"),
+                  icon: Warehouse,
+                  href: "/dashboard/stock",
+                  hasSubMenu: true,
+                  subMenuItems: stockSubMenuItems,
+                  key: "stock",
+              },
+          ]
+        : []),
     {
-        name: t("sidebar.purchase"),
+        name: t("sidebar.purchaseManagement"),
         icon: ShoppingCart,
         href: "/dashboard/purchase-orders",
         hasSubMenu: true,
@@ -146,7 +244,7 @@ export const getBottomItems = (t) => [
 ];
 
 export const getMenuToFeatureMap = (t) => ({
-    [t("sidebar.salesTransactions")]: [
+    [t("sidebar.salesManagement")]: [
         "Customer Management",
         "Invoice Management",
         "Expense Management",
@@ -154,12 +252,21 @@ export const getMenuToFeatureMap = (t) => ({
         "invoice_management",
         "expense_management",
     ],
+    [t("sidebar.productManagement")]: [
+        "Product Management",
+        "product_management",
+    ],
+    [t("sidebar.stockManagement")]: [
+        "Stock Management",
+        "stock_management",
+    ],
     [t("sidebar.inventory")]: [
         "Product Management",
         "Stock Management",
         "product_management",
         "stock_management",
     ],
+    [t("sidebar.purchaseManagement")]: ["Purchase Management", "purchase_management"],
     [t("sidebar.purchase")]: ["Purchase Management", "purchase_management"],
 });
 
@@ -170,6 +277,9 @@ export const getSubMenuToFeatureMap = (t) => ({
     [t("sidebar.sellOrders") || "Sell Orders"]: ["Invoice Management", "invoice_management"],
     [t("sidebar.expenses")]: ["Expense Management", "expense_management"],
     [t("sidebar.products")]: ["Product Management", "product_management"],
+    [t("sidebar.categories")]: ["Product Management", "product_management"],
+    [t("sidebar.brands")]: ["Product Management", "product_management"],
+    [t("sidebar.variants")]: ["Product Management", "product_management"],
     [t("sidebar.stocks")]: ["Stock Management", "stock_management"],
     [t("sidebar.lowStockAlerts")]: ["Stock Management", "stock_management"],
     [t("sidebar.suppliers")]: [

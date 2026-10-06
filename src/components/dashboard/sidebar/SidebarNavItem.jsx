@@ -87,7 +87,7 @@ export const SidebarNavItem = ({
         <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${
             isExpanded && !isCollapsed
-              ? "max-h-[640px] opacity-100 mt-1"
+              ? "max-h-[960px] opacity-100 mt-1"
               : "max-h-0 opacity-0"
           }`}
         >
@@ -96,74 +96,78 @@ export const SidebarNavItem = ({
               aria-hidden="true"
               className="pointer-events-none absolute inset-y-1 left-0 border-l border-dashed border-[rgb(var(--color-border-primary))]/70"
             />
-            {item.subMenuItems?.map((subItem) => {
+            {item.subMenuItems?.map((subItem, index) => {
               const SubIcon = subItem.icon;
               const isSubActive =
                 pathname === subItem.href ||
                 pathname.startsWith(`${subItem.href}/`);
               const locked = isNavItemLocked(hasAccess, subItem);
+              const prevGroup = item.subMenuItems[index - 1]?.group;
+              const showGroupHeader = subItem.group && subItem.group !== prevGroup;
               return (
-                <Link
-                  key={subItem.name}
-                  href={subItem.href}
-                  prefetch={false}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    withAccess(
-                      subItem.module,
-                      () => router.push(subItem.href),
-                      subItem.requireAnalytics || false,
-                      subItem.requireReport || false,
-                      true,
-                      subItem.requireCapability || null
-                    )();
-                  }}
-                  className={`group relative flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-all duration-200 ${
-                    isSubActive
-                      ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
-                      : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                  } ${locked ? "opacity-75" : ""}`}
-                  title={
-                    subItem.shortcut
-                      ? `Alt+${subItem.shortcut.toUpperCase()}`
-                      : ""
-                  }
-                >
-                  {!isSubActive && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute top-1/2 -left-[11px] h-1.5 w-1.5 -translate-y-1/2 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]"
-                    />
+                <div key={`${subItem.href}-${subItem.name}`}>
+                  {showGroupHeader && (
+                    <div
+                      className={`px-2.5 pt-2 pb-1 text-[0.625rem] font-bold uppercase tracking-wider text-[rgb(var(--color-text-tertiary))] ${
+                        index === 0 ? "pt-0.5" : "mt-1"
+                      }`}
+                    >
+                      {subItem.group}
+                    </div>
                   )}
-                  <div className="relative shrink-0">
-                    <SubIcon
-                      className={`h-4 w-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
-                    />
-                  </div>
-                  <span className="min-w-0 flex-1 truncate whitespace-nowrap text-sm font-medium leading-5">
-                    {subItem.name}
-                  </span>
-                  {locked && (
-                    <Crown
-                      size={12}
-                      className="shrink-0 fill-[#f59e0b]/20 text-[#f59e0b]"
-                    />
-                  )}
-                  {subItem.shortcut && !locked && (
-                    <kbd className="pointer-events-none shrink-0 rounded border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-1 py-px font-mono text-[0.5625rem] text-[rgb(var(--color-text-tertiary))] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      ⌥
-                      {subItem.shortcut === ","
-                        ? ","
-                        : subItem.shortcut.toUpperCase()}
-                    </kbd>
-                  )}
-                  {isSubActive && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute top-1/2 -left-2.5 h-4/5 w-1 -translate-y-1/2 rounded-full bg-[rgb(var(--color-primary))]"
-                    />
-                  )}
-                </Link>
+                  <Link
+                    href={subItem.href}
+                    prefetch={false}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      withAccess(
+                        subItem.module,
+                        () => router.push(subItem.href),
+                        subItem.requireAnalytics || false,
+                        subItem.requireReport || false,
+                        true,
+                        subItem.requireCapability || null
+                      )();
+                    }}
+                    className={`group relative flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-all duration-200 ${
+                      isSubActive
+                        ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
+                        : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                    } ${locked ? "opacity-75" : ""}`}
+                    title={
+                      subItem.shortcut
+                        ? `Alt+${subItem.shortcut.toUpperCase()}`
+                        : ""
+                    }
+                  >
+                    {!isSubActive && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute top-1/2 -left-[11px] h-1.5 w-1.5 -translate-y-1/2 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]"
+                      />
+                    )}
+                    <div className="relative shrink-0">
+                      <SubIcon
+                        className={`h-4 w-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
+                      />
+                    </div>
+                    <span className="min-w-0 flex-1 truncate whitespace-nowrap text-sm font-medium leading-5">
+                      {subItem.name}
+                    </span>
+                    {locked && (
+                      <Crown
+                        size={12}
+                        className="shrink-0 fill-[#f59e0b]/20 text-[#f59e0b]"
+                      />
+                    )}
+                    {isSubActive && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute top-1/2 -left-2.5 h-4/5 w-1 -translate-y-1/2 rounded-full bg-[rgb(var(--color-primary))]"
+                      />
+                    )}
+                  </Link>
+                </div>
               );
             })}
           </div>

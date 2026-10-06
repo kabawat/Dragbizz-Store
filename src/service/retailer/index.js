@@ -16,6 +16,7 @@ export { default as paymentService } from "./payment.service";
 export { default as paymentOrderService } from "./paymentOrder.service";
 export { default as paymentCollectService } from "./paymentCollect.service";
 export { default as productService } from "./product.service";
+export { default as variantService } from "./variant.service";
 export { default as purchaseOrderService } from "./purchaseOrder.service";
 export { default as inventoryService } from "./inventory.service";
 export { default as stockService } from "./stock.service";

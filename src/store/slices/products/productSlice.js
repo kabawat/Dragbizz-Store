@@ -42,8 +42,6 @@ export const getProducts = createAsyncThunk(
     }
 );
 
-// ─── Slice ───────────────────────────────────────────────────────────────────
-
 const productsSlice = createSlice({
     name: "products",
     initialState,
@@ -52,7 +50,6 @@ const productsSlice = createSlice({
             state.viewMode = action.payload;
         },
 
-        // Remove product from state
         removeProduct: (state, action) => {
             const productId = action.payload;
             state.products = state.products.filter((p) => (p.id || p._id) !== productId);
@@ -67,7 +64,6 @@ const productsSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // ── getProducts ──
             .addCase(getProducts.pending, (state, action) => {
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = true;
@@ -81,7 +77,6 @@ const productsSlice = createSlice({
                 state.error = null;
 
                 const { data, pagination } = action.payload;
-                // Normalize product data
                 const raw = Array.isArray(data) ? data : (data?.data ?? data ?? []);
                 const normalize = (p) => ({ ...p, id: p.id || p._id });
 
@@ -93,7 +88,6 @@ const productsSlice = createSlice({
                     state.products = [...state.products, ...incoming];
                 }
 
-                // Update pagination
                 const pg = pagination || data?.meta?.pagination;
                 if (pg) {
                     state.pagination = {

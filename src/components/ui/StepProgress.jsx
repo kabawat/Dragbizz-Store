@@ -36,7 +36,37 @@ const StepProgress = ({
                 : data.category?.name?.trim(),
             required: true,
           },
+          { name: "sku", value: data.sku?.trim(), required: false },
           { name: "barcode", value: data.barcode?.trim(), required: false },
+        ],
+      },
+      {
+        id: "media",
+        title: "Media & Images",
+        description: "Upload product images and videos",
+        fields: [
+          {
+            name: "images",
+            value: Array.isArray(data.images) && data.images.length > 0 ? "yes" : "",
+            required: false,
+          },
+        ],
+      },
+      {
+        id: "pricing-gst",
+        title: "Pricing & GST",
+        description: "Set product prices, currency, HSN, and tax settings",
+        fields: [
+          { name: "mrp", value: data.mrp, required: true, numeric: true },
+          {
+            name: "sellingPrice",
+            value: data.sellingPrice,
+            required: true,
+            numeric: true,
+          },
+          { name: "currency", value: data.currency, required: true },
+          { name: "uom", value: data.uom, required: true },
+          { name: "hsnCode", value: data.gstInfo?.hsnCode?.trim(), required: false },
         ],
       },
       {
@@ -45,77 +75,40 @@ const StepProgress = ({
         description: "Content for your public catalog where customers can shop online",
         fields: [
           {
+            name: "showInCatalog",
+            value: data.showInCatalog !== false ? "yes" : "",
+            required: false,
+          },
+          {
             name: "shortDescription",
             value: data.content?.shortDescription?.trim(),
             required: false,
           },
           {
-            name: "longDescription",
-            value: data.content?.longDescription?.trim(),
+            name: "features",
+            value:
+              Array.isArray(data.content?.features) && data.content.features.length > 0
+                ? "yes"
+                : "",
             required: false,
           },
-          { name: "features", value: data.content?.features, required: false },
-          { name: "tags", value: data.content?.tags, required: false },
+          {
+            name: "tags",
+            value:
+              Array.isArray(data.content?.tags) && data.content.tags.length > 0
+                ? "yes"
+                : "",
+            required: false,
+          },
           {
             name: "specifications",
-            value: data.content?.specifications,
+            value:
+              Array.isArray(data.content?.specifications) &&
+              data.content.specifications.length > 0
+                ? "yes"
+                : "",
             required: false,
           },
-        ],
-      },
-      {
-        id: "pricing",
-        title: "Pricing Information",
-        description: "Set product prices and currency",
-        fields: [
-          {
-            name: "basePrice",
-            value: data.basePrice,
-            required: true,
-            numeric: true,
-          },
-          { name: "mrp", value: data.mrp, required: true, numeric: true },
-          { name: "currency", value: data.currency, required: true },
-          {
-            name: "discount",
-            value: data.discount,
-            required: false,
-            numeric: true,
-          },
-          {
-            name: "sellingPrice",
-            value: data.sellingPrice,
-            required: true,
-            numeric: true,
-          },
-          { name: "uom", value: data.uom, required: true },
-        ],
-      },
-      {
-        id: "gst",
-        title: "GST Information",
-        description: "Tax settings and compliance",
-        fields: [
-          {
-            name: "gstRate",
-            value: data.gstInfo?.gstRate,
-            required: false,
-          },
-          { name: "hsnCode", value: data.gstInfo?.hsnCode, required: false },
-          {
-            name: "hsnCode",
-            value: data.gstInfo?.hsnCode?.trim(),
-            required: false,
-          },
-        ],
-      },
-      {
-        id: "status",
-        title: "Status & Visibility",
-        description: "Product status and visibility settings",
-        fields: [
-          { name: "status", value: data.status, required: true },
-          { name: "visibility", value: data.visibility, required: true },
         ],
       },
     ];

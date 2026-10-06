@@ -53,11 +53,12 @@ const FileUpload = ({
           return;
         }
 
-        // Check if file already exists
-        const exists = value.some(
-          (existingFile) =>
-            existingFile.name === file.name && existingFile.size === file.size
-        );
+        // Check if file already exists (File objects and URL strings)
+        const exists = value.some((existingFile) => {
+          if (typeof existingFile === "string") return false;
+          if (!(existingFile instanceof File) || !(file instanceof File)) return false;
+          return existingFile.name === file.name && existingFile.size === file.size;
+        });
 
         if (exists) {
           errors.push(`${file.name} is already uploaded`);
@@ -107,6 +108,8 @@ const FileUpload = ({
     (e) => {
       const files = e.target.files;
       handleFiles(files);
+      // Allow selecting the same files again
+      e.target.value = "";
     },
     [handleFiles]
   );

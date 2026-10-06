@@ -1,6 +1,9 @@
 "use client";
 import {
   BarChart3,
+  Eye,
+  Image as ImageIcon,
+  IndianRupee,
   Package,
   ShoppingCart,
   Star,
@@ -146,72 +149,46 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
                 </h5>
               </div>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {t("products.basicInformationDescription")}
+                {t("products.basicInformationSubtitle")}
+              </p>
+            </div>
+
+            {/* Media & Images */}
+            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+              <div className="flex items-center space-x-2 mb-2">
+                <ImageIcon className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.media")}
+                </h5>
+              </div>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.mediaDescription")}
+              </p>
+            </div>
+
+            {/* Pricing & GST */}
+            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+              <div className="flex items-center space-x-2 mb-2">
+                <IndianRupee className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.pricingInformation")}
+                </h5>
+              </div>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.pricingInformationSubtitle")}
               </p>
             </div>
 
             {/* Catalog information */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
-                <Users className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                <Eye className="w-4 h-4 text-[rgb(var(--color-primary))]" />
                 <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                   {t("products.catalogInformation")}
                 </h5>
               </div>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                 {t("products.catalogInformationDescription")}
-              </p>
-            </div>
-
-            {/* GST Information */}
-            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-              <div className="flex items-center space-x-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t("products.gstInformation")}
-                </h5>
-              </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {t("products.gstInformationDescription")}
-              </p>
-            </div>
-
-            {/* Pricing Information */}
-            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-              <div className="flex items-center space-x-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t("products.pricingInformation")}
-                </h5>
-              </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {t("products.pricingInformationDescription")}
-              </p>
-            </div>
-
-            {/* Status & Visibility */}
-            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-              <div className="flex items-center space-x-2 mb-2">
-                <Star className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t("products.statusVisibility")}
-                </h5>
-              </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {t("products.statusVisibilityDescription")}
-              </p>
-            </div>
-
-            {/* Additional Details */}
-            <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-              <div className="flex items-center space-x-2 mb-2">
-                <ShoppingCart className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t("products.additionalDetails")}
-                </h5>
-              </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {t("products.additionalDetailsDescription")}
               </p>
             </div>
           </div>

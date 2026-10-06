@@ -1,13 +1,16 @@
 {
   "dashboard": "Dashboard",
   "salesTransactions": "Sales & Transactions",
+  "salesManagement": "Sales Management",
   "customers": "Customers",
   "invoices": "Invoices",
   "expenses": "Expenses",
   "inventory": "Inventory",
+  "productManagement": "Product Catalog",
   "products": "Products",
   "stocks": "Stocks",
   "purchase": "Purchase",
+  "purchaseManagement": "Purchase Management",
   "suppliers": "Suppliers",
   "purchaseOrders": "Purchase Orders",
   "bills": "Bills",
@@ -29,5 +32,12 @@
   "management": "Management",
   "integrations": "Integrations",
   "tally": "Tally",
-  "paymentGateway": "Payment Gateway"
+  "paymentGateway": "Payment Gateway",
+  "categories": "Category",
+  "brands": "Brand",
+  "variants": "Variant",
+  "stockManagement": "Stock Management",
+  "categoriesDescription": "Product categories manage karo",
+  "brandsDescription": "Products me use hone wale brands",
+  "variantsDescription": "Product variants aur pricing"
 }

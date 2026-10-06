@@ -1,13 +1,16 @@
 {
   "dashboard": "ડેશબોર્ડ",
   "salesTransactions": "વેચાણ અને લેનદેન",
+  "salesManagement": "વેચાણ મેનેજમેન્ટ",
   "customers": "ગ્રાહકો",
   "invoices": "ઇન્વૉઇસ",
   "expenses": "ખર્ચો",
   "inventory": "ઇન્વેન્ટરી",
+  "productManagement": "પ્રોડક્ટ કેટલોગ",
   "products": "ઉત્પાદનો",
   "stocks": "સ્ટોક",
   "purchase": "ખરીદી",
+  "purchaseManagement": "પર્ચેઝ મેનેજમેન્ટ",
   "suppliers": "સપ્લાયરો",
   "purchaseOrders": "પર્ચેઝ ઓર્ડર્સ",
   "bills": "બિલ્સ",
@@ -29,5 +32,12 @@
   "management": "મેનેજમેન્ટ",
   "integrations": "ઇન્ટિગ્રેશન્સ",
   "tally": "Tally",
-  "paymentGateway": "પેમેન્ટ ગેટવે"
+  "paymentGateway": "પેમેન્ટ ગેટવે",
+  "categories": "કેટેગરી",
+  "brands": "બ્રાન્ડ",
+  "variants": "વેરિયન્ટ",
+  "stockManagement": "સ્ટોક મેનેજમેન્ટ",
+  "categoriesDescription": "ઉત્પાદન કેટેગરીઓ મેનેજ કરો",
+  "brandsDescription": "તમારા ઉત્પાદનોમાં વપરાતા બ્રાન્ડ્સ",
+  "variantsDescription": "ઉત્પાદન વેરિયન્ટ્સ અને કિંમત"
 }

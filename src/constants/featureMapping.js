@@ -13,9 +13,12 @@ export const FEATURE_ROUTES = {
       "/dashboard/products/add",
       "/dashboard/products/edit",
       "/dashboard/products/view",
+      "/dashboard/categories",
+      "/dashboard/brands",
+      "/dashboard/variants",
     ],
-    menuItems: ["Product & Stock"],
-    subMenuItems: ["Products", "Stocks", "Low Stock Alerts"],
+    menuItems: ["Product Catalog"],
+    subMenuItems: ["Category", "Brand", "Products", "Variant"],
   },
   stock_management: {
     routes: [
@@ -25,7 +28,7 @@ export const FEATURE_ROUTES = {
       "/dashboard/stock/edit",
       "/dashboard/stock/view",
     ],
-    menuItems: ["Product & Stock"],
+    menuItems: ["Stock Management"],
     subMenuItems: ["Stocks", "Low Stock Alerts"],
   },
   inventory_management: {

@@ -37,39 +37,46 @@ export const SidebarFlyout = ({
             <div className="p-1.5 space-y-0.5">
                 {hoveredItem.item.subMenuItems ? (
                     // Submenu items
-                    hoveredItem.item.subMenuItems.map((subItem) => {
+                    hoveredItem.item.subMenuItems.map((subItem, index) => {
                         const SubIcon = subItem.icon;
                         const isSubActive =
                             pathname === subItem.href ||
                             pathname.startsWith(`${subItem.href}/`);
+                        const prevGroup = hoveredItem.item.subMenuItems[index - 1]?.group;
+                        const showGroupHeader = subItem.group && subItem.group !== prevGroup;
                         return (
-                            <Link
-                                key={subItem.name}
-                                href={subItem.href}
-                                prefetch={false}
-                                onClick={onClose}
-                                className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${isSubActive
-                                    ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
-                                    : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                                    }`}
-                            >
-                                <SubIcon
-                                    className={`w-4 h-4 flex-shrink-0 ${isSubActive
-                                        ? "text-[rgb(var(--color-primary))]"
-                                        : "text-[rgb(var(--color-text-tertiary))]"
+                            <div key={`${subItem.href}-${subItem.name}`}>
+                                {showGroupHeader && (
+                                    <div
+                                        className={`px-3 pt-2 pb-1 text-[0.625rem] font-bold uppercase tracking-wider text-[rgb(var(--color-text-tertiary))] ${
+                                            index === 0 ? "pt-1" : ""
                                         }`}
-                                />
-                                <span className="text-sm font-medium flex-1 pr-6">{subItem.name}</span>
-                                {subItem.shortcut && (
-                                    <kbd className="absolute right-2 text-[0.5625rem] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
-                                        ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
-                                    </kbd>
+                                    >
+                                        {subItem.group}
+                                    </div>
                                 )}
+                                <Link
+                                    href={subItem.href}
+                                    prefetch={false}
+                                    onClick={onClose}
+                                    className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${isSubActive
+                                        ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
+                                        : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                        }`}
+                                >
+                                    <SubIcon
+                                        className={`w-4 h-4 flex-shrink-0 ${isSubActive
+                                            ? "text-[rgb(var(--color-primary))]"
+                                            : "text-[rgb(var(--color-text-tertiary))]"
+                                            }`}
+                                    />
+                                    <span className="text-sm font-medium flex-1">{subItem.name}</span>
 
-                                {isSubActive && (
-                                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
-                                )}
-                            </Link>
+                                    {isSubActive && (
+                                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
+                                    )}
+                                </Link>
+                            </div>
                         );
                     })
                 ) : (
@@ -83,14 +90,9 @@ export const SidebarFlyout = ({
                             : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                             }`}
                     >
-                        <span className="text-sm font-medium flex-1 pr-6">
+                        <span className="text-sm font-medium flex-1">
                             {hoveredItem.item.name}
                         </span>
-                        {hoveredItem.item.shortcut && (
-                            <kbd className="absolute right-2 text-[0.5625rem] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
-                                ⌥{hoveredItem.item.shortcut === "," ? "," : hoveredItem.item.shortcut.toUpperCase()}
-                            </kbd>
-                        )}
                         {pathname === hoveredItem.item.href && (
                             <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
                         )}

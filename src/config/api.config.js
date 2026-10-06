@@ -23,6 +23,7 @@ const API_CONFIG = {
     SUPPLIER: "/retailer/supplier",
     CATEGORY: "/retailer/category",
     PRODUCT: "/retailer/product",
+    VARIANT: "/retailer/variant",
     ACCOUNT: "/retailer/account",
     PROFILE: "/retailer/profile",
     AGENCY: "/retailer/agencies",

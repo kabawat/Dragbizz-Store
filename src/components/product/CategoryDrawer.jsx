@@ -263,7 +263,6 @@ const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
                   loading={iconUploading}
                   dropZoneLabel={t("products.clickToUpload")}
                   sizeLimitLabel={t("products.imagesUpTo2MB")}
-                  helperText={t("products.categoryIconHelperText")}
                   maxSize={2 * 1024 * 1024}
                 />
 

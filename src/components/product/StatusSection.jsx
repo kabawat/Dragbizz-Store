@@ -28,7 +28,6 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
             };
             handleFieldChange("statusInfo", updatedStatusInfo);
           }}
-          helperText={t("products.configureStatusVisibilityHelperText")}
         />
       </div>
 
@@ -41,7 +40,6 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
               label={t("products.showInCatalogLabel")}
               checked={formData.showInCatalog !== false}
               onChange={(checked) => handleFieldChange("showInCatalog", checked)}
-              helperText={t("products.catalogVisibilityDescription")}
             />
           </div>
 
@@ -56,21 +54,18 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
                 label={t("products.featuredProduct")}
                 checked={formData.featured || false}
                 onChange={(checked) => handleFieldChange("featured", checked)}
-                helperText={t("products.featuredProductHelperText")}
               />
 
               <Toggle
                 label={t("products.bestSeller")}
                 checked={formData.bestSeller || false}
                 onChange={(checked) => handleFieldChange("bestSeller", checked)}
-                helperText={t("products.bestSellerHelperText")}
               />
 
               <Toggle
                 label={t("products.newArrival")}
                 checked={formData.newArrival || false}
                 onChange={(checked) => handleFieldChange("newArrival", checked)}
-                helperText={t("products.newArrivalHelperText")}
               />
             </div>
           </div>

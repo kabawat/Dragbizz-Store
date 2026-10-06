@@ -8,6 +8,7 @@ export {
   inventoryService,
   invoiceService,
   productService,
+  variantService,
   signatureService,
   storeService,
   suggestionService,

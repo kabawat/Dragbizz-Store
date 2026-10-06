@@ -259,9 +259,6 @@ const ProductTable = ({
                                 GST
                               </span>
                             </div>
-                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                              {product.gstCategory || "TAXABLE"}
-                            </div>
                             {(product.hsnCode || product.hsn) && (
                               <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
                                 HSN: {product.hsnCode || product.hsn}

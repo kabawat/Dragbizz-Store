@@ -11,11 +11,15 @@ import { Badge, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
-import { productService } from "@/service";
+import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useProductDetailsPrint } from "./hooks/useProductDetailsPrint";
-import { normalizeProductRecord } from "@/utils/productUtils";
+import {
+  mergeVariantIntoProduct,
+  normalizeProductRecord,
+  pickDefaultVariant,
+} from "@/utils/productUtils";
 
 const ViewProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -65,8 +69,20 @@ const ViewProductPage = ({ productId }) => {
         }
 
         if (product) {
+          const variantsResult = await executeFetch(
+            variantService.getVariants({ store: storeId, product: productId, limit: 50 }),
+            { showToast: false },
+          );
+          const variantsRaw = variantsResult?.data;
+          const variants = Array.isArray(variantsRaw)
+            ? variantsRaw
+            : Array.isArray(variantsRaw?.data)
+              ? variantsRaw.data
+              : [];
+          const merged = mergeVariantIntoProduct(product, pickDefaultVariant(variants));
+
           setProductData({
-            ...normalizeProductRecord(product),
+            ...normalizeProductRecord(merged),
             id: product.id ?? product._id,
             timestamps: product.timestamps,
             createdAt: product.createdAt ?? product.timestamps?.createdAt,

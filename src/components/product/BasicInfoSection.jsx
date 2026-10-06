@@ -72,36 +72,6 @@ const BasicInfoSection = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <Select
-            label={t("products.productType")}
-            value={formData.productType || "GOODS"}
-            onChange={(value) => handleFieldChange("productType", value)}
-            options={[
-              { value: "GOODS", label: t("products.productTypeGoods") },
-              { value: "SERVICE", label: t("products.productTypeService") },
-            ]}
-          />
-        </div>
-
-        {/* SKU */}
-        <div>
-          <Input
-            label={t("products.sku")}
-            placeholder={t("products.enterSku")}
-            value={formData.sku || ""}
-            onChange={(value) =>
-              handleFieldChange("sku", (value || "").toUpperCase())
-            }
-            error={errors.sku}
-            errorMessage={errors.sku}
-            leftIcon={Hash}
-          />
-        </div>
-      </div>
-
-      {/* Second Section - Category & Barcode */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Category Selection */}
         <div>
           <Select
@@ -122,6 +92,23 @@ const BasicInfoSection = ({
           />
         </div>
 
+        {/* SKU */}
+        <div>
+          <Input
+            label={t("products.sku")}
+            placeholder={t("products.enterSku")}
+            value={formData.sku || ""}
+            onChange={(value) =>
+              handleFieldChange("sku", (value || "").toUpperCase())
+            }
+            error={errors.sku}
+            errorMessage={errors.sku}
+            leftIcon={Hash}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Barcode */}
         <div>
           <Input

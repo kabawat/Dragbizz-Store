@@ -1,15 +1,18 @@
 {
   "dashboard": "डैशबोर्ड",
   "salesTransactions": "बिक्री और लेनदेन",
+  "salesManagement": "बिक्री प्रबंधन",
   "customers": "ग्राहक",
   "invoices": "चालान",
   "expenses": "व्यय",
   "cashbook": "कैशबुक",
   "khata": "खाता",
   "inventory": "इन्वेंटरी",
+  "productManagement": "उत्पाद कैटलॉग",
   "products": "उत्पाद",
   "stocks": "स्टॉक",
   "purchase": "खरीद",
+  "purchaseManagement": "खरीद प्रबंधन",
   "suppliers": "आपूर्तिकर्ता",
   "purchaseOrders": "खरीद आदेश",
   "bills": "बिल",
@@ -31,5 +34,12 @@
   "management": "प्रबंधन",
   "integrations": "इंटीग्रेशन",
   "tally": "Tally",
-  "paymentGateway": "पेमेंट गेटवे"
+  "paymentGateway": "पेमेंट गेटवे",
+  "categories": "श्रेणी",
+  "brands": "ब्रांड",
+  "variants": "वैरिएंट",
+  "stockManagement": "स्टॉक प्रबंधन",
+  "categoriesDescription": "उत्पाद श्रेणियाँ प्रबंधित करें",
+  "brandsDescription": "आपके उत्पादों में उपयोग किए गए ब्रांड",
+  "variantsDescription": "उत्पाद वैरिएंट और मूल्य"
 }

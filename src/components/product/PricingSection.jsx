@@ -37,7 +37,6 @@ const PricingSection = ({ formData, onChange, errors = {}, ...props }) => {
             min={0}
             step={0.01}
             precision={2}
-            helperText={t("products.mrpHelperText")}
             className="transition-all duration-200 group-hover:shadow-sm"
           />
         </div>
@@ -61,7 +60,6 @@ const PricingSection = ({ formData, onChange, errors = {}, ...props }) => {
             min={0}
             step={0.01}
             precision={2}
-            helperText={t("products.sellingPriceHelperText")}
             className="transition-all duration-200 group-hover:shadow-sm"
           />
         </div>

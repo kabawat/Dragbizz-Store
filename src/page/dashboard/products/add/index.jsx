@@ -3,17 +3,18 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-// Import components
 import { ProductForm } from "@/components/product";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
-import { productService } from "@/service";
+import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import logger from "@/utils/logger";
-import { fromProductForm } from "@/utils/productUtils";
+import {
+  extractProductIdFromCreateResponse,
+  splitProductAndVariantPayload,
+} from "@/utils/productUtils";
 
 const AddProductPage = () => {
   const { t } = useTranslation();
@@ -48,17 +49,13 @@ const AddProductPage = () => {
     barcode: "",
     images: [],
     basePrice: "",
-
     mrp: "",
     sellingPrice: "",
     currency: "INR",
     uom: "PCS",
+    productType: "GOODS",
     gstInfo: {
-      gstRate: "",
-      gstCategory: "TAXABLE",
       hsnCode: "",
-      sacCode: "",
-      cessRate: 0,
       isGstIncluded: true,
     },
     content: {
@@ -72,7 +69,6 @@ const AddProductPage = () => {
 
   const [formData, setFormData] = useState(getInitialFormData());
 
-  // Update store ID when selectedStore changes
   useEffect(() => {
     if (storeId) {
       setFormData((prevData) => ({
@@ -82,14 +78,11 @@ const AddProductPage = () => {
     }
   }, [storeId]);
 
-  // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
-    // Ensure fieldName is a string
     if (typeof fieldName !== "string") {
       return;
     }
 
-    // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
@@ -100,11 +93,8 @@ const AddProductPage = () => {
 
     setFormData((prevData) => {
       const newData = { ...prevData };
+      const getNewValue = (current) => (typeof value === "function" ? value(current) : value);
 
-      // Helper function to resolve the new value if it's a function
-      const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
-
-      // Handle nested fields (e.g., 'content.specifications', 'gstInfo.gstRate')
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
         if (!newData[parent]) {
@@ -115,7 +105,6 @@ const AddProductPage = () => {
           [child]: getNewValue(newData[parent][child]),
         };
       } else {
-        // Handle top-level fields
         newData[fieldName] = getNewValue(newData[fieldName]);
       }
 
@@ -123,31 +112,38 @@ const AddProductPage = () => {
     });
   };
 
-  // Handle save and publish
   const handleSaveAndPublish = async () => {
     clearFieldErrors();
 
-    // Sanitize images array: extract uploadedUrl from File objects or use string URLs
-    const payload = fromProductForm({
+    const { productPayload, variantPayload } = splitProductAndVariantPayload({
       ...formData,
       store: storeId,
     });
 
-    const result = await execute(
-      productService.createProduct(payload),
-      { message: t("products.createSuccess") }
-    );
+    const result = await execute(productService.createProduct(productPayload), {
+      message: t("products.createSuccess"),
+    });
 
-    if (result?.success) {
-      setTimeout(() => {
-        setFormData(getInitialFormData());
-        clearFieldErrors();
-        router.push("/dashboard/products");
-      }, 1500);
+    if (!result?.success) return;
+
+    const productId = extractProductIdFromCreateResponse(result.data);
+    if (productId) {
+      await execute(
+        variantService.createVariant({
+          ...variantPayload,
+          product: productId,
+        }),
+        { showToast: false },
+      );
     }
+
+    setTimeout(() => {
+      setFormData(getInitialFormData());
+      clearFieldErrors();
+      router.push("/dashboard/products");
+    }, 1500);
   };
 
-  // Handle cancel
   const handleCancel = () => {
     router.push("/dashboard/products");
   };
@@ -156,11 +152,12 @@ const AddProductPage = () => {
     <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto w-full">
         <div className="p-5 w-full mx-auto">
-          <Link href="/dashboard/products" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
+          <Link
+            href="/dashboard/products"
+            className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]"
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              {t("products.backToProducts")}
-            </span>
+            <span className="text-sm font-medium">{t("products.backToProducts")}</span>
           </Link>
         </div>
 
@@ -178,10 +175,16 @@ const AddProductPage = () => {
           <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 ml-auto">
-                <Button variant="outline" onClick={handleCancel} disabled={loading} >
+                <Button variant="outline" onClick={handleCancel} disabled={loading}>
                   {t("common.cancel")}
                 </Button>
-                <Button variant="success" onClick={handleSaveAndPublish} disabled={loading} loading={loading} leftIcon={Save} >
+                <Button
+                  variant="success"
+                  onClick={handleSaveAndPublish}
+                  disabled={loading}
+                  loading={loading}
+                  leftIcon={Save}
+                >
                   {t("products.saveAndPublish")}
                 </Button>
               </div>

@@ -94,7 +94,6 @@ const OpeningQuantitySection = ({
               min={0}
               step={1}
               precision={0}
-              helperText={t("products.openingQuantityHelperText")}
               className="transition-all duration-200 group-hover:shadow-sm"
             />
           </div>
@@ -119,7 +118,6 @@ const OpeningQuantitySection = ({
               min={0}
               step={0.01}
               precision={2}
-              helperText={t("products.openingPurchasePriceHelperText")}
               className="transition-all duration-200 group-hover:shadow-sm"
             />
           </div>
@@ -143,7 +141,6 @@ const OpeningQuantitySection = ({
             searchable={true}
             options={supplierOptions}
             disabled={suppliersLoading || featuresLoading}
-            helperText={t("products.selectSupplierHelperText")}
           />
         </div>
 
@@ -160,7 +157,6 @@ const OpeningQuantitySection = ({
               }
               error={errors.expiryDate}
               errorMessage={errors.expiryDate}
-              helperText="Optional: add for medical, food, and perishable items"
             />
           </div>
         )}

@@ -1,15 +1,18 @@
 {
   "dashboard": "Dashboard",
   "salesTransactions": "Sales & Transactions",
+  "salesManagement": "Sales Management",
   "customers": "Customers",
   "invoices": "Invoices",
   "expenses": "Expenses",
   "cashbook": "Cashbook",
   "khata": "Khata",
   "inventory": "Inventory",
+  "productManagement": "Product Catalog",
   "products": "Products",
   "stocks": "Stocks",
   "purchase": "Purchase",
+  "purchaseManagement": "Purchase Management",
   "suppliers": "Suppliers",
   "purchaseOrders": "Purchase Orders",
   "bills": "Bills",
@@ -31,5 +34,12 @@
   "management": "Management",
   "integrations": "Integrations",
   "tally": "Tally",
-  "paymentGateway": "Payment Gateway"
+  "paymentGateway": "Payment Gateway",
+  "categories": "Category",
+  "brands": "Brand",
+  "variants": "Variant",
+  "stockManagement": "Stock Management",
+  "categoriesDescription": "Manage product categories",
+  "brandsDescription": "Brands used across your products",
+  "variantsDescription": "Product variants and pricing"
 }

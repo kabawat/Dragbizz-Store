@@ -11,6 +11,7 @@ import {
   getNavigationItems,
   getPurchaseSubMenuItems,
   getSalesSubMenuItems,
+  getStockSubMenuItems,
 } from "@/data/constants/sidebarData";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -41,6 +42,7 @@ const Sidebar = ({ onStoreChange }) => {
   // Memoized Menu Items
   const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
   const inventorySubMenuItems = useMemo(() => getInventorySubMenuItems(t), [t]);
+  const stockSubMenuItems = useMemo(() => getStockSubMenuItems(t), [t]);
   const purchaseSubMenuItems = useMemo(() => getPurchaseSubMenuItems(t), [t]);
   const analyticsSubMenuItems = useMemo(
     () => getAnalyticsSubMenuItems(t, selectedStore),
@@ -64,7 +66,8 @@ const Sidebar = ({ onStoreChange }) => {
         purchaseSubMenuItems,
         analyticsSubMenuItems,
         managementSubMenuItems,
-        integrationsSubMenuItems
+        integrationsSubMenuItems,
+        stockSubMenuItems
       ),
     [
       t,
@@ -74,6 +77,7 @@ const Sidebar = ({ onStoreChange }) => {
       analyticsSubMenuItems,
       managementSubMenuItems,
       integrationsSubMenuItems,
+      stockSubMenuItems,
     ]
   );
   const navigationItems = useMemo(() => {
@@ -116,6 +120,9 @@ const Sidebar = ({ onStoreChange }) => {
         "/dashboard/cashbook": "cashbook",
         "/dashboard/sales-order": "sales_order",
         "/dashboard/products": "product",
+        "/dashboard/categories": "product",
+        "/dashboard/brands": "product",
+        "/dashboard/variants": "product",
         "/dashboard/stock": "inventory",
         "/dashboard/suppliers": "supplier",
         "/dashboard/purchase-orders": "purchase_order",

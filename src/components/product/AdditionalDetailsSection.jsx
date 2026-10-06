@@ -61,7 +61,6 @@ const AdditionalDetailsSection = ({
       <div className="mb-6">
         <Toggle
           label={t("products.showInCatalog")}
-          description={t("products.showInCatalogDescription")}
           checked={formData.showInCatalog !== false}
           onChange={(checked) => handleFieldChange("showInCatalog", checked)}
           error={errors.showInCatalog}
@@ -81,7 +80,6 @@ const AdditionalDetailsSection = ({
             };
             handleFieldChange("content", updatedContent);
           }}
-          helperText={t("products.catalogContentHelperText")}
         />
       </div>
 
@@ -102,7 +100,6 @@ const AdditionalDetailsSection = ({
               rows={3}
               showCharCount
               maxLength={200}
-              helperText={t("products.shortDescriptionHelperText")}
             />
           </div>
 
@@ -117,7 +114,6 @@ const AdditionalDetailsSection = ({
               errorMessage={errors.features}
               maxTags={10}
               maxTagLength={50}
-              helperText={t("products.productFeaturesHelperText")}
             />
           </div>
 
@@ -132,7 +128,6 @@ const AdditionalDetailsSection = ({
               errorMessage={errors.tags}
               maxTags={15}
               maxTagLength={30}
-              helperText={t("products.productTagsHelperText")}
             />
           </div>
 
