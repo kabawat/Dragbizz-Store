@@ -9,12 +9,14 @@ import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
-import { variantService } from "@/service";
+import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import {
   buildVariantPayload,
   getInitialVariantFormData,
+  syncVariantImagesAfterCreate,
+  unwrapVariantRecord,
   validateVariantForm,
 } from "@/utils/variantForm";
 
@@ -100,6 +102,21 @@ const AddVariantPage = () => {
     });
 
     if (!result?.success) return;
+
+    const created = unwrapVariantRecord(result.data);
+    const newVariantId = created?.id || created?._id;
+    if (newVariantId) {
+      try {
+        await syncVariantImagesAfterCreate({
+          variantId: newVariantId,
+          images: formData.images,
+          storeId,
+          saveProductImage: (data) => productService.saveProductImage(data),
+        });
+      } catch (err) {
+        console.warn("Failed to sync variant images after create:", err);
+      }
+    }
 
     setTimeout(() => {
       router.push("/dashboard/variants");

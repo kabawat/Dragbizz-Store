@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronUp,
   Hash,
+  Image as ImageIcon,
   IndianRupee,
   Layers,
   Package,
@@ -26,6 +27,7 @@ import {
   Select,
   Toggle,
 } from "@/components/ui";
+import MediaSection from "@/components/product/MediaSection";
 import { PRODUCT_STATUS_OPTIONS, UOM_OPTIONS } from "@/data";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -95,6 +97,7 @@ const VariantForm = ({
   storeId = null,
   readOnly = false,
   lockProduct = false,
+  variantId = null,
   className = "",
 }) => {
   const { t } = useTranslation();
@@ -346,6 +349,23 @@ const VariantForm = ({
                 </div>
               )}
             </div>
+          </FormSection>
+
+          <FormSection
+            title={t("products.variantMedia") || "Images"}
+            subtitle={
+              t("products.variantMediaSubtitle") ||
+              "Up to 10 images for this variant"
+            }
+            icon={ImageIcon}
+          >
+            <MediaSection
+              formData={formData}
+              onChange={onChange}
+              entityId={variantId || formData.id || null}
+              entityType="Variant"
+              readOnly={readOnly}
+            />
           </FormSection>
 
           <FormSection

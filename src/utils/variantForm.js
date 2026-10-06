@@ -28,6 +28,7 @@ export function getInitialVariantFormData(storeId = "") {
       height: "",
       unit: "cm",
     },
+    images: [],
   };
 }
 
@@ -72,6 +73,7 @@ export function normalizeVariantRecord(variant = {}) {
       height: variant.dimensions?.height ?? "",
       unit: variant.dimensions?.unit || "cm",
     },
+    images: Array.isArray(variant.images) ? variant.images : [],
     price: variant.price,
     gstAmount: variant.gstAmount,
   };
@@ -192,6 +194,59 @@ export function unwrapVariantRecord(data) {
   if (Array.isArray(data.data)) return data.data[0] ?? null;
   if (Array.isArray(data)) return data[0] ?? null;
   return data;
+}
+
+/** Normalize GET /retailer/product/image list into formData.images shape. */
+export function mapImageRecords(payload) {
+  const list = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.data)
+      ? payload.data
+      : Array.isArray(payload?.images)
+        ? payload.images
+        : [];
+
+  return list
+    .map((img) => ({
+      id: img.id ?? img._id ?? undefined,
+      url: typeof img === "string" ? img : img.url,
+      isPrimary: img.isPrimary === true,
+    }))
+    .filter((img) => Boolean(img.url));
+}
+
+/** Extract public URLs from formData.images (strings, File.uploadedUrl, or {url}). */
+export function extractImageUrls(images = []) {
+  return images
+    .map((img) => {
+      if (typeof img === "string") return img.trim() || null;
+      if (img instanceof File) return img.uploadedUrl || null;
+      return img?.url || img?.uploadedUrl || null;
+    })
+    .filter(Boolean);
+}
+
+/**
+ * Persist uploaded image URLs against a newly created variant.
+ * Call after createVariant succeeds while form still holds storage URLs.
+ */
+export async function syncVariantImagesAfterCreate({
+  variantId,
+  images,
+  storeId,
+  saveProductImage,
+}) {
+  if (!variantId || !storeId || typeof saveProductImage !== "function") return;
+  const urls = extractImageUrls(images);
+  for (let i = 0; i < urls.length; i++) {
+    await saveProductImage({
+      entityId: variantId,
+      entityType: "Variant",
+      url: urls[i],
+      store: storeId,
+      isPrimary: i === 0,
+    });
+  }
 }
 
 export function variantDisplayLabel(variant) {

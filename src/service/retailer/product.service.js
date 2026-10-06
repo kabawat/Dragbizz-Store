@@ -83,6 +83,11 @@ class ProductService extends BaseService {
     return this.post(url, imageData, params);
   }
 
+  getProductImages({ entityId, entityType = "Product", store } = {}) {
+    const url = `${this.endpoint}/image`;
+    return this.get(url, { entityId, entityType, store });
+  }
+
   deleteProductImage(imageId, storeId = null) {
     const url = this.buildResourceUrl(`${this.endpoint}/image`, imageId, storeId);
     return this.delete(url);

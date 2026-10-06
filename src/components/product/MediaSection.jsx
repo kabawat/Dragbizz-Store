@@ -44,9 +44,10 @@ function getImageKey(img, index) {
   return `idx:${index}`;
 }
 
-function SortableImageCard({ id, img, index, onRemove, primaryLabel }) {
+function SortableImageCard({ id, img, index, onRemove, primaryLabel, readOnly = false }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
+    disabled: readOnly,
   });
   const src = getImageUrl(img);
   if (!src) return null;
@@ -86,26 +87,30 @@ function SortableImageCard({ id, img, index, onRemove, primaryLabel }) {
         )}
       </div>
 
-      <button
-        type="button"
-        className="absolute top-2 right-2 p-1.5 rounded-md bg-black/55 text-white cursor-grab active:cursor-grabbing touch-none opacity-80 group-hover:opacity-100"
-        title="Drag to reorder"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="w-4 h-4" />
-      </button>
-
-      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
+      {!readOnly && (
         <button
-          onClick={() => onRemove(index)}
-          className="p-2 bg-red-500 hover:bg-red-600 rounded-xl text-white transition-all shadow-lg cursor-pointer"
-          title="Remove Image"
           type="button"
+          className="absolute top-2 right-2 p-1.5 rounded-md bg-black/55 text-white cursor-grab active:cursor-grabbing touch-none opacity-80 group-hover:opacity-100"
+          title="Drag to reorder"
+          {...attributes}
+          {...listeners}
         >
-          <Trash2 className="w-4 h-4" />
+          <GripVertical className="w-4 h-4" />
         </button>
-      </div>
+      )}
+
+      {!readOnly && (
+        <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
+          <button
+            onClick={() => onRemove(index)}
+            className="p-2 bg-red-500 hover:bg-red-600 rounded-xl text-white transition-all shadow-lg cursor-pointer"
+            title="Remove Image"
+            type="button"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -115,6 +120,9 @@ const MediaSection = ({
   onChange,
   errors = {},
   productId = null,
+  entityId = null,
+  entityType = "Product",
+  readOnly = false,
   ...props
 }) => {
   const { t } = useTranslation();
@@ -123,6 +131,7 @@ const MediaSection = ({
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
   const { execute } = useApiResponse();
+  const resolvedEntityId = entityId || productId;
 
   const imageIds = useMemo(
     () => images.map((img, index) => getImageKey(img, index)),
@@ -135,12 +144,12 @@ const MediaSection = ({
   );
 
   const syncWithRetailer = async (url, file, { isPrimary = false } = {}) => {
-    if (!productId || !storeId) return;
+    if (!resolvedEntityId || !storeId) return;
 
     return await execute(
       productService.saveProductImage({
-        entityId: productId,
-        entityType: "Product",
+        entityId: resolvedEntityId,
+        entityType,
         url,
         metadata: {
           name: file.name,
@@ -183,7 +192,7 @@ const MediaSection = ({
           onChange("images", [...updatedImages]);
         }
 
-        if (productId) {
+        if (resolvedEntityId) {
           await syncWithRetailer(publicFileUrl, file, {
             isPrimary: hadNoImages && i === 0,
           });
@@ -250,7 +259,7 @@ const MediaSection = ({
             </div>
           )}
         </div>
-        {images.length > 1 && (
+        {!readOnly && images.length > 1 && (
           <p className="text-xs text-[rgb(var(--color-text-secondary))]">
             {t("products.dragToReorderImages") || "Drag images to reorder"}
           </p>
@@ -259,25 +268,31 @@ const MediaSection = ({
 
       <div className="grid grid-cols-1 gap-6">
         {images.length === 0 ? (
-          <div className="animate-in fade-in zoom-in-95 duration-300">
-            <FileUpload
-              accept="image/*"
-              multiple
-              maxFiles={MAX_IMAGES}
-              value={images}
-              showFileList={false}
-              onChange={handleImagesChange}
-              dropZoneLabel={t("products.clickToUploadImage")}
-              sizeLimitLabel={t("products.imagesUpTo5MB")}
-              maxSize={5 * 1024 * 1024}
-              loading={uploading}
-            />
-          </div>
+          readOnly ? (
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("products.noImages") || "No images"}
+            </p>
+          ) : (
+            <div className="animate-in fade-in zoom-in-95 duration-300">
+              <FileUpload
+                accept="image/*"
+                multiple
+                maxFiles={MAX_IMAGES}
+                value={images}
+                showFileList={false}
+                onChange={handleImagesChange}
+                dropZoneLabel={t("products.clickToUploadImage")}
+                sizeLimitLabel={t("products.imagesUpTo5MB")}
+                maxSize={5 * 1024 * 1024}
+                loading={uploading}
+              />
+            </div>
+          )
         ) : (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
+            onDragEnd={readOnly ? undefined : handleDragEnd}
           >
             <SortableContext items={imageIds} strategy={rectSortingStrategy}>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -289,10 +304,11 @@ const MediaSection = ({
                     index={index}
                     onRemove={handleRemoveImage}
                     primaryLabel={t("products.primaryImage") || "Primary"}
+                    readOnly={readOnly}
                   />
                 ))}
 
-                {images.length < MAX_IMAGES && (
+                {!readOnly && images.length < MAX_IMAGES && (
                   <div className="transform hover:scale-[1.02] transition-transform duration-300">
                     <FileUpload
                       variant="compact"

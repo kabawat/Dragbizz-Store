@@ -9,12 +9,13 @@ import { Button, PageLoader } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
-import { variantService } from "@/service";
+import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import {
   buildVariantPayload,
   getInitialVariantFormData,
+  mapImageRecords,
   normalizeVariantRecord,
   unwrapVariantRecord,
   validateVariantForm,
@@ -62,7 +63,20 @@ const EditVariantPage = ({ variantId }) => {
       if (result?.success) {
         const record = unwrapVariantRecord(result.data);
         if (record) {
-          setFormData(normalizeVariantRecord(record));
+          const normalized = normalizeVariantRecord(record);
+          try {
+            const imagesRes = await productService.getProductImages({
+              entityId: variantId,
+              entityType: "Variant",
+              store: storeId,
+            });
+            const imagesPayload =
+              imagesRes?.data?.data ?? imagesRes?.data ?? imagesRes;
+            normalized.images = mapImageRecords(imagesPayload);
+          } catch {
+            normalized.images = [];
+          }
+          setFormData(normalized);
         }
       }
     };
@@ -149,6 +163,7 @@ const EditVariantPage = ({ variantId }) => {
               fieldErrors={fieldErrors}
               storeId={storeId}
               lockProduct
+              variantId={variantId}
             />
           </div>
 
