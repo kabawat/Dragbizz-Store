@@ -13,6 +13,8 @@
   "customerName": "ગ્રાહક નામ",
   "customerPhone": "ફોન નંબર",
   "customerEmail": "ઇમેઇલ સરનામું",
+  "note": "નોંધ",
+  "enterNote": "આ ગ્રાહક વિશે નોંધ ઉમેરો (વૈકલ્પિક)",
   "customerAddress": "સરનામું",
   "customer": "ગ્રાહક",
   "phone": "ફોન",

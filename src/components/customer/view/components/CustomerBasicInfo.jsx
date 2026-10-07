@@ -1,5 +1,5 @@
 "use client";
-import { Mail, Phone, User, MapPin } from "lucide-react";
+import { Mail, Phone, StickyNote, User, MapPin } from "lucide-react";
 import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
@@ -71,6 +71,20 @@ const CustomerBasicInfo = ({ customerData }) => {
           </div>
         </div>
       </div>
+
+      {customerData.note && (
+        <div className="mt-4 relative p-4 bg-gradient-to-br from-amber-50/15 to-amber-100/10 dark:from-amber-900/5 dark:to-amber-800/3 rounded-xl overflow-hidden">
+          <StickyNote className="absolute right-4 top-4 w-10 h-10 text-amber-500/35 dark:!text-amber-400 dark:opacity-40" />
+          <div className="relative z-10">
+            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+              {t("customers.note")}
+            </p>
+            <p className="text-sm text-[rgb(var(--color-text-primary))] whitespace-pre-wrap break-words">
+              {customerData.note}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

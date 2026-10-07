@@ -26,6 +26,7 @@ import EmptyState from "./EmptyState";
 import FileUpload from "./FileUpload";
 import IconButton from "./IconButton";
 import Input from "./Input";
+import PhoneInput from "./PhoneInput";
 import Loading, {
   CircularProgress,
   ProgressBar,
@@ -65,6 +66,7 @@ export {
   Button,
   BulkTemplateDownloadButton,
   Input,
+  PhoneInput,
   Checkbox,
   CheckboxGroup,
   Select,
@@ -136,6 +138,7 @@ export default {
   Button,
   BulkTemplateDownloadButton,
   Input,
+  PhoneInput,
   Checkbox,
   CheckboxGroup,
   Select,

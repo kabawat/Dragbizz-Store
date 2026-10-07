@@ -13,6 +13,8 @@
   "customerName": "Customer Name",
   "customerPhone": "Phone Number",
   "customerEmail": "Email Address",
+  "note": "Note",
+  "enterNote": "Is customer ke baare me note add karo (optional)",
   "customerAddress": "Address",
   "customer": "Customer",
   "phone": "Phone",

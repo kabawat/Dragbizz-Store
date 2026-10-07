@@ -1,6 +1,6 @@
 "use client";
-import { Mail, Phone, User } from "lucide-react";
-import { Input } from "@/components/ui";
+import { Mail, StickyNote, User } from "lucide-react";
+import { Input, PhoneInput, Textarea } from "@/components/ui";
 
 const BasicInfo = ({ formData, onChange, fieldErrors, t }) => {
     return (
@@ -20,7 +20,6 @@ const BasicInfo = ({ formData, onChange, fieldErrors, t }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {/* Customer Name */}
                 <Input
                     type="text"
                     label={t("customers.customerName")}
@@ -34,20 +33,15 @@ const BasicInfo = ({ formData, onChange, fieldErrors, t }) => {
                     size="sm"
                 />
 
-                {/* Phone Number */}
-                <Input
-                    type="tel"
+                <PhoneInput
                     label={t("customers.customerPhone")}
                     placeholder={t("customers.enterPhoneNumber")}
                     value={formData.phone || ""}
                     onChange={(value) => onChange("phone", value)}
                     error={!!fieldErrors.phone}
                     errorMessage={fieldErrors.phone}
-                    leftIcon={Phone}
-                    size="sm"
                 />
 
-                {/* Email Address */}
                 <Input
                     type="email"
                     label={t("customers.customerEmail")}
@@ -58,6 +52,21 @@ const BasicInfo = ({ formData, onChange, fieldErrors, t }) => {
                     errorMessage={fieldErrors.email}
                     leftIcon={Mail}
                     size="sm"
+                />
+            </div>
+
+            <div className="mt-4 sm:mt-6">
+                <Textarea
+                    label={t("customers.note")}
+                    placeholder={t("customers.enterNote")}
+                    value={formData.note || ""}
+                    onChange={(value) => onChange("note", value)}
+                    error={!!fieldErrors.note}
+                    errorMessage={fieldErrors.note}
+                    leftIcon={StickyNote}
+                    rows={3}
+                    maxLength={1000}
+                    showCharCount
                 />
             </div>
         </div>

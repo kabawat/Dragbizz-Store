@@ -11,6 +11,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import useApiResponse from "@/hooks/useApiResponse";
 import { updateCustomer } from "@/store/slices/customers/customerSlice";
 import INDIAN_STATES from "@/constants/indianStates";
+import { validatePhoneOrEmailContact } from "@/utils/phone.util";
 
 const EditCustomer = ({
     customerId,
@@ -54,6 +55,7 @@ const EditCustomer = ({
         name: "",
         phone: "",
         email: "",
+        note: "",
         address: "",
         companyDetails: { gstin: "", companyName: "", gstDetail: "" },
         addresses: null,
@@ -94,6 +96,7 @@ const EditCustomer = ({
                     name: d.name || "",
                     phone: d.phone || "",
                     email: d.email || "",
+                    note: d.note || "",
                     address: d.address || "",
                     companyDetails: {
                         gstin: d.companyDetails?.gstin || "",
@@ -152,13 +155,11 @@ const EditCustomer = ({
                 field: t("customers.customerName"),
             });
         }
-        if (!formData.phone?.trim() && !formData.email?.trim()) {
-            const errorMsg =
-                t("validation.eitherPhoneOrEmailRequired") ||
-                "Either Phone or Email is required";
-            errors.phone = errorMsg;
-            errors.email = errorMsg;
-        }
+        Object.assign(errors, validatePhoneOrEmailContact({
+            phone: formData.phone,
+            email: formData.email,
+            t,
+        }));
 
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);

@@ -9,6 +9,7 @@ import { customerService } from "@/service";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { addCustomer } from "@/store/slices/customers/customerSlice";
+import { validatePhoneOrEmailContact } from "@/utils/phone.util";
 
 const CreateCustomer = ({
   onSuccess,
@@ -48,6 +49,7 @@ const CreateCustomer = ({
     name: "",
     phone: "",
     email: "",
+    note: "",
     address: "",
     companyDetails: { gstin: "", companyName: "", gstDetail: "" },
     addresses: null,
@@ -92,11 +94,11 @@ const CreateCustomer = ({
     if (!formData.name?.trim()) {
       errors.name = t("validation.required", { field: t("customers.customerName") });
     }
-    if (!formData.phone?.trim() && !formData.email?.trim()) {
-      const msg = t("validation.eitherPhoneOrEmailRequired") || "Either Phone or Email is required";
-      errors.phone = msg;
-      errors.email = msg;
-    }
+    Object.assign(errors, validatePhoneOrEmailContact({
+      phone: formData.phone,
+      email: formData.email,
+      t,
+    }));
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);

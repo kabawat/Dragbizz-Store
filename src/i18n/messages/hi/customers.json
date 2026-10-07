@@ -14,6 +14,8 @@
   "customerName": "ग्राहक नाम",
   "customerPhone": "फ़ोन नंबर",
   "customerEmail": "ईमेल पता",
+  "note": "नोट",
+  "enterNote": "इस ग्राहक के बारे में कोई नोट जोड़ें (वैकल्पिक)",
   "customerAddress": "पता",
   "customer": "ग्राहक",
   "phone": "फ़ोन",
