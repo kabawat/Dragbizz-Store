@@ -3,6 +3,8 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 const nextConfig = {
+  transpilePackages: ["@dragorbit/ui"],
+  turbopack: { root: require("path").resolve(__dirname, "..") },
   assetPrefix: '/_store_assets',
   reactStrictMode: true,
   compiler: {

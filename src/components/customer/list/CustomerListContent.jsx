@@ -1,7 +1,11 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { EditCustomer, CustomerTable, CustomerCard } from "@/components/customer";
+import {
+  EditCustomer,
+  CustomerTable,
+  CustomerCard,
+} from "@/components/customer";
 import CustomerDeleteModal from "./CustomerDeleteModal";
 import { SideDrawer } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -15,283 +19,355 @@ import { filterCustomersByBalance } from "@/utils/customer/customerKhataBalance.
 import KhataQuickEntry from "@/components/khata/KhataQuickEntry";
 
 function findCustomerQuickEntryTarget(customers, customerId) {
-    const customer = customers.find((item) => item.id === customerId || item._id === customerId);
-    if (!customer) return null;
+  const customer = customers.find(
+    (item) => item.id === customerId || item._id === customerId
+  );
+  if (!customer) return null;
 
-    return {
-        customerId: customer.id ?? customer._id,
-        customerName: customer.name ?? "",
-        customerAccountId: customer.account?.id ?? customer.account?._id ?? null,
-    };
+  return {
+    customerId: customer.id ?? customer._id,
+    customerName: customer.name ?? "",
+    customerAccountId: customer.account?.id ?? customer.account?._id ?? null,
+  };
 }
 
 const CustomerListContent = ({
-    searchValue = "",
-    isActive = "",
-    source = "",
-    startDate = "",
-    endDate = "",
-    balanceFilter = "",
+  searchValue = "",
+  isActive = "",
+  source = "",
+  startDate = "",
+  endDate = "",
+  balanceFilter = "",
 }) => {
-    const router = useRouter();
-    const dispatch = useAppDispatch();
-    const { t } = useTranslation();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
-    const { customers, viewMode, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.customers);
+  const { customers, viewMode, isLoading, isFetchingMore, pagination } =
+    useAppSelector((state) => state.customers);
 
-    const visibleCustomers = useMemo(() => {
-        return filterCustomersByBalance(customers, balanceFilter);
-    }, [customers, balanceFilter]);
-    const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = selectedStore?.storeId;
+  const visibleCustomers = useMemo(() => {
+    return filterCustomersByBalance(customers, balanceFilter);
+  }, [customers, balanceFilter]);
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = selectedStore?.storeId;
 
-    const { can } = useModulePermissions("customer");
-    const canEdit = can("edit");
-    const canDelete = can("delete");
-    const canManageKhata = can("read");
-    const canQuickKhataEntry = canEdit;
+  const { can } = useModulePermissions("customer");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
+  const canManageKhata = can("read");
+  const canQuickKhataEntry = canEdit;
 
-    const goToDetails = (id) => router.push(`/dashboard/customers/${id}`);
-    const goToKhata = (id) => router.push(`/dashboard/customers/${id}?tab=khata`);
+  const goToDetails = (id) => router.push(`/dashboard/customers/${id}`);
+  const goToKhata = (id) => router.push(`/dashboard/customers/${id}?tab=khata`);
 
-    const refreshCustomers = useCallback(() => {
-        if (!storeId) return;
-        const { searchValue: search, isActive: active, source: src, startDate: start, endDate: end } =
-            filtersRef.current;
-        dispatch(
+  const refreshCustomers = useCallback(() => {
+    if (!storeId) return;
+    const {
+      searchValue: search,
+      isActive: active,
+      source: src,
+      startDate: start,
+      endDate: end,
+    } = filtersRef.current;
+    dispatch(
+      getCustomers(
+        buildCustomerListParams({
+          storeId,
+          search,
+          isActive: active,
+          source: src,
+          startDate: start,
+          endDate: end,
+          isFreshLoad: true,
+        })
+      )
+    );
+  }, [dispatch, storeId]);
+
+  const openQuickKhataEntry = useCallback(
+    (customerId) => {
+      const target = findCustomerQuickEntryTarget(visibleCustomers, customerId);
+      if (target) setQuickEntryTarget(target);
+    },
+    [visibleCustomers]
+  );
+
+  const filtersRef = useRef({
+    searchValue,
+    isActive,
+    source,
+    startDate,
+    endDate,
+  });
+  filtersRef.current = { searchValue, isActive, source, startDate, endDate };
+
+  // ─── Refs for stable IntersectionObserver callback ───────────────────────
+  const sentinelRef = useRef(null);
+  const isFetchingMoreRef = useRef(isFetchingMore);
+  const storeIdRef = useRef(storeId);
+  const paginationRef = useRef(pagination);
+  isFetchingMoreRef.current = isFetchingMore;
+  storeIdRef.current = storeId;
+  paginationRef.current = pagination;
+
+  // ─── Edit drawer state ────────────────────────────────────────────────────
+  const [editCustomerId, setEditCustomerId] = useState(null);
+  const [quickEntryTarget, setQuickEntryTarget] = useState(null);
+
+  // ─── Delete modal ref (self-contained) ───────────────────────────────────
+  const deleteModalRef = useRef(null);
+
+  // ─── Infinite scroll via IntersectionObserver ─────────────────────────────
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Reattach when switching views or remounting the table and its sentinel.
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !pagination.hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isFetchingMoreRef.current &&
+          storeIdRef.current
+        ) {
+          const {
+            searchValue: search,
+            isActive: active,
+            source: src,
+            startDate: start,
+            endDate: end,
+          } = filtersRef.current;
+          dispatch(
             getCustomers(
-                buildCustomerListParams({
-                    storeId,
-                    search,
-                    isActive: active,
-                    source: src,
-                    startDate: start,
-                    endDate: end,
-                    isFreshLoad: true,
-                }),
-            ),
-        );
-    }, [dispatch, storeId]);
-
-    const openQuickKhataEntry = useCallback(
-        (customerId) => {
-            const target = findCustomerQuickEntryTarget(visibleCustomers, customerId);
-            if (target) setQuickEntryTarget(target);
-        },
-        [visibleCustomers],
+              buildCustomerListParams({
+                storeId: storeIdRef.current,
+                search,
+                isActive: active,
+                source: src,
+                startDate: start,
+                endDate: end,
+                nextCursor: paginationRef.current.nextCursor,
+                isFreshLoad: false,
+              })
+            )
+          );
+        }
+      },
+      { threshold: 0.1 }
     );
 
-    const filtersRef = useRef({ searchValue, isActive, source, startDate, endDate });
-    filtersRef.current = { searchValue, isActive, source, startDate, endDate };
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [
+    dispatch,
+    pagination.hasNextPage,
+    viewMode,
+    isLoading,
+    visibleCustomers.length,
+  ]);
 
-    // ─── Refs for stable IntersectionObserver callback ───────────────────────
-    const sentinelRef = useRef(null);
-    const isFetchingMoreRef = useRef(isFetchingMore);
-    const storeIdRef = useRef(storeId);
-    const paginationRef = useRef(pagination);
-    isFetchingMoreRef.current = isFetchingMore;
-    storeIdRef.current = storeId;
-    paginationRef.current = pagination;
+  useEffect(() => {
+    if (
+      !balanceFilter ||
+      visibleCustomers.length > 0 ||
+      !pagination.hasNextPage
+    )
+      return;
+    if (isFetchingMore || isLoading || !storeIdRef.current) return;
 
-    // ─── Edit drawer state ────────────────────────────────────────────────────
-    const [editCustomerId, setEditCustomerId] = useState(null);
-    const [quickEntryTarget, setQuickEntryTarget] = useState(null);
+    const {
+      searchValue: search,
+      isActive: active,
+      source: src,
+      startDate: start,
+      endDate: end,
+    } = filtersRef.current;
+    dispatch(
+      getCustomers(
+        buildCustomerListParams({
+          storeId: storeIdRef.current,
+          search,
+          isActive: active,
+          source: src,
+          startDate: start,
+          endDate: end,
+          nextCursor: paginationRef.current.nextCursor,
+          isFreshLoad: false,
+        })
+      )
+    );
+  }, [
+    dispatch,
+    balanceFilter,
+    visibleCustomers.length,
+    pagination.hasNextPage,
+    isFetchingMore,
+    isLoading,
+  ]);
 
-    // ─── Delete modal ref (self-contained) ───────────────────────────────────
-    const deleteModalRef = useRef(null);
+  useCommonHotkeys({
+    onClose: () => {
+      if (editCustomerId) setEditCustomerId(null);
+    },
+  });
 
-    // ─── Infinite scroll via IntersectionObserver ─────────────────────────────
-    useEffect(() => {
-        const sentinel = sentinelRef.current;
-        if (!sentinel || !pagination.hasNextPage) return;
+  if (!isLoading && customers.length === 0) return null;
 
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && !isFetchingMoreRef.current && storeIdRef.current) {
-                    const { searchValue: search, isActive: active, source: src, startDate: start, endDate: end } =
-                        filtersRef.current;
-                    dispatch(
-                        getCustomers(
-                            buildCustomerListParams({
-                                storeId: storeIdRef.current,
-                                search,
-                                isActive: active,
-                                source: src,
-                                startDate: start,
-                                endDate: end,
-                                nextCursor: paginationRef.current.nextCursor,
-                                isFreshLoad: false,
-                            })
-                        )
-                    );
-                }
-            },
-            { threshold: 0.1 }
-        );
-
-        observer.observe(sentinel);
-        return () => observer.disconnect();
-    }, [dispatch, pagination.hasNextPage]);
-
-    useEffect(() => {
-        if (!balanceFilter || visibleCustomers.length > 0 || !pagination.hasNextPage) return;
-        if (isFetchingMore || isLoading || !storeIdRef.current) return;
-
-        const { searchValue: search, isActive: active, source: src, startDate: start, endDate: end } =
-            filtersRef.current;
-        dispatch(
-            getCustomers(
-                buildCustomerListParams({
-                    storeId: storeIdRef.current,
-                    search,
-                    isActive: active,
-                    source: src,
-                    startDate: start,
-                    endDate: end,
-                    nextCursor: paginationRef.current.nextCursor,
-                    isFreshLoad: false,
-                }),
-            ),
-        );
-    }, [dispatch, balanceFilter, visibleCustomers.length, pagination.hasNextPage, isFetchingMore, isLoading]);
-
-    useCommonHotkeys({
-        onClose: () => {
-            if (editCustomerId) setEditCustomerId(null);
-        },
-    });
-
-    if (!isLoading && customers.length === 0) return null;
-
-    if (!isLoading && balanceFilter && visibleCustomers.length === 0) {
-        if (pagination.hasNextPage || isFetchingMore) {
-            return (
-                <div className="flex items-center justify-center gap-2 py-12 text-sm text-[rgb(var(--color-text-secondary))]">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
-                    {t("khata.loadingBalanceCustomers") || "Looking for customers with balance..."}
-                </div>
-            );
-        }
-
-        return (
-            <div className="py-12 text-center text-sm text-[rgb(var(--color-text-secondary))]">
-                {t("khata.balanceFilter")}: {t("common.noResults")}
-            </div>
-        );
+  if (!isLoading && balanceFilter && visibleCustomers.length === 0) {
+    if (pagination.hasNextPage || isFetchingMore) {
+      return (
+        <div className="flex items-center justify-center gap-2 py-12 text-sm text-[rgb(var(--color-text-secondary))]">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
+          {t("khata.loadingBalanceCustomers") ||
+            "Looking for customers with balance..."}
+        </div>
+      );
     }
 
-    if (!isLoading && visibleCustomers.length === 0) return null;
-
     return (
-        <>
-            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
-                <div className="h-[calc(100vh-210px)] overflow-y-auto">
-                    {viewMode === "table" ? (
-                        <div className="h-auto">
-                            <CustomerTable
-                                customers={visibleCustomers}
-                                onEdit={canEdit ? setEditCustomerId : undefined}
-                                onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
-                                onViewDetails={goToDetails}
-                                onManageKhata={canManageKhata ? goToKhata : undefined}
-                                onQuickKhataEntry={canQuickKhataEntry ? openQuickKhataEntry : undefined}
-                                canEdit={canEdit}
-                                canDelete={canDelete}
-                                canManageKhata={canManageKhata}
-                                canQuickKhataEntry={canQuickKhataEntry}
-                            />
-                        </div>
-                    ) : (
-                        <div className="h-auto">
-                            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {visibleCustomers.map((customer) => (
-                                    <CustomerCard
-                                        key={customer.id}
-                                        customer={customer}
-                                        onEdit={canEdit ? setEditCustomerId : undefined}
-                                        onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
-                                        onViewDetails={goToDetails}
-                                        onManageKhata={canManageKhata ? goToKhata : undefined}
-                                        onQuickKhataEntry={canQuickKhataEntry ? openQuickKhataEntry : undefined}
-                                        canEdit={canEdit}
-                                        canDelete={canDelete}
-                                        canManageKhata={canManageKhata}
-                                        canQuickKhataEntry={canQuickKhataEntry}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Sentinel — IntersectionObserver triggers load more */}
-                    {pagination.hasNextPage && (
-                        <div ref={sentinelRef} className="h-4 w-full" />
-                    )}
-
-                    {(isFetchingMore || isLoading) && visibleCustomers.length > 0 && (
-                        <div className="flex items-center justify-center py-16">
-                            <div className="flex items-center gap-3">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
-                                <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                    {t("common.loadingMore") || "Loading more..."}
-                                </span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer */}
-                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {t("common.showing") || "Showing"}{" "}
-                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                            {visibleCustomers.length}
-                        </span>{" "}
-                        {t("customers.title").toLowerCase()}
-                        {pagination.hasNextPage && (
-                            <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
-                                • {t("common.scrollToLoadMore") || "Scroll down to load more"}
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Delete modal — fully self-contained via ref */}
-            <CustomerDeleteModal ref={deleteModalRef} />
-
-            <KhataQuickEntry
-                open={Boolean(quickEntryTarget)}
-                onClose={() => setQuickEntryTarget(null)}
-                storeId={storeId}
-                customerId={quickEntryTarget?.customerId}
-                customerName={quickEntryTarget?.customerName}
-                customerAccountId={quickEntryTarget?.customerAccountId}
-                onSuccess={refreshCustomers}
-            />
-
-            {/* Edit Customer Drawer */}
-            <SideDrawer
-                isOpen={!!editCustomerId}
-                onClose={() => setEditCustomerId(null)}
-                title={t("customers.editCustomer") || "Edit Customer"}
-                icon={Users}
-                width="w-full md:w-2/3 lg:w-1/2"
-            >
-                <div className="p-6 h-full">
-                    {editCustomerId && (
-                        <EditCustomer
-                            customerId={editCustomerId}
-                            onSuccess={() => setEditCustomerId(null)}
-                            onCancel={() => setEditCustomerId(null)}
-                            showCancelButton={true}
-                            mode="drawer"
-                        />
-                    )}
-                </div>
-            </SideDrawer>
-        </>
+      <div className="py-12 text-center text-sm text-[rgb(var(--color-text-secondary))]">
+        {t("khata.balanceFilter")}: {t("common.noResults")}
+      </div>
     );
+  }
+
+  if (!isLoading && visibleCustomers.length === 0) return null;
+
+  const scrollFooter = (
+    <>
+      {/* Sentinel — IntersectionObserver triggers load more */}
+      {pagination.hasNextPage && (
+        <div ref={sentinelRef} className="h-4 w-full" />
+      )}
+
+      {(isFetchingMore || isLoading) && visibleCustomers.length > 0 && (
+        <div className="flex items-center justify-center py-16">
+          <div className="flex items-center gap-3">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
+            <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("common.loadingMore") || "Loading more..."}
+            </span>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
+        <div
+          className={
+            viewMode === "table" ? "" : "h-[calc(100vh-210px)] overflow-y-auto"
+          }
+        >
+          {viewMode === "table" ? (
+            <div className="h-auto">
+              <CustomerTable
+                customers={visibleCustomers}
+                scrollFooter={scrollFooter}
+                loading={isLoading && visibleCustomers.length === 0}
+                onEdit={canEdit ? setEditCustomerId : undefined}
+                onDelete={
+                  canDelete
+                    ? (id) => deleteModalRef.current?.open(id)
+                    : undefined
+                }
+                onViewDetails={goToDetails}
+                onManageKhata={canManageKhata ? goToKhata : undefined}
+                onQuickKhataEntry={
+                  canQuickKhataEntry ? openQuickKhataEntry : undefined
+                }
+                canEdit={canEdit}
+                canDelete={canDelete}
+                canManageKhata={canManageKhata}
+                canQuickKhataEntry={canQuickKhataEntry}
+              />
+            </div>
+          ) : (
+            <div className="h-auto">
+              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {visibleCustomers.map((customer) => (
+                  <CustomerCard
+                    key={customer.id}
+                    customer={customer}
+                    onEdit={canEdit ? setEditCustomerId : undefined}
+                    onDelete={
+                      canDelete
+                        ? (id) => deleteModalRef.current?.open(id)
+                        : undefined
+                    }
+                    onViewDetails={goToDetails}
+                    onManageKhata={canManageKhata ? goToKhata : undefined}
+                    onQuickKhataEntry={
+                      canQuickKhataEntry ? openQuickKhataEntry : undefined
+                    }
+                    canEdit={canEdit}
+                    canDelete={canDelete}
+                    canManageKhata={canManageKhata}
+                    canQuickKhataEntry={canQuickKhataEntry}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {viewMode !== "table" && scrollFooter}
+        </div>
+
+        {/* Footer */}
+        <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+          <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+            {t("common.showing") || "Showing"}{" "}
+            <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+              {visibleCustomers.length}
+            </span>{" "}
+            {t("customers.title").toLowerCase()}
+            {pagination.hasNextPage && (
+              <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                • {t("common.scrollToLoadMore") || "Scroll down to load more"}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Delete modal — fully self-contained via ref */}
+      <CustomerDeleteModal ref={deleteModalRef} />
+
+      <KhataQuickEntry
+        open={Boolean(quickEntryTarget)}
+        onClose={() => setQuickEntryTarget(null)}
+        storeId={storeId}
+        customerId={quickEntryTarget?.customerId}
+        customerName={quickEntryTarget?.customerName}
+        customerAccountId={quickEntryTarget?.customerAccountId}
+        onSuccess={refreshCustomers}
+      />
+
+      {/* Edit Customer Drawer */}
+      <SideDrawer
+        isOpen={!!editCustomerId}
+        onClose={() => setEditCustomerId(null)}
+        title={t("customers.editCustomer") || "Edit Customer"}
+        icon={Users}
+        width="w-full md:w-2/3 lg:w-1/2"
+      >
+        <div className="p-6 h-full">
+          {editCustomerId && (
+            <EditCustomer
+              customerId={editCustomerId}
+              onSuccess={() => setEditCustomerId(null)}
+              onCancel={() => setEditCustomerId(null)}
+              showCancelButton={true}
+              mode="drawer"
+            />
+          )}
+        </div>
+      </SideDrawer>
+    </>
+  );
 };
 
 export default CustomerListContent;

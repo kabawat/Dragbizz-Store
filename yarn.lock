@@ -173,6 +173,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dragorbit/ui@link:../dragorbit::locator=dragbizz-store-fe%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@dragorbit/ui@link:../dragorbit::locator=dragbizz-store-fe%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "@emnapi/core@npm:^1.4.3, @emnapi/core@npm:^1.4.5":
   version: 1.8.1
   resolution: "@emnapi/core@npm:1.8.1"
@@ -2590,6 +2596,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.3.1"
     "@dnd-kit/sortable": "npm:^10.0.0"
     "@dnd-kit/utilities": "npm:^3.2.2"
+    "@dragorbit/ui": "link:../dragorbit"
     "@next/bundle-analyzer": "npm:^16.1.4"
     "@reduxjs/toolkit": "npm:^2.9.0"
     "@tailwindcss/postcss": "npm:^4"

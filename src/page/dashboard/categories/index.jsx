@@ -1,19 +1,23 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { DataTable } from "@dragorbit/ui/table";
 import { Plus, Tags } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { Button, EmptyState, PageLoader } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { useAppSelector } from "@/store/hooks";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { categoryService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
 
-const CategoryDrawer = dynamic(() => import("@/components/product/CategoryDrawer"), {
-  ssr: false,
-});
+const CategoryDrawer = dynamic(
+  () => import("@/components/product/CategoryDrawer"),
+  {
+    ssr: false,
+  }
+);
 
 function unwrapList(data) {
   if (Array.isArray(data)) return data;
@@ -31,7 +35,11 @@ const CategoriesPage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
-  const { can, create: canCreate, loading: permissionsLoading } = useModulePermissions("product");
+  const {
+    can,
+    create: canCreate,
+    loading: permissionsLoading,
+  } = useModulePermissions("product");
   const { execute, loading } = useApiResponse();
 
   const [categories, setCategories] = useState([]);
@@ -76,50 +84,54 @@ const CategoriesPage = () => {
         </div>
 
         <div className="px-5 pb-6">
-          {loading && categories.length === 0 && <PageLoader />}
-
-          {!loading && categories.length === 0 && (
-            <EmptyState
-              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-              icon={Tags}
-              title={t("sidebar.noCategories") || "No categories yet"}
-              description={t("sidebar.noCategoriesDescription") || "Create categories to organize products"}
-              actionButton={
-                canCreate
-                  ? {
-                      label: t("products.addNewCategory") || "Add Category",
-                      onClick: () => setShowDrawer(true),
-                      icon: Plus,
-                    }
-                  : null
-              }
-            />
-          )}
-
-          {categories.length > 0 && (
-            <div className="rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-[rgb(var(--color-bg-secondary))] text-left text-[rgb(var(--color-text-secondary))]">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">{t("common.name") || "Name"}</th>
-                    <th className="px-4 py-3 font-medium">{t("common.description") || "Description"}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-                  {categories.map((cat) => (
-                    <tr key={cat._id || cat.id || cat.name}>
-                      <td className="px-4 py-3 font-medium text-[rgb(var(--color-text-primary))]">
-                        {cat.name}
-                      </td>
-                      <td className="px-4 py-3 text-[rgb(var(--color-text-secondary))]">
-                        {cat.description || "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DataTable
+            caption={t("sidebar.categories")}
+            rows={categories}
+            getRowKey={(row) => row._id || row.id || row.name}
+            columns={[
+              {
+                id: "name",
+                header: t("common.name") || "Name",
+                width: "35%",
+                cell: (category) => (
+                  <span className="font-semibold">{category.name}</span>
+                ),
+              },
+              {
+                id: "description",
+                header: t("common.description") || "Description",
+                cell: (category) => (
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {category.description || "—"}
+                  </span>
+                ),
+              },
+            ]}
+            minWidth={640}
+            maxHeight="calc(100vh - 240px)"
+            loading={loading && categories.length === 0}
+            loadingContent={<PageLoader />}
+            emptyContent={
+              <EmptyState
+                className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                icon={Tags}
+                title={t("sidebar.noCategories") || "No categories yet"}
+                description={
+                  t("sidebar.noCategoriesDescription") ||
+                  "Create categories to organize products"
+                }
+                actionButton={
+                  canCreate
+                    ? {
+                        label: t("products.addNewCategory") || "Add Category",
+                        onClick: () => setShowDrawer(true),
+                        icon: Plus,
+                      }
+                    : null
+                }
+              />
+            }
+          />
         </div>
       </div>
 

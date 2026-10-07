@@ -7,3 +7,5 @@
 @import "../styles/animations.css";
 @import "../styles/base.css";
 @import "../styles/print-a4.css";
+/* Shared DragOrbit source components use the app Tailwind build. */
+@source "../../../dragorbit/src";
