@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/service/auth";
 import { storeService } from "@/service/retailer";
 import staffService from "@/service/retailer/staff.service";
-import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
+import { handleSuccess } from "@/utils/responseHandler/success";
 import {
   isValidStoreId,
   normalizeStoreSummary,
@@ -32,7 +32,7 @@ const setStoredStoreId = (id) => {
         localStorage.removeItem(SELECTED_STORE_STORAGE_KEY);
       }
     }
-  } catch { }
+  } catch {}
 };
 
 const normalizeStores = (stores = []) =>
@@ -118,7 +118,9 @@ export const getRetailerDetails = createAsyncThunk(
       };
     } catch (error) {
       return rejectWithValue({
-        message: handleError(error).message || "Failed to get retailer details. Please login again.",
+        message:
+          handleError(error).message ||
+          "Failed to get retailer details. Please login again.",
         redirectTo: "/login",
       });
     }
@@ -250,7 +252,8 @@ const profileSlice = createSlice({
               null;
 
             const matchingStore =
-              (prevSelectedId && findStoreById(normalizedStores, prevSelectedId)) ||
+              (prevSelectedId &&
+                findStoreById(normalizedStores, prevSelectedId)) ||
               normalizedStores[0];
 
             state.selectedStore = matchingStore;
@@ -327,7 +330,7 @@ const profileSlice = createSlice({
   },
 });
 
-export const { clearAuth, setSelectedStore, setInitialized } = profileSlice.actions;
-export { getAuthProfile, getRetailerDetails };
+export const { clearAuth, setSelectedStore, setInitialized } =
+  profileSlice.actions;
 
 export default profileSlice.reducer;

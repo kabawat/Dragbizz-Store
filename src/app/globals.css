@@ -10,4 +10,4 @@
 /* Shared DragOrbit source components use the app Tailwind build. */
 @source "../../../dragorbit/ui/src";
 
-@source "../../../dragorbit/features/dashboard";
+@source "../../../dragorbit/features/src";
