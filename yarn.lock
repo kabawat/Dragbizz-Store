@@ -173,9 +173,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dragorbit/ui@link:../dragorbit::locator=dragbizz-store-fe%40workspace%3A.":
+"@dragorbit/core@link:../dragorbit/core::locator=dragbizz-store-fe%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@dragorbit/ui@link:../dragorbit::locator=dragbizz-store-fe%40workspace%3A."
+  resolution: "@dragorbit/core@link:../dragorbit/core::locator=dragbizz-store-fe%40workspace%3A."
+  languageName: node
+  linkType: soft
+
+"@dragorbit/ui@link:../dragorbit/ui::locator=dragbizz-store-fe%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@dragorbit/ui@link:../dragorbit/ui::locator=dragbizz-store-fe%40workspace%3A."
   languageName: node
   linkType: soft
 
@@ -2592,11 +2598,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dragbizz-store-fe@workspace:."
   dependencies:
+    "@dragorbit/features": "link:../dragorbit/features"
     "@biomejs/biome": "npm:2.2.0"
     "@dnd-kit/core": "npm:^6.3.1"
     "@dnd-kit/sortable": "npm:^10.0.0"
     "@dnd-kit/utilities": "npm:^3.2.2"
-    "@dragorbit/ui": "link:../dragorbit"
+    "@dragorbit/core": "link:../dragorbit/core"
+    "@dragorbit/ui": "link:../dragorbit/ui"
     "@next/bundle-analyzer": "npm:^16.1.4"
     "@reduxjs/toolkit": "npm:^2.9.0"
     "@tailwindcss/postcss": "npm:^4"
@@ -4940,3 +4948,9 @@ __metadata:
   checksum: 10c0/38f91ca116a38561cf184c29e035e9453b12c30eaf574e0993107a4a5331882b58c9a7f7b97f63910664028089fbde3296d0b3682d1ccb2ad96929e68f1b2b89
   languageName: node
   linkType: hard
+
+"@dragorbit/features@link:../dragorbit/features::locator=dragbizz-store-fe%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@dragorbit/features@link:../dragorbit/features::locator=dragbizz-store-fe%40workspace%3A."
+  languageName: node
+  linkType: soft

@@ -21,7 +21,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@dragorbit/ui": "link:../dragorbit",
+    "@dragorbit/ui": "link:../dragorbit/ui",
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
     "canvas-confetti": "^1.9.3",
@@ -46,7 +46,9 @@
     "reselect": "^5.1.1",
     "sass": "^1.96.0",
     "socket.io-client": "^4.8.3",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@dragorbit/core": "link:../dragorbit/core",
+    "@dragorbit/features": "link:../dragorbit/features"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

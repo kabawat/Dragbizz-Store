@@ -1,6 +1,7 @@
 "use client";
-import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { SidebarMenu } from "@dragorbit/ui";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
 import {
   getAnalyticsSubMenuItems,
@@ -14,12 +15,11 @@ import {
   getStockSubMenuItems,
 } from "@/data/constants/sidebarData";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { expandMenu } from "@/store/slices/uiSlice";
-import { SidebarFlyout } from "./SidebarFlyout";
+import { expandMenu, toggleExpandedMenu } from "@/store/slices/uiSlice";
 import { SidebarHeader } from "./SidebarHeader";
-import { SidebarNavItem } from "./SidebarNavItem";
 
 const Sidebar = ({ onStoreChange }) => {
   const pathname = usePathname();
@@ -34,10 +34,6 @@ const Sidebar = ({ onStoreChange }) => {
   const isCollapsed = useAppSelector((state) => state.ui.isSidebarCollapsed);
 
   const { t } = useTranslation();
-
-  // Flyout for collapsed sidebar
-  const [hoveredItem, setHoveredItem] = useState(null); // { item, rect }
-  const hideTimerRef = useRef(null);
 
   // Memoized Menu Items
   const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
@@ -182,99 +178,45 @@ const Sidebar = ({ onStoreChange }) => {
     }
   }, [dispatch, pathname, navigationItems]);
 
-  // Close flyout when sidebar expands
-  useEffect(() => {
-    if (!isCollapsed) setHoveredItem(null);
-  }, [isCollapsed]);
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    };
-  }, []);
-
-  // Flyout hover handlers — 100ms grace period so mouse can travel icon → flyout
-  const handleMouseEnterItem = (item, e, isBottom = false) => {
-    if (!isCollapsed) return;
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    const rect = e.currentTarget.getBoundingClientRect();
-    const anchorBottom = isBottom ? window.innerHeight - rect.bottom : null;
-    setHoveredItem({ item, rect, anchorBottom });
-  };
-
-  const handleMouseLeaveItem = () => {
-    if (!isCollapsed) return;
-    hideTimerRef.current = setTimeout(() => setHoveredItem(null), 100);
-  };
-
-  const handleMouseEnterFlyout = () => {
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-  };
-
-  const handleMouseLeaveFlyout = () => {
-    hideTimerRef.current = setTimeout(() => setHoveredItem(null), 100);
-  };
+  const expandedMenus = useAppSelector((state) => state.ui.expandedMenus);
+  const router = useRouter();
+  const { hasAccess, withAccess } = useSubscriptionAccess();
+  const isItemLocked = (item) =>
+    !!item.module &&
+    !hasAccess(
+      item.module,
+      item.requireAnalytics,
+      item.requireReport,
+      item.requireCapability
+    );
+  const onNavigate = (item) =>
+    withAccess(
+      item.module,
+      () => router.push(item.href),
+      item.requireAnalytics || false,
+      item.requireReport || false,
+      true,
+      item.requireCapability || null
+    )();
 
   return (
-    <div
-      className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/40 h-screen flex flex-col shadow-lg relative z-[150] flex-shrink-0"
-      style={{
-        width: isCollapsed ? "64px" : "256px",
-        minWidth: isCollapsed ? "64px" : "256px",
-        maxWidth: isCollapsed ? "64px" : "256px",
-        transition:
-          "width 0.3s ease-in-out, min-width 0.3s ease-in-out, max-width 0.3s ease-in-out",
-        willChange: "width",
-      }}
-    >
-      {/* Fixed Header Section */}
-      <div className="flex-shrink-0">
-        <SidebarHeader />
+    <SidebarMenu
+      navigationItems={navigationItems}
+      bottomItems={bottomItems}
+      pathname={pathname}
+      isCollapsed={isCollapsed}
+      expandedMenus={expandedMenus}
+      onToggleMenu={(key) => dispatch(toggleExpandedMenu(key))}
+      onNavigate={onNavigate}
+      isItemLocked={isItemLocked}
+      header={<SidebarHeader />}
+      selector={
         <StoreSelector
           isCollapsed={isCollapsed}
           onStoreChange={onStoreChange}
         />
-      </div>
-
-      {/* Scrollable Navigation Section */}
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <nav className="p-3 space-y-1">
-          {navigationItems.map((item) => (
-            <SidebarNavItem
-              key={item.name}
-              item={item}
-              isCollapsed={isCollapsed}
-              onMouseEnterItem={handleMouseEnterItem}
-              onMouseLeaveItem={handleMouseLeaveItem}
-            />
-          ))}
-        </nav>
-      </div>
-
-      {/* Fixed Bottom Section */}
-      <div className="flex-shrink-0 p-3 border-t border-[rgb(var(--color-border-primary))]">
-        {bottomItems.map((item) => (
-          <SidebarNavItem
-            key={item.name}
-            item={item}
-            isCollapsed={isCollapsed}
-            onMouseEnterItem={handleMouseEnterItem}
-            onMouseLeaveItem={handleMouseLeaveItem}
-            isBottomItem={true}
-          />
-        ))}
-      </div>
-
-      {/* ── Collapsed Flyout Menu ── */}
-      <SidebarFlyout
-        hoveredItem={hoveredItem}
-        onMouseEnter={handleMouseEnterFlyout}
-        onMouseLeave={handleMouseLeaveFlyout}
-        onClose={() => setHoveredItem(null)}
-      />
-    </div>
+      }
+    />
   );
 };
-
 export default Sidebar;

@@ -1,4 +1,5 @@
 "use client";
+import { DashboardShell, StartupLoader } from "@dragorbit/ui/app";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
@@ -63,63 +64,40 @@ export default function DashboardLayout({ children }) {
 
   if (isProfileLoading || !storeReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            {isProfileLoading ? "Verifying Profile..." : "Loading Store..."}
-          </h2>
-          <p className="text-[rgb(var(--color-text-secondary))]">
-            {isProfileLoading
-              ? "Checking your retailer information"
-              : "Preparing your store workspace"}
-          </p>
-        </div>
-      </div>
+      <StartupLoader
+        title={isProfileLoading ? "Verifying Profile..." : "Loading Store..."}
+        description={
+          isProfileLoading
+            ? "Checking your retailer information"
+            : "Preparing your store workspace"
+        }
+      />
     );
   }
-
   if (redirectTo || !agency || (agency && (!stores || stores.length === 0))) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            Redirecting...
-          </h2>
-          <p className="text-[rgb(var(--color-text-secondary))]">
-            Please wait while we redirect you
-          </p>
-        </div>
-      </div>
+      <StartupLoader
+        title="Redirecting..."
+        description="Please wait while we redirect you"
+      />
     );
   }
 
   return (
     <HeaderProvider>
       <PermissionGuard>
-        {isCustomerPayment ? (
-          <main className="min-h-[100dvh] bg-[rgb(var(--color-bg-primary))]">
-            {children}
-          </main>
-        ) : (
-          <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
+        <DashboardShell
+          standalone={isCustomerPayment}
+          sidebar={<Sidebar />}
+          header={<Header />}
+          overlay={
             <div className="no-print">
-              <Sidebar />
+              <VoiceCommandLauncher />
             </div>
-            <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-              <div className="no-print">
-                <Header />
-              </div>
-              <main className="flex-1 overflow-y-auto custom-scrollbar">
-                {children}
-              </main>
-            </div>
-          </div>
-        )}
-        <div className="no-print">
-          <VoiceCommandLauncher />
-        </div>
+          }
+        >
+          {children}
+        </DashboardShell>
       </PermissionGuard>
     </HeaderProvider>
   );

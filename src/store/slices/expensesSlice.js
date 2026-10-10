@@ -348,7 +348,7 @@ const expensesSlice = createSlice({
 
         // Remove from selected if present
         state.selectedExpenses = state.selectedExpenses.filter(
-          id => id !== action.payload.expenseId
+          (id) => id !== action.payload.expenseId
         );
       })
       .addCase(deleteExpense.rejected, (state, action) => {
@@ -370,8 +370,7 @@ const expensesSlice = createSlice({
         state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to fetch expense statistics";
-      })
-
+      });
   },
 });
 
@@ -386,13 +385,5 @@ export const {
   addMoreExpenses,
   clearError,
 } = expensesSlice.actions;
-
-export {
-  getExpenses,
-  createExpense,
-  updateExpense,
-  deleteExpense,
-  getExpenseStats,
-};
 
 export default expensesSlice.reducer;
