@@ -1,5 +1,6 @@
 "use client";
-import { DateRangeFilter } from "@/components/ui";
+import { CustomerDownloadDrawerDateRangeSelectorPresentation } from "@dragorbit/features/customers";
+
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const DateRangeSelector = ({
@@ -11,16 +12,9 @@ const DateRangeSelector = ({
   const { t } = useTranslation();
 
   return (
-    <div>
-      <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-        {label || t("customers.selectTimePeriod")}
-      </label>
-      <DateRangeFilter
-        startDate={startDate}
-        endDate={endDate}
-        onChange={onChange}
-      />
-    </div>
+    <CustomerDownloadDrawerDateRangeSelectorPresentation
+      model={{ label, t, startDate, endDate, onChange }}
+    />
   );
 };
 

@@ -1,8 +1,8 @@
 "use client";
+import { UpiAddDrawerView } from "@dragorbit/features/integrations";
 
-import { Save } from "lucide-react";
 import { useState } from "react";
-import { Button, Input, Modal, MultiSelect, Toggle } from "@/components/ui";
+
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch } from "@/store/hooks";
 import { createStoreUpi, getStoreUpi } from "@/store/slices/storeUpiSlice";
@@ -49,13 +49,13 @@ const UpiAddDrawer = ({
         upiId: form.upiId.trim().toLowerCase(),
         label: form.label?.trim() || undefined,
         storeIds: form.storeIds.map((id) =>
-          typeof id === "string" ? id : id?.toString?.() || id
+          typeof id === "string" ? id : id?.toString?.() || id,
         ),
         isDefault: form.isDefault,
       };
       await dispatch(createStoreUpi({ storeId, payload })).unwrap();
       await dispatch(
-        getStoreUpi({ storeId, scope: "agency", forceRefresh: true })
+        getStoreUpi({ storeId, scope: "agency", forceRefresh: true }),
       ).unwrap();
       onSuccess?.(t("settings.upi.addedSuccess"));
       handleCancel();
@@ -78,70 +78,20 @@ const UpiAddDrawer = ({
   }));
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleCancel}
-      title={t("settings.upi.addNewUpi")}
-      size="md"
-      closeOnOverlayClick={!isCreating}
-      closeOnEscape={!isCreating}
-      className="!shadow-none"
-    >
-      <div className="space-y-4">
-        <p className="text-sm leading-5 text-[rgb(var(--color-text-secondary))]">
-          {t("settings.upi.manageUpiDescription")}
-        </p>
-        <Input
-          label={t("settings.upi.upiId")}
-          placeholder="merchant@paytm"
-          value={form.upiId}
-          onChange={(val) => {
-            setForm((p) => ({ ...p, upiId: val ?? "" }));
-            if (errors.upiId) setErrors((p) => ({ ...p, upiId: null }));
-          }}
-          error={!!errors.upiId}
-          errorMessage={errors.upiId}
-        />
-        <Input
-          label={t("settings.upi.labelOptional")}
-          placeholder="Primary, Backup..."
-          value={form.label}
-          onChange={(val) => setForm((p) => ({ ...p, label: val ?? "" }))}
-        />
-        <MultiSelect
-          label={t("settings.upi.assignToStores")}
-          placeholder={t("settings.upi.selectStores")}
-          options={storeOptions}
-          value={form.storeIds?.map((id) => String(id)) || []}
-          onChange={(vals) => setForm((p) => ({ ...p, storeIds: vals || [] }))}
-          error={!!errors.storeIds}
-          errorMessage={errors.storeIds}
-          clearable={false}
-        />
-        <Toggle
-          label={t("settings.upi.setAsDefault")}
-          checked={form.isDefault}
-          onChange={(checked) => setForm((p) => ({ ...p, isDefault: checked }))}
-        />
-        <div className="flex justify-end gap-3 border-t border-[rgb(var(--color-border-primary))]/60 pt-4">
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isCreating}
-          >
-            {t("common.cancel")}
-          </Button>
-          <Button
-            variant="primary"
-            leftIcon={Save}
-            onClick={handleSave}
-            isLoading={isCreating}
-          >
-            {isCreating ? "Adding..." : t("settings.upi.addUpi")}
-          </Button>
-        </div>
-      </div>
-    </Modal>
+    <UpiAddDrawerView
+      model={{
+        isOpen,
+        handleCancel,
+        t,
+        isCreating,
+        form,
+        setForm,
+        errors,
+        setErrors,
+        storeOptions,
+        handleSave,
+      }}
+    />
   );
 };
 

@@ -1,7 +1,18 @@
-"use client";
-import { AlertCircle, CheckCircle2, FileJson, FileSpreadsheet, FileText, Upload, X, ChevronDown, ChevronUp } from "lucide-react";
+import { BulkTemplateDownloadButton } from "@/components/ui";
+("use client");
+import { CustomerBulkUploadDrawerIndexPresentation } from "@dragorbit/features/customers";
+
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileJson,
+  FileSpreadsheet,
+  FileText,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import { Button, BulkTemplateDownloadButton, SideDrawer } from "@/components/ui";
+
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService } from "@/service/retailer/customer.service";
@@ -27,15 +38,22 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
   const validateFile = (file) => {
     if (!file) return false;
 
-    const extension = file.name.split('.').pop().toLowerCase();
+    const extension = file.name.split(".").pop().toLowerCase();
     if (!validExtensions.includes(extension)) {
-      showError(t("customers.invalidFileType", "Please upload a valid CSV, XLSX, or JSON file."));
+      showError(
+        t(
+          "customers.invalidFileType",
+          "Please upload a valid CSV, XLSX, or JSON file.",
+        ),
+      );
       return false;
     }
 
     // Check size (e.g. max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      showError(t("customers.fileTooLarge", "File size should be less than 5MB."));
+      showError(
+        t("customers.fileTooLarge", "File size should be less than 5MB."),
+      );
       return false;
     }
 
@@ -52,7 +70,7 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
         clearAll(); // Clear any previous API statuses
       }
     },
-    [clearAll]
+    [clearAll],
   );
 
   const handleDrop = useCallback(
@@ -61,7 +79,7 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
       setIsDragOver(false);
       handleFiles(e.dataTransfer.files);
     },
-    [handleFiles]
+    [handleFiles],
   );
 
   const handleDragOver = useCallback((e) => {
@@ -78,7 +96,7 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     (e) => {
       handleFiles(e.target.files);
     },
-    [handleFiles]
+    [handleFiles],
   );
 
   const removeFile = useCallback(() => {
@@ -95,22 +113,34 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      showError(t("customers.pleaseSelectFile", "Please select a file to upload."));
+      showError(
+        t("customers.pleaseSelectFile", "Please select a file to upload."),
+      );
       return;
     }
 
     const storeId = selectedStore?.storeId;
 
     // Using execute with showToast: false because we want to run custom toast and success logic based on 'summary'
-    const result = await execute(customerService.bulkUploadCustomers(selectedFile, storeId), { showToast: false });
+    const result = await execute(
+      customerService.bulkUploadCustomers(selectedFile, storeId),
+      { showToast: false },
+    );
 
     if (result?.success && result?.data && result.data.summary) {
       setUploadResult({ data: result.data });
 
       if (result.data.summary.failed === 0) {
-        showSuccess(t("customers.bulkUploadSuccess", "Bulk upload completed successfully"));
+        showSuccess(
+          t(
+            "customers.bulkUploadSuccess",
+            "Bulk upload completed successfully",
+          ),
+        );
       } else {
-        showSuccess(t("customers.partialSuccess", "Bulk upload partially successful"));
+        showSuccess(
+          t("customers.partialSuccess", "Bulk upload partially successful"),
+        );
       }
       onSuccess?.();
     } else {
@@ -118,11 +148,13 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-
   const getFileIcon = (fileName) => {
-    if (fileName.endsWith(".csv")) return <FileText className="w-8 h-8 text-blue-500" />;
-    if (fileName.endsWith(".xlsx")) return <FileSpreadsheet className="w-8 h-8 text-green-500" />;
-    if (fileName.endsWith(".json")) return <FileJson className="w-8 h-8 text-yellow-500" />;
+    if (fileName.endsWith(".csv"))
+      return <FileText className="w-8 h-8 text-blue-500" />;
+    if (fileName.endsWith(".xlsx"))
+      return <FileSpreadsheet className="w-8 h-8 text-green-500" />;
+    if (fileName.endsWith(".json"))
+      return <FileJson className="w-8 h-8 text-yellow-500" />;
     return <FileText className="w-8 h-8 text-gray-500" />;
   };
 
@@ -154,16 +186,16 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
 
     return (
       <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-
         {/* Summary Card */}
         <div className="rounded-xl overflow-hidden border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
-
           {/* Header */}
           <div className="p-4 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] flex items-center justify-between">
             <h4 className="font-semibold text-[rgb(var(--color-text-primary))] flex items-center gap-2">
-              {allSuccess
-                ? <CheckCircle2 className="w-5 h-5 text-green-500" />
-                : <AlertCircle className="w-5 h-5 text-amber-500" />}
+              {allSuccess ? (
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-amber-500" />
+              )}
               {t("customers.uploadResults", "Upload Results")}
             </h4>
             <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] px-2.5 py-1 rounded-full bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
@@ -174,19 +206,25 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
           {/* Stats Grid */}
           <div className="grid grid-cols-3 divide-x divide-[rgb(var(--color-border-primary))]">
             <div className="flex flex-col items-center justify-center py-5 gap-1">
-              <span className="text-2xl font-bold text-green-500">{summary.created}</span>
+              <span className="text-2xl font-bold text-green-500">
+                {summary.created}
+              </span>
               <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("customers.createdCount", "Created")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
-              <span className="text-2xl font-bold text-amber-500">{summary.skipped}</span>
+              <span className="text-2xl font-bold text-amber-500">
+                {summary.skipped}
+              </span>
               <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("customers.skippedCount", "Skipped")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
-              <span className="text-2xl font-bold text-red-500">{summary.failed}</span>
+              <span className="text-2xl font-bold text-red-500">
+                {summary.failed}
+              </span>
               <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("customers.failedCount", "Failed")}
               </span>
@@ -197,7 +235,6 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
         {/* Errors Section */}
         {errors && errors.length > 0 && (
           <div className="rounded-xl overflow-hidden border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
-
             {/* Errors toggle header */}
             <button
               onClick={() => setShowErrors(!showErrors)}
@@ -210,21 +247,29 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                   {errors.length}
                 </span>
               </span>
-              {showErrors
-                ? <ChevronUp className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                : <ChevronDown className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />}
+              {showErrors ? (
+                <ChevronUp className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+              )}
             </button>
 
             {showErrors && (
               <div className="max-h-[280px] overflow-y-auto divide-y divide-[rgb(var(--color-border-primary))] custom-scrollbar">
                 {errors.map((error, idx) => (
-                  <div key={idx} className="p-4 space-y-2.5 bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors">
-
+                  <div
+                    key={idx}
+                    className="p-4 space-y-2.5 bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                  >
                     {/* Row label + reason */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <span className="inline-block text-[0.625rem] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 border border-red-500/20 rounded px-1.5 py-0.5 mb-1.5">
-                          {t("customers.rowNumber", { row: error.row }, `Row ${error.row}`)}
+                          {t(
+                            "customers.rowNumber",
+                            { row: error.row },
+                            `Row ${error.row}`,
+                          )}
                         </span>
                         <p className="text-sm text-[rgb(var(--color-text-primary))] leading-snug">
                           {error.reason}
@@ -240,9 +285,16 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                         </p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                           {Object.entries(error.data).map(([key, val]) => (
-                            <div key={key} className="flex gap-1.5 text-[0.6875rem] font-mono">
-                              <span className="text-[rgb(var(--color-text-tertiary))] shrink-0">{key}:</span>
-                              <span className="text-[rgb(var(--color-text-secondary))] truncate">{val || "—"}</span>
+                            <div
+                              key={key}
+                              className="flex gap-1.5 text-[0.6875rem] font-mono"
+                            >
+                              <span className="text-[rgb(var(--color-text-tertiary))] shrink-0">
+                                {key}:
+                              </span>
+                              <span className="text-[rgb(var(--color-text-secondary))] truncate">
+                                {val || "—"}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -259,136 +311,31 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <SideDrawer
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={t("customers.bulkUploadTitle", "Bulk Upload Customers")}
-      icon={Upload}
-      description={t("customers.bulkUploadDesc", "Upload a CSV, XLSX, or JSON file to add multiple customers at once.")}
-      width="w-full md:w-[600px] lg:w-[600px]"
-    >
-      <div className="p-4 sm:p-6 h-full flex flex-col">
-        <div className="space-y-6 flex-1 overflow-y-auto">
-          {!uploadResult ? (
-            <>
-              {/* Information Section */}
-              <div className="bg-[rgb(var(--color-primary)/0.1)] rounded-lg border border-[rgb(var(--color-primary)/0.2)] p-4">
-                <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t("customers.instructions", "Instructions")}
-                </h4>
-                <ul className="list-disc pl-5 text-sm text-[rgb(var(--color-text-secondary))] space-y-1 mb-4">
-                  <li>{t("customers.instruction1", "Ensure file format is either .csv, .xlsx, or .json")}</li>
-                  <li>{t("customers.instruction2", "Maximum allowed file size is 5MB. ")}</li>
-                  <li>{t("customers.instruction3", "Make sure required fields (e.g., phone or name) are present.")}</li>
-                </ul>
-                <BulkTemplateDownloadButton
-                  module="customer"
-                  fileName="customer_bulk_upload_template.xlsx"
-                  sheetName="Customers"
-                />
-              </div>
-
-              {/* Upload Area */}
-              {!selectedFile ? (
-                <div
-                  className={`
-                    relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
-                    ${isDragOver
-                      ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
-                      : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
-                    }
-                  `}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onClick={openFileDialog}
-                >
-                  <div className="p-8 text-center">
-                    <Upload
-                      className={`w-10 h-10 mx-auto mb-3 ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"
-                        }`}
-                    />
-                    <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                      {t("customers.dropZoneLabel", "Click to upload or drag and drop")}
-                    </p>
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                      {t("customers.supportedFormats", "Supported formats: CSV, XLSX, JSON")}
-                    </p>
-                  </div>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={accept}
-                    onChange={handleFileInputChange}
-                    className="hidden"
-                  />
-                </div>
-              ) : (
-                /* Selected File Card */
-                <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] flex items-center justify-center flex-shrink-0">
-                        {getFileIcon(selectedFile.name)}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate">
-                          {selectedFile.name}
-                        </p>
-                        <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                          {formatFileSize(selectedFile.size)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={removeFile}
-                      className="p-2 cursor-pointer text-gray-500 hover:text-red-500 rounded-lg transition-colors duration-200 hover:bg-red-500/10"
-                      title="Remove file"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            renderResults()
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="border-t border-[rgb(var(--color-border-primary))] pt-4 mt-6 flex justify-start gap-3">
-          {!uploadResult ? (
-            <>
-              <Button
-                variant="primary"
-                onClick={handleUpload}
-                disabled={!selectedFile || isUploading}
-                loading={isUploading}
-              >
-                {isUploading ? t("customers.uploading", "Uploading...") : t("customers.upload", "Upload File")}
-              </Button>
-              <Button variant="secondary" onClick={handleClose} disabled={isUploading}>
-                {t("common.cancel", "Cancel")}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="primary" onClick={handleClose}>
-                {t("customers.done", "Done")}
-              </Button>
-              <Button variant="secondary" onClick={resetUpload}>
-                {t("customers.uploadAnother", "Upload Another")}
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-    </SideDrawer>
+    <CustomerBulkUploadDrawerIndexPresentation
+      model={{
+        BulkTemplateDownloadButton,
+        isOpen,
+        handleClose,
+        t,
+        uploadResult,
+        selectedFile,
+        isDragOver,
+        handleDrop,
+        handleDragOver,
+        handleDragLeave,
+        openFileDialog,
+        fileInputRef,
+        accept,
+        handleFileInputChange,
+        getFileIcon,
+        formatFileSize,
+        removeFile,
+        renderResults,
+        handleUpload,
+        isUploading,
+        resetUpload,
+      }}
+    />
   );
 };
 

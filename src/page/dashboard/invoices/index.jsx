@@ -1,11 +1,14 @@
 "use client";
+import { InvoicesScreen } from "@dragorbit/features/invoices";
+
 import { useEffect } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { InvoiceListHeader, InvoiceListContent, } from "@/components/invoice/list";
-import { EmptyState, PageLoader } from "@/components/ui";
-import { FileText, Plus } from "lucide-react";
+import {
+  InvoiceListHeader,
+  InvoiceListContent,
+} from "@/components/invoice/list";
 
 import { getInvoices } from "@/store/slices/invoicesSlice";
 import { useRouter } from "next/navigation";
@@ -13,11 +16,16 @@ import { useRouter } from "next/navigation";
 const InvoicesPage = () => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("sidebar.invoices"), t("invoice.createInvoiceDescription"));
+  useDashboardHeader(
+    t("sidebar.invoices"),
+    t("invoice.createInvoiceDescription"),
+  );
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { invoices, isLoading, error, filters } = useAppSelector((state) => state.invoices);
+  const { invoices, isLoading, error, filters } = useAppSelector(
+    (state) => state.invoices,
+  );
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
@@ -28,40 +36,15 @@ const InvoicesPage = () => {
   }, [dispatch, storeId, invoices.length, filters]);
 
   return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto">
-        <InvoiceListHeader />
-
-        <div className="px-5">
-          {/* Loading State */}
-          {isLoading && invoices.length === 0 && !error && (<PageLoader />)}
-
-          {/* Empty State */}
-          {!isLoading && invoices.length === 0 && (
-            <EmptyState
-              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-              title={t("common.noResults") || "No Invoices Found"}
-              description={
-                error
-                  ? `${t("common.error")}: ${error}`
-                  : t("invoice.emptyDescription") || "You haven't created any invoices yet. Start by creating your first one!"
-              }
-              icon={FileText}
-              type={error ? "error" : "empty"}
-              actionButton={{
-                label: t("invoice.createInvoice"),
-                icon: Plus,
-                onClick: () => router.push("/dashboard/invoices/create"),
-              }}
-            />
-          )}
-
-          {/* Invoices List */}
-          {invoices.length > 0 && <InvoiceListContent />}
-        </div>
-      </div>
-    </div>
-
+    <InvoicesScreen
+      t={t}
+      invoices={invoices}
+      isLoading={isLoading}
+      error={error}
+      InvoiceListHeader={InvoiceListHeader}
+      InvoiceListContent={InvoiceListContent}
+      onCreate={() => router.push("/dashboard/invoices/add")}
+    />
   );
 };
 

@@ -1,10 +1,11 @@
 "use client";
+import { CustomersScreen } from "@dragorbit/features/customers";
+
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import CustomerListContent from "@/components/customer/list/CustomerListContent";
 import CustomerListHeader from "@/components/customer/list/CustomerListHeader";
-import { EmptyState, PageLoader } from "@/components/ui";
-import { Users, Search } from "lucide-react";
+
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -25,7 +26,9 @@ const CustomersPage = () => {
   const [endDate, setEndDate] = useState("");
   const [balanceFilter, setBalanceFilter] = useState("");
 
-  const { customers, isLoading, error } = useAppSelector((state) => state.customers);
+  const { customers, isLoading, error } = useAppSelector(
+    (state) => state.customers,
+  );
 
   useEffect(() => {
     const savedViewMode = localStorage.getItem("customers-view-mode");
@@ -40,59 +43,19 @@ const CustomersPage = () => {
 
   const handleBulkSuccess = useCallback(() => {}, []);
 
-  const isFiltered = Boolean(searchValue || isActive || source || startDate || endDate || balanceFilter);
+  const isFiltered = Boolean(
+    searchValue || isActive || source || startDate || endDate || balanceFilter,
+  );
 
   return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto">
-        <CustomerListHeader
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          isActive={isActive}
-          setIsActive={setIsActive}
-          source={source}
-          setSource={setSource}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          balanceFilter={balanceFilter}
-          setBalanceFilter={setBalanceFilter}
-          onSuccess={handleBulkSuccess}
-        />
-
-        <div className="px-5">
-          {isLoading && customers.length === 0 && !error && <PageLoader />}
-
-          {!isLoading && customers.length === 0 && (
-            <EmptyState
-              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-              title={isFiltered ? t("common.noResults") : t("customers.noCustomers")}
-              description={
-                error
-                  ? `${t("common.error")}: ${error}`
-                  : isFiltered
-                    ? `${t("common.noResultsFoundFor")} "${searchValue || t("common.filters")}"`
-                    : t("customers.emptyDescription")
-              }
-              icon={isFiltered ? Search : Users}
-              type={error ? "error" : "empty"}
-            />
-          )}
-
-          {customers.length > 0 && (
-            <CustomerListContent
-              searchValue={searchValue}
-              isActive={isActive}
-              source={source}
-              startDate={startDate}
-              endDate={endDate}
-              balanceFilter={balanceFilter}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+    <CustomersScreen
+      t={t}
+      customers={customers}
+      isLoading={isLoading}
+      error={error}
+      CustomerListHeader={CustomerListHeader}
+      CustomerListContent={CustomerListContent}
+    />
   );
 };
 

@@ -1,4 +1,5 @@
 "use client";
+import { GatewayCredentialFieldsView } from "@dragorbit/features/integrations";
 
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
@@ -7,7 +8,6 @@ import {
   getRequiredSecretFields,
   isMaskedCredentialField,
 } from "@/constants/paymentGateway.config";
-import { Input } from "@/components/ui";
 
 const GatewayCredentialFields = ({
   gatewayType,
@@ -25,41 +25,26 @@ const GatewayCredentialFields = ({
   };
 
   return (
-    <div className="space-y-4">
-      {config.fields.map((field) => {
-        const labelKey = `settings.paymentGateway.fields.${gatewayType}.${field.key}`;
-        const label = t(labelKey, field.key);
-        const placeholder = isMaskedCredentialField(field)
-          ? isEdit
-            ? t("settings.paymentGateway.leaveBlankToKeep")
-            : field.secret
-              ? t("settings.paymentGateway.enterSecret")
-              : t("settings.paymentGateway.enterValue")
-          : undefined;
-
-        return (
-          <Input
-            key={field.key}
-            label={
-              field.optional
-                ? `${label} (${t("settings.paymentGateway.optional")})`
-                : label
-            }
-            type={isMaskedCredentialField(field) ? "password" : "text"}
-            placeholder={placeholder}
-            value={values[field.key] ?? ""}
-            onChange={(val) => handleFieldChange(field.key, val)}
-            error={!!errors[field.key]}
-            errorMessage={errors[field.key]}
-            autoComplete="off"
-          />
-        );
-      })}
-    </div>
+    <GatewayCredentialFieldsView
+      model={{
+        config,
+        gatewayType,
+        t,
+        isMaskedCredentialField,
+        isEdit,
+        values,
+        handleFieldChange,
+        errors,
+      }}
+    />
   );
 };
 
-export function validateGatewayCredentials(gatewayType, values, { isEdit = false, t }) {
+export function validateGatewayCredentials(
+  gatewayType,
+  values,
+  { isEdit = false, t },
+) {
   const errors = {};
   for (const key of getRequiredCredentialFields(gatewayType, isEdit)) {
     if (!String(values[key] ?? "").trim()) {

@@ -1,5 +1,6 @@
 "use client";
-import { Loader2, Save, Store } from "lucide-react";
+import { StoreEditDrawerView } from "@dragorbit/features/settings";
+
 import { useEffect, useRef, useState } from "react";
 import { FormDrawer } from "@/components/common";
 import storeService from "@/service/retailer/store.service";
@@ -40,7 +41,7 @@ const StoreEditDrawer = ({
   } = useGstVerification(setForm);
 
   const isGstVerified = isGstVerifiedFromApi || Boolean(form.gstDetail);
-  
+
   useEffect(() => {
     if (!isOpen || !editingStoreId) return;
 
@@ -84,7 +85,10 @@ const StoreEditDrawer = ({
 
   const handleVerifyGst = async () => {
     if (!form.gst || form.gst.length < 15) {
-      setErrors((prev) => ({ ...prev, gst: "Please enter a valid GST number" }));
+      setErrors((prev) => ({
+        ...prev,
+        gst: "Please enter a valid GST number",
+      }));
       return;
     }
     await verifyGstNumber(form.gst);
@@ -149,7 +153,9 @@ const StoreEditDrawer = ({
 
     if (
       form.gst &&
-      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gst)
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
+        form.gst,
+      )
     ) {
       newErrors.gst = "Please enter a valid GST number";
     }
@@ -204,11 +210,15 @@ const StoreEditDrawer = ({
         onSuccess?.(result.message || "Store updated successfully!");
         handleCancel();
       } else {
-        onError?.(result.message || "Failed to update store. Please try again.");
+        onError?.(
+          result.message || "Failed to update store. Please try again.",
+        );
       }
     } catch (error) {
       const result = handleError(error);
-      onError?.(result.message || "An unexpected error occurred. Please try again.");
+      onError?.(
+        result.message || "An unexpected error occurred. Please try again.",
+      );
 
       if (result.fields) {
         setErrors(result.fields);
@@ -225,42 +235,23 @@ const StoreEditDrawer = ({
   };
 
   return (
-    <FormDrawer
-      isOpen={isOpen}
-      onClose={handleCancel}
-      title="Edit Store"
-      icon={Store}
-      description="Update store information"
-      width="w-full md:w-2/3 lg:w-1/2"
-      onSave={handleSave}
-      onCancel={handleCancel}
-      saveLabel={isSaving ? "Saving..." : "Save Changes"}
-      cancelLabel="Cancel"
-      isSaving={isSaving}
-      isLoading={isLoadingStore}
-      saveIcon={Save}
-      saveVariant="primary"
-    >
-      {isLoadingStore ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="flex items-center gap-3">
-            <Loader2 className="w-6 h-6 animate-spin text-[rgb(var(--color-primary))]" />
-            <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-              Loading store details...
-            </span>
-          </div>
-        </div>
-      ) : (
-        <StoreEditForm
-          form={form}
-          onChange={handleChange}
-          errors={errors}
-          isVerifyingGst={isVerifyingGst}
-          isGstVerified={isGstVerified}
-          onVerifyGst={handleVerifyGst}
-        />
-      )}
-    </FormDrawer>
+    <StoreEditDrawerView
+      model={{
+        FormDrawer,
+        isOpen,
+        handleCancel,
+        handleSave,
+        isSaving,
+        isLoadingStore,
+        StoreEditForm,
+        form,
+        handleChange,
+        errors,
+        isVerifyingGst,
+        isGstVerified,
+        handleVerifyGst,
+      }}
+    />
   );
 };
 

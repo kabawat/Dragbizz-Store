@@ -1,4 +1,6 @@
 "use client";
+import { StoreSettingsView } from "@dragorbit/features/settings";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import storeService from "@/service/retailer/store.service";
@@ -14,11 +16,12 @@ import useApiResponse from "@/hooks/useApiResponse";
 
 const StoreSettings = () => {
   const dispatch = useAppDispatch();
+  const { selectedStore, agency } = useAppSelector((state) => state.profile);
   const {
-    selectedStore,
-    agency,
-  } = useAppSelector((state) => state.profile);
-  const { execute: fetchStoresApi, data, loading: isLoading } = useApiResponse();
+    execute: fetchStoresApi,
+    data,
+    loading: isLoading,
+  } = useApiResponse();
   const stores = data || [];
 
   const { showError, showSuccess } = useGlobalToast();
@@ -43,11 +46,12 @@ const StoreSettings = () => {
     }
     isFetchingRef.current = true;
 
-    fetchStoresApi(storeService.getStores(), { showToast: false })
-      .finally(() => {
+    fetchStoresApi(storeService.getStores(), { showToast: false }).finally(
+      () => {
         isFetchingRef.current = false;
         hasFetchedRef.current = true;
-      });
+      },
+    );
   }, [fetchStoresApi]);
 
   // Fetch stores on component mount (only once)
@@ -77,7 +81,7 @@ const StoreSettings = () => {
     // Frontend guard: don't allow deleting the only store
     if (stores?.length <= 1) {
       showError(
-        "You must have at least one active store. The last store cannot be deleted."
+        "You must have at least one active store. The last store cannot be deleted.",
       );
       return;
     }
@@ -116,63 +120,42 @@ const StoreSettings = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <StoreHeader
-        storesCount={stores?.length}
-        isLoading={isLoading}
-        onAddStore={handleAddStore}
-      />
-
-      <StoreList
-        stores={stores}
-        isLoading={isLoading}
-        selectedStore={selectedStore}
-        onAddStore={handleAddStore}
-        onEditStore={handleEditStore}
-        onDeleteStore={handleDeleteStore}
-        onShowCatalog={handleShowCatalog}
-      />
-
-      <StoreAddDrawer
-        isOpen={isAddDrawerOpen}
-        onClose={() => setIsAddDrawerOpen(false)}
-        onSuccess={handleAddSuccess}
-        onError={showError}
-      />
-
-      <StoreEditDrawer
-        isOpen={isEditDrawerOpen}
-        editingStore={editingStore}
-        onClose={() => {
-          setIsEditDrawerOpen(false);
-          setEditingStore(null);
-        }}
-        onSuccess={handleEditSuccess}
-        onError={showError}
-        showSuccess={showSuccess}
-      />
-
-      <StoreDeleteModal
-        isOpen={isDeleteModalOpen}
-        storeToDelete={storeToDelete}
-        stores={stores}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setStoreToDelete(null);
-        }}
-        onSuccess={handleDeleteSuccess}
-        onError={showError}
-      />
-
-      <CatalogQRModal
-        isOpen={isCatalogModalOpen}
-        onClose={() => {
-          setIsCatalogModalOpen(false);
-          setActiveStore(null);
-        }}
-        store={activeStore}
-      />
-    </div>
+    <StoreSettingsView
+      model={{
+        StoreHeader,
+        stores,
+        isLoading,
+        handleAddStore,
+        StoreList,
+        selectedStore,
+        handleEditStore,
+        handleDeleteStore,
+        handleShowCatalog,
+        StoreAddDrawer,
+        isAddDrawerOpen,
+        setIsAddDrawerOpen,
+        handleAddSuccess,
+        showError,
+        StoreEditDrawer,
+        isEditDrawerOpen,
+        editingStore,
+        setIsEditDrawerOpen,
+        setEditingStore,
+        handleEditSuccess,
+        showSuccess,
+        StoreDeleteModal,
+        isDeleteModalOpen,
+        storeToDelete,
+        setIsDeleteModalOpen,
+        setStoreToDelete,
+        handleDeleteSuccess,
+        CatalogQRModal,
+        isCatalogModalOpen,
+        setIsCatalogModalOpen,
+        setActiveStore,
+        activeStore,
+      }}
+    />
   );
 };
 

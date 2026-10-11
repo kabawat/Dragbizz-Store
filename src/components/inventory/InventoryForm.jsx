@@ -1,6 +1,8 @@
 "use client";
+import { InventoryFormPresentation } from "@dragorbit/features/inventory";
+
 // Import UI components
-import { Card, CardBody } from "@/components/ui";
+
 // Import theme context
 import { useTheme } from "@/contexts/ThemeContext";
 // Import sections
@@ -8,7 +10,7 @@ import InventoryDetailsSection from "./InventoryDetailsSection";
 
 const InventoryForm = ({
   formData = {},
-  onChange = () => { },
+  onChange = () => {},
   fieldErrors = {},
   className = "",
   ...props
@@ -50,13 +52,15 @@ const InventoryForm = ({
   };
 
   return (
-    <div className={`space-y-6 px-2 ${className}`}>
-      <InventoryDetailsSection
-        formData={formData}
-        onChange={handleFormDataChange}
-        errors={fieldErrors}
-      />
-    </div>
+    <InventoryFormPresentation
+      model={{
+        className,
+        InventoryDetailsSection,
+        formData,
+        handleFormDataChange,
+        fieldErrors,
+      }}
+    />
   );
 };
 

@@ -1,4 +1,5 @@
 "use client";
+import { ManagePaymentGatewaySettingsView } from "@dragorbit/features/integrations";
 
 import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -70,7 +71,13 @@ const ManagePaymentGatewaySettings = () => {
     (message) => {
       showSuccess(message);
       if (storeId) {
-        dispatch(getStorePaymentGateways({ storeId, scope: "agency", forceRefresh: true }));
+        dispatch(
+          getStorePaymentGateways({
+            storeId,
+            scope: "agency",
+            forceRefresh: true,
+          }),
+        );
       }
     },
     [dispatch, showSuccess, storeId],
@@ -108,65 +115,37 @@ const ManagePaymentGatewaySettings = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <GatewayHeader
-        gatewayCount={gateways.length}
-        isLoading={isGatewayLoading}
-        onAddGateway={handleAddGateway}
-        canCreate={canCreate}
-      />
-      <GatewayList
-        gateways={gateways}
-        stores={stores}
-        isLoading={isGatewayLoading}
-        onAddGateway={handleAddGateway}
-        onEditGateway={handleEditGateway}
-        onDeleteGateway={handleDeleteGateway}
-        canCreate={canCreate}
-        canEdit={canEdit}
-        canDelete={canDelete}
-      />
-
-      {canCreate && (
-        <GatewayAddDrawer
-          isOpen={isAddDrawerOpen}
-          storeId={storeId}
-          stores={stores}
-          onClose={() => setIsAddDrawerOpen(false)}
-          onSuccess={handleMutationSuccess}
-          onError={showError}
-        />
-      )}
-
-      {canEdit && (
-        <GatewayEditDrawer
-          isOpen={isEditDrawerOpen}
-          storeId={storeId}
-          editingGateway={editingGateway}
-          stores={stores}
-          onClose={() => {
-            setIsEditDrawerOpen(false);
-            setEditingGateway(null);
-          }}
-          onSuccess={handleMutationSuccess}
-          onError={showError}
-        />
-      )}
-
-      {canDelete && (
-        <GatewayDeleteModal
-          isOpen={isDeleteModalOpen}
-          gatewayToDelete={gatewayToDelete}
-          storeId={storeId}
-          onClose={() => {
-            setIsDeleteModalOpen(false);
-            setGatewayToDelete(null);
-          }}
-          onSuccess={handleMutationSuccess}
-          onError={showError}
-        />
-      )}
-    </div>
+    <ManagePaymentGatewaySettingsView
+      model={{
+        GatewayHeader,
+        gateways,
+        isGatewayLoading,
+        handleAddGateway,
+        canCreate,
+        GatewayList,
+        stores,
+        handleEditGateway,
+        handleDeleteGateway,
+        canEdit,
+        canDelete,
+        GatewayAddDrawer,
+        isAddDrawerOpen,
+        storeId,
+        setIsAddDrawerOpen,
+        handleMutationSuccess,
+        showError,
+        GatewayEditDrawer,
+        isEditDrawerOpen,
+        editingGateway,
+        setIsEditDrawerOpen,
+        setEditingGateway,
+        GatewayDeleteModal,
+        isDeleteModalOpen,
+        gatewayToDelete,
+        setIsDeleteModalOpen,
+        setGatewayToDelete,
+      }}
+    />
   );
 };
 

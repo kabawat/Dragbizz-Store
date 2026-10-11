@@ -1,19 +1,26 @@
 "use client";
+import { GatewayEditDrawerView } from "@dragorbit/features/integrations";
 
-import { GATEWAY_MODES, GATEWAY_CREDENTIAL_UI, buildCredentialsPayload, isMaskedCredentialField, } from "@/constants/paymentGateway.config";
+import {
+  GATEWAY_MODES,
+  GATEWAY_CREDENTIAL_UI,
+  buildCredentialsPayload,
+  isMaskedCredentialField,
+} from "@/constants/paymentGateway.config";
 import {
   updateStorePaymentGateway,
   getStorePaymentGateways,
   rotateStorePaymentGatewayWebhookSecret,
 } from "@/store/slices/storePaymentGatewaySlice";
-import { Input, MultiSelect, Select, Toggle } from "@/components/ui";
-import { CreditCard, Save } from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { FormDrawer } from "@/components/common";
 import { useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
-import GatewayCredentialFields, { validateGatewayCredentials } from "./GatewayCredentialFields";
+import GatewayCredentialFields, {
+  validateGatewayCredentials,
+} from "./GatewayCredentialFields";
 import GatewayWebhookSetup from "./GatewayWebhookSetup";
 
 const emptyCredentialsForType = (gatewayType) => {
@@ -56,7 +63,8 @@ const GatewayEditDrawer = ({
       const maskedFields = editingGateway.credentials?.fields || {};
       for (const field of config?.fields || []) {
         if (isMaskedCredentialField(field)) continue;
-        if (maskedFields[field.key]) credValues[field.key] = maskedFields[field.key];
+        if (maskedFields[field.key])
+          credValues[field.key] = maskedFields[field.key];
       }
       setForm({
         label: editingGateway.label || "",
@@ -79,11 +87,16 @@ const GatewayEditDrawer = ({
 
   const validateForm = () => {
     const newErrors = {};
-    if (!form.storeIds?.length) newErrors.storeIds = t("settings.paymentGateway.storeIdsRequired");
-    const credErrors = validateGatewayCredentials(gatewayType, form.credentials, {
-      isEdit: true,
-      t,
-    });
+    if (!form.storeIds?.length)
+      newErrors.storeIds = t("settings.paymentGateway.storeIdsRequired");
+    const credErrors = validateGatewayCredentials(
+      gatewayType,
+      form.credentials,
+      {
+        isEdit: true,
+        t,
+      },
+    );
     Object.assign(newErrors, credErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -96,19 +109,33 @@ const GatewayEditDrawer = ({
     try {
       setIsSaving(true);
       setErrors({});
-      const credentials = buildCredentialsPayload(gatewayType, form.credentials, { isEdit: true });
+      const credentials = buildCredentialsPayload(
+        gatewayType,
+        form.credentials,
+        { isEdit: true },
+      );
       const payload = {
         label: form.label?.trim() || undefined,
         mode: form.mode,
-        storeIds: form.storeIds.map((id) => (typeof id === "string" ? id : id?.toString?.() || id)),
+        storeIds: form.storeIds.map((id) =>
+          typeof id === "string" ? id : id?.toString?.() || id,
+        ),
         isDefault: form.isDefault,
         ...(Object.keys(credentials).length > 0 ? { credentials } : {}),
       };
       await dispatch(
-        updateStorePaymentGateway({ storeId, gatewayId: gatewayDocId, payload }),
+        updateStorePaymentGateway({
+          storeId,
+          gatewayId: gatewayDocId,
+          payload,
+        }),
       ).unwrap();
       await dispatch(
-        getStorePaymentGateways({ storeId, scope: "agency", forceRefresh: true }),
+        getStorePaymentGateways({
+          storeId,
+          scope: "agency",
+          forceRefresh: true,
+        }),
       ).unwrap();
       onSuccess?.(t("settings.paymentGateway.updatedSuccess"));
       handleCancel();
@@ -121,7 +148,13 @@ const GatewayEditDrawer = ({
 
   const handleCancel = () => {
     setWebhookSetupView(null);
-    setForm({ label: "", mode: "TEST", storeIds: [], isDefault: false, credentials: {} });
+    setForm({
+      label: "",
+      mode: "TEST",
+      storeIds: [],
+      isDefault: false,
+      credentials: {},
+    });
     setErrors({});
     onClose?.();
   };
@@ -133,12 +166,17 @@ const GatewayEditDrawer = ({
     try {
       setIsRegeneratingSecret(true);
       const result = await dispatch(
-        rotateStorePaymentGatewayWebhookSecret({ storeId, gatewayId: gatewayDocId }),
+        rotateStorePaymentGatewayWebhookSecret({
+          storeId,
+          gatewayId: gatewayDocId,
+        }),
       ).unwrap();
       if (result?.data?.webhookSetup) {
         setWebhookSetupView(result.data.webhookSetup);
       }
-      onSuccess?.(result.message || t("settings.paymentGateway.webhookSecretRegenerated"));
+      onSuccess?.(
+        result.message || t("settings.paymentGateway.webhookSecretRegenerated"),
+      );
     } catch (error) {
       onError?.(error?.message || error || "Failed to get webhook secret");
     } finally {
@@ -152,75 +190,27 @@ const GatewayEditDrawer = ({
   }));
 
   return (
-    <FormDrawer
-      isOpen={isOpen}
-      onClose={handleCancel}
-      title={t("settings.paymentGateway.editGateway")}
-      icon={CreditCard}
-      description={t("settings.paymentGateway.manageDescription")}
-      width="w-full md:w-[420px]"
-      onSave={handleSave}
-      onCancel={handleCancel}
-      saveLabel={isSaving ? "Saving..." : t("common.save")}
-      cancelLabel={t("common.cancel")}
-      isSaving={isSaving}
-      saveIcon={Save}
-      saveVariant="primary"
-    >
-      <div className="space-y-4">
-        <Input
-          label={t("settings.paymentGateway.gatewayType")}
-          value={gatewayType || ""}
-          disabled
-          readOnly
-        />
-        <Input
-          label={t("settings.paymentGateway.labelOptional")}
-          placeholder={t("settings.paymentGateway.labelPlaceholder")}
-          value={form.label}
-          onChange={(val) => setForm((p) => ({ ...p, label: val ?? "" }))}
-        />
-        <Select
-          label={t("settings.paymentGateway.mode")}
-          options={modeOptions}
-          value={form.mode}
-          onChange={(val) => setForm((p) => ({ ...p, mode: val }))}
-        />
-        <MultiSelect
-          label={t("settings.paymentGateway.assignToStores")}
-          placeholder={t("settings.paymentGateway.selectStores")}
-          options={storeOptions}
-          value={form.storeIds?.map((id) => String(id)) || []}
-          onChange={(vals) => setForm((p) => ({ ...p, storeIds: vals || [] }))}
-          error={!!errors.storeIds}
-          errorMessage={errors.storeIds}
-          clearable={false}
-        />
-        <Toggle
-          label={t("settings.paymentGateway.setAsDefault")}
-          checked={form.isDefault}
-          onChange={(checked) => setForm((p) => ({ ...p, isDefault: checked }))}
-        />
-        <GatewayCredentialFields
-          gatewayType={gatewayType}
-          values={form.credentials}
-          errors={errors}
-          onChange={(credentials) => setForm((p) => ({ ...p, credentials }))}
-          isEdit
-        />
-        {webhookSetupView && (
-          <GatewayWebhookSetup
-            webhookSetup={webhookSetupView}
-            showSecret={Boolean(webhookSetupView.webhookSecret)}
-            compact
-            onRegenerateSecret={
-              webhookSetupView.webhookSecret ? undefined : handleRegenerateWebhookSecret
-            }
-            isRegenerating={isRegeneratingSecret}
-          />
-        )}
-      </div>
-    </FormDrawer>
+    <GatewayEditDrawerView
+      model={{
+        FormDrawer,
+        isOpen,
+        handleCancel,
+        t,
+        handleSave,
+        isSaving,
+        gatewayType,
+        form,
+        setForm,
+        modeOptions,
+        storeOptions,
+        errors,
+        GatewayCredentialFields,
+        webhookSetupView,
+        GatewayWebhookSetup,
+        handleRegenerateWebhookSecret,
+        isRegeneratingSecret,
+      }}
+    />
   );
 };
 
