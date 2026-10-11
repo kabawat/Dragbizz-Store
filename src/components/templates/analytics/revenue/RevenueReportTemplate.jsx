@@ -1,4 +1,6 @@
 "use client";
+import { RevenueReportTemplateView } from "@dragorbit/features/analytics";
+
 import {
   DetailsSection,
   PerformanceSection,
@@ -8,7 +10,11 @@ import {
 } from "../common";
 import styles from "../common/analyticsReport.module.scss";
 
-const RevenueReportTemplate = ({ analyticsData, selectedStore, hideGst = false }) => {
+const RevenueReportTemplate = ({
+  analyticsData,
+  selectedStore,
+  hideGst = false,
+}) => {
   const formatCurrency = (amount) => {
     if (amount === null || amount === undefined) return "₹0.00";
     return `₹${Number(amount).toLocaleString("en-IN", {
@@ -98,33 +104,29 @@ const RevenueReportTemplate = ({ analyticsData, selectedStore, hideGst = false }
     { label: "Total Revenue", amount: formatCurrency(summary.totalRevenue) },
     { label: "Total Profit", amount: formatCurrency(summary.totalProfit) },
     { label: "Total Discount", amount: formatCurrency(summary.totalDiscount) },
-    ...(hideGst ? [] : [{ label: "Total GST", amount: formatCurrency(summary.totalGst) }]),
+    ...(hideGst
+      ? []
+      : [{ label: "Total GST", amount: formatCurrency(summary.totalGst) }]),
     { label: "Profit Margin", amount: formatPercent(summary.profitMargin) },
   ];
 
   return (
-    <div className={`${styles.report} analytics-report`}>
-      <ReportHeader
-        title="REVENUE ANALYTICS"
-        selectedStore={selectedStore}
-        lastSyncedAt={analyticsData?.lastSyncedAt}
-      />
-
-      <SummarySection cards={summaryCards} />
-
-      <PerformanceSection
-        title="Today's Performance"
-        cards={performanceCards}
-      />
-
-      <DetailsSection
-        title="Financial Breakdown"
-        columns={tableColumns}
-        data={tableData}
-      />
-
-      <ReportFooter reportType="revenue analytics" />
-    </div>
+    <RevenueReportTemplateView
+      model={{
+        styles,
+        ReportHeader,
+        selectedStore,
+        analyticsData,
+        SummarySection,
+        summaryCards,
+        PerformanceSection,
+        performanceCards,
+        DetailsSection,
+        tableColumns,
+        tableData,
+        ReportFooter,
+      }}
+    />
   );
 };
 

@@ -1,4 +1,6 @@
 "use client";
+import { SuppliersReportTemplateView } from "@dragorbit/features/analytics";
+
 import {
   DetailsSection,
   ReportFooter,
@@ -54,19 +56,19 @@ const SuppliersReportTemplate = ({ analyticsData, selectedStore }) => {
   ];
 
   return (
-    <div className={`${styles.report} analytics-report`}>
-      <ReportHeader title="SUPPLIERS ANALYTICS" selectedStore={selectedStore} />
-
-      <SummarySection cards={summaryCards} />
-
-      <DetailsSection
-        title="Suppliers Breakdown"
-        columns={tableColumns}
-        data={tableData}
-      />
-
-      <ReportFooter reportType="suppliers analytics" />
-    </div>
+    <SuppliersReportTemplateView
+      model={{
+        styles,
+        ReportHeader,
+        selectedStore,
+        SummarySection,
+        summaryCards,
+        DetailsSection,
+        tableColumns,
+        tableData,
+        ReportFooter,
+      }}
+    />
   );
 };
 

@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { SuppliersScreen } from "@dragorbit/features/suppliers";
+
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Building, Plus } from "lucide-react";
-import { EmptyState, PageLoader } from "@/components/ui";
+
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -28,11 +29,13 @@ const SuppliersPage = () => {
   const [riskLevel, setRiskLevel] = useState("");
   const [isActive, setIsActive] = useState("");
 
-  const { suppliers, isLoading, error } = useAppSelector((state) => state.suppliers);
+  const { suppliers, isLoading, error } = useAppSelector(
+    (state) => state.suppliers,
+  );
   const {
     can,
     create: canCreate,
-    loading: permissionsLoading
+    loading: permissionsLoading,
   } = useModulePermissions("supplier");
 
   useEffect(() => {
@@ -50,42 +53,29 @@ const SuppliersPage = () => {
   const isFiltered = searchValue || accountStatus || riskLevel || isActive;
 
   return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto">
-        <SupplierListHeader
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          accountStatus={accountStatus}
-          setAccountStatus={setAccountStatus}
-          riskLevel={riskLevel}
-          setRiskLevel={setRiskLevel}
-          isActive={isActive}
-          setIsActive={setIsActive}
-          showAddSupplierDrawer={showAddSupplierDrawer}
-          setShowAddSupplierDrawer={setShowAddSupplierDrawer}
-        />
-
-        <div className="px-5">
-          {(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (<PageLoader />)}
-
-          {!(isLoading || permissionsLoading) && suppliers.length === 0 && !error && (
-            <EmptyState
-              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-              icon={Building}
-              title={t("suppliers.noSuppliers")}
-              description={isFiltered ? t("suppliers.noResultsDescription") : t("suppliers.emptyDescription")}
-              actionButton={!isFiltered && canCreate ? {
-                label: t("suppliers.addSupplier"),
-                onClick: () => setShowAddSupplierDrawer(true),
-                icon: Plus
-              } : null}
-            />
-          )}
-
-          {suppliers.length > 0 && <SupplierListContent />}
-        </div>
-      </div>
-    </div>
+    <SuppliersScreen
+      model={{
+        SupplierListHeader,
+        searchValue,
+        setSearchValue,
+        accountStatus,
+        setAccountStatus,
+        riskLevel,
+        setRiskLevel,
+        isActive,
+        setIsActive,
+        showAddSupplierDrawer,
+        setShowAddSupplierDrawer,
+        isLoading,
+        permissionsLoading,
+        suppliers,
+        error,
+        t,
+        isFiltered,
+        canCreate,
+        SupplierListContent,
+      }}
+    />
   );
 };
 

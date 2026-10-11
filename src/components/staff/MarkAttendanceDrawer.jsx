@@ -1,6 +1,6 @@
 "use client";
-import { Button, Input, Select } from "@/components/ui";
-import { CalendarCheck } from "lucide-react";
+import { MarkAttendanceDrawerView } from "@dragorbit/features/management";
+
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import staffService from "@/service/retailer/staff.service";
@@ -52,7 +52,8 @@ export default function MarkAttendanceDrawer({
     () =>
       ATTENDANCE_STATUSES.map((status) => ({
         value: status,
-        label: t(`staff.attendance.statuses.${status}`) || status.replace("_", " "),
+        label:
+          t(`staff.attendance.statuses.${status}`) || status.replace("_", " "),
       })),
     [t],
   );
@@ -84,9 +85,12 @@ export default function MarkAttendanceDrawer({
       notes: form.notes || undefined,
     };
 
-    const result = await execute(staffService.createAttendance(storeId, payload), {
-      message: t("staff.attendance.saved") || "Attendance saved",
-    });
+    const result = await execute(
+      staffService.createAttendance(storeId, payload),
+      {
+        message: t("staff.attendance.saved") || "Attendance saved",
+      },
+    );
 
     if (result?.success) {
       resetForm();
@@ -95,66 +99,18 @@ export default function MarkAttendanceDrawer({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
-        {staffOptions.length === 0 ? (
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
-            {t("staff.attendance.noActiveStaff") ||
-              "No active staff members found. Add or activate team members before marking attendance."}
-          </div>
-        ) : (
-          <Select
-            label={t("staff.attendance.staff") || "Staff member"}
-            placeholder={t("staff.attendance.selectStaff") || "Select staff"}
-            value={form.staff}
-            onChange={(value) => setForm((prev) => ({ ...prev, staff: value }))}
-            options={staffOptions}
-            clearable={false}
-            required
-          />
-        )}
-
-        <Input
-          type="date"
-          label={t("staff.attendance.date") || "Date"}
-          value={form.date}
-          onChange={(value) => setForm((prev) => ({ ...prev, date: value }))}
-          required
-        />
-
-        <Select
-          label={t("staff.attendance.status") || "Status"}
-          value={form.status}
-          onChange={(value) => setForm((prev) => ({ ...prev, status: value }))}
-          options={statusOptions}
-          clearable={false}
-        />
-
-        <Input
-          type="text"
-          label={t("staff.attendance.notes") || "Notes"}
-          placeholder={t("staff.attendance.notesPlaceholder") || "Optional note"}
-          value={form.notes}
-          onChange={(value) => setForm((prev) => ({ ...prev, notes: value }))}
-        />
-
-        <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-          {t("staff.attendance.formHint") || "Attendance is saved for the selected date."}
-        </p>
-      </div>
-
-      <div className="flex flex-shrink-0 flex-col-reverse gap-2 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] p-4 sm:flex-row sm:justify-end">
-        <Button type="button" variant="secondary" onClick={handleClose}>
-          {t("common.cancel") || "Cancel"}
-        </Button>
-        <Button
-          type="submit"
-          leftIcon={CalendarCheck}
-          disabled={loading || !form.staff || staffOptions.length === 0}
-        >
-          {t("staff.attendance.mark") || "Mark attendance"}
-        </Button>
-      </div>
-    </form>
+    <MarkAttendanceDrawerView
+      model={{
+        handleSubmit,
+        staffOptions,
+        t,
+        form,
+        setForm,
+        statusOptions,
+        isOnline: true,
+        handleClose,
+        loading,
+      }}
+    />
   );
 }
