@@ -1,4 +1,6 @@
 "use client";
+import { SalesReportTemplateView } from "@dragorbit/features/analytics";
+
 import {
   DetailsSection,
   ReportFooter,
@@ -91,23 +93,20 @@ const SalesReportTemplate = ({ analyticsData, selectedStore }) => {
   ];
 
   return (
-    <div className={`${styles.report} analytics-report`}>
-      <ReportHeader title="SALES ANALYTICS" selectedStore={selectedStore} />
-
-      <SummarySection cards={summaryCards} />
-
-      <DetailsSection title="Today's Performance">
-        <SummarySection cards={todayPerformanceCards} />
-      </DetailsSection>
-
-      <DetailsSection
-        title="Invoice Breakdown"
-        columns={tableColumns}
-        data={tableData}
-      />
-
-      <ReportFooter reportType="sales analytics" />
-    </div>
+    <SalesReportTemplateView
+      model={{
+        styles,
+        ReportHeader,
+        selectedStore,
+        SummarySection,
+        summaryCards,
+        DetailsSection,
+        todayPerformanceCards,
+        tableColumns,
+        tableData,
+        ReportFooter,
+      }}
+    />
   );
 };
 

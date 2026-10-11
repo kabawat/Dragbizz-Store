@@ -1,8 +1,9 @@
 "use client";
-import { Grid3X3, List, Plus, RotateCcw, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BillListHeaderView } from "@dragorbit/features/bills";
+
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input, DateRangeFilter } from "@/components/ui";
+
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -26,19 +27,34 @@ const BillListHeader = ({
 
   const { viewMode } = useAppSelector((state) => state.bills);
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = useMemo(() => selectedStore?.storeId || "", [selectedStore?.storeId]);
+  const storeId = useMemo(
+    () => selectedStore?.storeId || "",
+    [selectedStore?.storeId],
+  );
   const { can, loading } = useModulePermissions("billing");
   const canCreate = can("create");
 
   const searchInputRef = useRef(null);
   const lastFetchRef = useRef(null);
-  const hasFetchedRef = useRef({ fetched: false, storeId: null, searchValue: null, startDate: null, endDate: null });
+  const hasFetchedRef = useRef({
+    fetched: false,
+    storeId: null,
+    searchValue: null,
+    startDate: null,
+    endDate: null,
+  });
   const hasActiveFilters = Boolean(startDate || endDate);
 
   // Reset fetch refs when store changes
   useEffect(() => {
     lastFetchRef.current = null;
-    hasFetchedRef.current = { fetched: false, storeId: null, searchValue: null, startDate: null, endDate: null };
+    hasFetchedRef.current = {
+      fetched: false,
+      storeId: null,
+      searchValue: null,
+      startDate: null,
+      endDate: null,
+    };
   }, [storeId]);
 
   // Fetch bills with debounce + deduplication
@@ -49,27 +65,49 @@ const BillListHeader = ({
     if (lastFetchRef.current === fetchKey) return;
 
     const last = hasFetchedRef.current;
-    if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.startDate === startDate && last.endDate === endDate) return;
+    if (
+      last.fetched &&
+      last.storeId === storeId &&
+      last.searchValue === searchValue &&
+      last.startDate === startDate &&
+      last.endDate === endDate
+    )
+      return;
 
     lastFetchRef.current = fetchKey;
 
-    dispatch(getBills({
-      store: storeId,
-      search: searchValue,
-      limit: 20,
-      cursor: null,
-      isFreshLoad: true,
-      startDate: startDate || undefined,
-      endDate: endDate || undefined,
-    }));
-    hasFetchedRef.current = { fetched: true, storeId, searchValue, startDate, endDate };
+    dispatch(
+      getBills({
+        store: storeId,
+        search: searchValue,
+        limit: 20,
+        cursor: null,
+        isFreshLoad: true,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      }),
+    );
+    hasFetchedRef.current = {
+      fetched: true,
+      storeId,
+      searchValue,
+      startDate,
+      endDate,
+    };
   }, [dispatch, storeId, searchValue, startDate, endDate]);
 
   // Debounced trigger
   useEffect(() => {
     if (!storeId) return;
     const last = hasFetchedRef.current;
-    if (last.fetched && last.storeId === storeId && last.searchValue === searchValue && last.startDate === startDate && last.endDate === endDate) return;
+    if (
+      last.fetched &&
+      last.storeId === storeId &&
+      last.searchValue === searchValue &&
+      last.startDate === startDate &&
+      last.endDate === endDate
+    )
+      return;
 
     const timer = setTimeout(() => fetchBills(), 350);
     return () => clearTimeout(timer);
@@ -80,10 +118,13 @@ const BillListHeader = ({
     setEndDate("");
   };
 
-  const handleViewModeChange = useCallback((mode) => {
-    dispatch(setViewModeAction(mode));
-    localStorage.setItem("bills-view-mode", mode);
-  }, [dispatch]);
+  const handleViewModeChange = useCallback(
+    (mode) => {
+      dispatch(setViewModeAction(mode));
+      localStorage.setItem("bills-view-mode", mode);
+    },
+    [dispatch],
+  );
 
   useCommonHotkeys({
     onNew: canCreate ? () => router.push("/dashboard/bills/create") : undefined,
@@ -92,77 +133,30 @@ const BillListHeader = ({
     onViewGrid: () => handleViewModeChange("card"),
   });
 
-  if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
+  if (loading)
+    return (
+      <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />
+    );
 
   return (
-    <div className="p-5">
-      <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-        <div className="flex flex-wrap items-center gap-3">
-          <Input
-            type="text"
-            ref={searchInputRef}
-            placeholder={`${t("common.search")} ${t("bills.title").toLowerCase()}...`}
-            value={searchValue}
-            onChange={setSearchValue}
-            leftIcon={Search}
-            className="w-100"
-          />
-          <DateRangeFilter
-            startDate={startDate}
-            endDate={endDate}
-            onChange={({ startDate: nextStart, endDate: nextEnd }) => {
-              setStartDate(nextStart);
-              setEndDate(nextEnd);
-            }}
-          />
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              onClick={handleClearFilters}
-              className="h-10 px-3 text-sm font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] flex items-center gap-2"
-            >
-              <RotateCcw className="w-4 h-4" />
-              {t("common.clearFilters")}
-            </Button>
-          )}
-        </div>
-
-        <div className="flex gap-3 items-center">
-          <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-            <button
-              onClick={() => handleViewModeChange("table")}
-              className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                ? "bg-[rgb(var(--color-primary))] text-white"
-                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                }`}
-            >
-              <List className="w-4 h-4" />
-              {t("common.tableView")}
-            </button>
-            <button
-              onClick={() => handleViewModeChange("card")}
-              className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                ? "bg-[rgb(var(--color-primary))] text-white"
-                : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                }`}
-            >
-              <Grid3X3 className="w-4 h-4" />
-              {t("common.cardView")}
-            </button>
-          </div>
-
-          {canCreate && (
-            <Button
-              variant="primary"
-              onClick={() => router.push("/dashboard/bills/create")}
-              leftIcon={Plus}
-            >
-              {t("bills.createBill")}
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+    <BillListHeaderView
+      model={{
+        searchInputRef,
+        t,
+        searchValue,
+        setSearchValue,
+        startDate,
+        endDate,
+        setStartDate,
+        setEndDate,
+        hasActiveFilters,
+        handleClearFilters,
+        handleViewModeChange,
+        viewMode,
+        canCreate,
+        onCreate: () => router.push("/dashboard/bills/create"),
+      }}
+    />
   );
 };
 

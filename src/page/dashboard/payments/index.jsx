@@ -1,8 +1,12 @@
 "use client";
+import {
+  PaymentsScreen,
+  PaymentListContentView,
+} from "@dragorbit/features/payments";
+
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CreditCard, Plus } from "lucide-react";
-import { EmptyState, PageLoader } from "@/components/ui";
+
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -24,14 +28,15 @@ const Payments = () => {
   useDashboardHeader(t("payments.title"), t("payments.description"));
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { payments, isLoading, isFetchingMore, error, pagination } = useAppSelector((state) => state.payments);
+  const { payments, isLoading, isFetchingMore, error, pagination } =
+    useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const {
     can,
     create: canCreate,
     edit: canEdit,
     delete: canDelete,
-    loading: permissionsLoading
+    loading: permissionsLoading,
   } = useModulePermissions("billing");
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,11 +71,15 @@ const Payments = () => {
 
   // Hotkeys
   useCommonHotkeys({
-    onNew: canCreate ? () => router.push("/dashboard/payments/create") : undefined,
+    onNew: canCreate
+      ? () => router.push("/dashboard/payments/create")
+      : undefined,
     onViewTable: () => handleViewModeChange("table"),
     onViewGrid: () => handleViewModeChange("card"),
     onSearch: () => {
-      const searchInput = document.querySelector('input[placeholder*="search"]');
+      const searchInput = document.querySelector(
+        'input[placeholder*="search"]',
+      );
       if (searchInput) searchInput.focus();
     },
     onClose: () => {
@@ -126,20 +135,23 @@ const Payments = () => {
   };
 
   // Fetch payments with debounce + deduplication
-  const fetchPayments = useCallback(async (isFresh = true) => {
-    if (!storeId) return;
+  const fetchPayments = useCallback(
+    async (isFresh = true) => {
+      if (!storeId) return;
 
-    dispatch(
-      getPayments({
-        store: storeId,
-        search: searchTerm || undefined,
-        limit: 20,
-        page: isFresh ? 1 : (pagination?.page ? pagination.page + 1 : 2),
-        isFreshLoad: isFresh,
-      })
-    );
-    hasFetched.current = true;
-  }, [dispatch, storeId, searchTerm, pagination?.page]);
+      dispatch(
+        getPayments({
+          store: storeId,
+          search: searchTerm || undefined,
+          limit: 20,
+          page: isFresh ? 1 : pagination?.page ? pagination.page + 1 : 2,
+          isFreshLoad: isFresh,
+        }),
+      );
+      hasFetched.current = true;
+    },
+    [dispatch, storeId, searchTerm, pagination?.page],
+  );
 
   // Debounced trigger for fresh loads
   useEffect(() => {
@@ -207,7 +219,7 @@ const Payments = () => {
       if (storeId && paymentId) {
         const result = await executeDelete(
           paymentService.deletePayment(paymentId, storeId),
-          { message: "Payment deleted successfully" }
+          { message: "Payment deleted successfully" },
         );
 
         if (result?.success) {
@@ -220,104 +232,53 @@ const Payments = () => {
   };
 
   return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto">
-        {/* Search and filter */}
-        <PaymentHeaderActions
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          viewMode={viewMode}
-          onViewModeChange={handleViewModeChange}
-        />
-        <div className="px-5">
-
-          {isLoading && payments.length === 0 && !error && (<PageLoader />)}
-
-          {!isLoading && payments.length === 0 && (
-            <EmptyState
-              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-              icon={CreditCard}
-              title={t("payments.noPayments")}
-              description={searchTerm ? t("payments.noResultsDescription") : t("payments.emptyDescription")}
-              actionButton={!searchTerm && canCreate ? {
-                label: t("payments.createPayment"),
-                onClick: () => router.push("/dashboard/payments/create"),
-                icon: Plus
-              } : null}
-            />
-          )}
-
-          {/* Payments list */}
-          {payments.length > 0 && (
-            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
-              <div className="h-[calc(100vh-210px)] overflow-y-auto" ref={scrollRef} >
-                {viewMode === "table" ? (
-                  <PaymentTable
-                    payments={payments}
-                    isLoadingMore={isFetchingMore}
-                    handleMenuAction={handleMenuAction}
-                    canEdit={canEdit}
-                    canDelete={canDelete}
-                  />
-                ) : (
-                  <PaymentGrid
-                    payments={payments}
-                    isLoadingMore={isFetchingMore}
-                    selectedPayments={selectedPayments}
-                    handlePaymentSelect={handlePaymentSelect}
-                    menuRefs={menuRefs}
-                    openMenuId={openMenuId}
-                    handleMenuToggle={handleMenuToggle}
-                    handleMenuAction={handleMenuAction}
-                    canEdit={canEdit}
-                    canDelete={canDelete}
-                  />
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                    {pagination?.hasNextPage ? (
-                      <>
-                        Showing{" "}
-                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                          {payments.length}
-                        </span>{" "}
-                        payments
-                        <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
-                          • Scroll down to load more
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                          {t("payments.showingPayments", {
-                            count: payments.length,
-                          })}
-                        </span>
-                        <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                          • {t("payments.noMore")}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <DeletePaymentModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          paymentToDelete={paymentToDelete}
-          onConfirmDelete={confirmDelete}
-        />
-      </div>
-    </div>
+    <PaymentsScreen
+      model={{
+        t,
+        payments,
+        isLoading,
+        error,
+        permissionsLoading,
+        searchValue: searchTerm,
+        canCreate,
+        onCreate: () => router.push("/dashboard/payments/create"),
+        header: (
+          <PaymentHeaderActions
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            viewMode={viewMode}
+            onViewModeChange={handleViewModeChange}
+          />
+        ),
+        content: (
+          <PaymentListContentView
+            model={{
+              payments,
+              isFetchingMore,
+              viewMode,
+              scrollRef,
+              PaymentTable,
+              handleMenuAction,
+              canEdit,
+              canDelete,
+              PaymentGrid,
+              selectedPayments,
+              handlePaymentSelect,
+              menuRefs,
+              openMenuId,
+              handleMenuToggle,
+              pagination,
+              t,
+              DeletePaymentModal,
+              showDeleteModal,
+              setShowDeleteModal,
+              paymentToDelete,
+              confirmDelete,
+            }}
+          />
+        ),
+      }}
+    />
   );
 };
 

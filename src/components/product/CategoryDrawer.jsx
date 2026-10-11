@@ -1,236 +1,163 @@
 "use client";
+import { CategoryDrawerView } from "@dragorbit/features/categories";
+
 import { useState, useCallback } from "react";
-import { Save, Tags } from "lucide-react";
-import {
-  Checkbox,
-  FileUpload,
-  Input,
-  TagInput,
-  Textarea,
-} from "@/components/ui";
-import { FormDrawer } from "@/components/common";
+
+import { Checkbox, FileUpload } from "@/components/ui";
+
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { categoryService, utilityService, productService } from "@/service";
 import useApiResponse from "@/hooks/useApiResponse";
 
 const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
-  const { t } = useTranslation();
+	const { t } = useTranslation();
 
-  const [newCategoryData, setNewCategoryData] = useState({
-    name: "",
-    description: "",
-    hasExpiryDate: false,
-    metadata: {
-      icon: null,
-      tags: [],
-    },
-  });
+	const [newCategoryData, setNewCategoryData] = useState({
+		name: "",
+		description: "",
+		hasExpiryDate: false,
+		metadata: {
+			icon: null,
+			tags: [],
+		},
+	});
 
-  const [iconUploading, setIconUploading] = useState(false);
-  const { execute: executeCreate, loading: addCategoryLoading } = useApiResponse();
+	const [iconUploading, setIconUploading] = useState(false);
+	const { execute: executeCreate, loading: addCategoryLoading } =
+		useApiResponse();
 
-  const resetCategoryData = useCallback(() => {
-    setNewCategoryData({
-      name: "",
-      description: "",
-      hasExpiryDate: false,
-      metadata: {
-        icon: null,
-        tags: [],
-      },
-    });
-    setIconUploading(false);
-  }, []);
+	const resetCategoryData = useCallback(() => {
+		setNewCategoryData({
+			name: "",
+			description: "",
+			hasExpiryDate: false,
+			metadata: {
+				icon: null,
+				tags: [],
+			},
+		});
+		setIconUploading(false);
+	}, []);
 
-  const handleClose = () => {
-    resetCategoryData();
-    onClose();
-  };
+	const handleClose = () => {
+		resetCategoryData();
+		onClose();
+	};
 
-  const handleRemoveIcon = async () => {
-    const currentIcon = newCategoryData.metadata.icon;
-    if (
-      currentIcon &&
-      typeof currentIcon === "string" &&
-      (currentIcon.includes("bucket") || currentIcon.includes("r2.dev"))
-    ) {
-      try {
-        await utilityService.deleteFile(currentIcon);
-      } catch (err) {
-        console.warn("Failed to delete category icon from storage:", err);
-      }
-    }
+	const handleRemoveIcon = async () => {
+		const currentIcon = newCategoryData.metadata.icon;
+		if (
+			currentIcon &&
+			typeof currentIcon === "string" &&
+			(currentIcon.includes("bucket") || currentIcon.includes("r2.dev"))
+		) {
+			try {
+				await utilityService.deleteFile(currentIcon);
+			} catch (err) {
+				console.warn("Failed to delete category icon from storage:", err);
+			}
+		}
 
-    setNewCategoryData((prev) => ({
-      ...prev,
-      metadata: { ...prev.metadata, icon: null },
-    }));
-  };
+		setNewCategoryData((prev) => ({
+			...prev,
+			metadata: { ...prev.metadata, icon: null },
+		}));
+	};
 
-  const handleIconUpload = async (files) => {
-    const file = files?.[0];
-    if (!file) return;
+	const handleIconUpload = async (files) => {
+		const file = files?.[0];
+		if (!file) return;
 
-    if (newCategoryData.metadata.icon && typeof newCategoryData.metadata.icon === "string") {
-      await handleRemoveIcon();
-    }
+		if (
+			newCategoryData.metadata.icon &&
+			typeof newCategoryData.metadata.icon === "string"
+		) {
+			await handleRemoveIcon();
+		}
 
-    try {
-      setIconUploading(true);
-      const uploadResult = await utilityService.uploadFile(file, "category");
+		try {
+			setIconUploading(true);
+			const uploadResult = await utilityService.uploadFile(file, "category");
 
-      setNewCategoryData((prev) => ({
-        ...prev,
-        metadata: { ...prev.metadata, icon: uploadResult.publicFileUrl },
-      }));
-    } catch (error) {
-      console.error("Icon upload failed:", error);
-    } finally {
-      setIconUploading(false);
-    }
-  };
+			setNewCategoryData((prev) => ({
+				...prev,
+				metadata: { ...prev.metadata, icon: uploadResult.publicFileUrl },
+			}));
+		} catch (error) {
+			console.error("Icon upload failed:", error);
+		} finally {
+			setIconUploading(false);
+		}
+	};
 
-  const handleAddCategory = async () => {
-    if (!newCategoryData.name.trim()) return;
+	const handleAddCategory = async () => {
+		if (!newCategoryData.name.trim()) return;
 
-    try {
-      const iconUrl = newCategoryData.metadata.icon;
+		try {
+			const iconUrl = newCategoryData.metadata.icon;
 
-      const apiPayload = {
-        name: newCategoryData.name.trim(),
-        description: newCategoryData.description.trim(),
-        hasExpiryDate: newCategoryData.hasExpiryDate === true,
-        metadata: {
-          ...newCategoryData.metadata,
-          icon: iconUrl || "category",
-        },
-      };
+			const apiPayload = {
+				name: newCategoryData.name.trim(),
+				description: newCategoryData.description.trim(),
+				hasExpiryDate: newCategoryData.hasExpiryDate === true,
+				metadata: {
+					...newCategoryData.metadata,
+					icon: iconUrl || "category",
+				},
+			};
 
-      const result = await executeCreate(
-        categoryService.createCategory(apiPayload, storeId)
-      );
+			const result = await executeCreate(
+				categoryService.createCategory(apiPayload, storeId),
+			);
 
-      if (result?.success) {
-        const body = result.data?.data || result.data;
-        const categoryId = body?.id || body?._id;
+			if (result?.success) {
+				const body = result.data?.data || result.data;
+				const categoryId = body?.id || body?._id;
 
-        if (iconUrl && categoryId) {
-          try {
-            await productService.saveProductImage({
-              entityId: categoryId,
-              entityType: "Category",
-              url: iconUrl,
-              isPrimary: true,
-              metadata: { name: newCategoryData.name },
-            });
-          } catch (err) {
-            console.warn("Category image metadata sync failed:", err);
-          }
-        }
+				if (iconUrl && categoryId) {
+					try {
+						await productService.saveProductImage({
+							entityId: categoryId,
+							entityType: "Category",
+							url: iconUrl,
+							isPrimary: true,
+							metadata: { name: newCategoryData.name },
+						});
+					} catch (err) {
+						console.warn("Category image metadata sync failed:", err);
+					}
+				}
 
-        onCategoryAdded?.({
-          value: categoryId,
-          label: newCategoryData.name.trim(),
-        });
-        resetCategoryData();
-        onClose();
-      }
-    } catch (error) {
-      console.error("Category creation failed:", error);
-    }
-  };
+				onCategoryAdded?.({
+					value: categoryId,
+					label: newCategoryData.name.trim(),
+				});
+				resetCategoryData();
+				onClose();
+			}
+		} catch (error) {
+			console.error("Category creation failed:", error);
+		}
+	};
 
-  return (
-    <FormDrawer
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={t("products.addNewCategory")}
-      icon={Tags}
-      width="w-full md:w-2/3 lg:w-1/2"
-      onSave={handleAddCategory}
-      onCancel={handleClose}
-      saveLabel={addCategoryLoading ? t("common.saving") : t("products.addCategory")}
-      cancelLabel={t("common.cancel")}
-      isSaving={addCategoryLoading}
-      saveIcon={Save}
-      disabled={!newCategoryData.name.trim() || iconUploading}
-    >
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">
-            {t("products.basicInformation")}
-          </h3>
-
-          <Input
-            label={t("products.categoryName")}
-            placeholder={t("products.categoryNamePlaceholder")}
-            value={newCategoryData.name}
-            onChange={(value) => setNewCategoryData((prev) => ({ ...prev, name: value }))}
-            required
-          />
-
-          <Textarea
-            label={t("common.description")}
-            placeholder={t("products.enterCategoryDescription")}
-            value={newCategoryData.description}
-            onChange={(value) =>
-              setNewCategoryData((prev) => ({ ...prev, description: value }))
-            }
-            rows={3}
-          />
-
-          <Checkbox
-            label={t("products.categoryRequiresExpiryDate")}
-            checked={newCategoryData.hasExpiryDate === true}
-            onChange={(checked) =>
-              setNewCategoryData((prev) => ({ ...prev, hasExpiryDate: checked }))
-            }
-          />
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">
-            {t("products.categorySettings")}
-          </h3>
-
-          <FileUpload
-            label={t("products.categoryIcon")}
-            accept="image/*"
-            multiple={false}
-            value={newCategoryData.metadata.icon ? [newCategoryData.metadata.icon] : []}
-            onChange={handleIconUpload}
-            onRemove={handleRemoveIcon}
-            loading={iconUploading}
-            dropZoneLabel={t("products.clickToUpload")}
-            sizeLimitLabel={t("products.imagesUpTo2MB")}
-            maxSize={2 * 1024 * 1024}
-          />
-
-          <TagInput
-            label={t("products.tags")}
-            placeholder={t("products.addTagsPlaceholder")}
-            countLabel={t("products.tagCount")}
-            value={newCategoryData.metadata.tags}
-            onChange={(value) =>
-              setNewCategoryData((prev) => ({
-                ...prev,
-                metadata: { ...prev.metadata, tags: value },
-              }))
-            }
-          />
-        </div>
-
-        <div className="rounded-lg p-4 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))]">
-          <h3 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            {t("products.aboutCategories")}
-          </h3>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {t("products.aboutCategoriesDescription")}
-          </p>
-        </div>
-      </div>
-    </FormDrawer>
-  );
+	return (
+		<CategoryDrawerView
+			model={{
+				isOpen,
+				handleClose,
+				t,
+				handleAddCategory,
+				addCategoryLoading,
+				newCategoryData,
+				iconUploading,
+				setNewCategoryData,
+				Checkbox,
+				FileUpload,
+				handleIconUpload,
+				handleRemoveIcon,
+			}}
+		/>
+	);
 };
 
 export default CategoryDrawer;

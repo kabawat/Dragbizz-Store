@@ -1,7 +1,14 @@
 "use client";
+import { BillListContentView } from "@dragorbit/features/bills";
+
 import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { BillDeleteConfirmModal, BillGrid, BillPaymentDrawer, BillTable } from "@/components/bills";
+import {
+  BillDeleteConfirmModal,
+  BillGrid,
+  BillPaymentDrawer,
+  BillTable,
+} from "@/components/bills";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { billService } from "@/service/retailer";
@@ -12,14 +19,17 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import { useState } from "react";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const BillListContent = ({ searchValue = "", startDate = "", endDate = "" }) => {
+const BillListContent = ({
+  searchValue = "",
+  startDate = "",
+  endDate = "",
+}) => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { bills, pagination, isLoading, isFetchingMore, viewMode } = useAppSelector(
-    (state) => state.bills
-  );
+  const { bills, pagination, isLoading, isFetchingMore, viewMode } =
+    useAppSelector((state) => state.bills);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
 
@@ -59,19 +69,25 @@ const BillListContent = ({ searchValue = "", startDate = "", endDate = "" }) => 
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isFetchingMoreRef.current && storeIdRef.current) {
-          dispatch(getBills({
-            store: storeIdRef.current,
-            limit: 20,
-            cursor: paginationRef.current.nextCursor,
-            search: searchRef.current || undefined,
-            startDate: startDateRef.current || undefined,
-            endDate: endDateRef.current || undefined,
-            isFreshLoad: false,
-          }));
+        if (
+          entries[0].isIntersecting &&
+          !isFetchingMoreRef.current &&
+          storeIdRef.current
+        ) {
+          dispatch(
+            getBills({
+              store: storeIdRef.current,
+              limit: 20,
+              cursor: paginationRef.current.nextCursor,
+              search: searchRef.current || undefined,
+              startDate: startDateRef.current || undefined,
+              endDate: endDateRef.current || undefined,
+              isFreshLoad: false,
+            }),
+          );
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(sentinel);
@@ -81,7 +97,11 @@ const BillListContent = ({ searchValue = "", startDate = "", endDate = "" }) => 
   // Close contextual menu on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+      if (
+        openMenuId &&
+        menuRefs.current[openMenuId] &&
+        !menuRefs.current[openMenuId].contains(event.target)
+      ) {
         setOpenMenuId(null);
       }
     };
@@ -98,34 +118,37 @@ const BillListContent = ({ searchValue = "", startDate = "", endDate = "" }) => 
     setShowDeleteModal(true);
   }, []);
 
-  const handleMenuAction = useCallback((id, action) => {
-    const bill = bills.find((b) => (b._id || b.id) === id);
-    if (!bill) return;
+  const handleMenuAction = useCallback(
+    (id, action) => {
+      const bill = bills.find((b) => (b._id || b.id) === id);
+      if (!bill) return;
 
-    switch (action) {
-      case "view":
-        if (!canView) return;
-        router.push(`/dashboard/bills/${bill._id || bill.id}`);
-        break;
-      case "edit":
-        if (!canEdit) return;
-        router.push(`/dashboard/bills/${bill._id || bill.id}/edit`);
-        break;
-      case "payment":
-        if (!canEdit) return; // Payment is an edit/update action
-        setSelectedBillForPayment(bill);
-        setShowPaymentDrawer(true);
-        setOpenMenuId(null);
-        break;
-      case "delete":
-        if (!canDelete) return;
-        handleDelete(bill);
-        break;
-      default:
-        break;
-    }
-    setOpenMenuId(null);
-  }, [bills, router, canEdit, canDelete, canView, handleDelete]);
+      switch (action) {
+        case "view":
+          if (!canView) return;
+          router.push(`/dashboard/bills/${bill._id || bill.id}`);
+          break;
+        case "edit":
+          if (!canEdit) return;
+          router.push(`/dashboard/bills/${bill._id || bill.id}/edit`);
+          break;
+        case "payment":
+          if (!canEdit) return; // Payment is an edit/update action
+          setSelectedBillForPayment(bill);
+          setShowPaymentDrawer(true);
+          setOpenMenuId(null);
+          break;
+        case "delete":
+          if (!canDelete) return;
+          handleDelete(bill);
+          break;
+        default:
+          break;
+      }
+      setOpenMenuId(null);
+    },
+    [bills, router, canEdit, canDelete, canView, handleDelete],
+  );
 
   const confirmDelete = useCallback(async () => {
     if (!billToDelete) return;
@@ -134,7 +157,7 @@ const BillListContent = ({ searchValue = "", startDate = "", endDate = "" }) => 
 
     const result = await executeDelete(
       billService.deleteBill(billId, storeId),
-      { message: t("bills.billDeletedSuccessfully") }
+      { message: t("bills.billDeletedSuccessfully") },
     );
 
     if (result?.success) {
@@ -145,100 +168,50 @@ const BillListContent = ({ searchValue = "", startDate = "", endDate = "" }) => 
   }, [billToDelete, storeId, executeDelete, dispatch, t]);
 
   return (
-    <>
-      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
-        <div className="h-[calc(100vh-210px)] overflow-y-auto">
-          {viewMode === "table" ? (
-            <BillTable
-              bills={bills}
-              onEdit={canEdit ? (billId) => router.push(`/dashboard/bills/${billId}/edit`) : undefined}
-              onDelete={canDelete ? handleDelete : undefined}
-              onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
-              loading={isLoading && bills.length === 0}
-              emptyMessage={t("bills.noBills")}
-              onMenuAction={handleMenuAction}
-              formatCurrency={formatCurrency}
-              formatDate={formatDate}
-            />
-          ) : (
-            <BillGrid
-              bills={bills}
-              onEdit={canEdit ? (billId) => router.push(`/dashboard/bills/${billId}/edit`) : undefined}
-              onDelete={canDelete ? handleDelete : undefined}
-              onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
-              openMenuId={openMenuId}
-              onMenuToggle={handleMenuToggle}
-              onMenuAction={handleMenuAction}
-              menuRefs={menuRefs}
-              formatCurrency={formatCurrency}
-              formatDate={formatDate}
-            />
-          )}
-
-          {/* Sentinel — IntersectionObserver triggers load more */}
-          {pagination.hasNextPage && (
-            <div ref={sentinelRef} className="h-4 w-full" />
-          )}
-
-          {/* Infinite scroll loading indicator */}
-          {(isFetchingMore || isLoading) && (
-            <div className="col-span-full flex items-center justify-center py-8">
-              <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
-                <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t("common.loadingMore")}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-              {pagination.hasNextPage ? (
-                <>
-                  Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bills.length}</span> bills
-                  <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">• Scroll down to load more</span>
-                </>
-              ) : (
-                <>
-                  Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bills.length}</span> bills
-                  <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">• {t("bills.noMore")}</span>
-                </>
-              )}
-            </div>
-            <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
-          </div>
-        </div>
-      </div>
-
-      {/* Delete Confirmation Modal */}
-      <BillDeleteConfirmModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
-        billToDelete={billToDelete}
-        formatCurrency={formatCurrency}
-        isDeleting={isDeleting}
-      />
-
-      {/* Payment Drawer */}
-      <BillPaymentDrawer
-        isOpen={showPaymentDrawer}
-        onClose={() => {
-          setShowPaymentDrawer(false);
-          setSelectedBillForPayment(null);
-        }}
-        bill={selectedBillForPayment}
-        onSuccess={() => {
-          if (storeId) {
-            dispatch(getBills({ store: storeId, limit: 20, cursor: null, isFreshLoad: true }));
-          }
-        }}
-      />
-    </>
+    <BillListContentView
+      model={{
+        viewMode,
+        BillTable,
+        bills,
+        canEdit,
+        canDelete,
+        handleDelete,
+        isLoading,
+        t,
+        handleMenuAction,
+        formatCurrency,
+        formatDate,
+        BillGrid,
+        openMenuId,
+        handleMenuToggle,
+        menuRefs,
+        pagination,
+        sentinelRef,
+        isFetchingMore,
+        BillDeleteConfirmModal,
+        showDeleteModal,
+        setShowDeleteModal,
+        confirmDelete,
+        billToDelete,
+        isDeleting,
+        BillPaymentDrawer,
+        showPaymentDrawer,
+        setShowPaymentDrawer,
+        setSelectedBillForPayment,
+        selectedBillForPayment,
+        storeId,
+        dispatch,
+        getBills,
+        onRoute0: (value0) =>
+          router.push("/dashboard/bills/" + String(value0) + "/edit"),
+        onRoute1: (value0) =>
+          router.push("/dashboard/bills/" + String(value0) + ""),
+        onRoute2: (value0) =>
+          router.push("/dashboard/bills/" + String(value0) + "/edit"),
+        onRoute3: (value0) =>
+          router.push("/dashboard/bills/" + String(value0) + ""),
+      }}
+    />
   );
 };
 

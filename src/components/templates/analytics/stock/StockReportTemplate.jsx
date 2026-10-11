@@ -1,4 +1,6 @@
 "use client";
+import { StockReportTemplateView } from "@dragorbit/features/analytics";
+
 import {
   DetailsSection,
   ReportFooter,
@@ -81,19 +83,19 @@ const StockReportTemplate = ({ analyticsData, selectedStore }) => {
   ];
 
   return (
-    <div className={`${styles.report} analytics-report`}>
-      <ReportHeader title="STOCK ANALYTICS" selectedStore={selectedStore} />
-
-      <SummarySection cards={summaryCards} />
-
-      <DetailsSection
-        title="Stock Breakdown"
-        columns={tableColumns}
-        data={tableData}
-      />
-
-      <ReportFooter reportType="stock analytics" />
-    </div>
+    <StockReportTemplateView
+      model={{
+        styles,
+        ReportHeader,
+        selectedStore,
+        SummarySection,
+        summaryCards,
+        DetailsSection,
+        tableColumns,
+        tableData,
+        ReportFooter,
+      }}
+    />
   );
 };
 
