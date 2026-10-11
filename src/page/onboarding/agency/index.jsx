@@ -21,6 +21,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
 import storeService from "@/service/retailer/store.service";
+import authService from "@/service/auth/auth.service";
 
 export default function AgencyCreation() {
   const router = useRouter();
@@ -80,7 +81,13 @@ export default function AgencyCreation() {
         throw new Error(response.message || "An error occurred while creating agency.");
       }
 
-      // tenant + agencyId updated via backend-to-backend gRPC (retailer → auth)
+      const refreshedSession = await authService.refreshToken();
+      if (!refreshedSession?.success) {
+        throw new Error(
+          "Agency created, but your session could not be refreshed. Please reload the page to continue."
+        );
+      }
+
       window.location.href = "/onboarding/store";
       // Intentionally not setting isCreating to false here so the loader spins until navigation completes
     } catch (_error) {
