@@ -137,6 +137,7 @@ const Sidebar = ({ onStoreChange }) => {
 
     return rawNavigationItems
       .map((item) => {
+        console.log("Checking item:", item);
         if (item.hasSubMenu) {
           const filteredSubItems = item.subMenuItems.filter((sub) =>
             hasPermission(sub.href)
