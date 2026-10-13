@@ -6,6 +6,7 @@ const nextConfig = {
   transpilePackages: ["@dragorbit/ui", "@dragorbit/core", "@dragorbit/features"],
   turbopack: { root: require("path").resolve(__dirname, "..") },
   assetPrefix: '/_store_assets',
+  allowedDevOrigins: ["dragbizz.local", "*.dragbizz.local"],
   reactStrictMode: true,
   compiler: {
     removeConsole:
@@ -71,37 +72,35 @@ const nextConfig = {
         ],
       },
       {
+        source: "/_next/hmr",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "*" },
+        ],
+      },
+      {
+        source: "/_next/hmr/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "*" },
+        ],
+      },
+      {
         source: "/_next/webpack-hmr",
         headers: [
-          {
-            key: "Access-Control-Allow-Origin",
-            value: "*",
-          },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET, OPTIONS",
-          },
-          {
-            key: "Access-Control-Allow-Headers",
-            value: "*",
-          },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "*" },
         ],
       },
       {
         source: "/_next/webpack-hmr/:path*",
         headers: [
-          {
-            key: "Access-Control-Allow-Origin",
-            value: "*",
-          },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET, OPTIONS",
-          },
-          {
-            key: "Access-Control-Allow-Headers",
-            value: "*",
-          },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "*" },
         ],
       },
     ];
@@ -112,7 +111,6 @@ const nextConfig = {
         poll: 1000,
         aggregateTimeout: 300,
       };
-      // Allow connections from any host for wildcard DNS
       if (config.devServer) {
         config.devServer.allowedHosts = "all";
       }

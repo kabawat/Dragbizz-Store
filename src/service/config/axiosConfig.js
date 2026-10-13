@@ -94,7 +94,6 @@ const setupAuthInterceptors = (instance) => {
 
       if (error.response?.status === 401 && !originalRequest._retry) {
         if (isRefreshing) {
-          // Queue requests while refreshing
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           })
@@ -110,7 +109,6 @@ const setupAuthInterceptors = (instance) => {
         isRefreshing = true;
 
         try {
-          // Call refresh token
           const { default: authService } = await import(
             "@/service/auth/auth.service"
           );
@@ -120,22 +118,28 @@ const setupAuthInterceptors = (instance) => {
           if (refreshResponse.success) {
             isRefreshing = false;
             processQueue(null);
-
-            // Retry request
             return instance(originalRequest);
           } else {
             throw new Error("Token refresh failed");
           }
         } catch (refreshError) {
-          // Refresh failed
           isRefreshing = false;
           processQueue(refreshError);
 
-          // Redirect to login if on protected route
           if (typeof window !== "undefined") {
             const pathname = window.location.pathname || "";
-            const protectedPrefixes = ["/dashboard", "/profile", "/settings", "/admin", "/onboarding"];
-            const isProtectedRoute = protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
+            if (pathname.startsWith("/onboarding")) {
+              return Promise.reject(refreshError);
+            }
+            const protectedPrefixes = [
+              "/dashboard",
+              "/profile",
+              "/settings",
+              "/admin",
+            ];
+            const isProtectedRoute = protectedPrefixes.some((prefix) =>
+              pathname.startsWith(prefix)
+            );
             if (isProtectedRoute) {
               window.location.href = "/login";
             }

@@ -277,9 +277,16 @@ const profileSlice = createSlice({
         state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to get retailer details";
-        state.redirectTo = action.payload?.redirectTo || "/login";
-        state.isAuthenticated = false;
         state.isInitialized = true;
+        if (state.authProfile) {
+          state.isAuthenticated = true;
+          state.redirectTo = state.authProfile.agencyId
+            ? state.redirectTo
+            : "/onboarding/agency";
+        } else {
+          state.isAuthenticated = false;
+          state.redirectTo = action.payload?.redirectTo || "/login";
+        }
       })
       .addCase(getAuthProfile.pending, (state) => {
         state.authProfileLoading = true;
@@ -300,7 +307,7 @@ const profileSlice = createSlice({
           state.redirectTo = null;
         }
 
-        if (!data?.agencyId || redirectTo) {
+        if (!data?.agencyId) {
           state.isInitialized = true;
         }
       })
@@ -308,8 +315,10 @@ const profileSlice = createSlice({
         state.authProfileLoading = false;
         state.authProfileError =
           action.payload?.message || "Failed to fetch auth profile";
-        state.isAuthenticated = false;
         state.isInitialized = true;
+        if (!state.authProfile) {
+          state.isAuthenticated = false;
+        }
       })
       .addCase(getStaffProfileDetails.pending, (state) => {
         state.staffProfileLoading = true;

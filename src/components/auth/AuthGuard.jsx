@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { useAppSelector } from "@/store/hooks";
-// Protects authenticated routes and handles redirects
+
 export default function AuthGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -22,11 +22,16 @@ export default function AuthGuard({ children }) {
   const { ready: storeReady } = useSelectedStoreId();
 
   useEffect(() => {
-    // Wait for auth & data load
     if (!isInitialized) return;
 
-    // Basic auth check
     if (!isAuthenticated) {
+      const hasSessionCookie =
+        typeof document !== "undefined" &&
+        document.cookie.includes("logged_in=true");
+      if (pathname.startsWith("/onboarding") && hasSessionCookie) {
+        setIsChecking(false);
+        return;
+      }
       if (!pathname.startsWith("/login")) {
         const searchParams = new URLSearchParams();
         searchParams.set("redirect", pathname);
@@ -35,20 +40,20 @@ export default function AuthGuard({ children }) {
       return;
     }
 
-    // Handle redirections
     if (!isLoading) {
-      // Priority 1: Force redirect
+      const safeRedirect =
+        redirectTo && redirectTo !== "/login" ? redirectTo : null;
+
       if (
-        redirectTo &&
-        pathname !== redirectTo &&
-        !pathname.startsWith(redirectTo)
+        safeRedirect &&
+        pathname !== safeRedirect &&
+        !pathname.startsWith(safeRedirect)
       ) {
-        router.replace(redirectTo);
+        router.replace(safeRedirect);
         setIsChecking(false);
         return;
       }
 
-      // Priority 2: Agency onboarding
       if (!agency) {
         if (pathname !== "/onboarding/agency") {
           router.replace("/onboarding/agency");
@@ -57,7 +62,6 @@ export default function AuthGuard({ children }) {
         return;
       }
 
-      // Priority 3: Store onboarding
       if (stores.length === 0) {
         if (pathname !== "/onboarding/store") {
           router.replace("/onboarding/store");
@@ -66,7 +70,6 @@ export default function AuthGuard({ children }) {
         return;
       }
 
-      // Priority 4: Dashboard redirect
       if (pathname.startsWith("/onboarding") && agency && stores.length > 0) {
         router.replace("/dashboard");
         return;
@@ -88,7 +91,6 @@ export default function AuthGuard({ children }) {
   const needsStoreBootstrap =
     isAuthenticated && agency && stores.length > 0 && !storeReady;
 
-  // Show loader
   if (
     !isInitialized ||
     isChecking ||

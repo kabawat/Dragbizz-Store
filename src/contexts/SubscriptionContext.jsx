@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useMemo, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import SubscriptionUpgradeModal from "@/components/subscription/SubscriptionUpgradeModal";
 import { subscriptionService } from "@/service/retailer";
 import useApiResponse from "@/hooks/useApiResponse";
@@ -17,6 +18,7 @@ const defaultContext = {
 const SubscriptionContext = createContext(defaultContext);
 
 export const SubscriptionProvider = ({ children }) => {
+  const pathname = usePathname();
   const { execute: executeFetch, data: subscription, loading: isLoading } = useApiResponse();
   const hasFetched = useRef(false);
 
@@ -25,6 +27,8 @@ export const SubscriptionProvider = ({ children }) => {
   const [modalType, setModalType] = useState("UPGRADE");
 
   useEffect(() => {
+    if (pathname?.startsWith("/onboarding")) return;
+
     if (!hasFetched.current && executeFetch) {
       hasFetched.current = true;
       executeFetch(
@@ -32,7 +36,7 @@ export const SubscriptionProvider = ({ children }) => {
         { showToast: false }
       );
     }
-  }, [executeFetch]);
+  }, [executeFetch, pathname]);
 
   const showUpgradeModal = (message, type = "UPGRADE") => {
     setModalMessage(message || "Please upgrade your plan to access this feature.");
