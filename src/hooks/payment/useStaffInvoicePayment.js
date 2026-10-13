@@ -26,9 +26,7 @@ const PAYMENT_MODE_MAP = {
 };
 
 export const resolveStaffPaymentRedirect = (invoiceId, source) => {
-  if (source === "pos") {
-    return `/dashboard/invoices/${invoiceId}?autoPrint=true&redirect=pos`;
-  }
+  if (source === "pos") return null;
   return `/dashboard/invoices/${invoiceId}`;
 };
 
@@ -36,6 +34,7 @@ export function useStaffInvoicePayment({
   invoiceId,
   source = "create",
   open = false,
+  onSuccess,
 }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -237,10 +236,14 @@ export function useStaffInvoicePayment({
   const navigateAfterSuccess = useCallback(
     async (id) => {
       await refreshInvoiceList();
+      if (source === "pos") {
+        onSuccess?.(id);
+        return;
+      }
       const redirectPath = resolveStaffPaymentRedirect(id, source);
-      router.replace(redirectPath);
+      if (redirectPath) router.replace(redirectPath);
     },
-    [refreshInvoiceList, router, source]
+    [refreshInvoiceList, router, source, onSuccess]
   );
 
   useEffect(() => {

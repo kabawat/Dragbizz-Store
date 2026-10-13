@@ -5,7 +5,13 @@ import InvoicePaymentPanel from "@/components/payment/InvoicePaymentPanel";
 import useStaffInvoicePayment from "@/hooks/payment/useStaffInvoicePayment";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) => {
+const PaymentConfirmModal = ({
+  open,
+  onClose,
+  invoiceId,
+  source = "create",
+  onSuccess,
+}) => {
   const { t } = useTranslation();
 
   const {
@@ -29,7 +35,7 @@ const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) =>
     handleClose,
     handlePaymentStateChange,
     loadInvoice,
-  } = useStaffInvoicePayment({ invoiceId, source, open });
+  } = useStaffInvoicePayment({ invoiceId, source, open, onSuccess });
 
   if (!open || !invoiceId) return null;
 

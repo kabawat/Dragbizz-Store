@@ -6,6 +6,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import ProductPanel from "@/components/pos/ProductPanel";
 import CartPanel from "@/components/pos/CartPanel";
 import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
+import PosInvoicePrintModal from "@/components/payment/PosInvoicePrintModal";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
@@ -22,8 +23,14 @@ const POSPage = () => {
     itemCount: 0,
   });
   const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
+  const [printInvoiceId, setPrintInvoiceId] = useState(null);
 
   useDashboardHeader(t("pos.title"), t("pos.description"));
+
+  const handlePaymentSuccess = useCallback((invoiceId) => {
+    setPaymentInvoiceId(null);
+    setPrintInvoiceId(invoiceId);
+  }, []);
 
   const searchRef = useRef(null);
   const checkoutRef = useRef(null);
@@ -90,40 +97,50 @@ const POSPage = () => {
   const showMobileCartBar = cart.length > 0 && !mobileCartOpen;
 
   return (
-    <PosScreen
-      mobileCartOpen={mobileCartOpen}
-      setMobileCartOpen={setMobileCartOpen}
-      cartSummary={cartSummary}
-      hasItems={cart.length > 0}
-      formatTotal={fmt}
-      className="flex-1 min-h-0 h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)]"
-      productPanel={
-        <ProductPanel addToCart={addToCart} searchRef={searchRef} cart={cart} />
-      }
-      cartPanel={
-        <CartPanel
-          cart={cart}
-          setCart={setCart}
-          checkoutRef={checkoutRef}
-          mobileOpen={mobileCartOpen}
-          onMobileClose={() => setMobileCartOpen(false)}
-          onTotalsChange={handleTotalsChange}
-          onCheckoutComplete={() => {
-            setCart([]);
-            setMobileCartOpen(false);
-          }}
-          onDraftCreated={setPaymentInvoiceId}
+    <>
+      <div className={printInvoiceId ? "no-print" : undefined}>
+        <PosScreen
+          mobileCartOpen={mobileCartOpen}
+          setMobileCartOpen={setMobileCartOpen}
+          cartSummary={cartSummary}
+          hasItems={cart.length > 0}
+          formatTotal={fmt}
+          className="flex-1 min-h-0 h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)]"
+          productPanel={
+            <ProductPanel addToCart={addToCart} searchRef={searchRef} cart={cart} />
+          }
+          cartPanel={
+            <CartPanel
+              cart={cart}
+              setCart={setCart}
+              checkoutRef={checkoutRef}
+              mobileOpen={mobileCartOpen}
+              onMobileClose={() => setMobileCartOpen(false)}
+              onTotalsChange={handleTotalsChange}
+              onCheckoutComplete={() => {
+                setCart([]);
+                setMobileCartOpen(false);
+              }}
+              onDraftCreated={setPaymentInvoiceId}
+            />
+          }
+          paymentModal={
+            <PaymentConfirmModal
+              open={Boolean(paymentInvoiceId)}
+              invoiceId={paymentInvoiceId}
+              source="pos"
+              onClose={() => setPaymentInvoiceId(null)}
+              onSuccess={handlePaymentSuccess}
+            />
+          }
         />
-      }
-      paymentModal={
-        <PaymentConfirmModal
-          open={Boolean(paymentInvoiceId)}
-          invoiceId={paymentInvoiceId}
-          source="pos"
-          onClose={() => setPaymentInvoiceId(null)}
-        />
-      }
-    ></PosScreen>
+      </div>
+      <PosInvoicePrintModal
+        open={Boolean(printInvoiceId)}
+        invoiceId={printInvoiceId}
+        onClose={() => setPrintInvoiceId(null)}
+      />
+    </>
   );
 };
 
