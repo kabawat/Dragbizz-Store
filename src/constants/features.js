@@ -16,6 +16,8 @@ export const FEATURES = {
   SALES_ORDER: "sales_order",
   AI: "ai",
   ONLINE_STORE: "online_store",
+  CUSTOMER_PAYMENT_GATEWAY: "customer_payment_gateway",
+  INTEGRATIONS: "integrations",
 };
 
 export const FEATURE_DISPLAY_NAMES = {
@@ -35,4 +37,6 @@ export const FEATURE_DISPLAY_NAMES = {
   sales_order: "Sales Orders",
   ai: "AI Suite",
   online_store: "Online Store",
+  customer_payment_gateway: "Customer Payment Gateway",
+  integrations: "Integrations",
 };
