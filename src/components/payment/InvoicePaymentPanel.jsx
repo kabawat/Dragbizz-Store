@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import {
   Banknote,
   CheckCircle2,
@@ -11,8 +9,10 @@ import {
   Loader2,
   Wallet,
 } from "lucide-react";
-import { Button, Input } from "@/components/ui";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { UpiPaymentQr } from "@/components/common";
+import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const PAYMENT_METHODS = [
@@ -28,6 +28,7 @@ const formatAmount = (n) =>
 const InvoicePaymentPanel = ({
   invoiceNumber,
   grandTotal,
+  items = [],
   customerName,
   loading,
   defaultUpi,
@@ -110,6 +111,46 @@ const InvoicePaymentPanel = ({
               {t("invoice.collectPayment.customer")}
             </span>
             <span className="font-medium text-[rgb(var(--color-text-primary))]">{customerName}</span>
+          </div>
+        )}
+
+        {items.length > 0 && (
+          <div className="border-t border-[rgb(var(--color-border-primary))] pt-3">
+            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+              {t("invoice.items")}
+            </p>
+            <div className="space-y-2">
+              {items.map((item, index) => {
+                const quantity = Number(item.quantity) || 0;
+                const unitPrice =
+                  Number(item.discountedPrice ?? item.price) || 0;
+                const itemName =
+                  item.product?.name || item.productName || "Unknown Product";
+
+                return (
+                  <div
+                    key={
+                      item.product?.id ||
+                      item.product?._id ||
+                      `${itemName}-${index}`
+                    }
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-[rgb(var(--color-text-primary))]">
+                        {itemName}
+                      </p>
+                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                        {quantity} × {formatAmount(unitPrice)}
+                      </p>
+                    </div>
+                    <span className="shrink-0 font-semibold tabular-nums text-[rgb(var(--color-text-primary))]">
+                      {formatAmount(quantity * unitPrice)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 

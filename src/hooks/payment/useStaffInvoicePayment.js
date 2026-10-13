@@ -334,6 +334,7 @@ export function useStaffInvoicePayment({
     invoice,
     invoiceNumber,
     grandTotal,
+    items: invoice?.items || [],
     customerName,
     storeName,
     pageState,

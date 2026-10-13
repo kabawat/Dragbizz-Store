@@ -2,8 +2,8 @@
 
 import { Loader2 } from "lucide-react";
 import InvoicePaymentPanel from "@/components/payment/InvoicePaymentPanel";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import useStaffInvoicePayment from "@/hooks/payment/useStaffInvoicePayment";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) => {
   const { t } = useTranslation();
@@ -11,6 +11,7 @@ const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) =>
   const {
     invoiceNumber,
     grandTotal,
+    items,
     customerName,
     storeName,
     pageState,
@@ -37,7 +38,7 @@ const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) =>
     onClose?.();
   };
 
-  const showPanel = pageState === "ready" && grandTotal > 0;
+  const showPanel = pageState === "ready";
 
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
@@ -76,6 +77,7 @@ const PaymentConfirmModal = ({ open, onClose, invoiceId, source = "create" }) =>
             <InvoicePaymentPanel
               invoiceNumber={invoiceNumber}
               grandTotal={grandTotal}
+              items={items}
               customerName={customerName}
               loading={isProcessing}
               defaultUpi={defaultUpi}
