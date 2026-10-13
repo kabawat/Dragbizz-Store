@@ -32,7 +32,7 @@ export const getSalesSubMenuItems = (t) => [
     { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers", shortcut: "c", module: "customer" },
     { name: t("sidebar.pos") || "POS", icon: ShoppingBag, href: "/dashboard/pos", shortcut: "k", module: "invoice", requireCapability: "pos" },
     { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i", module: "invoice" },
-    { name: t("sidebar.sellOrders") || "Sales Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o", module: "invoice" },
+    { name: t("sidebar.sellOrders") || "Sales Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o", module: "sales_order" },
     { name: t("sidebar.cashbook"), icon: Wallet, href: "/dashboard/cashbook", shortcut: "b", module: "cashbook" },
     { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e", module: "expense" },
 ];
@@ -157,11 +157,18 @@ export const getManagementSubMenuItems = (t) => [
 ];
 
 export const getIntegrationsSubMenuItems = (t) => [
-    { name: t("sidebar.tally") || "Tally", icon: FileText, href: "/dashboard/integrations/tally" },
+    {
+        name: t("sidebar.tally") || "Tally",
+        icon: FileText,
+        href: "/dashboard/integrations/tally",
+        module: "reports",
+        requireCapability: "tally",
+    },
     {
         name: t("sidebar.paymentGateway") || "Payment Gateway",
         icon: CreditCard,
         href: "/dashboard/integrations/payment",
+        module: "customer_payment_gateway",
     },
 ];
 
@@ -245,54 +252,39 @@ export const getBottomItems = (t) => [
 
 export const getMenuToFeatureMap = (t) => ({
     [t("sidebar.salesManagement")]: [
-        "Customer Management",
-        "Invoice Management",
-        "Expense Management",
-        "customer_management",
-        "invoice_management",
-        "expense_management",
+        "customer",
+        "invoice",
+        "expense",
+        "cashbook",
+        "sales_order",
     ],
-    [t("sidebar.productManagement")]: [
-        "Product Management",
-        "product_management",
+    [t("sidebar.productManagement")]: ["product"],
+    [t("sidebar.stockManagement")]: ["inventory"],
+    [t("sidebar.inventory")]: ["product", "inventory"],
+    [t("sidebar.purchaseManagement")]: [
+        "purchase_order",
+        "supplier",
+        "billing",
     ],
-    [t("sidebar.stockManagement")]: [
-        "Stock Management",
-        "stock_management",
-    ],
-    [t("sidebar.inventory")]: [
-        "Product Management",
-        "Stock Management",
-        "product_management",
-        "stock_management",
-    ],
-    [t("sidebar.purchaseManagement")]: ["Purchase Management", "purchase_management"],
-    [t("sidebar.purchase")]: ["Purchase Management", "purchase_management"],
+    [t("sidebar.purchase")]: ["purchase_order", "supplier", "billing"],
 });
 
 export const getSubMenuToFeatureMap = (t) => ({
-    [t("sidebar.customers")]: ["Customer Management", "customer_management"],
-    [t("sidebar.invoices")]: ["Invoice Management", "invoice_management"],
-    [t("sidebar.pos") || "POS"]: ["Invoice Management", "invoice_management"],
-    [t("sidebar.sellOrders") || "Sell Orders"]: ["Invoice Management", "invoice_management"],
-    [t("sidebar.expenses")]: ["Expense Management", "expense_management"],
-    [t("sidebar.products")]: ["Product Management", "product_management"],
-    [t("sidebar.categories")]: ["Product Management", "product_management"],
-    [t("sidebar.brands")]: ["Product Management", "product_management"],
-    [t("sidebar.variants")]: ["Product Management", "product_management"],
-    [t("sidebar.stocks")]: ["Stock Management", "stock_management"],
-    [t("sidebar.lowStockAlerts")]: ["Stock Management", "stock_management"],
-    [t("sidebar.suppliers")]: [
-        "Purchase Management",
-        "purchase_management",
-        "Supplier Management",
-        "supplier_management",
-    ],
-    [t("sidebar.purchaseOrders")]: [
-        "Purchase Management",
-        "purchase_management",
-    ],
-    [t("sidebar.bills")]: ["Bill Management", "bill_management"],
-    [t("sidebar.payments")]: ["Payment Management", "payment_management"],
-    [t("gst.gstAnalytics") || "GST Analytics"]: ["Invoice Management", "invoice_management"],
+    [t("sidebar.customers")]: ["customer"],
+    [t("sidebar.invoices")]: ["invoice"],
+    [t("sidebar.pos") || "POS"]: ["invoice"],
+    [t("sidebar.sellOrders") || "Sell Orders"]: ["sales_order"],
+    [t("sidebar.cashbook")]: ["cashbook"],
+    [t("sidebar.expenses")]: ["expense"],
+    [t("sidebar.products")]: ["product"],
+    [t("sidebar.categories")]: ["product"],
+    [t("sidebar.brands")]: ["product"],
+    [t("sidebar.variants")]: ["product"],
+    [t("sidebar.stocks")]: ["inventory"],
+    [t("sidebar.lowStockAlerts")]: ["inventory"],
+    [t("sidebar.suppliers")]: ["supplier", "purchase_order"],
+    [t("sidebar.purchaseOrders")]: ["purchase_order"],
+    [t("sidebar.bills")]: ["billing"],
+    [t("sidebar.payments")]: ["billing"],
+    [t("gst.gstAnalytics") || "GST Analytics"]: ["reports"],
 });

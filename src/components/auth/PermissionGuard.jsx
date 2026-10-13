@@ -7,11 +7,13 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import {
   getActionFromPath,
+  getCapabilityFromPath,
   getModuleFromPath,
 } from "@/data/config/moduleRegistry";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
 import { useAppSelector } from "@/store/hooks";
 import { redirectToMainDomain } from "@/utils/helper/domain";
+import { hasFeatureCapability } from "@/utils/subscriptionCapability.util";
 export const PermissionGuard = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -72,6 +74,18 @@ export const PermissionGuard = ({ children }) => {
       }
 
       if (action === "report" && !feature.report) {
+        setIsSubscriptionRestricted(true);
+        setHasAccess(false);
+        setIsChecking(false);
+        return;
+      }
+
+      // POS / GST / FIFO etc. — same module as invoices but gated by capability
+      const requiredCapability = getCapabilityFromPath(pathname);
+      if (
+        requiredCapability &&
+        !hasFeatureCapability(feature, requiredCapability)
+      ) {
         setIsSubscriptionRestricted(true);
         setHasAccess(false);
         setIsChecking(false);

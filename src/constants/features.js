@@ -1,4 +1,4 @@
-// Feature keys aligned with dragbizz-retailer subscription modules
+// Feature keys aligned with Finance PACKAGE_MODULES / Core FEATURES
 export const FEATURES = {
   STORE: "store",
   PRODUCT: "product",
@@ -22,18 +22,18 @@ export const FEATURES = {
 
 export const FEATURE_DISPLAY_NAMES = {
   store: "Store Management",
-  product: "Product Management",
+  product: "Product Catalog",
   inventory: "Inventory Management",
-  invoice: "Invoice Management",
-  customer: "Customer Management",
+  invoice: "Invoicing",
+  customer: "Customer Tracking",
   supplier: "Supplier Management",
-  expense: "Expense Management",
+  expense: "Expense Tracking",
   cashbook: "Cashbook",
-  purchase_order: "Purchase Management",
-  billing: "Bill Management",
+  purchase_order: "Purchase Orders",
+  billing: "Billing",
   reports: "Reports & Analytics",
   payment_reminder: "Payment Reminders",
-  staff: "Staff Management",
+  staff: "Staff Accounts",
   sales_order: "Sales Orders",
   ai: "AI Suite",
   online_store: "Online Store",

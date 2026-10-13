@@ -124,6 +124,8 @@ const Sidebar = ({ onStoreChange }) => {
         "/dashboard/purchase-orders": "purchase_order",
         "/dashboard/bills": "billing",
         "/dashboard/payments": "billing",
+        "/dashboard/integrations/tally": "reports",
+        "/dashboard/integrations/payment": "customer_payment_gateway",
       };
 
       const moduleName = ROUTE_MODULE_MAP[href];

@@ -1,6 +1,3 @@
-// Keep in sync with FE/dragbizz-desktop/packages/core/src/product.js
-// Product = catalog identity; Variant = sellable SKU (price/sku/barcode/uom)
-
 function toNumber(value) {
   if (value == null || value === "") return undefined;
   const num = Number(value);
