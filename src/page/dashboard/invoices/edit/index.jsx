@@ -147,20 +147,36 @@ const EditInvoicePage = ({ invoiceId }) => {
         return;
       }
 
-      // Transform invoice data to match form structure
       const transformedItems = inv.items?.map((item) => {
-        const productObj = typeof item.product === 'object' ? item.product : {};
+        const productObj = typeof item.product === "object" ? item.product : {};
         const productId = productObj.id || productObj._id || item.product;
+        const variantObj = typeof item.variant === "object" ? item.variant : null;
+        const variantId =
+          variantObj?.id ||
+          variantObj?._id ||
+          (typeof item.variant === "string" ? item.variant : null) ||
+          null;
 
         return {
           product: productId,
-          productName: productObj.name || "",
+          variant: variantId,
+          productName: item.productName || productObj.name || "",
+          sku: item.sku || variantObj?.sku || "",
           quantity: item.quantity || 1,
-          price: item.price || productObj.sellingPrice || productObj.price || 0,
+          price: item.price ?? productObj.sellingPrice ?? productObj.price ?? 0,
           total: item.total || 0,
-          gstRate: productObj.gstInfo?.gstRate || item.gstRate || 0,
-          isInclusive: productObj.gstInfo && productObj.gstInfo.isGstIncluded !== undefined ? productObj.gstInfo.isGstIncluded : (item.isInclusive !== undefined ? item.isInclusive : false),
-          uom: productObj.uom || item.uom || "Unit",
+          gstRate:
+            item.gstRate ??
+            item.gst?.rate ??
+            productObj.gstInfo?.gstRate ??
+            0,
+          isInclusive:
+            item.isInclusive !== undefined
+              ? item.isInclusive
+              : item.gst?.isInclusive !== undefined
+                ? item.gst.isInclusive
+                : productObj.gstInfo?.isGstIncluded ?? false,
+          uom: item.uom || productObj.uom || "Unit",
         };
       }) || [];
 
@@ -238,7 +254,10 @@ const EditInvoicePage = ({ invoiceId }) => {
       isWalkin: true,
       items: validItems.map((item) => ({
         product: item.product,
+        ...(item.variant ? { variant: item.variant } : {}),
         quantity: item.quantity,
+        ...(item.price != null ? { price: item.price } : {}),
+        ...(item.uom ? { uom: item.uom } : {}),
       })),
       store: selectedStore?.storeId,
       totalDiscount: formData.totalDiscount || 0,

@@ -200,7 +200,10 @@ const CreateInvoicePage = () => {
       isWalkin: true,
       items: validItems.map((item) => ({
         product: item.product,
+        ...(item.variant ? { variant: item.variant } : {}),
         quantity: item.quantity,
+        ...(item.price != null ? { price: item.price } : {}),
+        ...(item.uom ? { uom: item.uom } : {}),
       })),
       store: selectedStore?.storeId,
       totalDiscount: formData.totalDiscount || 0,
