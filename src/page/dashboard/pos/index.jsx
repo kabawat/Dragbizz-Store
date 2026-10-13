@@ -30,14 +30,25 @@ const POSPage = () => {
 
   const addToCart = (product) => {
     setCart((prev) => {
-      const prodId = product.id || product._id;
-      const exists = prev.find((i) => (i.id || i._id) === prodId);
+      // POS cards are sellable variants; keep productId for invoice lines
+      const lineId = product.id || product._id;
+      const exists = prev.find((i) => (i.id || i._id) === lineId);
       if (exists) {
         return prev.map((i) =>
-          (i.id || i._id) === prodId ? { ...i, qty: i.qty + 1 } : i,
+          (i.id || i._id) === lineId ? { ...i, qty: i.qty + 1 } : i,
         );
       }
-      return [...prev, { ...product, id: prodId, qty: 1, discount: 0 }];
+      return [
+        ...prev,
+        {
+          ...product,
+          id: lineId,
+          productId: product.productId || product.id || product._id,
+          variantId: product.variantId || null,
+          qty: 1,
+          discount: 0,
+        },
+      ];
     });
   };
 

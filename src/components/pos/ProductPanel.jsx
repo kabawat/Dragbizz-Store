@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { categoryService } from "@/service/retailer";
 import { getProducts } from "@/store/slices/products/productSlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { expandProductsForPos } from "@/utils/productUtils";
 
 const ProductPanel = ({ addToCart, searchRef }) => {
     const dispatch = useAppDispatch();
@@ -87,18 +88,23 @@ const ProductPanel = ({ addToCart, searchRef }) => {
         return () => observer.disconnect();
     }, [dispatch, pagination.hasNextPage]);
 
+    // One POS card per sellable variant (price/SKU live on variants)
+    const posItems = useMemo(() => expandProductsForPos(products || []), [products]);
+
     const filteredProducts = useMemo(() => {
-        return (products || []).filter((p) => {
+        const q = search.trim().toLowerCase();
+        return posItems.filter((p) => {
             const catId = p.category?._id || p.category || "other";
             const matchCat = selectedCategory === "all" || catId === selectedCategory;
 
-            const matchSearch = !search ||
-                (p.name && p.name.toLowerCase().includes(search.toLowerCase())) ||
-                (p.sku && p.sku.toLowerCase().includes(search.toLowerCase()));
+            const matchSearch = !q ||
+                (p.name && p.name.toLowerCase().includes(q)) ||
+                (p.sku && p.sku.toLowerCase().includes(q)) ||
+                (p.barcode && String(p.barcode).toLowerCase().includes(q));
 
             return matchCat && matchSearch;
         });
-    }, [search, selectedCategory, products]);
+    }, [search, selectedCategory, posItems]);
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden p-3 sm:p-4 gap-3 min-h-0 h-full">

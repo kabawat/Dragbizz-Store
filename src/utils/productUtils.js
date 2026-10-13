@@ -16,6 +16,8 @@ export {
   mergeVariantIntoProduct,
   mergeVariantsIntoProducts,
   pickDefaultVariant,
+  variantOptionLabel,
+  expandProductsForPos,
   toProductListItem,
   resolveProductUnitPrice,
   extractProductIdFromCreateResponse,

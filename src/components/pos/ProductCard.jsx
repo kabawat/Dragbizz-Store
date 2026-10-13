@@ -1,9 +1,11 @@
 import { Plus } from "lucide-react";
+import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 
 export default function ProductCard({ product, onAdd, viewMode }) {
     const isGrid = viewMode === "grid";
+    const price = resolveProductUnitPrice(product);
 
     const getImageUrl = (images) => {
         const first = images?.[0];
@@ -30,7 +32,7 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                     )}
                     {/* Price Badge Overlay */}
                     <div className="absolute bottom-1 right-1 bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold px-1.5 py-0.5 rounded">
-                        {fmt(product.pricing?.sellingPrice)}
+                        {fmt(price)}
                     </div>
                 </div>
                 <div className="min-w-0 w-full px-1 flex-1 flex flex-col justify-between pb-1">
@@ -39,7 +41,7 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                         <p className="text-[0.5625rem] text-[rgb(var(--color-text-secondary))] font-medium truncate uppercase tracking-wider">{product.sku || "NO SKU"}</p>
                     </div>
                     <div className="flex items-center justify-between mt-auto">
-                        <span className="text-xs font-black text-[rgb(var(--color-primary))]">{fmt(product.pricing?.sellingPrice)}</span>
+                        <span className="text-xs font-black text-[rgb(var(--color-primary))]">{fmt(price)}</span>
                         <div className="w-5 h-5 rounded-full bg-[rgb(var(--color-primary))]/10 flex items-center justify-center text-[rgb(var(--color-primary))] group-hover:bg-[rgb(var(--color-primary))] group-hover:text-white transition-colors duration-200">
                             <Plus className="w-3 h-3" strokeWidth={3} />
                         </div>
@@ -65,7 +67,7 @@ export default function ProductCard({ product, onAdd, viewMode }) {
             <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] truncate">{product.name}</p>
-                    <span className="text-sm font-black text-[rgb(var(--color-primary))] whitespace-nowrap">{fmt(product.pricing?.sellingPrice)}</span>
+                    <span className="text-sm font-black text-[rgb(var(--color-primary))] whitespace-nowrap">{fmt(price)}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                     <span className="text-[0.625rem] bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] font-mono">{product.sku || "N/A"}</span>

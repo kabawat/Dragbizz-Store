@@ -33,7 +33,8 @@ const PaymentSection = ({
       customer: null,
       isWalkin: true,
       items: cart.map((item) => ({
-        product: item.id || item._id,
+        // Invoice API still keys lines by catalog product; cart id may be a variant
+        product: item.productId || item.id || item._id,
         quantity: item.qty,
       })),
       store: storeId,

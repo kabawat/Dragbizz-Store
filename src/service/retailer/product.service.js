@@ -50,9 +50,14 @@ class ProductService extends BaseService {
       const store = params.store;
       if (!store) return response;
 
+      // Variants hold sellable price/SKU — fetch enough to cover the product page
+      const variantLimit = Math.min(
+        Math.max(Number(params.limit) || 100, 100) * 5,
+        500
+      );
       const variantsResponse = await variantService.getVariants({
         store,
-        limit: 50,
+        limit: variantLimit,
         lightweight: true,
       });
       const products = unwrapList(response?.data?.data ?? response?.data);

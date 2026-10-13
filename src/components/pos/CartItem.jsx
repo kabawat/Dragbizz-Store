@@ -1,9 +1,10 @@
 import { Plus, Minus, Tag, Trash2 } from "lucide-react";
+import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 
 export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDiscount }) {
-    const price = item.pricing?.sellingPrice || item.price || 0;
+    const price = resolveProductUnitPrice(item) || item.price || 0;
     const name = item.name || "Unknown Product";
     const emoji = item.emoji || item.icon || "📦";
 
