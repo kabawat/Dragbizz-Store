@@ -10,6 +10,8 @@ const StoreList = ({
   isLoading = false,
   selectedStore,
   onAddStore,
+  canAddStore = true,
+  storeLimit = null,
   onEditStore,
   onDeleteStore,
   onShowCatalog,
@@ -81,6 +83,8 @@ const StoreList = ({
         CopyableContactValue,
         onShowCatalog,
         onAddStore,
+        canAddStore,
+        storeLimit,
       }}
     />
   );

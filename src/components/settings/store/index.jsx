@@ -1,22 +1,35 @@
 "use client";
 import { StoreSettingsView } from "@dragorbit/features/settings";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CatalogQRModal } from "@/components/common";
+import { FEATURES } from "@/constants/features";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
+import {
+  canUseFeatureQuota,
+  getFeatureFromSubscription,
+} from "@/utils/subscriptionCapability.util";
 import StoreAddDrawer from "./StoreAddDrawer";
 import StoreDeleteModal from "./StoreDeleteModal";
 import StoreEditDrawer from "./StoreEditDrawer";
 import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
-import { CatalogQRModal } from "@/components/common";
-import useApiResponse from "@/hooks/useApiResponse";
 
 const StoreSettings = () => {
   const dispatch = useAppDispatch();
   const { selectedStore, agency } = useAppSelector((state) => state.profile);
+  const {
+    subscription,
+    showUpgradeModal,
+    isLoading: subscriptionLoading,
+  } = useSubscription();
+  const { isStaff } = useSubscriptionAccess();
   const {
     execute: fetchStoresApi,
     data,
@@ -25,6 +38,28 @@ const StoreSettings = () => {
   const stores = data || [];
 
   const { showError, showSuccess } = useGlobalToast();
+
+  const storeFeature = useMemo(
+    () => getFeatureFromSubscription(subscription, FEATURES.STORE),
+    [subscription],
+  );
+
+  const canAddStore = useMemo(() => {
+    // Avoid flashing upgrade UI while subscription is still loading
+    if (subscriptionLoading && !subscription) return true;
+    return canUseFeatureQuota(storeFeature, {
+      quantity: 1,
+      fallbackUsage: stores?.length || 0,
+    });
+  }, [subscriptionLoading, subscription, storeFeature, stores?.length]);
+
+  const storeLimit = useMemo(() => {
+    if (!storeFeature) return null;
+    if (storeFeature.usageType === "UNLIMITED" || storeFeature.maxLimit === null) {
+      return null;
+    }
+    return Math.max(0, Number(storeFeature.maxLimit) || 0);
+  }, [storeFeature]);
 
   // Drawer/Modal state
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
@@ -59,12 +94,23 @@ const StoreSettings = () => {
     fetchStores();
   }, [fetchStores]);
 
-  // Handle add store - open drawer
+  // Handle add store — respect plan store quota before opening drawer
   const handleAddStore = () => {
     if (!agency || !agency.agencyId) {
       showError("Agency not found. Please create an agency first.");
       return;
     }
+
+    if (!canAddStore) {
+      const limitText =
+        storeLimit != null ? ` of ${storeLimit}` : "";
+      const message = isStaff
+        ? `Your plan allows${limitText} store${storeLimit === 1 ? "" : "s"}. Contact your store admin to upgrade.`
+        : `Your plan allows${limitText} store${storeLimit === 1 ? "" : "s"}. Upgrade to add another store.`;
+      showUpgradeModal(message, isStaff ? "INFO" : "UPGRADE");
+      return;
+    }
+
     setIsAddDrawerOpen(true);
   };
 
@@ -126,6 +172,8 @@ const StoreSettings = () => {
         stores,
         isLoading,
         handleAddStore,
+        canAddStore,
+        storeLimit,
         StoreList,
         selectedStore,
         handleEditStore,
