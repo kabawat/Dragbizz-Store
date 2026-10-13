@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
-import { saveDevice } from "@/firebase/notification";
 import { authService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -45,8 +44,6 @@ export default function GlobalProfileLoader() {
 
     const load = async () => {
       try {
-        await saveDevice().catch(() => {});
-
         try {
           await authService.refreshToken();
         } catch (_) {}
