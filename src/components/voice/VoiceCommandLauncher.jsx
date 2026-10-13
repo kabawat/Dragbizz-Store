@@ -1,14 +1,13 @@
 "use client";
 
 import {
+  BrainCircuit,
   Maximize2,
-  MessageCircle,
   Mic,
   MicOff,
   Minimize2,
   RotateCcw,
   Send,
-  Sparkles,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -398,11 +397,12 @@ const VoiceCommandLauncher = () => {
             key={item.id}
           >
             <div
-              className={`rounded-2xl rounded-br-md bg-[rgb(var(--color-primary))] px-3.5 py-2.5 text-[13px] leading-5 text-white transition-transform hover:-translate-y-0.5 ${
+              className={`ai-chat-on-primary rounded-2xl rounded-br-md bg-[rgb(var(--color-primary))] px-3.5 py-2.5 text-[13px] leading-5 transition-transform hover:-translate-y-0.5 ${
                 isExpanded ? "max-w-[80%]" : "max-w-[85%]"
               }`}
+              style={{ color: "#fff" }}
             >
-              <p className="whitespace-pre-wrap">{item.content}</p>
+              <span className="block whitespace-pre-wrap">{item.content}</span>
             </div>
           </div>
         ) : (
@@ -411,7 +411,7 @@ const VoiceCommandLauncher = () => {
             key={item.id}
           >
             <div
-              className={`rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/90 px-3.5 py-3 ${
+              className={`rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-3.5 py-3 ${
                 isExpanded ? "max-w-[92%]" : "max-w-[94%]"
               }`}
             >
@@ -451,9 +451,10 @@ const VoiceCommandLauncher = () => {
                   </p>
                   <div className="flex gap-2">
                     <button
-                      className="cursor-pointer rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-[12px] font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                      className="ai-chat-on-primary cursor-pointer rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-[12px] font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
                       disabled={isConfirming || isSending}
                       onClick={() => confirmPending(item.pendingConfirmation)}
+                      style={{ color: "#fff" }}
                       type="button"
                     >
                       {t("voice.confirm.approve")}
@@ -476,7 +477,7 @@ const VoiceCommandLauncher = () => {
 
       {(isSending || isConfirming) && (
         <div className="flex justify-start">
-          <div className="rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/80 px-3.5 py-2.5 text-[13px] text-[rgb(var(--color-text-secondary))]">
+          <div className="rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-3.5 py-2.5 text-[13px] text-[rgb(var(--color-text-secondary))]">
             {isConfirming
               ? t("voice.status.confirming")
               : t("voice.status.thinking")}
@@ -535,7 +536,7 @@ const VoiceCommandLauncher = () => {
             },
           ].map((chip) => (
             <button
-              className="cursor-pointer rounded-full border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-primary))] px-2.5 py-1 text-[11px] font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:border-[rgb(var(--color-primary))]/40 hover:text-[rgb(var(--color-primary))]"
+              className="cursor-pointer rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-2.5 py-1 text-[11px] font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:border-[rgb(var(--color-primary))]/45 hover:bg-[rgb(var(--color-bg-tertiary))]"
               key={chip.label}
               onClick={() => handleQuickPrompt(chip.prompt)}
               type="button"
@@ -545,18 +546,19 @@ const VoiceCommandLauncher = () => {
           ))}
         </div>
       )}
-      <div className="flex items-end gap-1.5 rounded-[22px] border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-secondary))]/80 p-1.5 transition-[border-color] focus-within:border-[rgb(var(--color-primary))]/55">
+      <div className="flex items-end gap-1.5 rounded-[22px] border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] p-1.5 transition-[border-color] focus-within:border-[rgb(var(--color-primary))]/55">
         <button
           aria-label={
             isListening ? t("voice.stopListening") : t("voice.startListening")
           }
           className={`mb-0.5 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]/40 disabled:cursor-not-allowed disabled:opacity-40 ${
             isListening
-              ? "bg-[rgb(var(--color-danger))] text-white"
-              : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))] hover:text-[rgb(var(--color-primary))]"
+              ? "ai-chat-on-primary bg-[rgb(var(--color-danger))]"
+              : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
           }`}
           disabled={!isSupported || isSending || isConfirming || !storeId}
           onClick={handleMicrophoneClick}
+          style={isListening ? { color: "#fff" } : undefined}
           type="button"
         >
           {isListening ? (
@@ -580,9 +582,10 @@ const VoiceCommandLauncher = () => {
         />
         <button
           aria-label={t("voice.send")}
-          className="mb-0.5 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[rgb(var(--color-primary))] text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]/40 disabled:cursor-not-allowed disabled:opacity-40"
+          className="ai-chat-on-primary mb-0.5 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[rgb(var(--color-primary))] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))]/40 disabled:cursor-not-allowed disabled:opacity-40"
           disabled={!canSend}
           onClick={handleSend}
+          style={{ color: "#fff" }}
           type="button"
         >
           <Send className="h-4 w-4" />
@@ -598,7 +601,7 @@ const VoiceCommandLauncher = () => {
     <div className="flex shrink-0 items-center gap-1">
       {isExpanded && (
         <span className="mr-2 hidden items-center gap-1.5 text-[11px] text-[rgb(var(--color-text-secondary))] sm:inline-flex">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--color-success))]" />
           {t("voice.online")}
         </span>
       )}
@@ -649,13 +652,16 @@ const VoiceCommandLauncher = () => {
     <section
       aria-label={t("voice.title")}
       aria-modal="false"
-      className="pointer-events-auto flex h-[min(640px,calc(100dvh-6.5rem))] w-[min(400px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-3xl border border-[rgb(var(--color-border-primary))]/70 bg-[rgb(var(--color-bg-primary))]"
+      className="pointer-events-auto flex h-[min(640px,calc(100dvh-6.5rem))] w-[min(400px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-3xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]"
       role="dialog"
     >
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[rgb(var(--color-border-primary))]/60 px-4 py-3">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[rgb(var(--color-border-primary))] px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] ring-1 ring-[rgb(var(--color-primary))]/15">
-            <Sparkles className="h-[18px] w-[18px]" />
+          <div
+            className="ai-chat-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))]/10 ring-1 ring-[rgb(var(--color-primary))]/20"
+            style={{ color: "rgb(var(--color-primary))" }}
+          >
+            <BrainCircuit className="h-[18px] w-[18px]" strokeWidth={1.75} />
           </div>
           <div className="min-w-0">
             <h2 className="truncate text-sm font-semibold tracking-tight text-[rgb(var(--color-text-primary))]">
@@ -672,8 +678,11 @@ const VoiceCommandLauncher = () => {
       <div className="custom-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto px-3.5 py-4">
         {!hasThread ? (
           <div className="flex h-full min-h-[220px] flex-col items-center justify-center px-4 text-center">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
-              <MessageCircle className="h-5 w-5" />
+            <div
+              className="ai-chat-accent mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[rgb(var(--color-primary))]/10 ring-1 ring-[rgb(var(--color-primary))]/20"
+              style={{ color: "rgb(var(--color-primary))" }}
+            >
+              <BrainCircuit className="h-5 w-5" strokeWidth={1.75} />
             </div>
             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
               {t("voice.emptyTitle")}
@@ -687,7 +696,7 @@ const VoiceCommandLauncher = () => {
         )}
       </div>
 
-      <div className="shrink-0 border-t border-[rgb(var(--color-border-primary))]/60 px-3 pb-3 pt-2.5">
+      <div className="shrink-0 border-t border-[rgb(var(--color-border-primary))] px-3 pb-3 pt-2.5">
         {composer}
       </div>
     </section>
@@ -701,15 +710,18 @@ const VoiceCommandLauncher = () => {
       <div className="fixed inset-0 z-[400] flex items-stretch justify-stretch p-[20px] sm:p-[24px]">
         <button
           aria-label={t("voice.collapse")}
-          className="absolute inset-0 cursor-default bg-black/45 backdrop-blur-[2px]"
+          className="absolute inset-0 cursor-default bg-[rgb(var(--color-text-primary))]/40 backdrop-blur-[2px]"
           onClick={collapsePanel}
           type="button"
         />
-        <div className="relative z-10 flex h-full w-full animate-[chatFadeUp_0.2s_ease-out_both] flex-col overflow-hidden rounded-2xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-primary))]">
-          <header className="pointer-events-auto flex shrink-0 items-center justify-between gap-3 border-b border-[rgb(var(--color-border-primary))]/50 px-4 py-3.5 sm:px-5">
+        <div className="relative z-10 flex h-full w-full animate-[chatFadeUp_0.2s_ease-out_both] flex-col overflow-hidden rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] shadow-[var(--card-shadow-hover)]">
+          <header className="pointer-events-auto flex shrink-0 items-center justify-between gap-3 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-4 py-3.5 sm:px-5">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))] text-white">
-                <Sparkles className="h-[18px] w-[18px]" />
+              <div
+                className="ai-chat-on-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))]"
+                style={{ color: "#fff" }}
+              >
+                <BrainCircuit className="h-[18px] w-[18px]" strokeWidth={1.75} />
               </div>
               <div className="min-w-0">
                 <h2 className="truncate text-sm font-semibold tracking-tight text-[rgb(var(--color-text-primary))]">
@@ -759,18 +771,19 @@ const VoiceCommandLauncher = () => {
                 ? t("common.close")
                 : `${t("voice.open")} — ${t("voice.shortcut")}`
             }
-            className={`pointer-events-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-primary))]/25 ${
+            className={`pointer-events-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-full transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-primary))]/25 ${
               isOpen
-                ? "bg-[rgb(var(--color-text-primary))]"
-                : "bg-[rgb(var(--color-primary))]"
+                ? "bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] shadow-md ring-2 ring-[rgb(var(--color-border-primary))]"
+                : "ai-chat-on-primary bg-[rgb(var(--color-primary))] shadow-lg shadow-[rgb(var(--color-primary))]/30"
             }`}
             onClick={isOpen ? closePanel : openPanel}
+            style={isOpen ? undefined : { color: "#fff" }}
             type="button"
           >
             {isOpen ? (
               <X className="h-5 w-5" />
             ) : (
-              <MessageCircle className="h-5 w-5" />
+              <BrainCircuit className="h-6 w-6" strokeWidth={1.75} />
             )}
           </button>
         )}

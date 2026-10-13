@@ -229,7 +229,7 @@ export function parseBlocks(text) {
 
 function ShortcutChip({ label }) {
   return (
-    <kbd className="inline-flex items-center rounded-md border border-[rgb(var(--color-border-primary))]/80 bg-[rgb(var(--color-bg-primary))] px-1.5 py-0.5 font-mono text-[10.5px] font-medium tracking-wide text-[rgb(var(--color-text-primary))] transition-colors hover:border-[rgb(var(--color-primary))]/45 hover:text-[rgb(var(--color-primary))]">
+    <kbd className="inline-flex items-center rounded-md border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-tertiary))] px-1.5 py-0.5 font-mono text-[10.5px] font-medium tracking-wide text-[rgb(var(--color-text-primary))] transition-colors hover:border-[rgb(var(--color-primary))]/45">
       {normalizeShortcut(label)}
     </kbd>
   );
@@ -237,8 +237,9 @@ function ShortcutChip({ label }) {
 
 function ChatLink({ href, children, chip = false }) {
   const className = chip
-    ? "inline-flex max-w-full items-center gap-1 rounded-full border border-[rgb(var(--color-primary))]/20 bg-[rgb(var(--color-primary))]/8 px-2 py-0.5 text-[11px] font-medium text-[rgb(var(--color-primary))] transition-colors hover:border-[rgb(var(--color-primary))]/40 hover:bg-[rgb(var(--color-primary))]/14"
-    : "font-medium text-[rgb(var(--color-primary))] underline decoration-[rgb(var(--color-primary))]/30 underline-offset-2 transition-colors hover:decoration-[rgb(var(--color-primary))]";
+    ? "ai-chat-accent inline-flex max-w-full items-center gap-1 rounded-full border border-[rgb(var(--color-primary))]/20 bg-[rgb(var(--color-primary))]/8 px-2 py-0.5 text-[11px] font-medium transition-colors hover:border-[rgb(var(--color-primary))]/40 hover:bg-[rgb(var(--color-primary))]/14"
+    : "ai-chat-accent font-medium underline decoration-[rgb(var(--color-primary))]/30 underline-offset-2 transition-colors hover:decoration-[rgb(var(--color-primary))]";
+  const accentStyle = { color: "rgb(var(--color-primary))" };
 
   const content = chip ? (
     <>
@@ -251,7 +252,7 @@ function ChatLink({ href, children, chip = false }) {
 
   if (isInternalHref(href)) {
     return (
-      <Link className={className} href={href}>
+      <Link className={className} href={href} style={accentStyle}>
         {content}
       </Link>
     );
@@ -263,6 +264,7 @@ function ChatLink({ href, children, chip = false }) {
         className={className}
         href={href}
         rel="noopener noreferrer"
+        style={accentStyle}
         target="_blank"
       >
         {content}
@@ -270,7 +272,11 @@ function ChatLink({ href, children, chip = false }) {
     );
   }
 
-  return <span className={className}>{content}</span>;
+  return (
+    <span className={className} style={accentStyle}>
+      {content}
+    </span>
+  );
 }
 
 function renderInline(text, keyPrefix = "i") {
@@ -367,7 +373,8 @@ function StepsBlock({ steps }) {
             )}
             <span
               aria-hidden="true"
-              className="relative z-[1] flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgb(var(--color-primary))]/12 text-[11px] font-bold tabular-nums text-[rgb(var(--color-primary))] ring-1 ring-[rgb(var(--color-primary))]/25"
+              className="ai-chat-accent relative z-[1] flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgb(var(--color-primary))]/12 text-[11px] font-bold tabular-nums ring-1 ring-[rgb(var(--color-primary))]/25"
+              style={{ color: "rgb(var(--color-primary))" }}
             >
               {step.number}
             </span>
@@ -490,7 +497,7 @@ function FeatureCards({ header, body }) {
 
           return (
             <li
-              className="group rounded-2xl border border-[rgb(var(--color-border-primary))]/65 bg-[rgb(var(--color-bg-primary))]/55 px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:border-[rgb(var(--color-primary))]/30"
+              className="group rounded-2xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:border-[rgb(var(--color-primary))]/35 hover:bg-[rgb(var(--color-bg-tertiary))]"
               key={`feat-${rowIndex}`}
             >
               <p className="text-[13px] font-semibold leading-5 text-[rgb(var(--color-text-primary))]">

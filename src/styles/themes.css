@@ -28,3 +28,19 @@
 [data-variant="dark"] p {
   color: rgb(var(--color-text-secondary)) !important;
 }
+
+/* AI chat modal: keep theme accent / on-primary colors in dark mode */
+[data-variant="dark"] .ai-chat-on-primary,
+[data-variant="dark"] .ai-chat-on-primary * {
+  color: #fff !important;
+}
+
+[data-variant="dark"] .ai-chat-accent,
+[data-variant="dark"] .ai-chat-accent * {
+  color: rgb(var(--color-primary)) !important;
+}
+
+[data-variant="dark"] .ai-chat-muted,
+[data-variant="dark"] .ai-chat-muted * {
+  color: rgb(var(--color-text-secondary)) !important;
+}
