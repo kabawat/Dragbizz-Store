@@ -288,6 +288,7 @@ function buildGstPayload(gstInfo = {}, isGstIncluded) {
 export function splitProductAndVariantPayload(formData = {}) {
   const normalized = normalizeProductRecord(formData) ?? {};
   const discount = computeDiscount(normalized.mrp, normalized.sellingPrice, normalized.discount);
+  const store = formData.store ?? formData.storeId ?? normalized.store;
 
   const images = (formData.images ?? [])
     .map((img) => {
@@ -310,7 +311,7 @@ export function splitProductAndVariantPayload(formData = {}) {
       : [];
 
   const productPayload = {
-    store: formData.store ?? formData.storeId ?? normalized.store,
+    store,
     name: formData.name ?? normalized.name,
     brandId: formData.brandId || normalized.brandId || null,
     category: formData.category ?? resolveCategoryId(normalized.category),
@@ -346,6 +347,7 @@ export function splitProductAndVariantPayload(formData = {}) {
   if (!productPayload.barcode) delete productPayload.barcode;
 
   const variantPayload = {
+    store,
     displayName: String(formData.name ?? normalized.name ?? "").trim() || undefined,
     mrp: toNumber(formData.mrp ?? normalized.mrp),
     sellingPrice: toNumber(formData.sellingPrice ?? normalized.sellingPrice),
