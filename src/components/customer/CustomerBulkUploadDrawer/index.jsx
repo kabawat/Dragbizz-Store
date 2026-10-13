@@ -1,5 +1,6 @@
+"use client";
+
 import { BulkTemplateDownloadButton } from "@/components/ui";
-("use client");
 import { CustomerBulkUploadDrawerIndexPresentation } from "@dragorbit/features/customers";
 
 import {
