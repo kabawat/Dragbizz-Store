@@ -98,7 +98,7 @@ const POSPage = () => {
       formatTotal={fmt}
       className="flex-1 min-h-0 h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)]"
       productPanel={
-        <ProductPanel addToCart={addToCart} searchRef={searchRef} />
+        <ProductPanel addToCart={addToCart} searchRef={searchRef} cart={cart} />
       }
       cartPanel={
         <CartPanel

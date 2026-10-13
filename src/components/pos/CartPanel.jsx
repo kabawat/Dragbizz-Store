@@ -9,6 +9,7 @@ import {
 import { useAppSelector } from "@/store/hooks";
 import { invoiceService } from "@/service";
 import useApiResponse from "@/hooks/useApiResponse";
+import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const CartPanel = ({
     cart,
@@ -37,6 +38,22 @@ const CartPanel = ({
 
     const itemCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
+    const localCartTotals = useCallback(() => {
+        const discount = Number(globalDiscount) || 0;
+        const subtotal = cart.reduce((sum, item) => {
+            const unit = resolveProductUnitPrice(item);
+            const line = unit * (item.qty || 0) * (1 - (Number(item.discount) || 0) / 100);
+            return sum + line;
+        }, 0);
+        const grandTotal = Math.max(0, subtotal - discount);
+        return {
+            subtotal,
+            taxTotal: 0,
+            grandTotal,
+            gstBreakdown: null,
+        };
+    }, [cart, globalDiscount]);
+
     const fetchTotals = useCallback(async () => {
         if (!storeId || cart.length === 0) {
             setTotals({ subtotal: 0, taxTotal: 0, grandTotal: 0, gstBreakdown: null });
@@ -49,9 +66,11 @@ const CartPanel = ({
                 {
                     store: storeId,
                     items: cart.map((item) => ({
-                        // Invoice API still keys lines by catalog product; cart id may be a variant
+                        // Catalog product for invoice; variant for sellable price
                         product: item.productId || item.id || item._id,
+                        variant: item.variantId || undefined,
                         quantity: item.qty,
+                        price: resolveProductUnitPrice(item) || undefined,
                     })),
                     totalDiscount: Number(globalDiscount) || 0,
                     discountMode: "POST_TOTAL",
@@ -63,16 +82,26 @@ const CartPanel = ({
         );
         setCalculating(false);
 
+        const fallback = localCartTotals();
         if (result?.success) {
             const data = result.data;
+            const apiGrand = Number(data?.totalAmount ?? 0);
+            // If BE still returns 0 (legacy product price), use cart sellable prices
+            if (apiGrand <= 0 && fallback.grandTotal > 0) {
+                setTotals(fallback);
+                return;
+            }
             setTotals({
                 subtotal: data?.subtotal ?? 0,
                 taxTotal: data?.gst?.amount ?? data?.gst?.breakdown?.total ?? 0,
-                grandTotal: data?.totalAmount ?? 0,
+                grandTotal: apiGrand,
                 gstBreakdown: data?.gst?.breakdown ?? null,
             });
+            return;
         }
-    }, [cart, globalDiscount, storeId, execute]);
+
+        setTotals(fallback);
+    }, [cart, globalDiscount, storeId, execute, localCartTotals]);
 
     useEffect(() => {
         clearTimeout(debounceRef.current);

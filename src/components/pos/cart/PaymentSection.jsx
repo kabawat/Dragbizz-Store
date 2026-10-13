@@ -8,6 +8,7 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { pickStoreId } from "@/utils/store.util";
+import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 
@@ -33,9 +34,11 @@ const PaymentSection = ({
       customer: null,
       isWalkin: true,
       items: cart.map((item) => ({
-        // Invoice API still keys lines by catalog product; cart id may be a variant
+        // Catalog product for invoice; variant for sellable price
         product: item.productId || item.id || item._id,
+        variant: item.variantId || undefined,
         quantity: item.qty,
+        price: resolveProductUnitPrice(item) || undefined,
       })),
       store: storeId,
       totalDiscount: globalDiscount || 0,

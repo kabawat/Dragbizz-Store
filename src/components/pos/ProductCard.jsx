@@ -1,11 +1,12 @@
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 
-export default function ProductCard({ product, onAdd, viewMode }) {
+export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0 }) {
     const isGrid = viewMode === "grid";
     const price = resolveProductUnitPrice(product);
+    const isSelected = selectedQty > 0;
 
     const getImageUrl = (images) => {
         const first = images?.[0];
@@ -17,20 +18,29 @@ export default function ProductCard({ product, onAdd, viewMode }) {
 
     const imageUrl = getImageUrl(product.images);
 
-    // Grid View - 200px height per user request
+    const selectedBorder = isSelected
+        ? "border-[rgb(var(--color-primary))] ring-2 ring-[rgb(var(--color-primary))]/25 bg-[rgb(var(--color-primary))]/[0.04]"
+        : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]";
+
+    // Grid View
     if (isGrid) {
         return (
             <div
                 onClick={() => onAdd(product)}
-                className="group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-300 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden cursor-pointer flex flex-col gap-2 relative"
+                aria-pressed={isSelected}
+                className={`group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-300 text-left overflow-hidden cursor-pointer flex flex-col gap-2 relative ${selectedBorder}`}
             >
+                {isSelected && (
+                    <div className="absolute top-2 left-2 z-10 min-w-5 h-5 px-1 rounded-full bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold flex items-center justify-center shadow-sm">
+                        {selectedQty > 1 ? selectedQty : <Check className="w-3 h-3" strokeWidth={3} />}
+                    </div>
+                )}
                 <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-full h-20 sm:h-24 md:h-28 relative">
                     {imageUrl ? (
                         <img src={imageUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     ) : (
                         <span className="text-3xl opacity-50">📦</span>
                     )}
-                    {/* Price Badge Overlay */}
                     <div className="absolute bottom-1 right-1 bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold px-1.5 py-0.5 rounded">
                         {fmt(price)}
                     </div>
@@ -42,8 +52,18 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                         <span className="text-xs font-black text-[rgb(var(--color-primary))]">{fmt(price)}</span>
-                        <div className="w-5 h-5 rounded-full bg-[rgb(var(--color-primary))]/10 flex items-center justify-center text-[rgb(var(--color-primary))] group-hover:bg-[rgb(var(--color-primary))] group-hover:text-white transition-colors duration-200">
-                            <Plus className="w-3 h-3" strokeWidth={3} />
+                        <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors duration-200 ${
+                                isSelected
+                                    ? "bg-[rgb(var(--color-primary))] text-white"
+                                    : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] group-hover:bg-[rgb(var(--color-primary))] group-hover:text-white"
+                            }`}
+                        >
+                            {isSelected ? (
+                                <Check className="w-3 h-3" strokeWidth={3} />
+                            ) : (
+                                <Plus className="w-3 h-3" strokeWidth={3} />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -55,13 +75,19 @@ export default function ProductCard({ product, onAdd, viewMode }) {
     return (
         <div
             onClick={() => onAdd(product)}
-            className="group w-full relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 hover:border-[rgb(var(--color-primary))] text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 cursor-pointer"
+            aria-pressed={isSelected}
+            className={`group w-full relative bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-200 text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 cursor-pointer ${selectedBorder}`}
         >
-            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-14 h-14 border border-[rgb(var(--color-border-primary))]">
+            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-14 h-14 border border-[rgb(var(--color-border-primary))] relative">
                 {imageUrl ? (
                     <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
                     <span className="text-2xl opacity-40">📦</span>
+                )}
+                {isSelected && (
+                    <div className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold flex items-center justify-center shadow-sm">
+                        {selectedQty > 1 ? selectedQty : <Check className="w-3 h-3" strokeWidth={3} />}
+                    </div>
                 )}
             </div>
             <div className="flex-1 min-w-0">
@@ -71,11 +97,26 @@ export default function ProductCard({ product, onAdd, viewMode }) {
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                     <span className="text-[0.625rem] bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] font-mono">{product.sku || "N/A"}</span>
+                    {isSelected && (
+                        <span className="text-[0.625rem] font-bold text-[rgb(var(--color-primary))]">
+                            ×{selectedQty} in cart
+                        </span>
+                    )}
                 </div>
             </div>
-            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-8 h-8 rounded-full bg-[rgb(var(--color-primary))] text-white flex items-center justify-center">
-                    <Plus className="w-5 h-5" strokeWidth={2.5} />
+            <div className="flex-shrink-0">
+                <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        isSelected
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "bg-[rgb(var(--color-primary))] text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    }`}
+                >
+                    {isSelected ? (
+                        <Check className="w-4 h-4" strokeWidth={2.5} />
+                    ) : (
+                        <Plus className="w-5 h-5" strokeWidth={2.5} />
+                    )}
                 </div>
             </div>
         </div>

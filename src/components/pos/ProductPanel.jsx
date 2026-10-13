@@ -10,7 +10,7 @@ import { getProducts } from "@/store/slices/products/productSlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { expandProductsForPos } from "@/utils/productUtils";
 
-const ProductPanel = ({ addToCart, searchRef }) => {
+const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
     const dispatch = useAppDispatch();
 
     const [search, setSearch] = useState("");
@@ -90,6 +90,16 @@ const ProductPanel = ({ addToCart, searchRef }) => {
 
     // One POS card per sellable variant (price/SKU live on variants)
     const posItems = useMemo(() => expandProductsForPos(products || []), [products]);
+
+    const cartQtyById = useMemo(() => {
+        const map = new Map();
+        for (const item of cart || []) {
+            const id = String(item.id || item._id || "");
+            if (!id) continue;
+            map.set(id, (map.get(id) || 0) + (item.qty || 0));
+        }
+        return map;
+    }, [cart]);
 
     const filteredProducts = useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -191,9 +201,18 @@ const ProductPanel = ({ addToCart, searchRef }) => {
                     </div>
                 ) : (
                     <>
-                        {filteredProducts.map((p) => (
-                            <ProductCard key={p._id || p.id} product={p} onAdd={addToCart} viewMode={viewMode} />
-                        ))}
+                        {filteredProducts.map((p) => {
+                            const lineId = String(p._id || p.id || "");
+                            return (
+                                <ProductCard
+                                    key={lineId}
+                                    product={p}
+                                    onAdd={addToCart}
+                                    viewMode={viewMode}
+                                    selectedQty={cartQtyById.get(lineId) || 0}
+                                />
+                            );
+                        })}
 
                         {/* Sentinel — IntersectionObserver triggers load more */}
                         {pagination.hasNextPage && (
