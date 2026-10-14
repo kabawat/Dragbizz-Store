@@ -23,6 +23,7 @@ import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import useVoiceCapture, { VOICE_CAPTURE_ERRORS } from "@/hooks/media/useVoiceCapture";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
+import { titleFromUserText } from "@/utils/ai/chatHistory";
 import ENV_CONFIG from "@/config/env.config";
 
 // Tool-call trace ("search_customer: done") is a debug aid — dev/test only.
@@ -86,7 +87,14 @@ const VoiceCommandLauncher = () => {
     sessionId,
   } = useAiVoiceChat({ language });
 
-  const { grouped, upsertSession } = useChatHistory(storeId);
+  const {
+    grouped,
+    loading: historyLoading,
+    error: historyError,
+    refresh: refreshHistory,
+    getSession,
+    optimisticTouch,
+  } = useChatHistory(storeId);
 
   useEffect(() => {
     setPortalReady(true);
@@ -97,22 +105,36 @@ const VoiceCommandLauncher = () => {
     setActiveSessionId(sessionId);
   }, [sessionId]);
 
+  // Optimistic sidebar row after first user message; server persists on reply.
   useEffect(() => {
     if (!storeId || !activeSessionId || messages.length === 0) return;
     if (isSending || isConfirming) return;
-    upsertSession({
+    const firstUser = messages.find(
+      (item) => item?.role === "user" && typeof item.content === "string"
+    );
+    if (!firstUser?.content) return;
+    optimisticTouch({
       id: activeSessionId,
-      messages,
+      title: titleFromUserText(firstUser.content),
       createdAt: sessionCreatedAtRef.current,
     });
   }, [
     messages,
     storeId,
     activeSessionId,
-    upsertSession,
+    optimisticTouch,
     isSending,
     isConfirming,
   ]);
+
+  // After a completed turn, refresh list from server (source of truth).
+  useEffect(() => {
+    if (!storeId || isSending || isConfirming) return;
+    if (messages.length === 0) return;
+    const last = messages[messages.length - 1];
+    if (last?.role !== "assistant" || last?.streaming) return;
+    void refreshHistory();
+  }, [messages, storeId, isSending, isConfirming, refreshHistory]);
 
   useEffect(() => {
     if (!isListening && !interimTranscript) return;
@@ -300,28 +322,22 @@ const VoiceCommandLauncher = () => {
   };
 
   const handleNewChat = () => {
-    if (activeSessionId && messages.length > 0) {
-      upsertSession({
-        id: activeSessionId,
-        messages,
-        createdAt: sessionCreatedAtRef.current,
-      });
-    }
     handleReset();
+    void refreshHistory();
   };
 
-  const handleSelectSession = (session) => {
+  const handleSelectSession = async (session) => {
     if (!session?.id) return;
-    if (activeSessionId && messages.length > 0 && activeSessionId !== session.id) {
-      upsertSession({
-        id: activeSessionId,
-        messages,
-        createdAt: sessionCreatedAtRef.current,
-      });
-    }
-    loadChat({ sessionId: session.id, messages: session.messages || [] });
-    sessionCreatedAtRef.current = session.createdAt || Date.now();
     setDraftText("");
+    const result = await getSession(session.id);
+    if (!result?.success || !result.session) {
+      return;
+    }
+    loadChat({
+      sessionId: result.session.id,
+      messages: result.session.messages || [],
+    });
+    sessionCreatedAtRef.current = result.session.createdAt || Date.now();
   };
 
   const canSend =
@@ -741,7 +757,9 @@ const VoiceCommandLauncher = () => {
             emptyHint={emptyHint}
             greeting={greeting}
             hasThread={hasThread}
+            historyError={historyError}
             historyGrouped={grouped}
+            historyLoading={historyLoading}
             onNewChat={handleNewChat}
             onQuickPrompt={handleQuickPrompt}
             onSelectSession={handleSelectSession}

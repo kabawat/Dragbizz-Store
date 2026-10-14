@@ -71,6 +71,8 @@ const API_CONFIG = {
     CHAT: "/brain/api/v1/chat",
     CHAT_STREAM: "/brain/api/v1/chat/stream",
     CONFIRM: "/brain/api/v1/chat/confirm",
+    SESSIONS: "/brain/api/v1/chat/sessions",
+    SESSION_BY_ID: "/brain/api/v1/chat/sessions/:sessionId",
     HEALTH: "/brain/api/v1/health",
     READY: "/brain/api/v1/ready",
     CHAT_TIMEOUT_MS: 45_000,

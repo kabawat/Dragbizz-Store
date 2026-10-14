@@ -16,7 +16,9 @@
     "yesterday": "Kal",
     "week": "Is hafte",
     "older": "Purane",
-    "empty": "Abhi koi chat nahi. Kuch poochh ke shuru karo."
+    "empty": "Abhi koi chat nahi. Kuch poochh ke shuru karo.",
+    "loading": "Chat load ho rahi hai…",
+    "loadFailed": "Chat history load nahi ho saki."
   },
   "greet": {
     "morning": "Shubh prabhat",

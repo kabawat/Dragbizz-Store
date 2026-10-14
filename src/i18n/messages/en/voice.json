@@ -16,7 +16,9 @@
     "yesterday": "Yesterday",
     "week": "This week",
     "older": "Older",
-    "empty": "No chats yet. Start by asking something."
+    "empty": "No chats yet. Start by asking something.",
+    "loading": "Loading chats…",
+    "loadFailed": "Could not load chat history."
   },
   "greet": {
     "morning": "Good morning",

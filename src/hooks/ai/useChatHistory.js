@@ -1,124 +1,138 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { aiChatHistoryService } from "@/service/ai";
+import {
+  MAX_CHAT_SESSIONS,
+  groupSessionsByDay,
+  mapHistoryMessages,
+  normalizeSessionSummary,
+  toMs,
+} from "@/utils/ai/chatHistory";
 import { generateUUID } from "@/utils/uuid.util";
 
-const STORAGE_PREFIX = "dragbizz_ai_chat_history_v1:";
-const MAX_SESSIONS = 40;
+export { mapHistoryMessages } from "@/utils/ai/chatHistory";
 
-function storageKey(storeId) {
-  return `${STORAGE_PREFIX}${storeId}`;
-}
-
-function readSessions(storeId) {
-  if (!storeId || typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(storageKey(storeId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeSessions(storeId, sessions) {
-  if (!storeId || typeof window === "undefined") return;
-  try {
-    localStorage.setItem(storageKey(storeId), JSON.stringify(sessions));
-  } catch {
-    // Quota / private mode — ignore.
-  }
-}
-
-function titleFromMessages(messages) {
-  const firstUser = (messages || []).find(
-    (item) => item?.role === "user" && typeof item.content === "string"
-  );
-  const text = (firstUser?.content || "").trim().replace(/\s+/g, " ");
-  if (!text) return "New chat";
-  return text.length > 42 ? `${text.slice(0, 42)}…` : text;
-}
-
-function startOfDay(date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime();
-}
-
-/**
- * Local multi-thread chat history per store (until server sessions exist).
- */
 export function useChatHistory(storeId) {
   const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    setSessions(readSessions(storeId));
+  const refresh = useCallback(async () => {
+    if (!storeId) {
+      setSessions([]);
+      setError(null);
+      setLoading(false);
+      return [];
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await aiChatHistoryService.listSessions({ storeId });
+      if (!result?.success) {
+        setSessions([]);
+        setError(result?.message || "Failed to load chat history");
+        return [];
+      }
+      const payload = result.data?.data ?? result.data ?? {};
+      const rows = Array.isArray(payload.sessions)
+        ? payload.sessions
+        : Array.isArray(payload)
+          ? payload
+          : [];
+      const next = rows
+        .map(normalizeSessionSummary)
+        .filter(Boolean)
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        .slice(0, MAX_CHAT_SESSIONS);
+      setSessions(next);
+      return next;
+    } catch (err) {
+      setSessions([]);
+      setError(err?.message || "Failed to load chat history");
+      return [];
+    } finally {
+      setLoading(false);
+    }
   }, [storeId]);
 
-  const upsertSession = useCallback(
-    ({ id, messages, createdAt }) => {
-      if (!storeId || !id || !Array.isArray(messages) || messages.length === 0) {
-        return;
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const getSession = useCallback(
+    async (sessionId) => {
+      if (!storeId || !sessionId) {
+        return { success: false, message: "Missing store or session" };
       }
-      const now = Date.now();
-      const entry = {
-        id,
-        title: titleFromMessages(messages),
-        messages,
-        createdAt: createdAt || now,
-        updatedAt: now,
+      const result = await aiChatHistoryService.getSession({
+        sessionId,
+        storeId,
+      });
+      if (!result?.success) return result;
+      const payload = result.data?.data ?? result.data ?? {};
+      return {
+        ...result,
+        session: {
+          id: String(payload.id || sessionId),
+          title: String(payload.title || "New chat"),
+          createdAt: toMs(payload.createdAt || payload.created_at),
+          updatedAt: toMs(payload.updatedAt || payload.updated_at),
+          messages: mapHistoryMessages(payload.messages),
+        },
       };
-      setSessions((current) => {
-        const without = current.filter((item) => item.id !== id);
-        const next = [entry, ...without]
-          .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
-          .slice(0, MAX_SESSIONS);
-        writeSessions(storeId, next);
-        return next;
-      });
     },
     [storeId]
   );
 
-  const removeSession = useCallback(
-    (id) => {
-      setSessions((current) => {
-        const next = current.filter((item) => item.id !== id);
-        writeSessions(storeId, next);
-        return next;
+  const deleteSession = useCallback(
+    async (sessionId) => {
+      if (!storeId || !sessionId) {
+        return { success: false, message: "Missing store or session" };
+      }
+      const result = await aiChatHistoryService.deleteSession({
+        sessionId,
+        storeId,
       });
+      if (result?.success) {
+        setSessions((current) =>
+          current.filter((item) => item.id !== sessionId)
+        );
+      }
+      return result;
     },
     [storeId]
   );
 
-  const grouped = useMemo(() => {
-    const today = startOfDay(Date.now());
-    const yesterday = today - 24 * 60 * 60 * 1000;
-    const week = today - 6 * 24 * 60 * 60 * 1000;
-    const buckets = {
-      today: [],
-      yesterday: [],
-      week: [],
-      older: [],
+  const optimisticTouch = useCallback(({ id, title, createdAt }) => {
+    if (!id) return;
+    const now = Date.now();
+    const entry = {
+      id,
+      title: title || "New chat",
+      createdAt: createdAt || now,
+      updatedAt: now,
     };
-    for (const session of sessions) {
-      const ts = startOfDay(session.updatedAt || session.createdAt || 0);
-      if (ts >= today) buckets.today.push(session);
-      else if (ts >= yesterday) buckets.yesterday.push(session);
-      else if (ts >= week) buckets.week.push(session);
-      else buckets.older.push(session);
-    }
-    return buckets;
-  }, [sessions]);
+    setSessions((current) => {
+      const without = current.filter((item) => item.id !== id);
+      return [entry, ...without]
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        .slice(0, MAX_CHAT_SESSIONS);
+    });
+  }, []);
 
+  const grouped = useMemo(() => groupSessionsByDay(sessions), [sessions]);
   const createId = useCallback(() => generateUUID(), []);
 
   return {
     sessions,
     grouped,
-    upsertSession,
-    removeSession,
+    loading,
+    error,
+    refresh,
+    getSession,
+    deleteSession,
+    optimisticTouch,
     createId,
   };
 }

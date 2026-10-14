@@ -84,6 +84,8 @@ export default function ChatExpandedWorkspace({
   storeName,
   storeGst,
   historyGrouped,
+  historyLoading = false,
+  historyError = null,
   activeSessionId,
   onNewChat,
   onSelectSession,
@@ -116,34 +118,46 @@ export default function ChatExpandedWorkspace({
           </button>
         </div>
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2.5 pb-4 pt-1">
-          <HistoryGroup
-            activeId={activeSessionId}
-            items={historyGrouped.today}
-            label={t("voice.history.today")}
-            onSelect={onSelectSession}
-          />
-          <HistoryGroup
-            activeId={activeSessionId}
-            items={historyGrouped.yesterday}
-            label={t("voice.history.yesterday")}
-            onSelect={onSelectSession}
-          />
-          <HistoryGroup
-            activeId={activeSessionId}
-            items={historyGrouped.week}
-            label={t("voice.history.week")}
-            onSelect={onSelectSession}
-          />
-          <HistoryGroup
-            activeId={activeSessionId}
-            items={historyGrouped.older}
-            label={t("voice.history.older")}
-            onSelect={onSelectSession}
-          />
-          {!hasHistory && (
+          {historyLoading && !hasHistory ? (
             <p className="px-2 py-8 text-center text-[12px] leading-5 text-[rgb(var(--color-text-secondary))]">
-              {t("voice.history.empty")}
+              {t("voice.history.loading")}
             </p>
+          ) : historyError && !hasHistory ? (
+            <p className="px-2 py-8 text-center text-[12px] leading-5 text-[rgb(var(--color-danger))]">
+              {t("voice.history.loadFailed")}
+            </p>
+          ) : (
+            <>
+              <HistoryGroup
+                activeId={activeSessionId}
+                items={historyGrouped.today}
+                label={t("voice.history.today")}
+                onSelect={onSelectSession}
+              />
+              <HistoryGroup
+                activeId={activeSessionId}
+                items={historyGrouped.yesterday}
+                label={t("voice.history.yesterday")}
+                onSelect={onSelectSession}
+              />
+              <HistoryGroup
+                activeId={activeSessionId}
+                items={historyGrouped.week}
+                label={t("voice.history.week")}
+                onSelect={onSelectSession}
+              />
+              <HistoryGroup
+                activeId={activeSessionId}
+                items={historyGrouped.older}
+                label={t("voice.history.older")}
+                onSelect={onSelectSession}
+              />
+              {!hasHistory && (
+                <p className="px-2 py-8 text-center text-[12px] leading-5 text-[rgb(var(--color-text-secondary))]">
+                  {t("voice.history.empty")}
+                </p>
+              )}
+            </>
           )}
         </div>
       </aside>
