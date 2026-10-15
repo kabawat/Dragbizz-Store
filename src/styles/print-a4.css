@@ -80,3 +80,26 @@
 @media screen {
   /* nothing special here */
 }
+/* The POS print dialog is portalled to body: print only that document. */
+@media print {
+  body:has(.pos-invoice-print-modal) > :not(.pos-invoice-print-modal) { display: none !important; }
+  .pos-invoice-print-modal,
+  .pos-invoice-print-modal .dragorbit-modal-panel,
+  .pos-invoice-print-modal .dragorbit-modal-content,
+  .pos-invoice-print-modal .pos-invoice-preview-scroll,
+  .pos-invoice-print-modal .dragorbit-modal-content > div {
+    position: static !important; display: block !important;
+    width: auto !important; max-width: none !important;
+    height: auto !important; max-height: none !important;
+    overflow: visible !important; transform: none !important; opacity: 1 !important;
+    padding: 0 !important; margin: 0 !important; border: 0 !important;
+    box-shadow: none !important; border-radius: 0 !important;
+    background: white !important; backdrop-filter: none !important;
+  }
+}
+
+@media print {
+  .pos-invoice-print-modal table { break-inside: auto; page-break-inside: auto; }
+  .pos-invoice-print-modal tr { break-inside: avoid; page-break-inside: avoid; }
+  .pos-invoice-print-modal thead { display: table-header-group; }
+}

@@ -46,5 +46,10 @@
   "noVariantsDescription": "Variants are created when you add products, or create one here",
   "addBrand": "Add Brand",
   "noBrands": "No brands yet",
-  "noBrandsDescription": "Create brands to organize your products"
+  "noBrandsDescription": "Create brands to organize your products",
+  "behaviorTitle": "Sidebar behaviour",
+  "expandOnHover": "Expand on hover",
+  "expandWithButton": "Expand with button",
+  "lockExpanded": "Keep sidebar expanded",
+  "unlockSidebar": "Unlock sidebar"
 }

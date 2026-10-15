@@ -1,7 +1,7 @@
 "use client";
-import { SidebarMenu } from "@dragorbit/ui";
+import { ResponsiveSidebar } from "@dragorbit/ui";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
 import {
   getAnalyticsSubMenuItems,
@@ -18,7 +18,11 @@ import { ROLES } from "@/hooks/permissions/useModulePermissions";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { expandMenu, toggleExpandedMenu } from "@/store/slices/uiSlice";
+import {
+  expandMenu,
+  setSidebarCollapsed,
+  toggleExpandedMenu,
+} from "@/store/slices/uiSlice";
 import { SidebarHeader } from "./SidebarHeader";
 
 const Sidebar = ({ onStoreChange }) => {
@@ -32,6 +36,10 @@ const Sidebar = ({ onStoreChange }) => {
     staffProfileLoading,
   } = useAppSelector((state) => state.profile);
   const isCollapsed = useAppSelector((state) => state.ui.isSidebarCollapsed);
+  const setCollapsed = useCallback(
+    (value) => dispatch(setSidebarCollapsed(value)),
+    [dispatch]
+  );
 
   const { t } = useTranslation();
 
@@ -139,7 +147,6 @@ const Sidebar = ({ onStoreChange }) => {
 
     return rawNavigationItems
       .map((item) => {
-        console.log("Checking item:", item);
         if (item.hasSubMenu) {
           const filteredSubItems = item.subMenuItems.filter((sub) =>
             hasPermission(sub.href)
@@ -192,33 +199,41 @@ const Sidebar = ({ onStoreChange }) => {
       item.requireReport,
       item.requireCapability
     );
-  const onNavigate = (item) =>
-    withAccess(
+  const onNavigate = (item) => {
+    return withAccess(
       item.module,
-      () => router.push(item.href),
+      () => {
+        router.push(item.href);
+      },
       item.requireAnalytics || false,
       item.requireReport || false,
       true,
       item.requireCapability || null
     )();
+  };
 
   return (
-    <SidebarMenu
+    <ResponsiveSidebar
+      collapsed={isCollapsed}
+      onCollapsedChange={setCollapsed}
+      t={t}
+      pathname={pathname}
       navigationItems={navigationItems}
       bottomItems={bottomItems}
-      pathname={pathname}
-      isCollapsed={isCollapsed}
       expandedMenus={expandedMenus}
       onToggleMenu={(key) => dispatch(toggleExpandedMenu(key))}
       onNavigate={onNavigate}
       isItemLocked={isItemLocked}
-      header={<SidebarHeader />}
-      selector={
+      header={(controls) => <SidebarHeader {...controls} />}
+      selector={({ isCollapsed, onAction }) => (
         <StoreSelector
           isCollapsed={isCollapsed}
-          onStoreChange={onStoreChange}
+          onStoreChange={(store) => {
+            onStoreChange?.(store);
+            onAction();
+          }}
         />
-      }
+      )}
     />
   );
 };

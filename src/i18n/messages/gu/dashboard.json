@@ -36,5 +36,7 @@
   "stockValue": "સ્ટોક મૂલ્ય",
   "outOfStock": "સ્ટોક ખતમ",
   "totalPayables": "કુલ દેવાની રકમ",
-  "storesSummary": "સ્ટોર્સનો સારાંશ"
+  "storesSummary": "સ્ટોર્સનો સારાંશ",
+  "businessOverview": "વ્યવસાયની ઝાંખી",
+  "viewCashbook": "કેશબુક જુઓ"
 }

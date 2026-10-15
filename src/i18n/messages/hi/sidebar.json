@@ -46,5 +46,10 @@
   "noVariantsDescription": "Variants are created when you add products, or create one here",
   "addBrand": "ब्रांड जोड़ें",
   "noBrands": "अभी कोई ब्रांड नहीं",
-  "noBrandsDescription": "अपने उत्पादों को व्यवस्थित करने के लिए ब्रांड बनाएं"
+  "noBrandsDescription": "अपने उत्पादों को व्यवस्थित करने के लिए ब्रांड बनाएं",
+  "behaviorTitle": "साइडबार व्यवहार",
+  "expandOnHover": "होवर पर खोलें",
+  "expandWithButton": "बटन से खोलें",
+  "lockExpanded": "साइडबार खुला रखें",
+  "unlockSidebar": "साइडबार अनलॉक करें"
 }

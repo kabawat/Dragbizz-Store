@@ -3,44 +3,70 @@
 /* Application compatibility selectors; palette tokens are shared. */
 /* Ensure all text elements use theme variables */
 /* Exclude status badges to allow inline style colors */
-[data-variant="dark"] *:not(.invoice-status-badge):not(.gst-mismatch-type-badge) {
+[data-variant="dark"]
+  *:not(.invoice-status-badge):not(.gst-mismatch-type-badge):not(
+    :where([data-paper-document], [data-paper-document] *)
+  ) {
   color: rgb(var(--color-text-primary)) !important;
 }
 
-[data-variant="dark"] .text-gray-900,
-[data-variant="dark"] .text-gray-800,
-[data-variant="dark"] .text-gray-700,
-[data-variant="dark"] .text-gray-600,
-[data-variant="dark"] .text-gray-500 {
+[data-variant="dark"]
+  .text-gray-900:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  .text-gray-800:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  .text-gray-700:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  .text-gray-600:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  .text-gray-500:not(:where([data-paper-document], [data-paper-document] *)) {
   color: rgb(var(--color-text-primary)) !important;
 }
 
 /* Specific fixes for section headers */
-[data-variant="dark"] h1,
-[data-variant="dark"] h2,
-[data-variant="dark"] h3,
-[data-variant="dark"] h4,
-[data-variant="dark"] h5,
-[data-variant="dark"] h6 {
+[data-variant="dark"]
+  h1:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  h2:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  h3:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  h4:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  h5:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  h6:not(:where([data-paper-document], [data-paper-document] *)) {
   color: rgb(var(--color-text-primary)) !important;
 }
 
-[data-variant="dark"] p {
+[data-variant="dark"]
+  p:not(:where([data-paper-document], [data-paper-document] *)) {
   color: rgb(var(--color-text-secondary)) !important;
 }
 
 /* AI chat modal: keep theme accent / on-primary colors in dark mode */
-[data-variant="dark"] .ai-chat-on-primary,
-[data-variant="dark"] .ai-chat-on-primary * {
+[data-variant="dark"]
+  .ai-chat-on-primary:not(
+    :where([data-paper-document], [data-paper-document] *)
+  ),
+[data-variant="dark"]
+  .ai-chat-on-primary
+  *:not(:where([data-paper-document], [data-paper-document] *)) {
   color: #fff !important;
 }
 
-[data-variant="dark"] .ai-chat-accent,
-[data-variant="dark"] .ai-chat-accent * {
+[data-variant="dark"]
+  .ai-chat-accent:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  .ai-chat-accent
+  *:not(:where([data-paper-document], [data-paper-document] *)) {
   color: rgb(var(--color-primary)) !important;
 }
 
-[data-variant="dark"] .ai-chat-muted,
-[data-variant="dark"] .ai-chat-muted * {
+[data-variant="dark"]
+  .ai-chat-muted:not(:where([data-paper-document], [data-paper-document] *)),
+[data-variant="dark"]
+  .ai-chat-muted
+  *:not(:where([data-paper-document], [data-paper-document] *)) {
   color: rgb(var(--color-text-secondary)) !important;
 }

@@ -10,14 +10,16 @@ const getDomainInfo = (urlStr) => {
   
   const url = urlStr ? new URL(urlStr) : new URL(window.location.href);
   const parts = url.hostname.split(".");
-  const hasSub = parts.length > 2;
+  const isLoopback = url.hostname === "127.0.0.1" || url.hostname === "localhost";
+  const isLocalSubdomain = url.hostname.endsWith(".localhost");
+  const hasSub = !isLoopback && (isLocalSubdomain || parts.length > 2);
 
   return {
     url,
     parts,
     hasSubdomain: hasSub,
     subdomain: hasSub ? parts[0] : null,
-    mainDomain: hasSub ? parts.slice(-2).join(".") : url.hostname
+    mainDomain: isLocalSubdomain ? "localhost" : hasSub ? parts.slice(-2).join(".") : url.hostname
   };
 };
 
@@ -91,6 +93,10 @@ export function redirectToSubdomain(subdomain, path = "/") {
 }
 
 // Ensures the user is always on the correct subdomain/tenant
+export function getDashboardUrl(tenant, path = "/dashboard") {
+  return updateSubdomain(getMainDomainUrl(path), tenant).url;
+}
+
 export function ensureSubdomain(tenant, path = window.location.pathname) {
   if (!isBrowser()) return;
 

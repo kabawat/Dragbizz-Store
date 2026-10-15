@@ -37,5 +37,7 @@
   "stockValue": "स्टॉक मूल्य",
   "outOfStock": "स्टॉक में नहीं",
   "totalPayables": "कुल देय राशि",
-  "storesSummary": "स्टोर का सारांश"
+  "storesSummary": "स्टोर का सारांश",
+  "businessOverview": "व्यापार का अवलोकन",
+  "viewCashbook": "कैशबुक देखें"
 }

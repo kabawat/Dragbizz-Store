@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { DocumentPreview, Modal } from "@dragorbit/ui";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Printer, X } from "lucide-react";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useInvoicePrint } from "@/hooks/print/invoice/useInvoicePrint";
@@ -27,12 +28,16 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
   const [invoiceData, setInvoiceData] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [loadError, setLoadError] = useState(false);
-  const hasFetched = useRef(false);
+  const requestVersion = useRef(0);
+  const services = useRef({ execute, showError, t });
+  services.current = { execute, showError, t };
 
   const isMiniTemplate = selectedTemplate?.startsWith("thermal");
   const standardPrint = useInvoicePrint(fetching, invoiceData, true);
   const miniPrint = useMiniInvoicePrint(fetching, invoiceData, true);
-  const { handlePrint, handleDownloadPDF } = isMiniTemplate ? miniPrint : standardPrint;
+  const { handlePrint, handleDownloadPDF } = isMiniTemplate
+    ? miniPrint
+    : standardPrint;
 
   useEffect(() => {
     const savedTemplate = localStorage.getItem("invoice-template");
@@ -43,17 +48,20 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
     if (!open) {
       setInvoiceData(null);
       setLoadError(false);
-      hasFetched.current = false;
+
       return;
     }
-    if (!invoiceId || !storeId || hasFetched.current) return;
-
-    hasFetched.current = true;
+    if (!invoiceId || !storeId) return;
+    const { execute, showError, t } = services.current;
+    const version = ++requestVersion.current;
+    setInvoiceData(null);
+    setLoadError(false);
     (async () => {
       const result = await execute(
         invoiceService.getInvoices({ id: invoiceId, store: storeId }),
         { showToast: false }
       );
+      if (version !== requestVersion.current) return;
       if (!result?.success || !result.data) {
         setLoadError(true);
         showError(result?.message || t("invoice.collectPayment.loadError"));
@@ -61,7 +69,10 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
       }
       setInvoiceData(result.data);
     })();
-  }, [open, invoiceId, storeId, execute, showError, t]);
+    return () => {
+      requestVersion.current++;
+    };
+  }, [open, invoiceId, storeId]);
 
   const calculatedGstAmount = invoiceData ? calculateGstAmount(invoiceData) : 0;
   const itemsWithGst = invoiceData ? getItemsWithGst(invoiceData) : [];
@@ -79,13 +90,14 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
   const showPreview = Boolean(invoiceData) && !fetching && !loadError;
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/20 backdrop-blur-[2px] no-print"
-        onClick={handleDone}
-        aria-hidden
-      />
-      <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-[0_20px_60px_rgba(0,0,0,0.22)] overflow-hidden">
+    <Modal
+      isOpen={open}
+      onClose={handleDone}
+      ariaLabel={t("invoice.collectPayment.printReadyTitle")}
+      overlayClassName="pos-invoice-print-modal"
+      className="w-full max-w-4xl shadow-none!"
+    >
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
         <div className="no-print flex items-start justify-between gap-3 px-5 py-4 border-b border-[rgb(var(--color-border-primary))]">
           <div className="min-w-0">
             <h2 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
@@ -107,7 +119,7 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
           </button>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-[rgb(var(--color-bg-secondary))]">
+        <div className="pos-invoice-preview-scroll flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 sm:p-4 bg-[rgb(var(--color-bg-secondary))]">
           {(fetching || (!invoiceData && !loadError)) && (
             <div className="no-print flex flex-col items-center justify-center py-16 gap-3">
               <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
@@ -133,21 +145,28 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
           )}
 
           {showPreview && (
-            <div id="invoice-area" className="bg-white rounded-lg mx-auto max-w-[210mm]">
-              <Template
-                invoiceData={{
-                  ...invoiceData,
-                  items: itemsWithGst.length > 0 ? itemsWithGst : invoiceData.items,
-                  subtotal:
-                    calculatedSubtotal > 0 ? calculatedSubtotal : invoiceData.subtotal,
-                  gstAmount:
-                    calculatedGstAmount > 0
-                      ? calculatedGstAmount
-                      : invoiceData.gstAmount,
-                }}
-                selectedStore={selectedStore}
-              />
-            </div>
+            <DocumentPreview>
+              <div id="invoice-area" className="bg-white">
+                <Template
+                  invoiceData={{
+                    ...invoiceData,
+                    items:
+                      itemsWithGst.length > 0
+                        ? itemsWithGst
+                        : invoiceData.items,
+                    subtotal:
+                      calculatedSubtotal > 0
+                        ? calculatedSubtotal
+                        : invoiceData.subtotal,
+                    gstAmount:
+                      calculatedGstAmount > 0
+                        ? calculatedGstAmount
+                        : invoiceData.gstAmount,
+                  }}
+                  selectedStore={selectedStore}
+                />
+              </div>
+            </DocumentPreview>
           )}
         </div>
 
@@ -178,7 +197,7 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   );
 };
 

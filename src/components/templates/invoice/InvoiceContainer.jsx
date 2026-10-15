@@ -1,4 +1,5 @@
 "use client";
+import { PaperDocument } from "@dragorbit/ui";
 import styles from "./style.module.scss";
 
 const InvoiceContainer = ({ children, className = "", style = {} }) => {
@@ -20,9 +21,13 @@ const InvoiceContainer = ({ children, className = "", style = {} }) => {
           }
         }
       `}</style>
-      <div id="invoice-container" className={`${styles.invoicePage} ${className}`} style={style}>
+      <PaperDocument
+        id="invoice-container"
+        className={`${styles.invoicePage} ${className}`}
+        style={style}
+      >
         {children}
-      </div>
+      </PaperDocument>
     </>
   );
 };

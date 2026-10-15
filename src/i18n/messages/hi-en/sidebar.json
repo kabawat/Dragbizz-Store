@@ -44,5 +44,10 @@
   "noVariantsDescription": "Products add karte waqt variants banate hain, ya yahan create karo",
   "addBrand": "Brand add karo",
   "noBrands": "Abhi koi brand nahi",
-  "noBrandsDescription": "Apne products organize karne ke liye brands banao"
+  "noBrandsDescription": "Apne products organize karne ke liye brands banao",
+  "behaviorTitle": "Sidebar behaviour",
+  "expandOnHover": "Hover par expand",
+  "expandWithButton": "Button se expand",
+  "lockExpanded": "Sidebar khula rakhein",
+  "unlockSidebar": "Sidebar unlock karein"
 }

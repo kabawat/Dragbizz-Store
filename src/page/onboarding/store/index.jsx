@@ -1,4 +1,5 @@
 "use client";
+import { getDashboardUrl } from "@/utils/helper/domain";
 import { ArrowLeftToLine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -239,8 +240,7 @@ export default function StoreCreation() {
         const subdomain = userProfile.data?.tenant;
 
         if (subdomain) {
-          const { host, protocol } = window.location;
-          window.location.href = `${protocol}//${subdomain}.${host}/dashboard`;
+          window.location.href = getDashboardUrl(subdomain);
           // Intentionally not setting isSubmitting=false so the loader spins until navigation completes
           return;
         }
