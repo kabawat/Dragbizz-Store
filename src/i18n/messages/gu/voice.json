@@ -167,6 +167,12 @@
   },
   "confirm": {
     "prompt": "આ બિલ જારી કરો",
+    "promptInvoice": "આ બિલ જારી કરો",
+    "promptExpense": "આ ખર્ચ રેકોર્ડ કરો",
+    "promptStock": "સ્ટોક ઉમેરો",
+    "promptCredit": "ગ્રાહક ચુકવણી રેકોર્ડ કરો",
+    "promptDebit": "ગ્રાહક ઉધાર રેકોર્ડ કરો",
+    "expense": "ખર્ચ",
     "defaultSummary": "ડ્રાફ્ટ બિલ",
     "approve": "પુષ્ટિ કરો",
     "reject": "રદ કરો"

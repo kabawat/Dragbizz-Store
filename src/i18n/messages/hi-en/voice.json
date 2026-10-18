@@ -167,6 +167,12 @@
   },
   "confirm": {
     "prompt": "Ye invoice release karo",
+    "promptInvoice": "Ye invoice release karo",
+    "promptExpense": "Ye kharcha record karo",
+    "promptStock": "Stock add karo",
+    "promptCredit": "Customer payment record karo",
+    "promptDebit": "Customer debit record karo",
+    "expense": "Kharcha",
     "defaultSummary": "draft invoice",
     "approve": "Confirm",
     "reject": "Cancel"

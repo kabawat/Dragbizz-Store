@@ -167,6 +167,12 @@
   },
   "confirm": {
     "prompt": "Release this invoice",
+    "promptInvoice": "Release this invoice",
+    "promptExpense": "Record this expense",
+    "promptStock": "Add stock",
+    "promptCredit": "Record customer payment",
+    "promptDebit": "Record customer debit",
+    "expense": "Expense",
     "defaultSummary": "draft invoice",
     "approve": "Confirm",
     "reject": "Cancel"

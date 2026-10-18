@@ -167,6 +167,12 @@
   },
   "confirm": {
     "prompt": "यह बिल जारी करें",
+    "promptInvoice": "यह बिल जारी करें",
+    "promptExpense": "यह खर्चा दर्ज करें",
+    "promptStock": "स्टॉक जोड़ें",
+    "promptCredit": "कस्टमर पेमेंट दर्ज करें",
+    "promptDebit": "कस्टमर उधार दर्ज करें",
+    "expense": "खर्चा",
     "defaultSummary": "ड्राफ्ट बिल",
     "approve": "पुष्टि करें",
     "reject": "रद्द करें"

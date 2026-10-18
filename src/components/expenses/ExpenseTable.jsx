@@ -192,54 +192,54 @@ const ExpenseTable = ({
     return (
       <>
         <table className="w-full min-w-[900px] table-fixed">
-        <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-          {expenses.map((expense) => (
-            <tr
-              key={expense.id}
-              className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
-              onContextMenu={(event) => openContextMenu(event, expense.id)}
-            >
-              <td
-                className="w-[22%] px-6 py-4 cursor-pointer group/cell"
-                onClick={() => onView?.(expense?.id)}
+          <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
+            {expenses.map((expense) => (
+              <tr
+                key={expense.id}
+                className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+                onContextMenu={(event) => openContextMenu(event, expense.id)}
               >
-                <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
-                  {expense.title}
-                </div>
-                <div className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
-                  {expense.billNumber || t("expenses.noBillNumber")}
-                </div>
-              </td>
-              <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-[rgb(var(--color-text-tertiary))] shrink-0" />
-                  <span>{formatDate(expense.date)}</span>
-                </div>
-              </td>
-              <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
-                {getCategoryLabel(expense.category?.name || expense.category)}
-              </td>
-              <td className="w-[12%] px-6 py-4 text-right">
-                <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">₹{formatCurrency(expense.amount)}</div>
-              </td>
-              <td className="w-[16%] px-6 py-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm shrink-0">{getPaymentMethodIcon(expense.paymentMethod)}</span>
-                  <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">{getPaymentMethodLabel(expense.paymentMethod)}</span>
-                </div>
-              </td>
-              <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
-                {expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "-"}
-              </td>
-              <td className="w-[10%] px-6 py-4 text-center">
-                <div className="inline-flex">{renderStatusBadge(expense.status, "general")}</div>
-              </td>
-              {renderActionsCell(expense)}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {contextMenuLayer}
+                <td
+                  className="w-[22%] px-6 py-4 cursor-pointer group/cell"
+                  onClick={() => onView?.(expense?.id)}
+                >
+                  <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
+                    {expense.title}
+                  </div>
+                  <div className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                    {expense.billNumber || t("expenses.noBillNumber")}
+                  </div>
+                </td>
+                <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-[rgb(var(--color-text-tertiary))] shrink-0" />
+                    <span>{formatDate(expense.date)}</span>
+                  </div>
+                </td>
+                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
+                  {getCategoryLabel(expense.category?.name || expense.category)}
+                </td>
+                <td className="w-[12%] px-6 py-4 text-right">
+                  <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">₹{formatCurrency(expense.amount)}</div>
+                </td>
+                <td className="w-[16%] px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm shrink-0">{getPaymentMethodIcon(expense.paymentMethod)}</span>
+                    <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">{getPaymentMethodLabel(expense.paymentMethod)}</span>
+                  </div>
+                </td>
+                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
+                  {expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "-"}
+                </td>
+                <td className="w-[10%] px-6 py-4 text-center">
+                  <div className="inline-flex">{renderStatusBadge(expense.status, "general")}</div>
+                </td>
+                {renderActionsCell(expense)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {contextMenuLayer}
       </>
     );
   }
