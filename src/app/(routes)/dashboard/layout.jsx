@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
-import VoiceCommandLauncher from "@/components/voice/VoiceCommandLauncher";
 import { HeaderProvider } from "@/contexts/HeaderContext";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { useAppSelector } from "@/store/hooks";
@@ -62,11 +61,6 @@ export default function DashboardLayout({ children }) {
         standalone={isCustomerPayment}
         sidebar={<Sidebar />}
         header={<Header />}
-        overlay={
-          <div className="no-print">
-            <VoiceCommandLauncher />
-          </div>
-        }
       >
         <PermissionGuard>{children}</PermissionGuard>
       </DashboardShell>

@@ -1,6 +1,7 @@
 "use client";
 import { AppHeader } from "@dragorbit/ui/header";
 import { SettingsButton } from "@/components/ui";
+import VoiceCommandLauncher from "@/components/voice/VoiceCommandLauncher";
 import { useHeader } from "@/contexts/HeaderContext";
 import HeaderTitle from "./HeaderTitle";
 import NotificationBell from "./NotificationBell";
@@ -17,6 +18,7 @@ const Header = ({ title: t, description: d }) => {
       titleContent={<HeaderTitle title={title} description={description} />}
       actions={
         <>
+          <VoiceCommandLauncher />
           <SettingsButton />
           <NotificationBell />
           <UserProfile />

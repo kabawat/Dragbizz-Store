@@ -78,7 +78,7 @@ export default function KhataDownloadButtons({ toolResults, storeId }) {
       const response = await customerAccountService.exportLedger(
         row.customerId,
         {},
-        storeId,
+        storeId
       );
       const data = unwrapExportData(response);
       if (!data) {
@@ -95,7 +95,7 @@ export default function KhataDownloadButtons({ toolResults, storeId }) {
         });
       } else {
         exportToCSV(ledgerExportToCsvRows(data, t), stem, (message) =>
-          showError(message || t("voice.downloadFailed")),
+          showError(message || t("voice.downloadFailed"))
         );
       }
       showSuccess(t("voice.downloadReady"));
