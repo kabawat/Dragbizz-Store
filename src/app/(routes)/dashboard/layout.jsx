@@ -1,6 +1,6 @@
 "use client";
 import { DashboardShell, StartupLoader } from "@dragorbit/ui/app";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
 import Header from "@/components/dashboard/header";
@@ -12,7 +12,6 @@ import { useAppSelector } from "@/store/hooks";
 import { ensureSubdomain } from "@/utils/helper/domain";
 
 export default function DashboardLayout({ children }) {
-  const router = useRouter();
   const pathname = usePathname();
   const isCustomerPayment = pathname?.includes("/customer-payment");
 
@@ -21,7 +20,6 @@ export default function DashboardLayout({ children }) {
     agency,
     stores,
     isLoading,
-    isAuthenticated,
     authProfile,
     authProfileLoading,
     staffProfileLoading,
@@ -30,31 +28,6 @@ export default function DashboardLayout({ children }) {
   const { ready: storeReady } = useSelectedStoreId();
   const isProfileLoading =
     isLoading || authProfileLoading || staffProfileLoading;
-
-  useEffect(() => {
-    if (isProfileLoading) {
-      return;
-    }
-
-    if (!isAuthenticated) {
-      return;
-    }
-
-    if (redirectTo) {
-      router.push(redirectTo);
-      return;
-    }
-
-    if (!agency) {
-      router.push("/onboarding/agency");
-      return;
-    }
-
-    if (agency && (!stores || stores.length === 0)) {
-      router.push("/onboarding/store");
-      return;
-    }
-  }, [isAuthenticated, redirectTo, isProfileLoading, agency, stores, router]);
 
   useEffect(() => {
     if (authProfile?.tenant) {

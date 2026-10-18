@@ -133,7 +133,7 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
       description={`Add inventory for ${product?.name}`}
       icon={Package}
       width="w-full max-w-[42rem]"
-      closeOnOutsideClick={true}
+      closeOnOutsideClick={false}
     >
       <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
         {/* Content */}

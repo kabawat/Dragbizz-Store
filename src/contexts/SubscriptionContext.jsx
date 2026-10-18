@@ -1,5 +1,13 @@
 "use client";
-import { createContext, useContext, useState, useMemo, useEffect, useRef } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { usePathname } from "next/navigation";
 import SubscriptionUpgradeModal from "@/components/subscription/SubscriptionUpgradeModal";
 import { subscriptionService } from "@/service/retailer";
@@ -8,19 +16,40 @@ import { isKhataFreeSubscription } from "@/utils/subscriptionCapability.util";
 
 const defaultContext = {
   subscription: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
   hasSubscription: false,
   isKhataFree: false,
-  showUpgradeModal: () => { },
+  showUpgradeModal: () => {},
 };
 
 const SubscriptionContext = createContext(defaultContext);
 
 export const SubscriptionProvider = ({ children }) => {
   const pathname = usePathname();
-  const { execute: executeFetch, data: subscription, loading: isLoading } = useApiResponse();
+  const {
+    execute: executeFetch,
+    data: subscription,
+    loading: isLoading,
+  } = useApiResponse();
   const hasFetched = useRef(false);
+  const [initialized, setInitialized] = useState(false);
+  const [error, setError] = useState(null);
+  const reload = useCallback(async () => {
+    setInitialized(false);
+    setError(null);
+    try {
+      const result = await executeFetch(subscriptionService.getSubscription(), {
+        showToast: false,
+      });
+      if (!result?.success)
+        setError(result?.message || "Unable to load subscription.");
+    } catch (error) {
+      setError(error?.message || "Unable to load subscription.");
+    } finally {
+      setInitialized(true);
+    }
+  }, [executeFetch]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -31,34 +60,46 @@ export const SubscriptionProvider = ({ children }) => {
 
     if (!hasFetched.current && executeFetch) {
       hasFetched.current = true;
-      executeFetch(
-        subscriptionService.getSubscription(),
-        { showToast: false }
-      );
+      reload();
     }
-  }, [executeFetch, pathname]);
+  }, [executeFetch, pathname, reload]);
 
-  const showUpgradeModal = (message, type = "UPGRADE") => {
-    setModalMessage(message || "Please upgrade your plan to access this feature.");
+  const showUpgradeModal = useCallback((message, type = "UPGRADE") => {
+    setModalMessage(
+      message || "Please upgrade your plan to access this feature."
+    );
     setModalType(type);
     setIsModalOpen(true);
-  };
+  }, []);
 
   const closeUpgradeModal = () => {
     setIsModalOpen(false);
   };
 
-  const isKhataFree = useMemo(() => isKhataFreeSubscription(subscription), [subscription]);
+  const isKhataFree = useMemo(
+    () => isKhataFreeSubscription(subscription),
+    [subscription]
+  );
 
   const value = useMemo(
     () => ({
       subscription,
-      isLoading,
+      isLoading: !initialized || isLoading,
+      error,
+      reload,
       hasSubscription: !!subscription,
       isKhataFree,
       showUpgradeModal,
     }),
-    [subscription, isLoading, isKhataFree]
+    [
+      subscription,
+      isLoading,
+      isKhataFree,
+      initialized,
+      error,
+      reload,
+      showUpgradeModal,
+    ]
   );
 
   return (

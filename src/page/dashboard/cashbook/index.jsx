@@ -11,20 +11,6 @@ import { cashbookService } from "@/service/retailer/cashbook.service";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useCashbookEntry } from "@/hooks/cashbook/useCashbookEntry";
 
-function formatCurrency(value) {
-  return `₹${(Number(value) || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
-}
-
-function formatTime(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 function todayKey() {
   const today = new Date();
   const year = today.getUTCFullYear();
@@ -50,6 +36,7 @@ export default function CashbookPage() {
   const [entries, setEntries] = useState([]);
   const [summary, setSummary] = useState(null);
   const [listLoading, setListLoading] = useState(false);
+  const [listError, setListError] = useState(false);
 
   useEffect(() => {
     if (!permissionLoading && !canRead) {
@@ -60,6 +47,7 @@ export default function CashbookPage() {
   const refreshData = useCallback(async () => {
     if (!storeId) return;
     setListLoading(true);
+    setListError(false);
     const key = todayKey();
     try {
       const [listResult, summaryResult] = await Promise.all([
@@ -70,22 +58,23 @@ export default function CashbookPage() {
             to: key,
             limit: 50,
           }),
-          { showToast: false },
+          { showToast: false }
         ),
         execute(
           cashbookService.getSummary({ store: storeId, from: key, to: key }),
-          { showToast: false },
+          { showToast: false }
         ),
       ]);
+      if (!listResult?.success || !summaryResult?.success)
+        throw new Error("Cashbook unavailable");
       setEntries(
         Array.isArray(listResult?.data)
           ? listResult.data
-          : (listResult?.data?.data ?? []),
+          : (listResult?.data?.data ?? [])
       );
       setSummary(summaryResult?.data ?? summaryResult?.data?.data ?? null);
     } catch {
-      setEntries([]);
-      setSummary(null);
+      setListError(true);
     } finally {
       setListLoading(false);
     }
@@ -98,7 +87,11 @@ export default function CashbookPage() {
   const { loading, error, recordCashIn, recordCashOut, clearError } =
     useCashbookEntry({
       storeId,
-      onSuccess: refreshData,
+      onSuccess: () => {
+        setAmount("");
+        setDescription("");
+        refreshData();
+      },
     });
 
   const totals = summary?.totals ?? { cashIn: 0, cashOut: 0, netFlow: 0 };
@@ -107,6 +100,7 @@ export default function CashbookPage() {
   return (
     <CashbookScreen
       t={t}
+      disabled={!storeId || permissionLoading || !can("create")}
       amount={amount}
       setAmount={setAmount}
       description={description}
@@ -115,15 +109,17 @@ export default function CashbookPage() {
       totals={totals}
       closingBalance={closingBalance}
       listLoading={listLoading}
+      listError={listError}
+      onRefresh={refreshData}
       loading={loading}
       error={error}
       handleCashIn={() => {
         clearError();
-        recordCashIn({ amount, description });
+        return recordCashIn({ amount, description });
       }}
       handleCashOut={() => {
         clearError();
-        recordCashOut({ amount, description });
+        return recordCashOut({ amount, description });
       }}
     />
   );

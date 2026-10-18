@@ -2,7 +2,7 @@
 import { CustomersScreen } from "@dragorbit/features/customers";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import CustomerListContent from "@/components/customer/list/CustomerListContent";
 import CustomerListHeader from "@/components/customer/list/CustomerListHeader";
 
@@ -19,15 +19,11 @@ const CustomersPage = () => {
 
   useDashboardHeader(t("customers.title"), t("customers.description"));
 
-  const [searchValue, setSearchValue] = useState("");
-  const [isActive, setIsActive] = useState("");
-  const [source, setSource] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [balanceFilter, setBalanceFilter] = useState("");
+  const { customers, isLoading, error, hasLoaded, loadedStoreId } =
+    useAppSelector((state) => state.customers);
 
-  const { customers, isLoading, error } = useAppSelector(
-    (state) => state.customers,
+  const storeId = useAppSelector(
+    (state) => state.profile.selectedStore?.storeId
   );
 
   useEffect(() => {
@@ -41,17 +37,12 @@ const CustomersPage = () => {
     onBack: () => router.push("/dashboard"),
   });
 
-  const handleBulkSuccess = useCallback(() => {}, []);
-
-  const isFiltered = Boolean(
-    searchValue || isActive || source || startDate || endDate || balanceFilter,
-  );
-
   return (
     <CustomersScreen
       t={t}
       customers={customers}
       isLoading={isLoading}
+      hasLoaded={hasLoaded && loadedStoreId === storeId}
       error={error}
       CustomerListHeader={CustomerListHeader}
       CustomerListContent={CustomerListContent}

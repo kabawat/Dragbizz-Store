@@ -176,7 +176,7 @@ const StockInDrawer = ({
       })}
       icon={Package}
       width="w-full max-w-[42rem]"
-      closeOnOutsideClick={true}
+      closeOnOutsideClick={false}
     >
       <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">

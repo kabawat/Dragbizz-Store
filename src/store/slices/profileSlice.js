@@ -117,11 +117,12 @@ export const getRetailerDetails = createAsyncThunk(
         message: "Retailer details fetched successfully",
       };
     } catch (error) {
+      const status = error?.response?.status ?? null;
       return rejectWithValue({
         message:
-          handleError(error).message ||
-          "Failed to get retailer details. Please login again.",
-        redirectTo: "/login",
+          handleError(error).message || "Failed to get retailer details.",
+        status,
+        redirectTo: status === 401 ? "/login" : null,
       });
     }
   }
@@ -153,6 +154,7 @@ export const getAuthProfile = createAsyncThunk(
     } catch (error) {
       return rejectWithValue({
         message: handleError(error).message || "Failed to fetch auth profile",
+        status: error?.response?.status ?? null,
       });
     }
   }
@@ -182,6 +184,7 @@ const initialState = {
   authProfile: null,
   authProfileLoading: false,
   authProfileError: null,
+  authProfileErrorStatus: null,
 
   staffProfile: null,
   staffProfileLoading: false,
@@ -191,6 +194,7 @@ const initialState = {
   isLoading: false,
 
   error: null,
+  retailerErrorStatus: null,
   redirectTo: null,
   isInitialized: false, // Tracks if initial auth check completed
 };
@@ -208,6 +212,9 @@ const profileSlice = createSlice({
       state.staffProfile = null;
       state.isAuthenticated = false;
       state.error = null;
+      state.authProfileError = null;
+      state.authProfileErrorStatus = null;
+      state.retailerErrorStatus = null;
       state.redirectTo = null;
       setStoredStoreId(null);
     },
@@ -225,11 +232,13 @@ const profileSlice = createSlice({
       .addCase(getRetailerDetails.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.retailerErrorStatus = null;
         state.redirectTo = null;
       })
       .addCase(getRetailerDetails.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
+        state.retailerErrorStatus = null;
 
         const { data, redirectTo } = action.payload;
 
@@ -237,9 +246,7 @@ const profileSlice = createSlice({
           state.user = data.user;
         }
 
-        if (data.agency) {
-          state.agency = data.agency;
-        }
+        state.agency = data.agency ?? null;
 
         if (data.stores) {
           const normalizedStores = normalizeStores(data.stores);
@@ -278,23 +285,21 @@ const profileSlice = createSlice({
         state.error =
           action.payload?.message || "Failed to get retailer details";
         state.isInitialized = true;
-        if (state.authProfile) {
-          state.isAuthenticated = true;
-          state.redirectTo = state.authProfile.agencyId
-            ? state.redirectTo
-            : "/onboarding/agency";
-        } else {
-          state.isAuthenticated = false;
-          state.redirectTo = action.payload?.redirectTo || "/login";
-        }
+        state.retailerErrorStatus = action.payload?.status ?? null;
+        // Missing profile data after a failed request is not proof of missing onboarding.
+        state.redirectTo = action.payload?.status === 401 ? "/login" : null;
+        if (action.payload?.status === 401) state.isAuthenticated = false;
+        else if (state.authProfile) state.isAuthenticated = true;
       })
       .addCase(getAuthProfile.pending, (state) => {
         state.authProfileLoading = true;
         state.authProfileError = null;
+        state.authProfileErrorStatus = null;
       })
       .addCase(getAuthProfile.fulfilled, (state, action) => {
         state.authProfileLoading = false;
         state.authProfileError = null;
+        state.authProfileErrorStatus = null;
 
         const { data, redirectTo } = action.payload;
         if (data) {
@@ -316,9 +321,9 @@ const profileSlice = createSlice({
         state.authProfileError =
           action.payload?.message || "Failed to fetch auth profile";
         state.isInitialized = true;
-        if (!state.authProfile) {
+        state.authProfileErrorStatus = action.payload?.status ?? null;
+        if (action.payload?.status === 401 || !state.authProfile)
           state.isAuthenticated = false;
-        }
       })
       .addCase(getStaffProfileDetails.pending, (state) => {
         state.staffProfileLoading = true;

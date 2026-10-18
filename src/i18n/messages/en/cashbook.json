@@ -16,5 +16,18 @@
   "types": {
     "CASH_IN": "Cash in",
     "CASH_OUT": "Cash out"
-  }
+  },
+  "todayOverview": "Today's cash overview",
+  "entryHint": "Record cash received or paid out.",
+  "transactionType": "Transaction type",
+  "descriptionLabel": "Description (optional)",
+  "time": "Time",
+  "saveEntry": "Save entry",
+  "searchEntries": "Search loaded entries",
+  "allEntries": "All entries",
+  "noMatchingEntries": "No entries match your search or filter.",
+  "recentEntriesHint": "Latest 50 entries for today. Summary includes the full day.",
+  "loadFailed": "Could not load cashbook. Please try again.",
+  "retry": "Try again",
+  "refresh": "Refresh"
 }

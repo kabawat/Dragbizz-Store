@@ -1,7 +1,6 @@
 "use client";
 import { AccessRestricted, PageSkeleton } from "@dragorbit/ui/app";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import {
   getActionFromPath,
@@ -23,127 +22,75 @@ export const PermissionGuard = ({ children }) => {
     isAuthenticated,
   } = useAppSelector((state) => state.profile);
 
-  const { subscription, isLoading: subscriptionLoading } = useSubscription();
-
-  const [hasAccess, setHasAccess] = useState(true);
-  const [isSubscriptionRestricted, setIsSubscriptionRestricted] =
-    useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    const isLoading =
-      (authProfileLoading && !authProfile) ||
-      (staffProfileLoading && !staffProfile) ||
-      subscriptionLoading;
-    if (isLoading) return setIsChecking(true);
-
-    if (!isAuthenticated || !authProfile) {
-      setIsChecking(false);
-      setHasAccess(true);
-      return;
-    }
-
-    const moduleName = getModuleFromPath(pathname);
-
-    // 1. Subscription Check
-    if (moduleName) {
-      const action = getActionFromPath(pathname);
-      const feature = (subscription?.features || []).find(
-        (f) => f.module === moduleName
-      );
-      const isModuleActive =
-        feature &&
-        (feature.usageType === "UNLIMITED" ||
-          (feature.maxLimit && feature.maxLimit > 0));
-
-      if (!isModuleActive) {
-        setHasAccess(false);
-        setIsSubscriptionRestricted(true);
-        setIsChecking(false);
-        return;
-      }
-
-      // Sub-feature check (Analytics/Reports)
-      if (action === "analytics" && !feature.analytics) {
-        setIsSubscriptionRestricted(true);
-        setHasAccess(false);
-        setIsChecking(false);
-        return;
-      }
-
-      if (action === "report" && !feature.report) {
-        setIsSubscriptionRestricted(true);
-        setHasAccess(false);
-        setIsChecking(false);
-        return;
-      }
-
-      // POS / GST / FIFO etc. — same module as invoices but gated by capability
-      const requiredCapability = getCapabilityFromPath(pathname);
-      if (
-        requiredCapability &&
-        !hasFeatureCapability(feature, requiredCapability)
-      ) {
-        setIsSubscriptionRestricted(true);
-        setHasAccess(false);
-        setIsChecking(false);
-        return;
-      }
-    }
-
-    setIsSubscriptionRestricted(false);
-
-    // 2. Owner bypass
-    if (authProfile.role === ROLES.OWNER) {
-      setHasAccess(true);
-      setIsChecking(false);
-      return;
-    }
-
-    // 3. Staff logic
-    const ALLOWED_PATHS = [
-      "/dashboard",
-      "/dashboard/support",
-      "/dashboard/settings",
-    ];
-    if (ALLOWED_PATHS.includes(pathname)) {
-      setHasAccess(true);
-      setIsChecking(false);
-      return;
-    }
-
-    if (pathname.startsWith("/dashboard/management")) {
-      setHasAccess(false);
-      setIsChecking(false);
-      return;
-    }
-
-    if (!moduleName) {
-      setHasAccess(true);
-      setIsChecking(false);
-      return;
-    }
-
-    const action = getActionFromPath(pathname);
-    const permissions = staffProfile?.permissions || [];
-    const modulePermission = permissions.find((p) => p.module === moduleName);
-
-    setHasAccess(modulePermission?.[action] === true);
-    setIsChecking(false);
-  }, [
-    pathname,
-    authProfile,
-    staffProfile,
-    authProfileLoading,
-    staffProfileLoading,
+  const {
     subscription,
-    subscriptionLoading,
-    isAuthenticated,
-  ]);
+    isLoading: subscriptionLoading,
+    error: subscriptionError,
+    reload,
+  } = useSubscription();
 
-  // Show nothing (or a subtle loader) while checking permissions
+  const isChecking =
+    (authProfileLoading && !authProfile) ||
+    (staffProfileLoading && !staffProfile) ||
+    subscriptionLoading;
+  // Evaluate from the current render: effect-backed decisions can leak the old route's result.
+  const evaluateAccess = () => {
+    if (!isAuthenticated || !authProfile) return { hasAccess: true };
+    const moduleName = getModuleFromPath(pathname);
+    const action = getActionFromPath(pathname);
+    if (moduleName) {
+      const feature = subscription?.features?.find(
+        (item) => item.module === moduleName
+      );
+      const active =
+        feature && (feature.usageType === "UNLIMITED" || feature.maxLimit > 0);
+      const capability = getCapabilityFromPath(pathname);
+      if (
+        !active ||
+        (action === "analytics" && !feature.analytics) ||
+        (action === "report" && !feature.report) ||
+        (capability && !hasFeatureCapability(feature, capability))
+      ) {
+        return { hasAccess: false, isSubscriptionRestricted: true };
+      }
+    }
+    if (authProfile.role === ROLES.OWNER) return { hasAccess: true };
+    if (
+      ["/dashboard", "/dashboard/support", "/dashboard/settings"].includes(
+        pathname
+      )
+    )
+      return { hasAccess: true };
+    if (pathname.startsWith("/dashboard/management"))
+      return { hasAccess: false };
+    if (!moduleName) return { hasAccess: true };
+    return {
+      hasAccess:
+        staffProfile?.permissions?.find((item) => item.module === moduleName)?.[
+          action
+        ] === true,
+    };
+  };
+  const { hasAccess, isSubscriptionRestricted = false } = evaluateAccess();
+
+  // Keep the loading UI until subscription and profile data are resolved.
   if (isChecking) {
     return <PageSkeleton />;
+  }
+
+  if (subscriptionError) {
+    return (
+      <section role="alert" className="space-y-3 p-6">
+        <p>{subscriptionError}</p>
+        <button
+          type="button"
+          onClick={reload}
+          className="rounded-lg border border-[rgb(var(--color-border-primary))] px-4 py-2"
+        >
+          Try again
+        </button>
+      </section>
+    );
   }
 
   if (!hasAccess) {

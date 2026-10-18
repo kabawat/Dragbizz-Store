@@ -192,6 +192,10 @@ const CustomerListHeader = ({
       return;
     }
 
+    if (!last.fetched) {
+      fetchCustomers();
+      return;
+    }
     const timer = setTimeout(() => fetchCustomers(), 350);
     return () => clearTimeout(timer);
   }, [
