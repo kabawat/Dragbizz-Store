@@ -13,6 +13,10 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import ChatAssistantMessage from "@/components/voice/ChatAssistantMessage";
+import ChatCustomerResultCard, {
+  collectCustomerWrites,
+  stripCustomerOpenLinks,
+} from "@/components/voice/ChatCustomerResultCard";
 import ChatExpandedWorkspace from "@/components/voice/ChatExpandedWorkspace";
 import ChatSlashMenu from "@/components/voice/ChatSlashMenu";
 import KhataDownloadButtons from "@/components/voice/KhataDownloadButtons";
@@ -40,6 +44,106 @@ function greetingForLocale(locale, name, t) {
   if (hour < 12) return `${t("voice.greet.morning")}${who}`;
   if (hour < 17) return `${t("voice.greet.afternoon")}${who}`;
   return `${t("voice.greet.evening")}${who}`;
+}
+
+function formatConfirmSummary(pending, t) {
+  const summary = pending?.summary || {};
+  const parts = [];
+  if (summary.action === "payment") {
+    parts.push("Payment");
+  } else if (summary.action === "debit") {
+    parts.push("Debit");
+  }
+  if (typeof summary.total === "number") {
+    parts.push(`₹${summary.total}`);
+  }
+  if (summary.invoiceNumber) {
+    parts.push(String(summary.invoiceNumber));
+  }
+  return parts.length > 0
+    ? parts.join(" · ")
+    : t("voice.confirm.defaultSummary");
+}
+
+function AssistantMessageBubble({
+  item,
+  isExpanded,
+  storeId,
+  t,
+  isSending,
+  isConfirming,
+  confirmPending,
+  rejectPending,
+}) {
+  const customerWrites = collectCustomerWrites(item.toolResults);
+  const assistantText =
+    customerWrites.length > 0
+      ? stripCustomerOpenLinks(item.content)
+      : item.content;
+
+  return (
+    <div className="flex animate-[chatFadeUp_0.3s_ease-out_both] justify-start">
+      <div
+        className={`rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-3.5 py-3 ${
+          isExpanded ? "max-w-[92%]" : "max-w-[94%]"
+        }`}
+      >
+        <ChatAssistantMessage message={assistantText} />
+        <ChatCustomerResultCard toolResults={item.toolResults} />
+        <KhataDownloadButtons storeId={storeId} toolResults={item.toolResults} />
+        {SHOW_TOOL_TRACE &&
+          Array.isArray(item.toolResults) &&
+          item.toolResults.length > 0 && (
+            <ul className="mt-2 space-y-1 border-t border-[rgb(var(--color-border-primary))]/50 pt-2">
+              {item.toolResults.map((tool, index) => (
+                <li
+                  className="text-[11px] leading-4 text-[rgb(var(--color-text-secondary))]"
+                  key={`${tool?.tool || "tool"}-${index}`}
+                >
+                  <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                    {tool?.tool || t("voice.tool")}
+                  </span>
+                  {": "}
+                  {tool?.success
+                    ? t("voice.toolSuccess")
+                    : t("voice.toolFailed")}
+                </li>
+              ))}
+            </ul>
+          )}
+        {item.pendingConfirmation && (
+          <div className="mt-3 space-y-2 border-t border-[rgb(var(--color-border-primary))]/50 pt-3">
+            <p className="text-[12px] leading-4 text-[rgb(var(--color-text-secondary))]">
+              {t("voice.confirm.prompt")}
+              {": "}
+              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                {formatConfirmSummary(item.pendingConfirmation, t)}
+              </span>
+            </p>
+            <div className="flex gap-2">
+              <button
+                className="ai-chat-on-primary cursor-pointer rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-[12px] font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={isConfirming || isSending}
+                onClick={() => confirmPending(item.pendingConfirmation)}
+                style={{ color: "#fff" }}
+                type="button"
+              >
+                {t("voice.confirm.approve")}
+              </button>
+              <button
+                className="cursor-pointer rounded-lg border border-[rgb(var(--color-border-primary))] px-3 py-1.5 text-[12px] font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:bg-[rgb(var(--color-bg-primary))] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={isConfirming || isSending}
+                onClick={() => rejectPending(item.pendingConfirmation)}
+                type="button"
+              >
+                {t("voice.confirm.reject")}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 const VoiceCommandLauncher = () => {
@@ -379,25 +483,6 @@ const VoiceCommandLauncher = () => {
         ? t("voice.status.thinking")
         : t("voice.status.waiting");
 
-  const formatConfirmSummary = (pending) => {
-    const summary = pending?.summary || {};
-    const parts = [];
-    if (summary.action === "payment") {
-      parts.push("Payment");
-    } else if (summary.action === "debit") {
-      parts.push("Debit");
-    }
-    if (typeof summary.total === "number") {
-      parts.push(`₹${summary.total}`);
-    }
-    if (summary.invoiceNumber) {
-      parts.push(String(summary.invoiceNumber));
-    }
-    return parts.length > 0
-      ? parts.join(" · ")
-      : t("voice.confirm.defaultSummary");
-  };
-
   const headerStatus = isListening
     ? t("voice.status.listening")
     : isSending || isConfirming
@@ -422,72 +507,17 @@ const VoiceCommandLauncher = () => {
             </div>
           </div>
         ) : (
-          <div
-            className="flex animate-[chatFadeUp_0.3s_ease-out_both] justify-start"
+          <AssistantMessageBubble
+            confirmPending={confirmPending}
+            isConfirming={isConfirming}
+            isExpanded={isExpanded}
+            isSending={isSending}
+            item={item}
             key={item.id}
-          >
-            <div
-              className={`rounded-2xl rounded-bl-md border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] px-3.5 py-3 ${
-                isExpanded ? "max-w-[92%]" : "max-w-[94%]"
-              }`}
-            >
-              <ChatAssistantMessage message={item.content} />
-              <KhataDownloadButtons
-                storeId={storeId}
-                toolResults={item.toolResults}
-              />
-              {SHOW_TOOL_TRACE &&
-                Array.isArray(item.toolResults) &&
-                item.toolResults.length > 0 && (
-                  <ul className="mt-2 space-y-1 border-t border-[rgb(var(--color-border-primary))]/50 pt-2">
-                    {item.toolResults.map((tool, index) => (
-                      <li
-                        className="text-[11px] leading-4 text-[rgb(var(--color-text-secondary))]"
-                        key={`${tool?.tool || "tool"}-${index}`}
-                      >
-                        <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                          {tool?.tool || t("voice.tool")}
-                        </span>
-                        {": "}
-                        {tool?.success
-                          ? t("voice.toolSuccess")
-                          : t("voice.toolFailed")}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              {item.pendingConfirmation && (
-                <div className="mt-3 space-y-2 border-t border-[rgb(var(--color-border-primary))]/50 pt-3">
-                  <p className="text-[12px] leading-4 text-[rgb(var(--color-text-secondary))]">
-                    {t("voice.confirm.prompt")}
-                    {": "}
-                    <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                      {formatConfirmSummary(item.pendingConfirmation)}
-                    </span>
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      className="ai-chat-on-primary cursor-pointer rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-[12px] font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-                      disabled={isConfirming || isSending}
-                      onClick={() => confirmPending(item.pendingConfirmation)}
-                      style={{ color: "#fff" }}
-                      type="button"
-                    >
-                      {t("voice.confirm.approve")}
-                    </button>
-                    <button
-                      className="cursor-pointer rounded-lg border border-[rgb(var(--color-border-primary))] px-3 py-1.5 text-[12px] font-medium text-[rgb(var(--color-text-primary))] transition-colors hover:bg-[rgb(var(--color-bg-primary))] disabled:cursor-not-allowed disabled:opacity-50"
-                      disabled={isConfirming || isSending}
-                      onClick={() => rejectPending(item.pendingConfirmation)}
-                      type="button"
-                    >
-                      {t("voice.confirm.reject")}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+            rejectPending={rejectPending}
+            storeId={storeId}
+            t={t}
+          />
         )
       )}
 
