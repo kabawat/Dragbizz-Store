@@ -94,5 +94,10 @@
   "exportDateRequired": "Select both start and end dates, or leave empty for all data",
   "exportFailed": "Failed to export party ledger",
   "exportCsvSuccess": "Party ledger CSV downloaded",
-  "exportXlsxSuccess": "Party ledger Excel file downloaded"
+  "exportXlsxSuccess": "Party ledger Excel file downloaded",
+  "cashIn": "Cash In",
+  "cashOut": "Cash Out",
+  "transactionType": "Transaction type",
+  "cashInLedgerHint": "Payment received from the customer (You Got).",
+  "cashOutLedgerHint": "Credit given to the customer (You Gave)."
 }

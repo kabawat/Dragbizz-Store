@@ -85,20 +85,18 @@ export default function DashboardLayout({ children }) {
 
   return (
     <HeaderProvider>
-      <PermissionGuard>
-        <DashboardShell
-          standalone={isCustomerPayment}
-          sidebar={<Sidebar />}
-          header={<Header />}
-          overlay={
-            <div className="no-print">
-              <VoiceCommandLauncher />
-            </div>
-          }
-        >
-          {children}
-        </DashboardShell>
-      </PermissionGuard>
+      <DashboardShell
+        standalone={isCustomerPayment}
+        sidebar={<Sidebar />}
+        header={<Header />}
+        overlay={
+          <div className="no-print">
+            <VoiceCommandLauncher />
+          </div>
+        }
+      >
+        <PermissionGuard>{children}</PermissionGuard>
+      </DashboardShell>
     </HeaderProvider>
   );
 }

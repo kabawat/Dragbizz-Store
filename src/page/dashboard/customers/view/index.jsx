@@ -87,7 +87,7 @@ const ViewCustomerPage = ({ customerId }) => {
     onClose: () => setIsEditDrawerOpen(false),
   });
 
-  if (loading && !customerData) return <LoadingState />;
+  if (!customerData && !error) return <LoadingState />;
 
   return (
     <div className="overflow-hidden">

@@ -1,9 +1,7 @@
 "use client";
-import { AccessRestricted, DashboardShell } from "@dragorbit/ui/app";
+import { AccessRestricted, PageSkeleton } from "@dragorbit/ui/app";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import {
   getActionFromPath,
@@ -145,27 +143,17 @@ export const PermissionGuard = ({ children }) => {
 
   // Show nothing (or a subtle loader) while checking permissions
   if (isChecking) {
-    return null; // Or a minimalist loading bar
+    return <PageSkeleton />;
   }
 
   if (!hasAccess) {
     return (
-      <DashboardShell
-        sidebar={<Sidebar />}
-        header={
-          <Header
-            title="Access Restricted"
-            description="You do not have permission to view this page"
-          />
-        }
-      >
-        <AccessRestricted
-          isSubscriptionRestricted={isSubscriptionRestricted}
-          canUpgrade={authProfile?.role === ROLES.OWNER}
-          onUpgrade={() => redirectToMainDomain("/pricing")}
-          onGoHome={() => router.push("/dashboard")}
-        />
-      </DashboardShell>
+      <AccessRestricted
+        isSubscriptionRestricted={isSubscriptionRestricted}
+        canUpgrade={authProfile?.role === ROLES.OWNER}
+        onUpgrade={() => redirectToMainDomain("/pricing")}
+        onGoHome={() => router.push("/dashboard")}
+      />
     );
   }
 

@@ -94,5 +94,10 @@
   "exportDateRequired": "शुरुआत और समाप्ति दोनों तारीखें चुनें, या सारे डेटा के लिए खाली छोड़ें",
   "exportFailed": "पार्टी खाता निर्यात विफल",
   "exportCsvSuccess": "पार्टी खाता CSV डाउनलोड हो गया",
-  "exportXlsxSuccess": "पार्टी खाता Excel फ़ाइल डाउनलोड हो गई"
+  "exportXlsxSuccess": "पार्टी खाता Excel फ़ाइल डाउनलोड हो गई",
+  "cashIn": "कैश इन",
+  "cashOut": "कैश आउट",
+  "transactionType": "लेन-देन का प्रकार",
+  "cashInLedgerHint": "ग्राहक से प्राप्त भुगतान (आपको मिला)।",
+  "cashOutLedgerHint": "ग्राहक को दिया गया उधार (आपने दिया)।"
 }

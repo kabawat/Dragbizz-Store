@@ -3,13 +3,16 @@ import { ArrowLeft, CheckCircle, Settings } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import Header from "@/components/dashboard/header";
-import Sidebar from "@/components/dashboard/sidebar";
+import { PageSkeleton } from "@dragorbit/ui/app";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { TEMPLATE_OPTIONS } from "@/components/templates/invoice";
-import { AnimatedBackground } from "@/components/ui";
 
 const InvoiceTemplateSettingsContent = () => {
   const router = useRouter();
+  useDashboardHeader(
+    "Invoice Template Settings",
+    "Select and save your default invoice template"
+  );
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [_saved, setSaved] = useState(false);
 
@@ -52,24 +55,16 @@ const InvoiceTemplateSettingsContent = () => {
   };
 
   return (
-    <div className="flex h-screen relative w-full overflow-hidden">
-      <AnimatedBackground variant="default" />
-      <Sidebar />
-
+    <div className="flex min-h-full w-full flex-col">
       {/* Main Content */}
       <div className="flex-1 w-full flex flex-col min-h-0">
-        {/* Header */}
-        <Header
-          title="Invoice Template Settings"
-          description="Select and save your default invoice template"
-        />
-
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Back Button and Save Button - Sticky Top */}
           <div className="flex-shrink-0 p-6 pb-4 bg-[rgb(var(--color-bg-secondary))] sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <button
+                type="button"
                 onClick={() => goBack()}
                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
               >
@@ -106,12 +101,14 @@ const InvoiceTemplateSettingsContent = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {TEMPLATE_OPTIONS.map((template) => (
                     <button
+                      type="button"
                       key={template.value}
                       onClick={() => handleTemplateChange(template.value)}
-                      className={`relative p-1 rounded-lg border-2 overflow-hidden transition-all ${selectedTemplate === template.value
-                        ? "border-[rgb(var(--color-primary))] ring-2 ring-[rgb(var(--color-primary))]/40 bg-[rgb(var(--color-primary))]/10"
-                        : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 hover:bg-[rgb(var(--color-bg-secondary))]"
-                        }`}
+                      className={`relative p-1 rounded-lg border-2 overflow-hidden transition-all ${
+                        selectedTemplate === template.value
+                          ? "border-[rgb(var(--color-primary))] ring-2 ring-[rgb(var(--color-primary))]/40 bg-[rgb(var(--color-primary))]/10"
+                          : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 hover:bg-[rgb(var(--color-bg-secondary))]"
+                      }`}
                     >
                       {selectedTemplate === template.value && (
                         <div className="absolute top-2 right-2 z-10">
@@ -179,21 +176,7 @@ const InvoiceTemplateSettingsContent = () => {
 
 const InvoiceTemplateSettingsPage = () => {
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))]">
-          <Sidebar />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-[rgb(var(--color-text-secondary))]">
-                Loading...
-              </p>
-            </div>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<PageSkeleton />}>
       <InvoiceTemplateSettingsContent />
     </Suspense>
   );

@@ -16,8 +16,6 @@ import BasicInfoCard from "@/components/purchaseOrders/create/BasicInfoCard";
 import ItemsSection from "@/components/purchaseOrders/create/ItemsSection";
 import AddressCard from "@/components/purchaseOrders/create/AddressCard";
 import POActions from "@/components/purchaseOrders/create/POActions";
-import Sidebar from "@/components/dashboard/sidebar";
-import Header from "@/components/dashboard/header";
 
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";

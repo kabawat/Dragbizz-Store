@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,16 +14,18 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
-import { findProductByScanCode, getProductId } from "@/utils/product/findProductByScanCode";
+import {
+  findProductByScanCode,
+  getProductId,
+} from "@/utils/product/findProductByScanCode";
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
-import Sidebar from "@/components/dashboard/sidebar";
-import Header from "@/components/dashboard/header";
+import { PageSkeleton } from "@dragorbit/ui/app";
 
 const INITIAL_FORM_DATA = {
   customer: "",
   totalDiscount: 0,
-  discountMode: "POST_TOTAL",   // POST_TOTAL = discount on taxable value; POST_TOTAL = discount on inclusive MRP
+  discountMode: "POST_TOTAL", // POST_TOTAL = discount on taxable value; POST_TOTAL = discount on inclusive MRP
   items: [],
   orderSource: "POS",
 };
@@ -68,7 +70,10 @@ const CreateInvoicePage = () => {
   // 6. Data Fetching Callbacks
   const fetchProducts = useCallback(async () => {
     if (!storeId) return;
-    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
+    if (
+      productsFetchedRef.current.storeId === storeId &&
+      productsFetchedRef.current.fetched
+    ) {
       return;
     }
 
@@ -91,7 +96,10 @@ const CreateInvoicePage = () => {
 
   const fetchCustomers = useCallback(async () => {
     if (!storeId) return;
-    if (customersFetchedRef.current.storeId === storeId && customersFetchedRef.current.fetched) {
+    if (
+      customersFetchedRef.current.storeId === storeId &&
+      customersFetchedRef.current.fetched
+    ) {
       return;
     }
 
@@ -99,10 +107,9 @@ const CreateInvoicePage = () => {
     setCustomersLoading(true);
 
     const params = { limit: 100, lightweight: true, store: storeId };
-    const result = await execute(
-      customerService.getCustomers(params),
-      { showToast: false }
-    );
+    const result = await execute(customerService.getCustomers(params), {
+      showToast: false,
+    });
 
     if (result?.success) {
       const serializedOptions = [
@@ -126,7 +133,11 @@ const CreateInvoicePage = () => {
 
   // 7. Effects
   useEffect(() => {
-    if (storeId && (productsFetchedRef.current.storeId !== storeId || customersFetchedRef.current.storeId !== storeId)) {
+    if (
+      storeId &&
+      (productsFetchedRef.current.storeId !== storeId ||
+        customersFetchedRef.current.storeId !== storeId)
+    ) {
       productsFetchedRef.current = { storeId: null, fetched: false };
       customersFetchedRef.current = { storeId: null, fetched: false };
     }
@@ -186,9 +197,11 @@ const CreateInvoicePage = () => {
   };
 
   const handleSubmit = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
+    e?.preventDefault?.();
 
-    const validItems = formData.items.filter((item) => item.product && item.quantity > 0);
+    const validItems = formData.items.filter(
+      (item) => item.product && item.quantity > 0
+    );
 
     if (validItems.length === 0) {
       showError(t("invoice.addAtLeastOneItem"));
@@ -214,7 +227,10 @@ const CreateInvoicePage = () => {
     setInvoiceLoading(true);
     const result = await execute(
       invoiceService.createDraftInvoice(invoiceData),
-      { message: t("invoice.invoiceCreatedSuccess") || "Invoice created successfully" }
+      {
+        message:
+          t("invoice.invoiceCreatedSuccess") || "Invoice created successfully",
+      }
     );
 
     if (result?.success) {
@@ -225,7 +241,9 @@ const CreateInvoicePage = () => {
         router.push("/dashboard/invoices");
       }
     } else {
-      showError(result?.message || t("errors.unknown") || "Failed to create invoice");
+      showError(
+        result?.message || t("errors.unknown") || "Failed to create invoice"
+      );
     }
     setInvoiceLoading(false);
   };
@@ -239,22 +257,13 @@ const CreateInvoicePage = () => {
   // Show loading if store or permissions are not available yet
   if (!selectedStore?.storeId || permissionLoading) {
     return (
-      <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <Sidebar />
-        <div className="min-h-screen w-full flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {permissionLoading
-                ? t("invoice.verifyingPermissions") || "Checking permissions..."
-                : t("invoice.loadingStoreData")}
-            </h2>
-            <p className="text-[rgb(var(--color-text-secondary))]">
-              {t("invoice.pleaseWaitStoreInfo")}
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton
+        label={
+          permissionLoading
+            ? t("invoice.verifyingPermissions")
+            : t("invoice.loadingStoreData")
+        }
+      />
     );
   }
 
@@ -282,7 +291,7 @@ const CreateInvoicePage = () => {
         {/* Form Container - Two Column Layout */}
         <div className="overflow-hidden">
           <div className="h-[calc(100vh-150px)] overflow-y-auto">
-            <div className="flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-3 gap-6" >
+            <div className="flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col min-h-0">
                 <div className="flex-1 min-h-0">
                   <form onSubmit={handleSubmit} className="h-full">
@@ -345,7 +354,7 @@ const CreateInvoicePage = () => {
         source="create"
         onClose={() => setPaymentInvoiceId(null)}
       />
-    </div >
+    </div>
   );
 };
 
