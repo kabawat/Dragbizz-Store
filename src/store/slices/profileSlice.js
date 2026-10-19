@@ -85,7 +85,13 @@ export const getRetailerDetails = createAsyncThunk(
 
       const response = await storeService.getRetailerProfile();
       const handledResponse = handleSuccess(response);
-      const actualData = handledResponse.data || {};
+      const actualData = handledResponse.data;
+      if (
+        !actualData ||
+        !Object.hasOwn(actualData, "agency") ||
+        !Array.isArray(actualData.stores)
+      )
+        throw new Error("Invalid workspace response. Please retry.");
       const combinedData = {
         user: actualData.user || null,
         agency: actualData.agency || null,
@@ -125,7 +131,8 @@ export const getRetailerDetails = createAsyncThunk(
         redirectTo: status === 401 ? "/login" : null,
       });
     }
-  }
+  },
+  { condition: (_, { getState }) => !getState().profile.isLoading }
 );
 
 export const getAuthProfile = createAsyncThunk(
@@ -135,9 +142,15 @@ export const getAuthProfile = createAsyncThunk(
       const response = await authService.getProfile();
       const handled = handleSuccess(response);
       const data = handled.data || null;
+      if (
+        !data ||
+        typeof data.role !== "string" ||
+        !(data._id || data.id || data.sub || data.userId)
+      )
+        throw new Error("Invalid account response. Please retry.");
 
       // Check if agencyId is null/missing - user needs onboarding
-      if (data && data.agencyId === null) {
+      if (data && !data.agencyId) {
         return {
           success: true,
           data,
@@ -157,7 +170,8 @@ export const getAuthProfile = createAsyncThunk(
         status: error?.response?.status ?? null,
       });
     }
-  }
+  },
+  { condition: (_, { getState }) => !getState().profile.authProfileLoading }
 );
 
 export const getStaffProfileDetails = createAsyncThunk(
@@ -172,7 +186,8 @@ export const getStaffProfileDetails = createAsyncThunk(
         message: handledError.message || "Failed to fetch staff profile",
       });
     }
-  }
+  },
+  { condition: (_, { getState }) => !getState().profile.staffProfileLoading }
 );
 
 const initialState = {
@@ -196,6 +211,11 @@ const initialState = {
   error: null,
   retailerErrorStatus: null,
   redirectTo: null,
+  authRequestId: null,
+  retailerRequestId: null,
+  staffRequestId: null,
+  authProfileStatus: "idle",
+  retailerInitialized: false,
   isInitialized: false, // Tracks if initial auth check completed
 };
 
@@ -209,6 +229,14 @@ const profileSlice = createSlice({
       state.stores = [];
       state.selectedStore = null;
       state.authProfile = null;
+      state.authProfileStatus = "signed-out";
+      state.authRequestId = null;
+      state.retailerRequestId = null;
+      state.staffRequestId = null;
+      state.retailerInitialized = false;
+      state.isLoading = false;
+      state.authProfileLoading = false;
+      state.staffProfileLoading = false;
       state.staffProfile = null;
       state.isAuthenticated = false;
       state.error = null;
@@ -229,17 +257,22 @@ const profileSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getRetailerDetails.pending, (state) => {
+      .addCase(getRetailerDetails.pending, (state, action) => {
+        state.retailerRequestId = action.meta.requestId;
         state.isLoading = true;
         state.error = null;
         state.retailerErrorStatus = null;
         state.redirectTo = null;
       })
       .addCase(getRetailerDetails.fulfilled, (state, action) => {
+        if (state.retailerRequestId !== action.meta.requestId) return;
+        state.retailerRequestId = null;
         state.isLoading = false;
         state.error = null;
         state.retailerErrorStatus = null;
 
+        state.retailerInitialized = true;
+        state.retailerErrorStatus = null;
         const { data, redirectTo } = action.payload;
 
         if (data.user) {
@@ -281,6 +314,8 @@ const profileSlice = createSlice({
         state.isInitialized = true;
       })
       .addCase(getRetailerDetails.rejected, (state, action) => {
+        if (state.retailerRequestId !== action.meta.requestId) return;
+        state.retailerRequestId = null;
         state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to get retailer details";
@@ -291,16 +326,22 @@ const profileSlice = createSlice({
         if (action.payload?.status === 401) state.isAuthenticated = false;
         else if (state.authProfile) state.isAuthenticated = true;
       })
-      .addCase(getAuthProfile.pending, (state) => {
+      .addCase(getAuthProfile.pending, (state, action) => {
+        state.authRequestId = action.meta.requestId;
         state.authProfileLoading = true;
+        state.authProfileStatus = "loading";
         state.authProfileError = null;
         state.authProfileErrorStatus = null;
       })
       .addCase(getAuthProfile.fulfilled, (state, action) => {
+        if (state.authRequestId !== action.meta.requestId) return;
+        state.authRequestId = null;
         state.authProfileLoading = false;
         state.authProfileError = null;
         state.authProfileErrorStatus = null;
 
+        state.authProfileStatus = "succeeded";
+        state.authProfileErrorStatus = null;
         const { data, redirectTo } = action.payload;
         if (data) {
           state.authProfile = data;
@@ -317,7 +358,10 @@ const profileSlice = createSlice({
         }
       })
       .addCase(getAuthProfile.rejected, (state, action) => {
+        if (state.authRequestId !== action.meta.requestId) return;
+        state.authRequestId = null;
         state.authProfileLoading = false;
+        state.authProfileStatus = "failed";
         state.authProfileError =
           action.payload?.message || "Failed to fetch auth profile";
         state.isInitialized = true;
@@ -325,11 +369,14 @@ const profileSlice = createSlice({
         if (action.payload?.status === 401 || !state.authProfile)
           state.isAuthenticated = false;
       })
-      .addCase(getStaffProfileDetails.pending, (state) => {
+      .addCase(getStaffProfileDetails.pending, (state, action) => {
+        state.staffRequestId = action.meta.requestId;
         state.staffProfileLoading = true;
         state.staffProfileError = null;
       })
       .addCase(getStaffProfileDetails.fulfilled, (state, action) => {
+        if (state.staffRequestId !== action.meta.requestId) return;
+        state.staffRequestId = null;
         state.staffProfileLoading = false;
         state.staffProfileError = null;
         if (action.payload?.data) {
@@ -337,6 +384,8 @@ const profileSlice = createSlice({
         }
       })
       .addCase(getStaffProfileDetails.rejected, (state, action) => {
+        if (state.staffRequestId !== action.meta.requestId) return;
+        state.staffRequestId = null;
         state.staffProfileLoading = false;
         state.staffProfileError =
           action.payload?.message || "Failed to fetch staff profile";

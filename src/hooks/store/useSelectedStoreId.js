@@ -17,7 +17,6 @@ export function useSelectedStoreId() {
 
   const ready =
     isInitialized &&
-    !isLoading &&
     isValidStoreId(storeId) &&
     Array.isArray(stores) &&
     stores.length > 0;

@@ -1,4 +1,5 @@
 "use client";
+import { NumberedTable } from "@dragorbit/ui";
 import {
   Calendar,
   Edit,
@@ -127,7 +128,7 @@ const ExpenseTable = ({
   if (headerOnly) {
     return (
       <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] shrink-0 overflow-x-auto">
-        <table className="w-full min-w-[900px] table-fixed">
+        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
           <thead>
             <tr>
               <th className="w-[22%] px-6 py-4 text-left">
@@ -158,7 +159,7 @@ const ExpenseTable = ({
               </th>
             </tr>
           </thead>
-        </table>
+        </NumberedTable>
       </div>
     );
   }
@@ -167,7 +168,7 @@ const ExpenseTable = ({
   if (bodyOnly) {
     if (isLoading || loading) {
       return (
-        <table className="w-full min-w-[900px] table-fixed">
+        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
           <tbody>
             {Array.from({ length: 5 }).map((_, index) => (
               <tr key={index} className="border-b border-[rgb(var(--color-border-primary))]">
@@ -185,13 +186,13 @@ const ExpenseTable = ({
               </tr>
             ))}
           </tbody>
-        </table>
+        </NumberedTable>
       );
     }
 
     return (
       <>
-        <table className="w-full min-w-[900px] table-fixed">
+        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {expenses.map((expense) => (
               <tr
@@ -238,7 +239,7 @@ const ExpenseTable = ({
               </tr>
             ))}
           </tbody>
-        </table>
+        </NumberedTable>
         {contextMenuLayer}
       </>
     );
@@ -250,7 +251,7 @@ const ExpenseTable = ({
       <div className={`h-full ${className}`}>
         {/* Fixed Header Skeleton */}
         <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-          <table className="w-full min-w-[900px] table-fixed">
+          <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
             <thead>
               <tr>
                 <th className="w-[22%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-20 animate-pulse" /></th>
@@ -263,11 +264,11 @@ const ExpenseTable = ({
                 <th className="w-24 px-6 py-4" />
               </tr>
             </thead>
-          </table>
+          </NumberedTable>
         </div>
         {/* Body Skeleton */}
         <div>
-          <table className="w-full min-w-[900px] table-fixed">
+          <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
             <tbody>
               {Array.from({ length: 5 }).map((_, index) => (
                 <tr key={index} className="border-b border-[rgb(var(--color-border-primary))]">
@@ -285,7 +286,7 @@ const ExpenseTable = ({
                 </tr>
               ))}
             </tbody>
-          </table>
+          </NumberedTable>
         </div>
       </div>
     );
@@ -313,7 +314,7 @@ const ExpenseTable = ({
     <div className={`h-full ${className}`}>
       {/* Fixed Header */}
       <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-        <table className="w-full min-w-[900px] table-fixed">
+        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
           <thead>
             <tr>
               <th className="w-[22%] px-6 py-4 text-left">
@@ -344,12 +345,12 @@ const ExpenseTable = ({
               </th>
             </tr>
           </thead>
-        </table>
+        </NumberedTable>
       </div>
 
       {/* Scrollable Body */}
       <div>
-        <table className="w-full min-w-[900px] table-fixed">
+        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {expenses.map((expense) => {
               return (
@@ -420,7 +421,7 @@ const ExpenseTable = ({
               )
             })}
           </tbody>
-        </table>
+        </NumberedTable>
       </div>
       {contextMenuLayer}
     </div>

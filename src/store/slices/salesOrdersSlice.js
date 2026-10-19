@@ -5,6 +5,7 @@ import { handleError } from "@/utils/responseHandler/error";
 const { API_CONFIG } = require("@/config");
 
 const initialState = {
+  hasLoaded: false,
     list: [],
     stats: { total: 0, pending: 0, completed: 0 },
     isLoading: false,
@@ -68,6 +69,7 @@ const salesOrdersSlice = createSlice({
                 state.error = null;
             })
             .addCase(getSalesOrders.fulfilled, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;
@@ -105,6 +107,7 @@ const salesOrdersSlice = createSlice({
                 }
             })
             .addCase(getSalesOrders.rejected, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;

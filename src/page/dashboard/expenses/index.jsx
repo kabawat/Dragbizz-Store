@@ -18,9 +18,10 @@ const ExpensesPage = () => {
   useDashboardHeader(t("expenses.title"), t("expenses.description"));
   const router = useRouter();
 
-  const { expenses, isLoading, error } = useAppSelector(
+  const { expenses, isLoading: requestLoading, hasLoaded, error } = useAppSelector(
     (state) => state.expenses,
   );
+  const isLoading = requestLoading || (!hasLoaded && !error);
 
   const [searchValue, setSearchValue] = useState("");
   const [startDate, setStartDate] = useState("");

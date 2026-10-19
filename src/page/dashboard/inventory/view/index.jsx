@@ -1,4 +1,6 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
+import { NumberedTable } from "@dragorbit/ui";
 import {
   AlertCircle,
   ArrowLeft,
@@ -6,7 +8,6 @@ import {
   Building2,
   CheckCircle,
   Download,
-  Edit,
   FileText,
   Hash,
   IndianRupee,
@@ -86,17 +87,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
 
   if (loading) {
     return (
-      <div className="flex-1 p-6 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            Loading Stock Data...
-          </h2>
-          <p className="text-[rgb(var(--color-text-secondary))]">
-            Please wait while we fetch the stock information
-          </p>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 
@@ -577,7 +568,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                       </div>
 
                       <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <NumberedTable className="w-full">
                           <thead>
                             <tr className="border-b border-[rgb(var(--color-border-primary))]">
                               <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">
@@ -648,7 +639,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               </tr>
                             ))}
                           </tbody>
-                        </table>
+                        </NumberedTable>
                       </div>
                     </div>
                   )}

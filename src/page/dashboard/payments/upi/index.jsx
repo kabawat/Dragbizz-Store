@@ -1,7 +1,7 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -72,9 +72,7 @@ const ManageUpiPage = () => {
       <div className="flex-1 p-5 overflow-auto">
         <div className="max-w-6xl mx-auto">
           {!storeReady ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
-            </div>
+            <TableSkeleton />
           ) : stores.length === 0 ? (
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-12 text-center">
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">

@@ -1,4 +1,10 @@
-import { PageSkeleton } from "@dragorbit/ui/app";
+"use client";
+import { DashboardSkeleton, PageSkeleton } from "@dragorbit/ui/app";
+import { usePathname } from "next/navigation";
 export default function DashboardLoading() {
-  return <PageSkeleton />;
+  return usePathname() === "/dashboard" ? (
+    <DashboardSkeleton />
+  ) : (
+    <PageSkeleton />
+  );
 }

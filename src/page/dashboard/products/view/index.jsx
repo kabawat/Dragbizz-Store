@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import {
   AlertTriangle, ArrowLeft, Barcode, Building2, CheckCircle, CheckCircle2, Clock, Download, Edit, Eye, FileText, Hash, IndianRupee, Package, Package2, Percent, Scale, Shield, ShoppingCart, Star, Tag, Trash2, TrendingUp, XCircle, Zap,
 } from "lucide-react";
@@ -184,33 +185,7 @@ const ViewProductPage = ({ productId }) => {
   // Loading state while fetching product data
   if (fetching) {
     return (
-      <div className="flex w-full h-screen relative overflow-hidden">
-        
-
-        <div className="min-h-screen w-full flex flex-col">
-          
-
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto w-full">
-              <div className="bg-[rgb(var(--color-bg-primary))] p-8">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t("modals.loadingData", { item: t("common.product") })}
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t("common.pleaseWaitWhileWeFetch", {
-                        item: t("common.product"),
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 

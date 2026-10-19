@@ -1,4 +1,5 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import {
   ArrowLeft,
   Calendar,
@@ -13,7 +14,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PurchaseOrderDetailsTemplate from "@/components/templates/purchaseOrder/PurchaseOrderDetailsTemplate";
-import { Button, Card, Loading } from "@/components/ui";
+import { Button, Card, } from "@/components/ui";
 import { purchaseOrderService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { useApiResponse } from "@/hooks/useApiResponse";
@@ -121,9 +122,7 @@ export default function ViewPurchaseOrderPage() {
         </div>
 
         {loading && (
-          <div className="flex items-center justify-center h-64">
-            <Loading />
-          </div>
+          <TableSkeleton compact rows={2} />
         )}
 
         {!loading && error && (

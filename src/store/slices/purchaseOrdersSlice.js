@@ -4,6 +4,7 @@ import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
 
 const initialState = {
+  hasLoaded: false,
   list: [],
   isLoading: false,
   isFetchingMore: false,
@@ -71,6 +72,7 @@ const purchaseOrdersSlice = createSlice({
         state.error = null;
       })
       .addCase(getPurchaseOrders.fulfilled, (state, action) => {
+        state.hasLoaded = true;
         const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
         if (isFreshLoad) state.isLoading = false;
         else state.isFetchingMore = false;
@@ -99,6 +101,7 @@ const purchaseOrdersSlice = createSlice({
         }
       })
       .addCase(getPurchaseOrders.rejected, (state, action) => {
+        state.hasLoaded = true;
         const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
         if (isFreshLoad) state.isLoading = false;
         else state.isFetchingMore = false;

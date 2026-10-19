@@ -4,6 +4,7 @@ import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
 
 const initialState = {
+  hasLoaded: false,
     inventories: [],
     pagination: {
         hasNextPage: false,
@@ -68,6 +69,7 @@ const inventorySlice = createSlice({
                 state.error = null;
             })
             .addCase(getInventories.fulfilled, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;
@@ -98,6 +100,7 @@ const inventorySlice = createSlice({
                 }
             })
             .addCase(getInventories.rejected, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;

@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import { ArrowLeft, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -177,9 +178,7 @@ const EditInventoryPage = ({ inventoryId }) => {
 
   if (loading) {
     return (
-      <div className="flex-1 p-6 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--color-primary))]"></div>
-      </div>
+      <PageSkeleton />
     );
   }
 

@@ -1,4 +1,6 @@
 "use client";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
+import { NumberedTable } from "@dragorbit/ui";
 import {
   AlertTriangle,
   Building2,
@@ -22,7 +24,8 @@ const PendingPayments = () => {
   useDashboardHeader("Pending Payments", "View and manage pending supplier payments");
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { pendingPayments, stats, isLoading, error } = useAppSelector((state) => state.payments);
+  const { payments: pendingPayments, stats, isLoading: requestLoading, hasLoaded, error } = useAppSelector((state) => state.payments);
+  const isLoading = requestLoading || (!hasLoaded && !error);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -233,7 +236,7 @@ const PendingPayments = () => {
       {/* Pending Payments Table */}
       <Card>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <NumberedTable className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left p-4 font-medium text-gray-900">
@@ -375,34 +378,17 @@ const PendingPayments = () => {
                 );
               })}
             </tbody>
-          </table>
+          </NumberedTable>
         </div>
 
         {/* Empty State */}
         {pendingPayments.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No pending payments
-            </h3>
-            <p className="text-gray-600 mb-4">
-              All payments are processed!
-            </p>
-            <Button
-              variant="primary"
-              onClick={() => router.push("/dashboard/payments/create")}
-            >
-              Create New Payment
-            </Button>
-          </div>
+          <EmptyState fullHeight icon={Clock} title="No pending payments" description="All payments are processed!" actionButton={{label: "Create New Payment", onClick: () => router.push("/dashboard/payments/create")}} />
         )}
 
         {/* Loading State */}
         {isLoading && (
-          <div className="text-center py-12">
-            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading pending payments...</p>
-          </div>
+          <TableSkeleton compact rows={2} />
         )}
       </Card>
     </div>

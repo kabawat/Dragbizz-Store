@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -288,22 +289,7 @@ const EditInvoicePage = ({ invoiceId }) => {
   // Show loading if store or permissions are not available yet
   if (!selectedStore?.storeId || permissionLoading) {
     return (
-      <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-
-        <div className="min-h-screen w-full flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {permissionLoading
-                ? t("invoice.verifyingPermissions") || "Checking permissions..."
-                : t("common.loadingStoreData")}
-            </h2>
-            <p className="text-[rgb(var(--color-text-secondary))]">
-              {t("invoice.pleaseWaitStoreInfo") || "Almost there..."}
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 
@@ -314,22 +300,7 @@ const EditInvoicePage = ({ invoiceId }) => {
 
   if (fetching) {
     return (
-      <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-
-        <div className="min-h-screen w-full flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t("common.loadingInvoice")}
-            </h2>
-            <p className="text-[rgb(var(--color-text-secondary))]">
-              {t("common.pleaseWaitWhileWeFetch", {
-                item: t("common.invoice"),
-              })}
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 

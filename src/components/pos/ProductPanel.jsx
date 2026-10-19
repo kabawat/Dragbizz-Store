@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { TableSkeleton } from "@dragorbit/ui";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Search, Grid3X3, List, Package, Loader2 } from "lucide-react";
 import { Select, EmptyState } from "@/components/ui";
 import ProductCard from "./ProductCard";
@@ -182,10 +183,7 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
                     }`}
             >
                 {isLoading && !products.length ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-16 text-[rgb(var(--color-text-secondary))]">
-                        <Loader2 className="w-8 h-8 mb-3 animate-spin opacity-50" />
-                        <p className="text-sm">Loading products...</p>
-                    </div>
+                    <TableSkeleton className="col-span-full" compact rows={3} />
                 ) : filteredProducts.length === 0 ? (
                     <div className="col-span-full">
                         <EmptyState

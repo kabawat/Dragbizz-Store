@@ -1,92 +1,28 @@
 "use client";
-
-import { useEffect, useRef } from "react";
+import { bootstrapSession, hasSessionHint } from "@dragorbit/core/auth";
+import { useEffect } from "react";
+import { useStore } from "react-redux";
 import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
-import { authService } from "@/service";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  getAuthProfile,
-  getRetailerDetails,
-  getStaffProfileDetails,
-  setInitialized,
-} from "@/store/slices/profileSlice";
+import { useAppSelector } from "@/store/hooks";
+import * as profileActions from "@/store/slices/profileSlice";
 
-// Module-level to avoid Strict Mode double refresh
-let authBootstrapStarted = false;
-let authBootstrapDone = false;
-
-export default function GlobalProfileLoader() {
-  const dispatch = useAppDispatch();
-  const { authProfile, staffProfile, agency, stores } = useAppSelector(
-    (state) => state.profile
-  );
-
-  const hasFetchedRetailerRef = useRef(false);
-  const hasFetchedStaffRef = useRef(false);
-
+export default function GlobalProfileLoader({ initialSessionHint = false }) {
+  const store = useStore();
+  const authProfile = useAppSelector((state) => state.profile.authProfile);
   useEffect(() => {
-    const hasSessionCookie =
-      typeof document !== "undefined" &&
-      document.cookie.includes("logged_in=true");
-
-    if (!hasSessionCookie) {
-      dispatch(setInitialized(true));
-      return;
-    }
-
-    if (authBootstrapDone) {
-      if (!authProfile) dispatch(setInitialized(true));
-      return;
-    }
-
-    if (authBootstrapStarted) return;
-    authBootstrapStarted = true;
-
-    const load = async () => {
-      try {
-        try {
-          await authService.refreshToken();
-        } catch (_) {}
-
-        try {
-          await dispatch(getAuthProfile()).unwrap();
-        } catch (_) {
-          dispatch(setInitialized(true));
-        }
-      } catch (_) {
-        dispatch(setInitialized(true));
-      } finally {
-        authBootstrapDone = true;
-      }
+    const expire = () => {
+      store.dispatch(profileActions.clearAuth());
+      store.dispatch(profileActions.setInitialized(true));
     };
-
-    load();
-  }, [dispatch, authProfile]);
-
-  useEffect(() => {
-    if (!authProfile?.agencyId) return;
-
-    const hasSessionCookie =
-      typeof document !== "undefined" &&
-      document.cookie.includes("logged_in=true");
-    if (!hasSessionCookie) return;
-
-    const hasStores = Array.isArray(stores) && stores.length > 0;
-    if (hasStores || agency || hasFetchedRetailerRef.current) return;
-
-    hasFetchedRetailerRef.current = true;
-    dispatch(getRetailerDetails());
-  }, [authProfile?.agencyId, agency, stores, dispatch]);
-
-  useEffect(() => {
-    if (!authProfile || authProfile.role !== "store_staff") return;
-    if (staffProfile || hasFetchedStaffRef.current) return;
-
-    hasFetchedStaffRef.current = true;
-    dispatch(getStaffProfileDetails());
-  }, [authProfile, staffProfile, dispatch]);
-
-  const shouldShowModal = !!authProfile && authProfile.ispwds === false;
-
-  return <ForcePasswordModal isOpen={shouldShowModal} />;
+    window.addEventListener("dragbizz:session-expired", expire);
+    bootstrapSession(store, profileActions, {
+      sessionHint: initialSessionHint || hasSessionHint(document.cookie),
+    });
+    return () => window.removeEventListener("dragbizz:session-expired", expire);
+  }, [store, initialSessionHint]);
+  return (
+    <ForcePasswordModal
+      isOpen={Boolean(authProfile && authProfile.ispwds === false)}
+    />
+  );
 }

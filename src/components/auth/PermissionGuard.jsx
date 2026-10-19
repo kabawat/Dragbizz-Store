@@ -1,5 +1,9 @@
 "use client";
-import { AccessRestricted, PageSkeleton } from "@dragorbit/ui/app";
+import {
+  AccessRestricted,
+  DashboardSkeleton,
+  PageSkeleton,
+} from "@dragorbit/ui/app";
 import { usePathname, useRouter } from "next/navigation";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import {
@@ -8,17 +12,20 @@ import {
   getModuleFromPath,
 } from "@/data/config/moduleRegistry";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getStaffProfileDetails } from "@/store/slices/profileSlice";
 import { redirectToMainDomain } from "@/utils/helper/domain";
 import { hasFeatureCapability } from "@/utils/subscriptionCapability.util";
 export const PermissionGuard = ({ children }) => {
   const pathname = usePathname();
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const {
     authProfile,
     authProfileLoading,
     staffProfile,
     staffProfileLoading,
+    staffProfileError,
     isAuthenticated,
   } = useAppSelector((state) => state.profile);
 
@@ -32,7 +39,7 @@ export const PermissionGuard = ({ children }) => {
   const isChecking =
     (authProfileLoading && !authProfile) ||
     (staffProfileLoading && !staffProfile) ||
-    subscriptionLoading;
+    (subscriptionLoading && !subscription);
   // Evaluate from the current render: effect-backed decisions can leak the old route's result.
   const evaluateAccess = () => {
     if (!isAuthenticated || !authProfile) return { hasAccess: true };
@@ -75,10 +82,24 @@ export const PermissionGuard = ({ children }) => {
 
   // Keep the loading UI until subscription and profile data are resolved.
   if (isChecking) {
-    return <PageSkeleton />;
+    return pathname === "/dashboard" ? <DashboardSkeleton /> : <PageSkeleton />;
   }
 
-  if (subscriptionError) {
+  if (authProfile?.role === ROLES.STAFF && !staffProfile && staffProfileError) {
+    return (
+      <section role="alert" className="space-y-3 p-6">
+        <p>{staffProfileError}</p>
+        <button
+          type="button"
+          onClick={() => dispatch(getStaffProfileDetails())}
+          className="rounded-lg border border-[rgb(var(--color-border-primary))] px-4 py-2"
+        >
+          Try again
+        </button>
+      </section>
+    );
+  }
+  if (subscriptionError && !subscription) {
     return (
       <section role="alert" className="space-y-3 p-6">
         <p>{subscriptionError}</p>

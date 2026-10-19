@@ -1,3 +1,4 @@
+import { NumberedTable } from "@dragorbit/ui";
 import React from "react";
 import { Package } from "lucide-react";
 import { Badge } from "@/components/ui";
@@ -14,7 +15,7 @@ const OrderItems = ({ order }) => {
                     <Badge variant="outline" className="font-bold text-[0.625rem] uppercase tracking-wider">{order.items.length} {t("common.products")}</Badge>
                 </div>
                 <div className="flex-1 overflow-x-auto">
-                    <table className="w-full">
+                    <NumberedTable className="w-full">
                         <thead className="bg-[rgb(var(--color-bg-secondary))]/50">
                             <tr>
                                 <th className="px-6 py-4 text-left text-[0.625rem] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.product")}</th>
@@ -72,7 +73,7 @@ const OrderItems = ({ order }) => {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </NumberedTable>
                 </div>
                 <div className="p-6 bg-[rgb(var(--color-bg-secondary))]/50 flex justify-end">
                     <div className="w-full md:w-80 space-y-3">

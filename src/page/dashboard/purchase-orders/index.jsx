@@ -29,9 +29,10 @@ const PurchaseOrders = () => {
   const [endDate, setEndDate] = useState("");
   const {
     list: purchaseOrders,
-    isLoading,
+    isLoading: requestLoading, hasLoaded,
     error,
   } = useAppSelector((state) => state.purchaseOrders);
+  const isLoading = requestLoading || (!hasLoaded && !error);
 
   const {
     can,

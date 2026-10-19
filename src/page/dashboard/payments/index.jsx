@@ -28,8 +28,9 @@ const Payments = () => {
   useDashboardHeader(t("payments.title"), t("payments.description"));
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { payments, isLoading, isFetchingMore, error, pagination } =
+  const { payments, isLoading: requestLoading, hasLoaded, isFetchingMore, error, pagination } =
     useAppSelector((state) => state.payments);
+  const isLoading = requestLoading || (!hasLoaded && !error);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const {
     can,

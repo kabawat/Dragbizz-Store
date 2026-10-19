@@ -28,9 +28,11 @@ const InventoryPage = () => {
 
   const {
     inventories,
-    isLoading: inventoryLoading,
+    isLoading: requestLoading,
+    hasLoaded,
     error,
   } = useAppSelector((state) => state.inventory);
+  const inventoryLoading = requestLoading || (!hasLoaded && !error);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
   const {

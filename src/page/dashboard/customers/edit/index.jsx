@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import { ArrowLeft, Save, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,14 +14,7 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 
-const LoadingState = ({ t }) => (
-  <div className="flex-1 p-6 flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
-    </div>
-  </div>
-);
+const LoadingState = () => <PageSkeleton />;
 
 const EditCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();

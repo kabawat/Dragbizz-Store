@@ -23,7 +23,8 @@ const Bills = () => {
   const [searchValue, setSearchValue] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const { bills, isLoading, error } = useAppSelector((state) => state.bills);
+  const { bills, isLoading: requestLoading, hasLoaded, error } = useAppSelector((state) => state.bills);
+  const isLoading = requestLoading || (!hasLoaded && !error);
 
   const {
     can,

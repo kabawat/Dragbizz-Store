@@ -1,8 +1,8 @@
 "use client";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 import { ManagePaymentGatewaySettingsView } from "@dragorbit/features/integrations";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -34,11 +34,13 @@ const ManagePaymentGatewaySettings = () => {
     agencyKey ? state.storePaymentGateway?.byStoreId?.[agencyKey] : null,
   );
   const gateways = gatewayData?.gateways || [];
-  const isGatewayLoading = useAppSelector(
+  const requestLoading = useAppSelector(
     (state) =>
       state.storePaymentGateway?.loadingStoreId === storeId &&
       state.storePaymentGateway?.isLoading,
   );
+  const requestError = useAppSelector((state) => state.storePaymentGateway?.error);
+  const isGatewayLoading = requestLoading || (!gatewayData && !requestError);
 
   const canRead = can("read");
   const canCreate = can("create");
@@ -85,9 +87,7 @@ const ManagePaymentGatewaySettings = () => {
 
   if (!storeReady || permLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
-      </div>
+      <TableSkeleton />
     );
   }
 
@@ -102,17 +102,10 @@ const ManagePaymentGatewaySettings = () => {
   }
 
   if (stores.length === 0) {
-    return (
-      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-12 text-center">
-        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-          {t("settings.noStoresFound")}
-        </h3>
-        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-          {t("settings.getStartedByAddingFirstStore")}
-        </p>
-      </div>
-    );
+    return <EmptyState fullHeight title={t("settings.noStoresFound")} description={t("settings.getStartedByAddingFirstStore")} />;
   }
+
+  if (requestError && !gatewayData) return <EmptyState fullHeight type="error" title={t("common.error")} description={String(requestError)} />;
 
   return (
     <ManagePaymentGatewaySettingsView

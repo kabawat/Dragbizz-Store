@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -217,18 +218,12 @@ const CustomerListContent = ({
   if (!isLoading && balanceFilter && visibleCustomers.length === 0) {
     if (pagination.hasNextPage || isFetchingMore) {
       return (
-        <div className="flex items-center justify-center gap-2 py-12 text-sm text-[rgb(var(--color-text-secondary))]">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
-          {t("khata.loadingBalanceCustomers") ||
-            "Looking for customers with balance..."}
-        </div>
+        <TableSkeleton />
       );
     }
 
     return (
-      <div className="py-12 text-center text-sm text-[rgb(var(--color-text-secondary))]">
-        {t("khata.balanceFilter")}: {t("common.noResults")}
-      </div>
+      <EmptyState fullHeight title={t("common.noResults")} description={t("khata.balanceFilter")} />
     );
   }
 
@@ -241,15 +236,8 @@ const CustomerListContent = ({
         <div ref={sentinelRef} className="h-4 w-full" />
       )}
 
-      {(isFetchingMore || isLoading) && visibleCustomers.length > 0 && (
-        <div className="flex items-center justify-center py-16">
-          <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
-            <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-              {t("common.loadingMore") || "Loading more..."}
-            </span>
-          </div>
-        </div>
+      {isFetchingMore && visibleCustomers.length > 0 && (
+        <TableSkeleton compact rows={2} />
       )}
     </>
   );

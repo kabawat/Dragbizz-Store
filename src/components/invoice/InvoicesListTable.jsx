@@ -1,4 +1,6 @@
 "use client";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
+import { NumberedTable } from "@dragorbit/ui";
 import {
   CheckCircle,
   Copy,
@@ -30,7 +32,6 @@ import {
   openInvoiceEmailShare,
   openWhatsAppShare,
 } from "@/utils/invoice/invoiceShare.utils";
-import logger from "@/utils/logger";
 import { renderStatusBadge } from "@/utils/statusBadge";
 
 const InvoicesListTable = ({
@@ -172,32 +173,17 @@ const InvoicesListTable = ({
 
   if (loading && invoices.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(var(--color-primary))] mx-auto mb-4"></div>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {t("invoice.loadingInvoices")}
-          </p>
-        </div>
-      </div>
+      <TableSkeleton />
     );
   }
 
   if (!loading && invoices.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {defaultEmptyMessage}
-          </p>
-        </div>
-      </div>
-    );
+    return <EmptyState fullHeight title={defaultEmptyMessage} />;
   }
 
   return (
     <div className="w-full">
-      <table className="w-full">
+      <NumberedTable className="w-full">
         <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
           <tr>
             <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
@@ -388,16 +374,9 @@ const InvoicesListTable = ({
             );
           })}
         </tbody>
-      </table>
+      </NumberedTable>
       {isLoadingMore && (
-        <div className="flex items-center justify-center py-8 border-t border-[rgb(var(--color-border-primary))]">
-          <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-            <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-              {t("invoice.loadingMore")}
-            </span>
-          </div>
-        </div>
+        <TableSkeleton compact rows={2} />
       )}
       <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
       {menu?.mode === "context" ? (

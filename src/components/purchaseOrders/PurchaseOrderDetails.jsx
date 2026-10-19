@@ -1,4 +1,5 @@
 "use client";
+import { NumberedTable } from "@dragorbit/ui";
 import { Barcode, FileText, Mail, Phone } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
@@ -110,7 +111,7 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
           Product Details
         </h4>
         <div className="overflow-x-auto max-h-64 overflow-y-auto border border-[rgb(var(--color-border-primary))] rounded-lg">
-          <table className="min-w-full divide-y divide-[rgb(var(--color-border-primary))]">
+          <NumberedTable className="min-w-full divide-y divide-[rgb(var(--color-border-primary))]">
             <thead className="bg-[rgb(var(--color-bg-secondary))]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
@@ -143,7 +144,7 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </NumberedTable>
         </div>
       </div>
 

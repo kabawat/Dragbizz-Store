@@ -22,18 +22,27 @@ const VariantsPage = () => {
 	const { selectedStore } = useAppSelector((state) => state.profile);
 	const storeId = selectedStore?.storeId;
 	const { can, loading: permissionsLoading } = useModulePermissions("product");
-	const { execute, loading } = useApiResponse();
+	const { execute, loading: requestLoading } = useApiResponse();
+	const [resolvedStoreId, setResolvedStoreId] = useState(null);
+	const [error, setError] = useState(null);
+	const loading = requestLoading || (resolvedStoreId !== storeId && !error);
 	const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 	const [variants, setVariants] = useState([]);
 	const [variantToDelete, setVariantToDelete] = useState(null);
 
 	const fetchVariants = useCallback(async () => {
 		if (!storeId) return;
+		setError(null);
 		const result = await execute(
 			variantService.getVariants({ store: storeId, limit: 200 }),
 			{ showToast: false },
 		);
+		if (result?.success === false || result?.status === false) {
+			setError(result.message || "Unable to load records.");
+		} else {
 		setVariants(unwrapVariantList(result?.data));
+		}
+		setResolvedStoreId(storeId);
 	}, [storeId, execute]);
 
 	useEffect(() => {
@@ -71,6 +80,7 @@ const VariantsPage = () => {
 				variantDisplayLabel,
 				setVariantToDelete,
 				loading,
+				error,
 				variantToDelete,
 				isDeleting,
 				handleConfirmDelete,

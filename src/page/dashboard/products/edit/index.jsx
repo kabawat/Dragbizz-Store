@@ -1,5 +1,6 @@
 "use client";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { PageSkeleton } from "@dragorbit/ui/app";
+import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -204,25 +205,7 @@ const UpdateProductPage = ({ productId }) => {
 
   if (initialLoading || permissionsLoading) {
     return (
-      <div className="p-6">
-        <div className="max-w-8xl mx-auto">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-            <div className="flex items-center justify-center">
-              <div className="text-center">
-                <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
-                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                  Loading Product...
-                </h2>
-                <p className="text-[rgb(var(--color-text-secondary))]">
-                  {t("common.pleaseWaitWhileWeFetch", {
-                    item: t("common.product"),
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 

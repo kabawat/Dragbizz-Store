@@ -1,7 +1,7 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import { TallyIntegrationSettingsView } from "@dragorbit/features/integrations";
 
-import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -112,9 +112,7 @@ const TallyIntegrationSettings = () => {
 
   if (!storeId || loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
+      <TableSkeleton />
     );
   }
 

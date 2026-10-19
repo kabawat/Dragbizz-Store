@@ -21,7 +21,12 @@ export function middleware(request) {
   const authToken = request.cookies.get("logged_in")?.value;
 
   // If protected route and no auth token → redirect to external login
-  if (isProtectedRoute && !authToken) {
+  if (
+    isProtectedRoute &&
+    authToken !== "true" &&
+    !request.cookies.get("rt")?.value &&
+    !request.cookies.get("at")?.value
+  ) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
 

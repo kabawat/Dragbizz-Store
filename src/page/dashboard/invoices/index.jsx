@@ -23,9 +23,10 @@ const InvoicesPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { invoices, isLoading, error, filters } = useAppSelector(
+  const { invoices, isLoading: requestLoading, hasLoaded, error, filters } = useAppSelector(
     (state) => state.invoices,
   );
+  const isLoading = requestLoading || (!hasLoaded && !error);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 

@@ -1,22 +1,23 @@
 import { Inter } from "next/font/google";
+import { cookies } from "next/headers";
 import "@/app/globals.css";
+
+import { siteMetadata, ThemeScript } from "@/app/metadata";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import FcmForegroundBridge from "@/components/FcmForegroundBridge";
+import GlobalHotkeys from "@/components/GlobalHotkeys";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
 import { SettingsDrawer } from "@/components/ui";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
 import NetworkError from "@/components/ui/NetworkError";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ToastProvider } from "@/contexts/ToastContext";
 import { FcmProvider } from "@/contexts/FcmContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import { SocketNotificationProvider } from "@/contexts/SocketNotificationContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 import { ReduxProvider } from "@/store/provider";
 import { LocationProvider } from "./LocationProvider";
-
-import { siteMetadata, ThemeScript } from "@/app/metadata";
-import FcmForegroundBridge from "@/components/FcmForegroundBridge";
-import GlobalHotkeys from "@/components/GlobalHotkeys";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,14 +27,20 @@ const inter = Inter({
 
 export const metadata = siteMetadata;
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const cookieJar = await cookies();
+  const sessionHint =
+    cookieJar.get("logged_in")?.value === "true" ||
+    Boolean(cookieJar.get("rt")?.value || cookieJar.get("at")?.value);
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
         <ThemeScript />
-
       </head>
-      <body className={`${inter.className} antialiased`} suppressHydrationWarning={true}>
+      <body
+        className={`${inter.className} antialiased`}
+        suppressHydrationWarning={true}
+      >
         <ReduxProvider>
           <ThemeProvider>
             <LanguageProvider>
@@ -43,7 +50,7 @@ export default function RootLayout({ children }) {
                     <SocketNotificationProvider>
                       <FcmForegroundBridge />
                       <ErrorBoundary>
-                        <GlobalProfileLoader />
+                        <GlobalProfileLoader initialSessionHint={sessionHint} />
                         <LocationProvider>
                           <GlobalHotkeys />
                           {children}

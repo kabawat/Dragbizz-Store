@@ -1,6 +1,7 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui";
 
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -184,14 +185,7 @@ const EditBill = ({ billId }) => {
 
   if (fetching) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            {t("modals.loadingData", { item: t("common.bill") })}
-          </h2>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 

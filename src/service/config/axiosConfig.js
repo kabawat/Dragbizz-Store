@@ -1,3 +1,4 @@
+import { createSessionRecovery } from "@dragorbit/core/auth";
 // src/service/config/axiosConfig.js
 import axios from "axios";
 import API_CONFIG from "@/config/api.config";
@@ -42,123 +43,42 @@ export const uploadAxios = axios.create({
   },
 });
 
-// Global refresh state
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve();
-    }
-  });
-
-  failedQueue = [];
-};
-
+const recoverSession = createSessionRecovery({
+  refresh: async () => {
+    const { default: authService } = await import(
+      "@/service/auth/auth.service"
+    );
+    return authService.refreshToken();
+  },
+  onExpired: () => {
+    if (typeof window !== "undefined")
+      window.dispatchEvent(new Event("dragbizz:session-expired"));
+  },
+});
 const setupAuthInterceptors = (instance) => {
-  // Request interceptor
-  instance.interceptors.request.use(
-    (config) => {
-      const url = String(config?.url || "");
-      if (urlNeedsStoreParam(url) && !hasValidStoreOnConfig(config)) {
-        config.__bootstrapBadStore = true;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-
+  instance.interceptors.request.use((config) => {
+    if (
+      urlNeedsStoreParam(String(config?.url || "")) &&
+      !hasValidStoreOnConfig(config)
+    )
+      config.__bootstrapBadStore = true;
+    return config;
+  });
   instance.interceptors.response.use(
-    (response) => {
-      return response;
-    },
+    (response) => response,
     async (error) => {
-      const errMsg =error?.response?.data?.message || error?.response?.data?.error || "";
+      const message =
+        error?.response?.data?.message || error?.response?.data?.error || "";
       if (
-        /invalid or missing store id/i.test(String(errMsg)) &&
+        /invalid or missing store id/i.test(String(message)) &&
         error?.config?.__bootstrapBadStore
-      ) {
+      )
         markPendingStoreIdToastSuppress();
-      }
-
-      if (axios.isCancel(error)) {
-        return Promise.reject(error);
-      }
-
-      const originalRequest = error.config;
-
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        if (isRefreshing) {
-          return new Promise((resolve, reject) => {
-            failedQueue.push({ resolve, reject });
-          })
-            .then(() => {
-              return instance(originalRequest);
-            })
-            .catch((err) => {
-              return Promise.reject(err);
-            });
-        }
-
-        originalRequest._retry = true;
-        isRefreshing = true;
-
-        try {
-          const { default: authService } = await import(
-            "@/service/auth/auth.service"
-          );
-
-          const refreshResponse = await authService.refreshToken();
-
-          if (refreshResponse.success) {
-            isRefreshing = false;
-            processQueue(null);
-            return instance(originalRequest);
-          } else {
-            throw new Error("Token refresh failed");
-          }
-        } catch (refreshError) {
-          isRefreshing = false;
-          processQueue(refreshError);
-
-          if (typeof window !== "undefined") {
-            const pathname = window.location.pathname || "";
-            if (pathname.startsWith("/onboarding")) {
-              return Promise.reject(refreshError);
-            }
-            const protectedPrefixes = [
-              "/dashboard",
-              "/profile",
-              "/settings",
-              "/admin",
-            ];
-            const isProtectedRoute = protectedPrefixes.some((prefix) =>
-              pathname.startsWith(prefix)
-            );
-            if (isProtectedRoute) {
-              window.location.href = "/login";
-            }
-          }
-
-          return Promise.reject(refreshError);
-        }
-      }
-
-      return Promise.reject(error);
+      if (axios.isCancel(error)) throw error;
+      return recoverSession(error, (request) => instance(request));
     }
   );
 };
-
 setupAuthInterceptors(authAxios);
 setupAuthInterceptors(uploadAxios);
-
-export default {
-  authAxios,
-  unauthAxios,
-  uploadAxios,
-};
+export default { authAxios, unauthAxios, uploadAxios };

@@ -3,6 +3,7 @@ import { supplierService } from "@/service";
 import { handleError } from "@/utils/responseHandler/error";
 
 const initialState = {
+  hasLoaded: false,
     suppliers: [],
     pagination: {
         hasNextPage: false,
@@ -63,6 +64,7 @@ const suppliersSlice = createSlice({
                 state.error = null;
             })
             .addCase(getSuppliers.fulfilled, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;
@@ -92,6 +94,7 @@ const suppliersSlice = createSlice({
                 }
             })
             .addCase(getSuppliers.rejected, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;

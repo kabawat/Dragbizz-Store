@@ -1,3 +1,5 @@
+import { handleSuccess as normalizeSuccess } from "@dragorbit/core/api";
+
 const DEFAULT_ERROR_MESSAGE = "An error occurred. Please try again.";
 
 function getApiErrorMessage(error) {
@@ -21,10 +23,10 @@ export const handleApiSuccess = (
   response,
   defaultMessage = "Operation successful"
 ) => {
+  const normalized = normalizeSuccess(response);
   const body = response?.data ?? response;
   const result = {
-    success: true,
-    data: body?.data ?? body,
+    ...normalized,
     token: body?.token ?? response?.token,
     message: body?.message ?? response?.message ?? defaultMessage,
     meta: body?.meta ?? response?.meta,

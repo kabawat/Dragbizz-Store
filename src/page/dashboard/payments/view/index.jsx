@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import {
   ArrowLeft,
   Banknote,
@@ -128,34 +129,7 @@ const ViewPaymentPage = ({ paymentId }) => {
   // Loading state
   if (fetching || permissionLoading) {
     return (
-      <div className="flex w-full h-screen relative overflow-hidden">
-        
-
-        <div className="min-h-screen w-full flex flex-col">
-          
-
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto w-full">
-              <div className="bg-[rgb(var(--color-bg-primary))] p-8">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t("modals.loadingData", { item: t("payments.payment") })}
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t("common.pleaseWaitWhileWeFetch", {
-                        item: t("payments.payment"),
-                      })}
-                      Please wait while we fetch the payment information
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 

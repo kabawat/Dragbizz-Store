@@ -1,4 +1,5 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import { Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CustomerForm } from "@/components/customer";
@@ -191,14 +192,7 @@ const EditCustomer = ({
     if (fetching) {
         if (mode === "page") {
             return (
-                <div className="flex-1 flex items-center justify-center p-6">
-                    <div className="text-center">
-                        <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                        <p className="text-[rgb(var(--color-text-secondary))]">
-                            {t("common.loading")}
-                        </p>
-                    </div>
-                </div>
+                <TableSkeleton />
             );
         }
         // Drawer loading skeleton

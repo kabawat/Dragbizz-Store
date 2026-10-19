@@ -1,5 +1,5 @@
 "use client";
-import { DashboardShell, StartupLoader } from "@dragorbit/ui/app";
+import { DashboardShell, SessionSkeleton } from "@dragorbit/ui/app";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
@@ -15,7 +15,6 @@ export default function DashboardLayout({ children }) {
   const isCustomerPayment = pathname?.includes("/customer-payment");
 
   const {
-    redirectTo,
     agency,
     stores,
     isLoading,
@@ -26,7 +25,7 @@ export default function DashboardLayout({ children }) {
 
   const { ready: storeReady } = useSelectedStoreId();
   const isProfileLoading =
-    isLoading || authProfileLoading || staffProfileLoading;
+    !agency && (isLoading || authProfileLoading || staffProfileLoading);
 
   useEffect(() => {
     if (authProfile?.tenant) {
@@ -34,26 +33,8 @@ export default function DashboardLayout({ children }) {
     }
   }, [authProfile?.tenant]);
 
-  if (isProfileLoading || !storeReady) {
-    return (
-      <StartupLoader
-        title={isProfileLoading ? "Verifying Profile..." : "Loading Store..."}
-        description={
-          isProfileLoading
-            ? "Checking your retailer information"
-            : "Preparing your store workspace"
-        }
-      />
-    );
-  }
-  if (redirectTo || !agency || (agency && (!stores || stores.length === 0))) {
-    return (
-      <StartupLoader
-        title="Redirecting..."
-        description="Please wait while we redirect you"
-      />
-    );
-  }
+  if (isProfileLoading || !storeReady || !agency || !stores?.length)
+    return <SessionSkeleton />;
 
   return (
     <HeaderProvider>

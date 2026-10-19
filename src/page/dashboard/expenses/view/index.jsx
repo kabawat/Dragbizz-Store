@@ -1,4 +1,5 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import {
   ArrowLeft,
   Building,
@@ -18,7 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import useApiResponse from "@/hooks/useApiResponse";
 import ExpenseDetailsTemplate from "@/components/templates/expense/ExpenseDetailsTemplate";
 import ExpenseDeleteModal from "@/components/expenses/list/ExpenseDeleteModal";
-import { Badge, Button, Loading } from "@/components/ui";
+import { Badge, Button, } from "@/components/ui";
 import {
   getCategoryLabel,
   getPaymentMethodIcon,
@@ -129,19 +130,7 @@ const ViewExpensePage = ({ expenseId }) => {
   // Loading state while fetching expense data
   if (fetching || permissionLoading) {
     return (
-      <div className="flex w-full h-screen relative overflow-hidden">
-
-        <div className="min-h-screen w-full flex flex-col">
-
-          <div className="flex-1 flex items-center justify-center">
-            <Loading
-              size="xl"
-              text="Loading Expense Data..."
-              color="blue"
-            />
-          </div>
-        </div>
-      </div>
+      <TableSkeleton />
     );
   }
 

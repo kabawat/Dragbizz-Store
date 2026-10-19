@@ -37,7 +37,9 @@ export default function Dashboard() {
         const result = await execute(agencyService.getSummary(), {
           showToast: false,
         });
-        return result?.success ? result.data : null;
+        if (!result?.success)
+          throw new Error(result?.message || "Unable to load dashboard data.");
+        return result.data;
       },
       async getCashbook({ storeId }) {
         const result = await execute(

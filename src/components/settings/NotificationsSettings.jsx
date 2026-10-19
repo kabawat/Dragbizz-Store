@@ -1,9 +1,9 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import { NotificationsSettingsView } from "@dragorbit/features/settings";
 
 import {
   CreditCard,
-  Loader2,
   Mail,
   MessageSquare,
   Percent,
@@ -173,12 +173,7 @@ const NotificationsSettings = () => {
 
   if (loading && !settings) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
-        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-          {t("settings.notifications.loadingPreferences")}
-        </p>
-      </div>
+      <TableSkeleton />
     );
   }
 

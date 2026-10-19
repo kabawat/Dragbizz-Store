@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import { SuggestionDetailScreen } from "@dragorbit/features/support";
 
 import { Tag } from "lucide-react";
@@ -119,13 +120,7 @@ const ViewSuggestionPage = ({ suggestionId }) => {
 
   if (isLoading && !suggestion) {
     return (
-      <div className="flex h-screen relative w-full overflow-hidden">
-        <div className="min-h-screen w-full flex flex-col">
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 

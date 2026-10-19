@@ -16,6 +16,7 @@ function load(relative, stubs) {
  return module.exports;
 }
 const ui = {
+ PageLoader: () => React.createElement("div", null, "SKELETON"),
  PageSkeleton: () => React.createElement('div', null, 'SKELETON'),
  EmptyState: () => React.createElement('div', null, 'EMPTY'),
  AccessRestricted: () => React.createElement('div', null, 'RESTRICTED'),
@@ -36,7 +37,8 @@ const { PermissionGuard } = load('src/components/auth/PermissionGuard.jsx', {
  '@/contexts/SubscriptionContext': { useSubscription: () => subscription },
  '@/data/config/moduleRegistry': { getModuleFromPath: () => 'customer', getActionFromPath: () => 'read', getCapabilityFromPath: () => null },
  '@/hooks/permissions/useModulePermissions': { ROLES: { OWNER: 'OWNER' } },
- '@/store/hooks': { useAppSelector: callback => callback({ profile: { isAuthenticated: true, authProfile: { role: 'OWNER' }, authProfileLoading: false, staffProfileLoading: false } }) },
+ '@/store/slices/profileSlice': { getStaffProfileDetails: () => ({type: 'staff/retry'}) },
+ '@/store/hooks': { useAppDispatch: () => () => {}, useAppSelector: callback => callback({ profile: { isAuthenticated: true, authProfile: { role: 'OWNER' }, authProfileLoading: false, staffProfileLoading: false } }) },
  '@/utils/helper/domain': { redirectToMainDomain() {} },
  '@/utils/subscriptionCapability.util': { hasFeatureCapability: () => true },
 });

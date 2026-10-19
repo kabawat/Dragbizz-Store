@@ -1,3 +1,4 @@
+import { NumberedTable } from "@dragorbit/ui";
 import moment from "moment";
 import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, CreditCard, AlertCircle, RotateCcw, Truck } from "lucide-react";
 import { useState, useCallback } from "react";
@@ -112,7 +113,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
         <div className="flex flex-col h-full bg-[rgb(var(--color-bg-primary))]">
             {/* Fixed Header */}
             <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-                <table className="w-full table-fixed min-w-[900px]">
+                <NumberedTable className="w-full table-fixed min-w-[900px]">
                     <thead>
                         <tr>
                             <th className="w-1/4 px-4 py-2 text-left">
@@ -128,12 +129,12 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
                             </th>
                         </tr>
                     </thead>
-                </table>
+                </NumberedTable>
             </div>
 
             {/* Scrollable Body */}
             <div className="flex-1 overflow-x-auto">
-                <table className="w-full table-fixed min-w-[900px]">
+                <NumberedTable className="w-full table-fixed min-w-[900px]">
                     <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
                         {orders.map((order, index) => {
                             const orderId = order.id || order._id || index;
@@ -238,7 +239,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEd
                             );
                         })}
                     </tbody>
-                </table>
+                </NumberedTable>
             </div>
 
             <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />

@@ -5,6 +5,7 @@ import { handleError } from "@/utils/responseHandler/error";
 import { isValidStoreId } from "@/utils/store.util";
 
 const initialState = {
+  hasLoaded: false,
     products: [],
     pagination: {
         hasNextPage: false,
@@ -71,6 +72,7 @@ const productsSlice = createSlice({
                 state.error = null;
             })
             .addCase(getProducts.fulfilled, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;
@@ -99,6 +101,7 @@ const productsSlice = createSlice({
                 }
             })
             .addCase(getProducts.rejected, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;

@@ -27,9 +27,10 @@ const SalesOrdersPage = () => {
   // Smooth deterministic tracking using global Redux Architecture
   const {
     list: orders,
-    isLoading,
+    isLoading: requestLoading, hasLoaded,
     error,
   } = useAppSelector((state) => state.salesOrders);
+  const isLoading = requestLoading || (!hasLoaded && !error);
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [orderSourceFilter, setOrderSourceFilter] = useState("all");

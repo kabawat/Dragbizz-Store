@@ -1,17 +1,17 @@
 "use client";
+import { usePathname } from "next/navigation";
 import {
   createContext,
-  useContext,
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
   useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
-import { usePathname } from "next/navigation";
 import SubscriptionUpgradeModal from "@/components/subscription/SubscriptionUpgradeModal";
-import { subscriptionService } from "@/service/retailer";
 import useApiResponse from "@/hooks/useApiResponse";
+import { subscriptionService } from "@/service/retailer";
 import { isKhataFreeSubscription } from "@/utils/subscriptionCapability.util";
 
 const defaultContext = {
@@ -41,6 +41,7 @@ export const SubscriptionProvider = ({ children }) => {
     try {
       const result = await executeFetch(subscriptionService.getSubscription(), {
         showToast: false,
+        keepPreviousDataOnError: true,
       });
       if (!result?.success)
         setError(result?.message || "Unable to load subscription.");

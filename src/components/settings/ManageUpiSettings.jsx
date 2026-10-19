@@ -1,7 +1,7 @@
 "use client";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 import { ManageUpiSettingsView } from "@dragorbit/features/integrations";
 
-import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
   UpiAddDrawer,
@@ -34,10 +34,12 @@ const ManageUpiSettings = () => {
     agencyKey ? state.storeUpi?.byStoreId?.[agencyKey] : null,
   );
   const upiIds = upiData?.upiIds || [];
-  const isUpiLoading = useAppSelector(
+  const requestLoading = useAppSelector(
     (state) =>
       state.storeUpi?.loadingStoreId === storeId && state.storeUpi?.isLoading,
   );
+  const requestError = useAppSelector((state) => state.storeUpi?.error);
+  const isUpiLoading = requestLoading || (!upiData && !requestError);
 
   useEffect(() => {
     if (storeReady && storeId) {
@@ -67,24 +69,15 @@ const ManageUpiSettings = () => {
 
   if (!storeReady) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
-      </div>
+      <TableSkeleton />
     );
   }
 
   if (stores.length === 0) {
-    return (
-      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-12 text-center">
-        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-          {t("settings.noStoresFound")}
-        </h3>
-        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-          {t("settings.getStartedByAddingFirstStore")}
-        </p>
-      </div>
-    );
+    return <EmptyState fullHeight title={t("settings.noStoresFound")} description={t("settings.getStartedByAddingFirstStore")} />;
   }
+
+  if (requestError && !upiData) return <EmptyState fullHeight type="error" title={t("common.error")} description={String(requestError)} />;
 
   return (
     <ManageUpiSettingsView

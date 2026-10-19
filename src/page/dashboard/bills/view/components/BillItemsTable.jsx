@@ -1,4 +1,5 @@
 "use client";
+import { NumberedTable } from "@dragorbit/ui";
 import { FileText, Package } from "lucide-react";
 import { Badge } from "@/components/ui";
 
@@ -26,7 +27,7 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency, gstBreakdown }) =
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
+        <NumberedTable className="min-w-full text-sm">
           <thead>
             <tr className="text-left text-[rgb(var(--color-text-tertiary))] border-b border-[rgb(var(--color-border-primary))]/40">
               <th className="py-3 px-6 font-bold uppercase tracking-wider text-[0.625rem]">Product</th>
@@ -63,7 +64,7 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency, gstBreakdown }) =
               </tr>
             ))}
           </tbody>
-        </table>
+        </NumberedTable>
       </div>
 
       <div className="p-6 flex flex-col md:flex-row justify-between items-start gap-8 border-t border-[rgb(var(--color-border-primary))]/30">

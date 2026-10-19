@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import React, { useState, useEffect, useMemo } from "react";
 import { ArrowLeft, Printer, Download, XCircle, QrCode, Clock, CheckCircle, Package, AlertCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
@@ -169,10 +170,7 @@ const ViewSellOrderPage = ({ orderId }) => {
 
   if (loading || permissionsLoading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-[rgb(var(--color-text-secondary))] animate-pulse font-medium">{t("common.loadingData")}</p>
-      </div>
+      <PageSkeleton />
     );
   }
 

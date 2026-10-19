@@ -27,6 +27,7 @@ const PaymentTableHeader = () => {
 };
 
 const PaymentTableRow = ({
+  rowNumber,
   payment,
   menuRefs,
   menu,
@@ -59,6 +60,7 @@ const PaymentTableRow = ({
       model={{
         openContextMenu,
         paymentId,
+        rowNumber,
         payment,
         formatDate,
         formatCurrency,

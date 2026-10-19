@@ -29,9 +29,10 @@ const SuppliersPage = () => {
   const [riskLevel, setRiskLevel] = useState("");
   const [isActive, setIsActive] = useState("");
 
-  const { suppliers, isLoading, error } = useAppSelector(
+  const { suppliers, isLoading: requestLoading, hasLoaded, error } = useAppSelector(
     (state) => state.suppliers,
   );
+  const isLoading = requestLoading || (!hasLoaded && !error);
   const {
     can,
     create: canCreate,

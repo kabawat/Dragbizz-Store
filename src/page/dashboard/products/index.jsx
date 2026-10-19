@@ -25,9 +25,10 @@ const ProductsPage = () => {
 	const [showInCatalog, setShowInCatalog] = useState("");
 	const [category, setCategory] = useState("");
 
-	const { products, isLoading, error } = useAppSelector(
+	const { products, isLoading: requestLoading, hasLoaded, error } = useAppSelector(
 		(state) => state.products,
 	);
+  const isLoading = requestLoading || (!hasLoaded && !error);
 	const { selectedStore } = useAppSelector((state) => state.profile);
 	const storeId = selectedStore?.storeId;
 

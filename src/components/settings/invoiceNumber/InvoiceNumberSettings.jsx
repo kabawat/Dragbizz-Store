@@ -1,4 +1,5 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import { InvoiceNumberSettingsView } from "@dragorbit/features/settings";
 
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -10,7 +11,6 @@ import {
   setSelectedStore,
 } from "@/store/slices/profileSlice";
 import { pickStoreId } from "@/utils/tallyIntegration.util";
-import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 function buildFormState(store, templates = []) {
@@ -153,9 +153,7 @@ const InvoiceNumberSettings = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
+      <TableSkeleton />
     );
   }
 

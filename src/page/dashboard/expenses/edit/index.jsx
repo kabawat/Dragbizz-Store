@@ -1,4 +1,5 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import { ArrowLeft, IndianRupee, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,7 +11,7 @@ import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { expenseService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateExpense } from "@/store/slices/expensesSlice";
-import { Alert, Button, Loading } from "@/components/ui";
+import { Alert, Button, } from "@/components/ui";
 
 const EditExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
@@ -107,9 +108,7 @@ const EditExpensePage = ({ expenseId }) => {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
-        <Loading />
-      </div>
+      <TableSkeleton />
     );
   }
 
