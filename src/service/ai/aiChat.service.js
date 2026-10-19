@@ -184,17 +184,22 @@ class AiChatService extends BaseService {
     confirmationId,
     draftId,
     action,
+    updates,
   }) {
     try {
+      const payload = {
+        sessionId,
+        storeId,
+        confirmationId,
+        draftId,
+        action,
+      };
+      if (updates && typeof updates === "object") {
+        payload.updates = updates;
+      }
       const response = await this.authAxios.post(
         this.confirmEndpoint,
-        {
-          sessionId,
-          storeId,
-          confirmationId,
-          draftId,
-          action,
-        },
+        payload,
         { timeout: this.timeout }
       );
       return handleApiSuccess(response, "Confirmation completed");

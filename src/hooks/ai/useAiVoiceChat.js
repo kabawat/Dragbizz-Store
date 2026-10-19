@@ -118,7 +118,20 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
       setChatError(null);
 
       const userMessage = createMessage("user", trimmed);
-      setMessages((current) => [...current, userMessage]);
+      setMessages((current) => [
+        ...current.map((item) =>
+          item.pendingConfirmation && !item.pendingConfirmation.status
+            ? {
+                ...item,
+                pendingConfirmation: {
+                  ...item.pendingConfirmation,
+                  status: "CANCELLED",
+                },
+              }
+            : item
+        ),
+        userMessage,
+      ]);
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -190,7 +203,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   );
 
   const resolvePending = useCallback(
-    async (pending, action) => {
+    async (pending, action, updates = null) => {
       if (!pending?.confirmationId || !pending?.draftId || inflightRef.current) {
         return null;
       }
@@ -210,13 +223,20 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           confirmationId: pending.confirmationId,
           draftId: pending.draftId,
           action,
+          updates,
         });
 
-        // Clear pending UI on the source message either way.
+        // If rejected, mark as CANCELLED so card displays Canceled; if approved, clear.
         setMessages((current) =>
           current.map((item) =>
             item.pendingConfirmation?.confirmationId === pending.confirmationId
-              ? { ...item, pendingConfirmation: null }
+              ? {
+                  ...item,
+                  pendingConfirmation:
+                    action === "reject"
+                      ? { ...item.pendingConfirmation, status: "CANCELLED" }
+                      : null,
+                }
               : item
           )
         );
@@ -249,7 +269,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   );
 
   const confirmPending = useCallback(
-    (pending) => resolvePending(pending, "approve"),
+    (pending, updates = null) => resolvePending(pending, "approve", updates),
     [resolvePending]
   );
 
