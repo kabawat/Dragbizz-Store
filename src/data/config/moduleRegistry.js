@@ -1,4 +1,4 @@
-// Module constants — aligned with subscription PACKAGE_MODULES
+// Module constants — aligned with Core PACKAGE_MODULES
 export const MODULE_KEYS = {
     CUSTOMERS: "customer",
     INVOICES: "invoice",

@@ -10,6 +10,7 @@ export {
   expenseService,
   inventoryService,
   invoiceService,
+  packageService,
   paymentCollectService,
   productService,
   signatureService,

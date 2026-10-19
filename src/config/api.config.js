@@ -52,6 +52,7 @@ const API_CONFIG = {
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
     STAFF: "/retailer/staff",
+    PACKAGES: "/retailer/packages",
     SUBSCRIPTION: "/retailer/subscription",
   },
 
@@ -78,10 +79,10 @@ const API_CONFIG = {
     CHAT_TIMEOUT_MS: 45_000,
   },
 
-  // Subscription Service Endpoints
-  SUBSCRIPTION: {
-    SUBSCRIPTIONS: "/plans/subscription",
-    USAGE: "/plans/usage",
+  // Finance owns package checkout and payment verification.
+  FINANCE: {
+    CREATE_PACKAGE_PAYMENT: "/payment/create-order",
+    VERIFY_PACKAGE_PAYMENT: "/payment/verify",
   },
 
   // External Services

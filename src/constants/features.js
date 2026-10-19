@@ -1,4 +1,4 @@
-// Feature keys aligned with Finance PACKAGE_MODULES / Core FEATURES
+// Feature keys aligned with Core PACKAGE_MODULES / FEATURES
 export const FEATURES = {
   STORE: "store",
   PRODUCT: "product",
