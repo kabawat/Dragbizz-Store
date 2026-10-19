@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef } from "react";
-import storeService from "@/service/retailer/store.service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
+import storeService from "@/service/retailer/store.service";
 
 function applyGstToForm(setForm, gstData) {
   const street = [
@@ -42,8 +42,19 @@ export const useGstVerification = (config) => {
   const ongstDetailChange =
     typeof config === "function" ? null : (config?.ongstDetailChange ?? null);
 
-  const callbacksRef = useRef({ setForm, onNameAutoFill, ongstDetailChange });
-  callbacksRef.current = { setForm, onNameAutoFill, ongstDetailChange };
+  const onVerified = typeof config === "function" ? null : config?.onVerified;
+  const callbacksRef = useRef({
+    setForm,
+    onNameAutoFill,
+    ongstDetailChange,
+    onVerified,
+  });
+  callbacksRef.current = {
+    setForm,
+    onNameAutoFill,
+    ongstDetailChange,
+    onVerified,
+  };
 
   const isVerifyingRef = useRef(false);
 
@@ -51,6 +62,10 @@ export const useGstVerification = (config) => {
     if (!data) return;
 
     const callbacks = callbacksRef.current;
+    if (callbacks.onVerified) {
+      callbacks.onVerified(data);
+      return;
+    }
 
     if (callbacks.setForm) {
       applyGstToForm(callbacks.setForm, data);
@@ -62,7 +77,9 @@ export const useGstVerification = (config) => {
   }, [data]);
 
   const handleVerifyGst = async (gstNumber) => {
-    const normalizedGst = String(gstNumber || "").trim().toUpperCase();
+    const normalizedGst = String(gstNumber || "")
+      .trim()
+      .toUpperCase();
 
     if (normalizedGst.length < 15) {
       showError("Please enter a valid 15-digit GST number");

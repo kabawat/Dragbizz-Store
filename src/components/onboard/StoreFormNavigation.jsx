@@ -1,50 +1,27 @@
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui";
 
 export default function StoreFormNavigation({
-  currentStep,
-  totalSteps,
   isSubmitting,
   formData,
-  onPrevious,
+  disabled,
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 mt-6 pt-4 border-t border-[rgb(var(--color-border-primary))]">
-      {currentStep > 1 ? (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onPrevious}
-          disabled={isSubmitting}
-          leftIcon={ArrowLeft}
-          className="min-h-11 px-3 border-0 shadow-none text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]"
-        >
-          Back
-        </Button>
-      ) : (
-        <span aria-hidden="true" />
-      )}
-      <div className="flex items-center gap-3">
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={
-            isSubmitting ||
-            (currentStep === 1 &&
-              (!formData.name.trim() || !formData.phone.trim())) ||
-            (currentStep === totalSteps && !formData.category?.trim())
-          }
-          rightIcon={currentStep < totalSteps ? ArrowRight : undefined}
-          loading={isSubmitting}
-          className="w-full sm:w-auto sm:min-w-[100px]"
-        >
-          {isSubmitting
-            ? "Creating Store..."
-            : currentStep < totalSteps
-              ? "Next"
-              : "Create Store"}
-        </Button>
-      </div>
+    <div className="flex justify-end mt-6 pt-4 border-t border-[rgb(var(--color-border-primary))]">
+      <Button
+        type="submit"
+        size="md"
+        variant="primary"
+        loading={isSubmitting}
+        disabled={
+          disabled ||
+          isSubmitting ||
+          !formData.name.trim() ||
+          !formData.category.trim()
+        }
+        className="min-h-12 w-full sm:w-auto sm:min-w-[140px]"
+      >
+        {isSubmitting ? "Creating Store..." : "Create Store"}
+      </Button>
     </div>
   );
 }

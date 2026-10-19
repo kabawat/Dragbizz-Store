@@ -1,4 +1,8 @@
 .page {
+  position: relative;
+  overflow-x: clip;
+  min-height: 100dvh;
+  color: rgb(var(--color-text-primary));
   background: color-mix(
     in srgb,
     rgb(var(--color-bg-secondary)) 96%,
@@ -6,6 +10,14 @@
   );
 }
 .formCard {
+  width: 100%;
+  max-width: 600px;
+  min-width: 0;
+  justify-self: center;
+  padding: clamp(24px, 3vw, 44px);
+  border: 1px solid;
+  border-radius: 24px;
+  overflow-wrap: anywhere;
   background: rgb(var(--color-bg-primary));
   border-color: color-mix(
     in srgb,
@@ -13,44 +25,124 @@
     rgb(var(--color-primary))
   );
 }
-.guide {
-  max-width: 540px;
+.layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(40px, 5vw, 88px);
+  width: min(1360px, 100%);
+  min-height: 100dvh;
   margin-inline: auto;
+  padding: 40px clamp(20px, 4vw, 56px);
 }
-.guide h1 {
-  font-size: clamp(28px, 2.5vw, 36px);
+.guide {
+  display: none;
+  min-width: 0;
+}
+.guide h2 {
+  font-size: clamp(32px, calc(3vw + 4px), 44px);
   font-weight: 650;
   letter-spacing: -0.035em;
-  line-height: 1.25;
-  margin-bottom: 14px;
+  line-height: 1.2;
+  color: rgb(var(--color-text-primary));
 }
-.guide p {
-  font-size: 14px;
+.gradient {
+  color: rgb(var(--color-primary));
+  background: linear-gradient(
+    110deg,
+    rgb(var(--color-primary)),
+    color-mix(in srgb, rgb(var(--color-primary)) 65%, #a87cdd)
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.introDescription {
+  margin-top: 20px;
+  max-width: 440px;
+  font-size: 17px;
   line-height: 1.75;
+  color: rgb(var(--color-text-secondary));
 }
-.guide h3 {
+.benefits {
+  display: grid;
+  gap: 28px;
+  padding: 0;
+  margin: 40px 0 0;
+  list-style: none;
+}
+.benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.benefitIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgb(var(--color-primary) / 0.06);
+  color: rgb(var(--color-primary));
+}
+.benefits h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(var(--color-text-primary));
+}
+.benefits p {
+  margin-top: 5px;
   font-size: 15px;
-  line-height: 1.5;
-  margin-bottom: 6px;
+  line-height: 1.7;
+  color: rgb(var(--color-text-secondary));
 }
-.guide > div:first-child {
+.formHeading {
+  text-align: center;
   margin-bottom: 28px;
 }
-.guide > div:first-child > div {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 20px;
-  border-radius: 14px;
+.formHeading h1 {
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.025em;
 }
-.guide > div:first-child > div svg {
-  width: 24px;
-  height: 24px;
+.formHeading p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgb(var(--color-text-secondary));
+  overflow-wrap: anywhere;
 }
-.guide > div:last-child {
-  padding-top: 28px;
+.introContent {
+  animation: onboarding-intro-in 180ms ease-out both;
 }
-.guide > div:last-child p {
-  font-size: 12px;
+@keyframes onboarding-intro-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+  .guide {
+    display: block;
+  }
+}
+@media (max-width: 480px) {
+  .layout {
+    padding: 24px 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .introContent {
+    animation: none;
+  }
 }
 .softBackground {
   --shape-violet: color-mix(in srgb, rgb(var(--color-primary)) 82%, #9579c9);
@@ -62,7 +154,6 @@
   overflow: hidden;
 }
 /* Scoped appearance and translation-only motion for the onboarding background. */
-/* biome-ignore lint/style/noDescendingSpecificity: Background and guide rules target disjoint subtrees. */
 .softBackground > div > div {
   background: radial-gradient(
     circle at 30% 25%,
@@ -156,9 +247,86 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  /* biome-ignore lint/style/noDescendingSpecificity: Background and guide rules target disjoint subtrees. */
   .softBackground > div > div {
     animation: none;
     transform: none;
+  }
+}
+
+.brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.formCard label {
+  color: rgb(var(--color-text-secondary));
+}
+
+.storeFields {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.textAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding-block: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(var(--color-primary));
+  cursor: pointer;
+}
+.textAction:hover {
+  text-decoration: underline;
+}
+.textAction:focus-visible,
+.verifyGst:focus-visible {
+  outline: 2px solid rgb(var(--color-primary));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.panEditor {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+}
+.contactFields {
+  display: grid;
+  gap: 16px;
+  margin-top: 12px;
+}
+.verifyGst {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: rgb(var(--color-primary));
+  cursor: pointer;
+}
+.verifyGst:disabled {
+  cursor: default;
+}
+.smallSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(var(--color-primary) / 0.2);
+  border-top-color: rgb(var(--color-primary));
+  border-radius: 50%;
+  animation: onboarding-spin 700ms linear infinite;
+}
+@keyframes onboarding-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (min-width: 640px) {
+  .contactFields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
