@@ -122,12 +122,12 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
         ...current.map((item) =>
           item.pendingConfirmation && !item.pendingConfirmation.status
             ? {
-                ...item,
-                pendingConfirmation: {
-                  ...item.pendingConfirmation,
-                  status: "CANCELLED",
-                },
-              }
+              ...item,
+              pendingConfirmation: {
+                ...item.pendingConfirmation,
+                status: "CANCELLED",
+              },
+            }
             : item
         ),
         userMessage,
@@ -231,12 +231,12 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           current.map((item) =>
             item.pendingConfirmation?.confirmationId === pending.confirmationId
               ? {
-                  ...item,
-                  pendingConfirmation:
-                    action === "reject"
-                      ? { ...item.pendingConfirmation, status: "CANCELLED" }
-                      : null,
-                }
+                ...item,
+                pendingConfirmation:
+                  action === "reject"
+                    ? { ...item.pendingConfirmation, status: "CANCELLED" }
+                    : null,
+              }
               : item
           )
         );
