@@ -1,0 +1,164 @@
+.page {
+  background: color-mix(
+    in srgb,
+    rgb(var(--color-bg-secondary)) 96%,
+    rgb(var(--color-primary))
+  );
+}
+.formCard {
+  background: rgb(var(--color-bg-primary));
+  border-color: color-mix(
+    in srgb,
+    rgb(var(--color-border-primary)) 85%,
+    rgb(var(--color-primary))
+  );
+}
+.guide {
+  max-width: 540px;
+  margin-inline: auto;
+}
+.guide h1 {
+  font-size: clamp(28px, 2.5vw, 36px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+  margin-bottom: 14px;
+}
+.guide p {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.guide h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.guide > div:first-child {
+  margin-bottom: 28px;
+}
+.guide > div:first-child > div {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+}
+.guide > div:first-child > div svg {
+  width: 24px;
+  height: 24px;
+}
+.guide > div:last-child {
+  padding-top: 28px;
+}
+.guide > div:last-child p {
+  font-size: 12px;
+}
+.softBackground {
+  --shape-violet: color-mix(in srgb, rgb(var(--color-primary)) 82%, #9579c9);
+  --shape-slate: color-mix(in srgb, rgb(var(--color-primary)) 24%, #8c9cae);
+  --shape-lilac: color-mix(in srgb, rgb(var(--color-primary)) 38%, #baa8cd);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+/* Scoped appearance and translation-only motion for the onboarding background. */
+/* biome-ignore lint/style/noDescendingSpecificity: Background and guide rules target disjoint subtrees. */
+.softBackground > div > div {
+  background: radial-gradient(
+    circle at 30% 25%,
+    rgb(var(--color-bg-primary) / 0.9),
+    rgb(var(--color-primary) / 0.12) 60%,
+    transparent 80%
+  );
+  filter: blur(12px);
+  opacity: 0.7;
+  animation: onboarding-float 8s ease-in-out infinite;
+}
+.softBackground > div > div:first-child {
+  width: clamp(240px, 28vw, 400px);
+  height: clamp(160px, 19vw, 280px);
+  left: max(-60px, calc(50% - 760px));
+  top: 8%;
+  background: conic-gradient(
+    from 30deg,
+    color-mix(in srgb, var(--shape-violet) 8%, transparent),
+    color-mix(in srgb, var(--shape-violet) 36%, transparent),
+    rgb(var(--color-bg-primary) / 0.85),
+    color-mix(in srgb, var(--shape-violet) 14%, transparent)
+  );
+  mask-image: radial-gradient(
+    ellipse,
+    transparent 42%,
+    #000 45%,
+    #000 62%,
+    transparent 72%
+  );
+  border-radius: 50%;
+  filter: blur(8px);
+}
+.softBackground > div > div:nth-child(2) {
+  background: radial-gradient(
+    circle at 28% 24%,
+    rgb(var(--color-bg-primary) / 0.9),
+    color-mix(in srgb, var(--shape-slate) 14%, transparent) 42%,
+    color-mix(in srgb, var(--shape-slate) 32%, transparent) 70%,
+    transparent 84%
+  );
+  width: clamp(220px, 25vw, 360px);
+  height: clamp(220px, 25vw, 360px);
+  top: auto;
+  right: max(-45px, calc(50% - 740px));
+  animation-duration: 10s;
+  animation-direction: reverse;
+  bottom: 6%;
+  border-radius: 50%;
+}
+.softBackground > div > div:nth-child(3) {
+  width: clamp(140px, 18vw, 260px);
+  height: clamp(70px, 9vw, 130px);
+  left: auto;
+  bottom: auto;
+  top: 9%;
+  right: max(60px, calc(50% - 500px));
+  animation-duration: 12s;
+  border-radius: 100px;
+  background: linear-gradient(
+    160deg,
+    rgb(var(--color-bg-primary) / 0.85),
+    color-mix(in srgb, var(--shape-lilac) 28%, transparent) 60%,
+    color-mix(in srgb, var(--shape-lilac) 12%, transparent)
+  );
+}
+.softBackground > div > div:nth-child(n + 4) {
+  display: none;
+}
+@media (max-width: 640px) {
+  .softBackground > div > div:first-child {
+    left: -140px;
+    opacity: 0.5;
+  }
+  .softBackground > div > div:nth-child(2) {
+    right: -130px;
+    opacity: 0.5;
+  }
+  .softBackground > div > div:nth-child(n + 3) {
+    visibility: hidden;
+  }
+}
+
+@keyframes onboarding-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(10px, -16px, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* biome-ignore lint/style/noDescendingSpecificity: Background and guide rules target disjoint subtrees. */
+  .softBackground > div > div {
+    animation: none;
+    transform: none;
+  }
+}

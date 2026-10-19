@@ -1,38 +1,31 @@
 "use client";
-import { getDashboardUrl } from "@/utils/helper/domain";
-import { ArrowLeftToLine } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useLocation } from "@/app/LocationProvider";
 import StoreCreationSuccess from "@/components/auth/StoreCreationSuccess";
 import {
-  AnimatedBackground,
-  AnimatedGridPattern,
-  Button,
-} from "@/components/ui";
-import {
-  StoreOnboardingWelcome,
-  StoreProgressStepper,
+  BasicInfoStep,
+  BusinessInfoStep,
+  ErrorDisplay,
+  LoadingScreen,
   StoreFormHeader,
   StoreFormNavigation,
   StoreInfoBox,
-  ErrorDisplay,
-  LoadingScreen,
-  BasicInfoStep,
-  AddressInfoStep,
-  BusinessInfoStep,
+  StoreOnboardingWelcome,
+  StoreProgressStepper,
 } from "@/components/onboard";
-import storeService from "@/service/retailer/store.service";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import styles from "@/components/onboard/Onboarding.module.css";
+import { AnimatedBackground, AnimatedGridPattern } from "@/components/ui";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { authService } from "@/service";
-import { handleSuccess } from "@/utils/responseHandler/success";
+import storeService from "@/service/retailer/store.service";
+import { useAppSelector } from "@/store/hooks";
+import { getDashboardUrl } from "@/utils/helper/domain";
 import { handleError } from "@/utils/responseHandler/error";
+import { handleSuccess } from "@/utils/responseHandler/success";
 
 export default function StoreCreation() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const {
     agency,
     stores,
@@ -64,7 +57,7 @@ export default function StoreCreation() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 2;
 
   // Hook for GST verification
   const {
@@ -148,14 +141,7 @@ export default function StoreCreation() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep2 = () => {
-    const newErrors = {};
-    // Address is optional, no validation required
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateStep3 = () => {
+  const validateBusinessInfo = () => {
     const newErrors = {};
 
     if (!formData.category || !formData.category.trim()) {
@@ -185,19 +171,9 @@ export default function StoreCreation() {
 
     if (currentStep === 1) {
       isValid = validateStep1();
-    } else if (currentStep === 2) {
-      isValid = validateStep2(); // Address is optional, always valid
     }
 
     if (isValid && currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-      setErrors({});
-      setFieldErrors({});
-    }
-  };
-
-  const handleSkip = () => {
-    if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
       setErrors({});
       setFieldErrors({});
@@ -219,7 +195,7 @@ export default function StoreCreation() {
       return;
     }
 
-    if (!validateStep3()) return;
+    if (!validateBusinessInfo()) return;
 
     setIsSubmitting(true);
     setErrors({});
@@ -232,7 +208,7 @@ export default function StoreCreation() {
       };
 
       const response = await storeService.createStore(storeData);
-      const result = handleSuccess(response);
+      handleSuccess(response);
 
       try {
         const userProfile = await authService.refreshToken();
@@ -257,7 +233,9 @@ export default function StoreCreation() {
         setFieldErrors(result.fields);
       } else {
         setErrors({
-          general: result?.message || "An error occurred while creating store. Please try again.",
+          general:
+            result?.message ||
+            "An error occurred while creating store. Please try again.",
         });
       }
       setIsSubmitting(false);
@@ -285,9 +263,13 @@ export default function StoreCreation() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden">
-      <AnimatedBackground variant="register" />
-      <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
+    <div
+      className={`${styles.page} min-h-screen text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden`}
+    >
+      <div className={styles.softBackground} aria-hidden="true">
+        <AnimatedBackground variant="register" />
+      </div>
+      <AnimatedGridPattern opacity={8} blur={2} gridSize={80} />
 
       <div className="w-full min-h-screen flex relative z-10">
         {/* Left Side - Welcome Content */}
@@ -295,23 +277,11 @@ export default function StoreCreation() {
 
         {/* Right Side - Registration Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center relative z-10 overflow-y-auto">
-          <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8 xl:pt-10 xl:pb-10 pr-4 sm:pr-6 lg:pr-8 xl:pr-10">
-            <div className="w-full max-w-xl bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg p-6 sm:p-8 max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-[rgb(var(--color-border-primary))] scrollbar-track-transparent">
+          <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8 xl:pt-10 xl:pb-10 px-4 sm:px-6 lg:pl-0 lg:pr-8 xl:pr-10">
+            <div
+              className={`${styles.formCard} w-full max-w-xl rounded-xl border p-6 sm:p-8`}
+            >
               <StoreFormHeader agency={agency} />
-
-              {/* Previous Button - Top Left */}
-              {currentStep > 1 && (
-                <div className="mb-4">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={handlePrevious}
-                    className="text-sm text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] border-0 shadow-none p-2 hover:bg-transparent"
-                  >
-                    <ArrowLeftToLine className="w-5 h-5" />
-                  </Button>
-                </div>
-              )}
 
               {/* Progress Header - Stepper */}
               <StoreProgressStepper
@@ -337,18 +307,8 @@ export default function StoreCreation() {
                   />
                 )}
 
-                {/* Step 2: Address Information */}
+                {/* Step 2: Business Information */}
                 {currentStep === 2 && (
-                  <AddressInfoStep
-                    formData={formData}
-                    errors={errors}
-                    fieldErrors={fieldErrors}
-                    onUpdate={updateFormData}
-                  />
-                )}
-
-                {/* Step 3: Business Information */}
-                {currentStep === 3 && (
                   <BusinessInfoStep
                     formData={formData}
                     errors={errors}
@@ -369,7 +329,7 @@ export default function StoreCreation() {
                   totalSteps={totalSteps}
                   isSubmitting={isSubmitting}
                   formData={formData}
-                  onSkip={handleSkip}
+                  onPrevious={handlePrevious}
                 />
               </form>
             </div>
@@ -379,4 +339,3 @@ export default function StoreCreation() {
     </div>
   );
 }
-
