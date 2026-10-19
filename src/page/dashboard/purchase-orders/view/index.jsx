@@ -40,6 +40,12 @@ export default function ViewPurchaseOrderPage() {
     }
   }, [can, permissionsLoading, router]);
 
+  useEffect(() => {
+    if (poId === "new" || poId === "create") {
+      router.replace("/dashboard/purchase-orders/create");
+    }
+  }, [poId, router]);
+
   const [error, setError] = useState(null);
   const [po, setPo] = useState(null);
 
@@ -82,7 +88,7 @@ export default function ViewPurchaseOrderPage() {
 
   useEffect(() => {
     const fetchPo = async () => {
-      if (!poId) return;
+      if (!poId || poId === "new" || poId === "create") return;
 
       const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || null;
       const result = await executeFetch(

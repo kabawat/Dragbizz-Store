@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import ViewPurchaseOrder from "@/page/dashboard/purchase-orders/view";
 
 export const metadata = {
@@ -5,6 +6,11 @@ export const metadata = {
   description: "View purchase order details",
 };
 
-export default function Page() {
+export default async function Page({ params }) {
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
+  if (id === "new" || id === "create") {
+    redirect("/dashboard/purchase-orders/create");
+  }
   return <ViewPurchaseOrder />;
 }
