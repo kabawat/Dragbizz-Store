@@ -39,6 +39,18 @@ export const getNotificationConfig = (type, data) => {
       url: "/dashboard/inventory",
       icon: <Package className="w-5 h-5 text-amber-500" />,
     },
+    LOW_STOCK: {
+      url: "/dashboard/inventory",
+      icon: <AlertTriangle className="w-5 h-5 text-amber-500" />,
+    },
+    OUT_OF_STOCK: {
+      url: "/dashboard/inventory",
+      icon: <AlertTriangle className="w-5 h-5 text-rose-500" />,
+    },
+    DAILY_BRIEF: {
+      url: "/dashboard",
+      icon: <Info className="w-5 h-5 text-indigo-500" />,
+    },
   };
 
   return (
