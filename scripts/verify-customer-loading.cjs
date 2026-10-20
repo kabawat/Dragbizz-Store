@@ -51,6 +51,9 @@ subscription = { isLoading: false, subscription: null };
 assert.match(guard(), /RESTRICTED/);
 // Provider is pending on its very first render, before its fetch effect starts.
 const context = load('src/contexts/SubscriptionContext.jsx', {
+ '@/store/hooks': { useAppSelector: fn => fn({profile:{}}) },
+ '@/utils/workspaceCache': { workspaceScope: () => null, readPlanPreview: () => null, savePlanPreview() {} },
+ '@/utils/responseHandler/success': { handleSuccess: v => v },
  'next/navigation': { usePathname: () => '/dashboard/customers' },
  '@/components/subscription/SubscriptionUpgradeModal': { default: () => null, __esModule: true },
  '@/service/retailer': { subscriptionService: { getSubscription() {} } },

@@ -27,10 +27,15 @@ export const PermissionGuard = ({ children }) => {
     staffProfileLoading,
     staffProfileError,
     isAuthenticated,
+    shellRestored,
+    sessionVerified,
+    authProfileError,
+    error: workspaceError,
   } = useAppSelector((state) => state.profile);
 
   const {
     subscription,
+    isVerified: planVerified,
     isLoading: subscriptionLoading,
     error: subscriptionError,
     reload,
@@ -80,6 +85,32 @@ export const PermissionGuard = ({ children }) => {
   };
   const { hasAccess, isSubscriptionRestricted = false } = evaluateAccess();
 
+  // A restored shell is only a preview. Protected content waits for live APIs.
+  if (
+    shellRestored &&
+    !sessionVerified &&
+    (authProfileError || workspaceError || staffProfileError)
+  ) {
+    return (
+      <section role="alert" className="space-y-3 p-6">
+        <p>{authProfileError || workspaceError || staffProfileError}</p>
+        <button
+          type="button"
+          className="rounded-lg border border-[rgb(var(--color-border-primary))] px-4 py-2"
+          onClick={() => window.location.reload()}
+        >
+          Try again
+        </button>
+      </section>
+    );
+  }
+  if (
+    (shellRestored && !sessionVerified) ||
+    (planVerified === false && subscriptionLoading)
+  ) {
+    return pathname === "/dashboard" ? <DashboardSkeleton /> : <PageSkeleton />;
+  }
+
   // Keep the loading UI until subscription and profile data are resolved.
   if (isChecking) {
     return pathname === "/dashboard" ? <DashboardSkeleton /> : <PageSkeleton />;
@@ -99,7 +130,7 @@ export const PermissionGuard = ({ children }) => {
       </section>
     );
   }
-  if (subscriptionError && !subscription) {
+  if (subscriptionError && (!subscription || planVerified === false)) {
     return (
       <section role="alert" className="space-y-3 p-6">
         <p>{subscriptionError}</p>

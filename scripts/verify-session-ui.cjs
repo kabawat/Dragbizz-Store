@@ -20,6 +20,7 @@ const { compile } = require("@tailwindcss/node");
       "AccessRestricted",
       "SessionGate",
       "SessionSkeleton",
+      "StartupLoader",
       "DashboardSkeleton",
       "PageSkeleton",
       "DashboardShell",
@@ -37,7 +38,7 @@ const { compile } = require("@tailwindcss/node");
       "@/service/auth":
         "export const authService={getProfile:()=>new Promise(resolve=>window.__auth.push(resolve))};",
       "@/service/retailer":
-        "export const storeService={getRetailerProfile:()=>new Promise(resolve=>window.__retailer.push(resolve))};",
+        "export const storeService={getRetailerProfile:()=>new Promise(resolve=>window.__retailer.push(resolve))};export const subscriptionService={getSubscription:()=>new Promise(resolve=>window.__plans.push(resolve))};",
       "@/service/retailer/staff.service":
         "export default {getStaffProfile:async()=>({data:{permissions:[]}})};",
       "@/components/auth/ForcePasswordModal": "export default ()=>null;",
@@ -46,7 +47,7 @@ const { compile } = require("@tailwindcss/node");
       "@/utils/helper/domain":
         "export const ensureSubdomain=()=>{};export const redirectToMainDomain=()=>{};",
       "@/contexts/SubscriptionContext":
-        "export const useSubscription=()=>({subscription:window.__subLoading?null:{features:[]},isLoading:window.__subLoading,error:null,reload(){}});",
+        "export const useSubscription=()=>({subscription:window.__subLoading?null:{features:[]},isLoading:window.__subLoading,hasPlanPreview:!window.__subLoading,isVerified:!window.__subLoading,error:null,reload(){}});",
       "@/data/config/moduleRegistry":
         'export const getModuleFromPath=()=>null;export const getActionFromPath=()=>"view";export const getCapabilityFromPath=()=>null;',
       "@/hooks/permissions/useModulePermissions":
@@ -59,18 +60,26 @@ const { compile } = require("@tailwindcss/node");
         "export const usePathname=()=>window.__path;const router={replace:path=>window.__redirects.push(path)};export const useRouter=()=>router;",
       "@dragorbit/ui/app": appExports,
     };
+    delete mocks["@/contexts/SubscriptionContext"];
+    mocks["@/components/subscription/SubscriptionUpgradeModal"] =
+      "export default()=>null;";
+    mocks["@/utils/subscriptionCapability.util"] =
+      "export const isKhataFreeSubscription=()=>false;export const hasFeatureCapability=()=>true;";
+    mocks["@/components/dashboard/sidebar"] =
+      'import{useEffect}from"react";import{useSubscription}from"@/contexts/SubscriptionContext";export default function Sidebar(){const{subscription,reload}=useSubscription();window.__reloadPlan=reload;useEffect(()=>{window.__sidebarMounts++},[]);return <aside data-sidebar data-locked={subscription?.features?.[0]?.usageType!=="UNLIMITED"}>Sidebar</aside>}';
     await build({
       stdin: {
         resolveDir: root,
         loader: "jsx",
         contents: `
+ import {SubscriptionProvider}from"./src/contexts/SubscriptionContext.jsx";
  import React,{useEffect,useMemo,useState}from"react";import{createRoot}from"react-dom/client";import{Provider}from"react-redux";import{configureStore}from"@reduxjs/toolkit";
  import reducer,*as actions from"./src/store/slices/profileSlice.js";import Loader from"./src/components/GlobalProfileLoader.jsx";import Guard from"./src/components/auth/AuthGuard.jsx";import Layout from"./src/app/(routes)/dashboard/layout.jsx";import GuestGuard from"../DragBizz-Web/src/components/auth/GuestGuard.jsx";import{useDashboardData}from"../dragorbit/features/src/dashboard/hook/useDashboardData.js";import useApiResponse from"./src/hooks/useApiResponse.js";
- window.__auth=[];window.__retailer=[];window.__summaries=[];window.__redirects=[];window.__sidebarMounts=0;window.__contentMounts=0;window.__subLoading=true;
+ window.__plans=[];window.__auth=[];window.__retailer=[];window.__summaries=[];window.__redirects=[];window.__sidebarMounts=0;window.__contentMounts=0;window.__subLoading=true;
  const store=configureStore({reducer:{profile:reducer}});window.__store=store;window.__actions=actions;
  
  function Content(){const{execute}=useApiResponse();const repo=useMemo(()=>({getSummary:async()=>{const result=await execute(new Promise(resolve=>window.__summaries.push(resolve)),{showToast:false});return result.data;}}),[execute]);useEffect(()=>{window.__contentMounts++},[]);const{loading,summary}=useDashboardData({repository:repo,storeId:'123456789012345678901234',ready:true});return loading?<div aria-busy="true" data-metrics-skeleton>Loading metrics</div>:<div data-ready>Workspace ready {summary.length}<input aria-label="Draft filter"/></div>}
- function App(){const guest=new URLSearchParams(location.search).has('guest');window.__path=guest?'/login':'/dashboard';const[,render]=useState(0);window.__rerender=()=>render(v=>v+1);return <Provider store={store}><Loader initialSessionHint={!guest}/>{guest?<GuestGuard sessionHint={false}><form data-guest-form><input aria-label="Phone number"/></form></GuestGuard>:<Guard><Layout><Content/></Layout></Guard>}</Provider>}
+ function App(){const guest=new URLSearchParams(location.search).has('guest');window.__path=guest?'/login':'/dashboard';const[,render]=useState(0);window.__rerender=()=>render(v=>v+1);return <Provider store={store}><Loader initialSessionHint={!guest}/>{guest?<GuestGuard sessionHint={false}><form data-guest-form><input aria-label="Phone number"/></form></GuestGuard>:<Guard><SubscriptionProvider><Layout><Content/></Layout></SubscriptionProvider></Guard>}</Provider>}
  createRoot(document.getElementById('root')).render(<App/>);`,
       },
       bundle: true,
@@ -112,12 +121,24 @@ const { compile } = require("@tailwindcss/node");
     });
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    await page.route("http://session.test/**", (route) =>
-      route.fulfill({
+    await page.route("http://session.test/**", (route) => {
+      const url = new URL(route.request().url());
+      if (url.pathname.startsWith("/DragBizz-Logos/"))
+        return route.fulfill({
+          contentType: "image/svg+xml",
+          body: fs.readFileSync(
+            path.join(
+              root,
+              "public/DragBizz-Logos",
+              path.basename(url.pathname)
+            )
+          ),
+        });
+      return route.fulfill({
         contentType: "text/html",
         body: '<html><head></head><body><div id="root"></div></body></html>',
-      })
-    );
+      });
+    });
     const compiler = await compile('@import "tailwindcss";', {
       base: root,
       onDependency() {},
@@ -133,6 +154,9 @@ const { compile } = require("@tailwindcss/node");
       });
     };
     const addStyles = async () => {
+      const sharedCss = path.join(temp, "app.css");
+      if (fs.existsSync(sharedCss))
+        await page.addStyleTag({ content: fs.readFileSync(sharedCss, "utf8") });
       const tokens = await page.evaluate(() => [
         ...new Set(
           [...document.querySelectorAll("[class]")].flatMap((el) => [
@@ -153,11 +177,11 @@ const { compile } = require("@tailwindcss/node");
       "9876543210"
     );
     await start("http://session.test/");
-    await page.getByLabel("Loading workspace").waitFor({ state: "attached" });
+    await page.getByLabel("Loading DragBizz").waitFor({ state: "attached" });
     assert.equal(await page.locator("[data-sidebar]").count(), 0);
     assert.equal(await page.getByText(/Verifying|Securing/).count(), 0);
     await addStyles();
-    await page.screenshot({ path: "/tmp/session-initial-skeleton.png" });
+    await page.screenshot({ path: "/tmp/dragbizz-startup-loader.png" });
     await page.waitForFunction(() => window.__auth.length === 1);
     await page.evaluate(() =>
       window.__auth[0]({
@@ -179,13 +203,13 @@ const { compile } = require("@tailwindcss/node");
         },
       })
     );
-    await page.locator("[data-sidebar]").waitFor();
-    await page.getByLabel("Loading dashboard").waitFor();
+    await page.getByLabel("Loading DragBizz").waitFor();
+    assert.equal(await page.locator("[data-sidebar]").count(), 0);
     assert.equal(await page.locator("[data-ready]").count(), 0);
-    await page.evaluate(() => {
-      window.__subLoading = false;
-      window.__rerender();
-    });
+    await page.waitForFunction(() => window.__plans.length === 1);
+    await page.evaluate(() =>
+      window.__plans[0]({ success: true, data: { features: [] } })
+    );
     await page.locator("[data-metrics-skeleton]").waitFor();
     await page.waitForFunction(() => window.__summaries.length === 1);
     await page.evaluate(() => window.__summaries[0]([]));
@@ -200,7 +224,7 @@ const { compile } = require("@tailwindcss/node");
     assert.equal(await page.locator("[data-ready]").count(), 1);
     assert.equal(await page.getByLabel("Draft filter").inputValue(), "saved");
     assert.equal(
-      await page.locator('[aria-label="Loading workspace"]').count(),
+      await page.locator('[aria-label="Loading DragBizz"]').count(),
       0
     );
     await page.evaluate(() =>
@@ -230,6 +254,75 @@ const { compile } = require("@tailwindcss/node");
     assert.equal(await page.evaluate(() => window.__summaries.length), 1);
     assert.deepEqual(await page.evaluate(() => window.__redirects), []);
     assert.deepEqual(errors, []);
+    // Full reopen: cached menus mount while all live APIs are still pending.
+    await start("http://session.test/?cached");
+    await page.locator("[data-sidebar]").waitFor();
+    await addStyles();
+    assert.equal(await page.getByLabel("Loading DragBizz").count(), 0);
+    assert.equal(
+      await page.locator("[data-sidebar]").getAttribute("data-locked"),
+      "true"
+    );
+    assert.equal(await page.evaluate(() => window.__summaries.length), 0);
+    await page.getByLabel("Loading dashboard").waitFor();
+    await page.waitForFunction(
+      () => window.__auth.length === 1 && window.__plans.length === 1
+    );
+    await page.evaluate(() => {
+      window.__reloadPlan();
+      window.__reloadPlan();
+    });
+    await page.waitForTimeout(30);
+    assert.equal(
+      await page.evaluate(() => window.__plans.length),
+      1,
+      "concurrent plan reloads share one request"
+    );
+    await page.evaluate(() =>
+      window.__auth[0]({
+        data: {
+          _id: "user",
+          agencyId: "agency",
+          role: "store_owner",
+          tenant: "demo",
+        },
+      })
+    );
+    await page.waitForFunction(() => window.__retailer.length === 1);
+    await page.evaluate(() =>
+      window.__retailer[0]({
+        data: {
+          agency: { _id: "agency" },
+          stores: [{ storeId: "123456789012345678901234" }],
+        },
+      })
+    );
+    await page.waitForTimeout(30);
+    assert.equal(
+      await page.evaluate(() => window.__summaries.length),
+      0,
+      "cached plan cannot authorize content"
+    );
+    await page.evaluate(() =>
+      window.__plans[0]({
+        success: true,
+        data: {
+          features: [
+            { module: "customer", usageType: "UNLIMITED", maxLimit: 0 },
+          ],
+        },
+      })
+    );
+    await page.waitForFunction(() => window.__summaries.length === 1);
+    assert.equal(
+      await page.locator("[data-sidebar]").getAttribute("data-locked"),
+      "false"
+    );
+    await page.evaluate(() => window.__summaries[0]([]));
+    await page.locator("[data-ready]").waitFor();
+    assert.equal(await page.evaluate(() => window.__sidebarMounts), 1);
+    assert.equal(await page.evaluate(() => window.__contentMounts), 1);
+    assert.deepEqual(errors, []);
     for (const width of [320, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await addStyles();
@@ -240,7 +333,7 @@ const { compile } = require("@tailwindcss/node");
       );
     }
     console.log(
-      "Browser session checks passed: instant guest form, one initial skeleton, no empty-data flash, preserved dashboard/input state during background refresh, no repeated data fetch or error redirects."
+      "Browser session checks passed: instant guest form, branded initial loader, no empty-data flash, cached header/sidebar with content-only verification, fresh menu updates, preserved dashboard/input state during background refresh, no repeated data fetch or error redirects."
     );
   } finally {
     if (browser) await browser.close();

@@ -107,6 +107,9 @@ function deferred() {
           handleSuccess: core.handleSuccess,
         },
         "@/utils/responseHandler/error": { handleError: core.handleError },
+        "@/utils/workspaceCache": load(
+          path.join(root, "src/utils/workspaceCache.js")
+        ),
         "@/utils/store.util": load(path.join(root, "src/utils/store.util.js")),
       }
     );

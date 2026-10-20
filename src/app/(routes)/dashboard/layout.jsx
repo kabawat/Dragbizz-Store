@@ -1,10 +1,11 @@
 "use client";
-import { DashboardShell, SessionSkeleton } from "@dragorbit/ui/app";
+import { DashboardShell, StartupLoader } from "@dragorbit/ui/app";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { HeaderProvider } from "@/contexts/HeaderContext";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { useAppSelector } from "@/store/hooks";
@@ -23,6 +24,7 @@ export default function DashboardLayout({ children }) {
     staffProfileLoading,
   } = useAppSelector((state) => state.profile);
 
+  const { isLoading: planLoading, hasPlanPreview } = useSubscription();
   const { ready: storeReady } = useSelectedStoreId();
   const isProfileLoading =
     !agency && (isLoading || authProfileLoading || staffProfileLoading);
@@ -34,7 +36,9 @@ export default function DashboardLayout({ children }) {
   }, [authProfile?.tenant]);
 
   if (isProfileLoading || !storeReady || !agency || !stores?.length)
-    return <SessionSkeleton />;
+    return <StartupLoader />;
+
+  if (planLoading && !hasPlanPreview) return <StartupLoader />;
 
   return (
     <HeaderProvider>

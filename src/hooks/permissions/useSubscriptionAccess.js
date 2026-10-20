@@ -22,7 +22,7 @@ export const useSubscriptionAccess = () => {
       requireCapability = null
     ) => {
       if (!moduleName) return true;
-      if (isLoading && !subscription) return true;
+
       if (!subscription) return false;
 
       const feature = (subscription?.features || []).find(

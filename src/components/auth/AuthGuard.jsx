@@ -23,6 +23,7 @@ export default function AuthGuard({ children }) {
     bootstrapSession(store, profileActions, { sessionHint: true, force: true });
   return (
     <SessionGate
+      allowShellPreview
       profile={profile}
       pathname={pathname}
       onRedirect={navigate}

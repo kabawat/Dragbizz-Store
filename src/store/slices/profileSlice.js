@@ -10,6 +10,8 @@ import {
   pickStoreId,
 } from "@/utils/store.util";
 
+import { clearWorkspaceCache, workspaceScope } from "@/utils/workspaceCache";
+
 const SELECTED_STORE_STORAGE_KEY = "dragbizz_selected_store_id";
 
 const getStoredStoreId = () => {
@@ -191,6 +193,9 @@ export const getStaffProfileDetails = createAsyncThunk(
 );
 
 const initialState = {
+  shellRestored: false,
+  sessionVerified: false,
+  staffVerified: false,
   user: null,
   agency: null,
   stores: [],
@@ -223,7 +228,31 @@ const profileSlice = createSlice({
   name: "profile",
   initialState,
   reducers: {
+    restoreShellPreview: (state, action) => {
+      if (state.authProfile || state.authProfileStatus !== "idle") return;
+      const snapshot = action.payload;
+      const stores = normalizeStores(snapshot?.stores);
+      if (!snapshot?.authProfile || !snapshot?.agency || !stores.length) return;
+      state.authProfile = snapshot.authProfile;
+      state.user = snapshot.user;
+      state.agency = snapshot.agency;
+      state.stores = stores;
+      state.selectedStore =
+        findStoreById(stores, pickStoreId(snapshot.selectedStore)) || stores[0];
+      state.staffProfile = snapshot.staffProfile;
+      state.shellRestored = true;
+      state.sessionVerified = false;
+      state.staffVerified = false;
+      // Cached presentation never marks a session authenticated.
+      state.isAuthenticated = false;
+      state.isInitialized = true;
+      state.retailerInitialized = true;
+    },
     clearAuth: (state) => {
+      clearWorkspaceCache();
+      state.shellRestored = false;
+      state.sessionVerified = false;
+      state.staffVerified = false;
       state.user = null;
       state.agency = null;
       state.stores = [];
@@ -248,6 +277,15 @@ const profileSlice = createSlice({
     },
     setInitialized: (state, action) => {
       state.isInitialized = action.payload ?? true;
+      state.sessionVerified = Boolean(
+        state.isInitialized &&
+          state.isAuthenticated &&
+          state.authProfileStatus === "succeeded" &&
+          !state.authProfileError &&
+          state.retailerInitialized &&
+          !state.error &&
+          (state.authProfile?.role !== "store_staff" || state.staffVerified)
+      );
     },
     setSelectedStore: (state, action) => {
       const normalized = normalizeStoreSummary(action.payload);
@@ -280,6 +318,10 @@ const profileSlice = createSlice({
         }
 
         state.agency = data.agency ?? null;
+        if (!data.agency || !data.stores?.length) {
+          state.shellRestored = false;
+          clearWorkspaceCache();
+        }
 
         if (data.stores) {
           const normalizedStores = normalizeStores(data.stores);
@@ -312,6 +354,10 @@ const profileSlice = createSlice({
 
         state.isAuthenticated = true;
         state.isInitialized = true;
+        state.sessionVerified =
+          state.authProfileStatus === "succeeded" &&
+          !state.authProfileError &&
+          (state.authProfile?.role !== "store_staff" || state.staffVerified);
       })
       .addCase(getRetailerDetails.rejected, (state, action) => {
         if (state.retailerRequestId !== action.meta.requestId) return;
@@ -323,8 +369,12 @@ const profileSlice = createSlice({
         state.retailerErrorStatus = action.payload?.status ?? null;
         // Missing profile data after a failed request is not proof of missing onboarding.
         state.redirectTo = action.payload?.status === 401 ? "/login" : null;
-        if (action.payload?.status === 401) state.isAuthenticated = false;
-        else if (state.authProfile) state.isAuthenticated = true;
+        if (action.payload?.status === 401) {
+          state.isAuthenticated = false;
+          state.sessionVerified = false;
+          state.shellRestored = false;
+          clearWorkspaceCache();
+        } else if (state.authProfile) state.isAuthenticated = true;
       })
       .addCase(getAuthProfile.pending, (state, action) => {
         state.authRequestId = action.meta.requestId;
@@ -344,6 +394,20 @@ const profileSlice = createSlice({
         state.authProfileErrorStatus = null;
         const { data, redirectTo } = action.payload;
         if (data) {
+          if (
+            state.shellRestored &&
+            workspaceScope(state) !== workspaceScope({ authProfile: data })
+          ) {
+            state.agency = null;
+            state.stores = [];
+            state.selectedStore = null;
+            state.staffProfile = null;
+            state.retailerInitialized = false;
+            state.staffVerified = false;
+            state.shellRestored = false;
+            state.sessionVerified = false;
+            clearWorkspaceCache();
+          }
           state.authProfile = data;
           state.isAuthenticated = true;
         }
@@ -368,6 +432,16 @@ const profileSlice = createSlice({
         state.authProfileErrorStatus = action.payload?.status ?? null;
         if (action.payload?.status === 401 || !state.authProfile)
           state.isAuthenticated = false;
+        if (action.payload?.status === 401) {
+          state.authProfile = null;
+          state.agency = null;
+          state.stores = [];
+          state.selectedStore = null;
+          state.staffProfile = null;
+          state.shellRestored = false;
+          state.sessionVerified = false;
+          clearWorkspaceCache();
+        }
       })
       .addCase(getStaffProfileDetails.pending, (state, action) => {
         state.staffRequestId = action.meta.requestId;
@@ -381,6 +455,12 @@ const profileSlice = createSlice({
         state.staffProfileError = null;
         if (action.payload?.data) {
           state.staffProfile = action.payload.data;
+          state.staffVerified = true;
+          state.sessionVerified =
+            state.authProfileStatus === "succeeded" &&
+            state.retailerInitialized &&
+            !state.authProfileError &&
+            !state.error;
         }
       })
       .addCase(getStaffProfileDetails.rejected, (state, action) => {
@@ -389,11 +469,17 @@ const profileSlice = createSlice({
         state.staffProfileLoading = false;
         state.staffProfileError =
           action.payload?.message || "Failed to fetch staff profile";
+        state.staffVerified = false;
+        if (state.shellRestored) state.staffProfile = null;
       });
   },
 });
 
-export const { clearAuth, setSelectedStore, setInitialized } =
-  profileSlice.actions;
+export const {
+  clearAuth,
+  restoreShellPreview,
+  setSelectedStore,
+  setInitialized,
+} = profileSlice.actions;
 
 export default profileSlice.reducer;

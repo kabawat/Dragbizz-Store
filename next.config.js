@@ -45,6 +45,8 @@ const nextConfig = {
     ],
   },
   experimental: {
+    // Linked UI packages must not reuse stale server modules across dev runs.
+    turbopackFileSystemCacheForDev: false,
     optimizePackageImports: [
       "lucide-react",
       "@dnd-kit/core",
