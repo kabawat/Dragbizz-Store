@@ -8,7 +8,24 @@ import {
   Package,
 } from "lucide-react";
 
-/** Notification routing + icons by type (socket + FCM). */
+// Get customer id from notification data
+const getCustomerId = (data) =>
+  data?.customer ||
+  data?.customerId ||
+  data?.customer_id ||
+  data?.data?.customer ||
+  data?.data?.customerId ||
+  data?.data?.customer_id;
+
+// Resolve payment notification link to khata tab
+const resolvePaymentUrl = (data) => {
+  const custId = getCustomerId(data);
+  if (custId) return `/dashboard/customers/${custId}?tab=khata`;
+  if (data?.url && data.url !== "#") return data.url;
+  return "/dashboard/payments";
+};
+
+// Notification routing and icons by type
 export const getNotificationConfig = (type, data) => {
   const configs = {
     SALE_ORDER_CUSTOMER: {
@@ -28,7 +45,11 @@ export const getNotificationConfig = (type, data) => {
       icon: <AlertTriangle className="w-5 h-5 text-amber-500" />,
     },
     PAYMENT: {
-      url: "/dashboard/payments",
+      url: resolvePaymentUrl(data),
+      icon: <CreditCard className="w-5 h-5 text-emerald-500" />,
+    },
+    PAYMENT_RECEIVED: {
+      url: resolvePaymentUrl(data),
       icon: <CreditCard className="w-5 h-5 text-emerald-500" />,
     },
     SYSTEM: {

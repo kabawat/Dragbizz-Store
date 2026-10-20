@@ -1,18 +1,16 @@
-/** Map FCM / socket event names to app notification types. */
+// Map FCM and socket events to app notification types
 const FCM_TYPE_MAP = {
   customer_created: "SALE_ORDER_CUSTOMER",
   sales_order_created: "SALES_ORDER",
   stock_alert: "STOCK_ALERT",
   stock_low: "STOCK_ALERT",
-  payment: "PAYMENT",
-  payment_received: "PAYMENT",
+  payment: "PAYMENT_RECEIVED",
+  payment_received: "PAYMENT_RECEIVED",
+  PAYMENT_RECEIVED: "PAYMENT_RECEIVED",
   system: "SYSTEM",
 };
 
-/**
- * Normalize FCM MessagePayload to the same shape as socket realtime events.
- * @param {import("firebase/messaging").MessagePayload} payload
- */
+// Normalize FCM MessagePayload
 export function mapFcmPayloadToNotification(payload) {
   const data = payload?.data || {};
   const rawType = data.type || data.event || "";
@@ -28,11 +26,15 @@ export function mapFcmPayloadToNotification(payload) {
     data.title ||
     "New activity detected";
 
+  const custId = data.customer || data.customerId || data.customer_id;
+  const khataUrl = custId ? `/dashboard/customers/${custId}?tab=khata` : undefined;
+
   const normalizedData = {
     ...data,
     type: rawType || type,
-    customer: data.customer || data.customerId || data.customer_id,
+    customer: custId,
     order: data.order || data.orderId || data.order_id || data.salesOrderId,
+    url: data.url || khataUrl,
     source: "fcm",
   };
 

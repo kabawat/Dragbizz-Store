@@ -69,10 +69,14 @@ const NotificationBell = () => {
 
     socketService.on("customer_created", handleRealtimeNotification);
     socketService.on("sales_order_created", handleRealtimeNotification);
+    socketService.on("payment_received", handleRealtimeNotification);
+    socketService.on("PAYMENT_RECEIVED", handleRealtimeNotification);
 
     return () => {
       socketService.off("customer_created", handleRealtimeNotification);
       socketService.off("sales_order_created", handleRealtimeNotification);
+      socketService.off("payment_received", handleRealtimeNotification);
+      socketService.off("PAYMENT_RECEIVED", handleRealtimeNotification);
     };
   }, [socketService, handleIncomingNotification]);
 
