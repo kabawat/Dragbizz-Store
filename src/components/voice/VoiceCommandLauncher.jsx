@@ -31,10 +31,10 @@ export default function VoiceCommandLauncher({ className = "" }) {
       onClick={togglePanel || (() => setIsOpen?.(!isOpen))}
       type="button"
       title={t("voice.title", "AI Assistant")}
-      className={`relative p-2 rounded-xl transition-all duration-300 group cursor-pointer flex items-center justify-center active:scale-95 border ${
+      className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 group cursor-pointer active:scale-95 border ${
         isOpen
           ? "bg-[rgb(var(--color-primary))]/15 border-[rgb(var(--color-primary))]/40 ring-2 ring-[rgb(var(--color-primary))]/20"
-          : "border-transparent hover:bg-[rgb(var(--color-text-primary)/0.05)] hover:border-[rgb(var(--color-border-primary)/0.5)]"
+          : "bg-[rgb(var(--color-text-primary)/0.06)] border-[rgb(var(--color-border-primary)/0.6)] hover:bg-[rgb(var(--color-text-primary)/0.12)] hover:border-[rgb(var(--color-primary)/0.4)]"
       } ${className}`}
     >
       {/* Lottie Animation from ai.json used in place of the chat icon */}
