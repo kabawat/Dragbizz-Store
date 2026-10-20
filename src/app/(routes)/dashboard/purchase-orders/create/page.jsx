@@ -1,15 +1,2 @@
-"use client";
-import { PageSkeleton } from "@dragorbit/ui/app";
-import dynamic from "next/dynamic";
-
-const CreatePurchaseOrderPage = dynamic(
-  () => import("@/page/dashboard/purchase-orders/create"),
-  {
-    ssr: false,
-    loading: () => (
-      <PageSkeleton />
-    ),
-  }
-);
-
+import CreatePurchaseOrderPage from "@/page/dashboard/purchase-orders/create";
 export default CreatePurchaseOrderPage;

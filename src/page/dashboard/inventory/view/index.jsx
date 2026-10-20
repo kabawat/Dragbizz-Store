@@ -1,6 +1,7 @@
 "use client";
+
+import { DataTable } from "@dragorbit/ui/table";
 import { PageSkeleton } from "@dragorbit/ui/app";
-import { NumberedTable } from "@dragorbit/ui";
 import {
   AlertCircle,
   ArrowLeft,
@@ -29,44 +30,40 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
 import { useInventoryDetailsPrint } from "./hooks/useInventoryDetailsPrint";
-
 const ViewInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
-
   const [inventory, setInventory] = useState(null);
   const [error, setError] = useState(null);
-  const { can, edit: canEdit, loading: permissionsLoading } = useModulePermissions("inventory");
-
+  const {
+    can,
+    edit: canEdit,
+    loading: permissionsLoading,
+  } = useModulePermissions("inventory");
   const { execute, loading: apiLoading } = useApiResponse();
   const loading = apiLoading || permissionsLoading;
-
   useEffect(() => {
     if (!permissionsLoading && !can("read")) {
       router.push("/dashboard/stock");
     }
   }, [can, permissionsLoading, router]);
-
   const { handleDownloadPDF } = useInventoryDetailsPrint(apiLoading, inventory);
 
   // Fetch inventory details
   useEffect(() => {
     const fetchInventory = async () => {
       if (!inventoryId || !storeId) return;
-
       setError(null);
       const result = await execute(
         inventoryService.getInventoryById(inventoryId, storeId),
-        { showToast: false }
+        {
+          showToast: false,
+        }
       );
-
       if (result?.success) {
         const data =
-          result.data?.data?.inventory ||
-          result.data?.inventory ||
-          result.data;
-
+          result.data?.data?.inventory || result.data?.inventory || result.data;
         if (data) {
           setInventory(data);
         } else {
@@ -76,21 +73,15 @@ const ViewInventoryPage = ({ inventoryId }) => {
         setError(result?.message || "Error loading inventory details");
       }
     };
-
     fetchInventory();
   }, [inventoryId, storeId]);
-
   const handleAddStock = () => {
     useDashboardHeader("View Stock", "Stock information and details");
     router.push(`/dashboard/stock/add?productId=${inventory?.product?.id}`);
   };
-
   if (loading) {
-    return (
-      <PageSkeleton />
-    );
+    return <PageSkeleton />;
   }
-
   return (
     <div className="p-5">
       <div className="max-w-8xl mx-auto">
@@ -198,9 +189,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           Profit Margin
                         </p>
                         <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                          {inventory.pricingSummary?.profitMargin?.toFixed(
-                            1
-                          ) || 0}
+                          {inventory.pricingSummary?.profitMargin?.toFixed(1) ||
+                            0}
                           %
                         </p>
                       </div>
@@ -217,7 +207,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           ₹
                           {inventory.pricingSummary?.totalSellingValue?.toLocaleString(
                             "en-IN",
-                            { maximumFractionDigits: 2 }
+                            {
+                              maximumFractionDigits: 2,
+                            }
                           ) || "0"}
                         </p>
                       </div>
@@ -396,7 +388,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             ₹
                             {inventory.pricingSummary?.averagePurchasePrice?.toLocaleString(
                               "en-IN",
-                              { maximumFractionDigits: 2 }
+                              {
+                                maximumFractionDigits: 2,
+                              }
                             ) || "0"}
                           </p>
                         </div>
@@ -413,7 +407,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             ₹
                             {inventory.pricingSummary?.averageSellingPrice?.toLocaleString(
                               "en-IN",
-                              { maximumFractionDigits: 2 }
+                              {
+                                maximumFractionDigits: 2,
+                              }
                             ) || "0"}
                           </p>
                         </div>
@@ -430,7 +426,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             ₹
                             {inventory.pricingSummary?.totalPurchaseValue?.toLocaleString(
                               "en-IN",
-                              { maximumFractionDigits: 2 }
+                              {
+                                maximumFractionDigits: 2,
+                              }
                             ) || "0"}
                           </p>
                         </div>
@@ -447,7 +445,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             ₹
                             {inventory.pricingSummary?.totalProfit?.toLocaleString(
                               "en-IN",
-                              { maximumFractionDigits: 2 }
+                              {
+                                maximumFractionDigits: 2,
+                              }
                             ) || "0"}
                           </p>
                         </div>
@@ -477,17 +477,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
                           <div className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center">
                             <div
-                              className={`w-6 h-6 rounded-full ${inventory.paymentSummary?.paymentStatus ===
-                                "PAID"
-                                ? "bg-green-500/35 dark:!bg-green-400 dark:opacity-40"
-                                : inventory.paymentSummary
-                                  ?.paymentStatus === "UNPAID"
-                                  ? "bg-red-500/35 dark:!bg-red-400 dark:opacity-40"
-                                  : inventory.paymentSummary
-                                    ?.paymentStatus === "PARTIAL"
-                                    ? "bg-yellow-500/35 dark:!bg-yellow-400 dark:opacity-40"
-                                    : "bg-gray-500/35 dark:!bg-gray-400 dark:opacity-40"
-                                }`}
+                              className={`w-6 h-6 rounded-full ${inventory.paymentSummary?.paymentStatus === "PAID" ? "bg-green-500/35 dark:!bg-green-400 dark:opacity-40" : inventory.paymentSummary?.paymentStatus === "UNPAID" ? "bg-red-500/35 dark:!bg-red-400 dark:opacity-40" : inventory.paymentSummary?.paymentStatus === "PARTIAL" ? "bg-yellow-500/35 dark:!bg-yellow-400 dark:opacity-40" : "bg-gray-500/35 dark:!bg-gray-400 dark:opacity-40"}`}
                             ></div>
                           </div>
                           <div className="relative z-10">
@@ -495,20 +485,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               Payment Status
                             </p>
                             <p
-                              className={`text-base font-semibold ${inventory.paymentSummary?.paymentStatus ===
-                                "PAID"
-                                ? "text-green-600 dark:text-green-400"
-                                : inventory.paymentSummary
-                                  ?.paymentStatus === "UNPAID"
-                                  ? "text-red-600 dark:text-red-400"
-                                  : inventory.paymentSummary
-                                    ?.paymentStatus === "PARTIAL"
-                                    ? "text-yellow-600 dark:text-yellow-400"
-                                    : "text-[rgb(var(--color-text-primary))]"
-                                }`}
+                              className={`text-base font-semibold ${inventory.paymentSummary?.paymentStatus === "PAID" ? "text-green-600 dark:text-green-400" : inventory.paymentSummary?.paymentStatus === "UNPAID" ? "text-red-600 dark:text-red-400" : inventory.paymentSummary?.paymentStatus === "PARTIAL" ? "text-yellow-600 dark:text-yellow-400" : "text-[rgb(var(--color-text-primary))]"}`}
                             >
-                              {inventory.paymentSummary?.paymentStatus ||
-                                "N/A"}
+                              {inventory.paymentSummary?.paymentStatus || "N/A"}
                             </p>
                           </div>
                         </div>
@@ -524,7 +503,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹
                               {inventory.paymentSummary?.totalPaidAmount?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 }
+                                {
+                                  maximumFractionDigits: 2,
+                                }
                               ) || "0"}
                             </p>
                           </div>
@@ -541,7 +522,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹
                               {inventory.paymentSummary?.totalDueAmount?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 }
+                                {
+                                  maximumFractionDigits: 2,
+                                }
                               ) || "0"}
                             </p>
                           </div>
@@ -568,7 +551,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                       </div>
 
                       <div className="overflow-x-auto">
-                        <NumberedTable className="w-full">
+                        <DataTable className="min-w-0" caption="Inventory batches">
                           <thead>
                             <tr className="border-b border-[rgb(var(--color-border-primary))]">
                               <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">
@@ -607,7 +590,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                   ₹
                                   {batch.purchasePrice?.toLocaleString(
                                     "en-IN",
-                                    { maximumFractionDigits: 2 }
+                                    {
+                                      maximumFractionDigits: 2,
+                                    }
                                   ) || "0"}
                                 </td>
                                 <td className="py-3 text-[rgb(var(--color-text-primary))]">
@@ -616,18 +601,13 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                 <td className="py-3 text-[rgb(var(--color-text-primary))]">
                                   {batch.expiryDate
                                     ? moment(batch.expiryDate).format(
-                                      "DD MMM YYYY"
-                                    )
+                                        "DD MMM YYYY"
+                                      )
                                     : "N/A"}
                                 </td>
                                 <td className="py-3">
                                   <span
-                                    className={`px-2 py-1 rounded-full text-xs font-medium ${batch.isActive
-                                      ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
-                                      : batch.isExpired
-                                        ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
-                                        : "bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20"
-                                      }`}
+                                    className={`px-2 py-1 rounded-full text-xs font-medium ${batch.isActive ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20" : batch.isExpired ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20" : "bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20"}`}
                                   >
                                     {batch.isExpired
                                       ? "Expired"
@@ -639,7 +619,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               </tr>
                             ))}
                           </tbody>
-                        </NumberedTable>
+                        </DataTable>
                       </div>
                     </div>
                   )}
@@ -728,7 +708,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             ₹
                             {inventory.pricingSummary?.totalSellingValue?.toLocaleString(
                               "en-IN",
-                              { maximumFractionDigits: 2 }
+                              {
+                                maximumFractionDigits: 2,
+                              }
                             ) || "0"}
                           </span>
                         </div>
@@ -744,5 +726,4 @@ const ViewInventoryPage = ({ inventoryId }) => {
     </div>
   );
 };
-
 export default ViewInventoryPage;

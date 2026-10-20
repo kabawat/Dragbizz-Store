@@ -49,5 +49,7 @@
   "expandOnHover": "હોવર પર ખોલો",
   "expandWithButton": "બટનથી ખોલો",
   "lockExpanded": "સાઇડબાર ખુલ્લો રાખો",
-  "unlockSidebar": "સાઇડબાર અનલૉક કરો"
+  "unlockSidebar": "સાઇડબાર અનલૉક કરો",
+  "noCategories": "હજુ કોઈ શ્રેણીઓ નથી",
+  "noCategoriesDescription": "પ્રોડક્ટ્સને ગોઠવવા માટે શ્રેણીઓ બનાવો"
 }

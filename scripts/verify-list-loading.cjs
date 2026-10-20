@@ -15,7 +15,7 @@ const shared='../dragorbit/';
 const {TableSkeleton}=load(shared+'ui/src/components/feedback/TableSkeleton.tsx');
 const {PageLoader}=load(shared+'ui/src/components/feedback/PageLoader.tsx',{'./TableSkeleton':{TableSkeleton}});
 const EmptyState=load(shared+'ui/src/components/feedback/EmptyState.jsx',{'../button/Button':{Button:({children,onClick})=>React.createElement('button',{onClick},children)}}).default;
-const ui={PageLoader,EmptyState};
+const ui={PageLoader,EmptyState,TableSkeleton};
 const specs=[
  ['products/productSlice.js','getProducts','products','products','ProductsScreen','Product'],
  ['supplier/supplierSlice.js','getSuppliers','suppliers','suppliers','SuppliersScreen','Supplier'],
@@ -64,3 +64,24 @@ assert.match(empty,/items-center justify-center text-center/);
 assert.match(empty,/100dvh-16rem/);
 assert.doesNotMatch(empty,/<p(?:\s|>)/,'omit missing descriptions');
 console.log('PASS: 9 list reducers/screens: initial pending, loading, empty, error, populated, cached refresh; shared skeleton and centered empty states.');
+
+// Catalog lists must keep pending, failed and confirmed-empty responses distinct.
+const tableUI={...ui,EntityLogo:()=>null,TableRowActions:()=>null,
+ DataTable:({loading,rows,loadingContent,errorContent,emptyContent})=>
+  React.createElement('div',null,rows.length?'ROWS':loading?loadingContent:errorContent??emptyContent)};
+for(const [feature,name,key] of [['categories','Categories','categories'],['brands','Brands','brands'],['variants','Variants','variants']]){
+ const {[name+'Table']:Table}=load(shared+`features/src/${feature}/component/${name}Table.jsx`,{'@dragorbit/ui':tableUI});
+ const draw=model=>render(React.createElement(Table,{model:{t:k=>k,[key]:[],can:()=>false,canCreate:false,...model}}));
+ const pending=draw({loading:true});
+ assert.match(pending,/aria-busy="true"/);
+ assert.doesNotMatch(pending,/noCategories|noBrands|noVariants|animate-spin/);
+ const empty=draw({loading:false});
+ assert.match(empty,/<h2/);
+ assert.doesNotMatch(empty,/aria-busy="true"/);
+ const failed=draw({loading:false,error:'offline'});
+ assert.match(failed,/offline/);
+ assert.doesNotMatch(failed,/noCategories|noBrands|noVariants/);
+ const refresh=draw({loading:true,[key]:[{id:'one'}]});
+ assert.match(refresh,/ROWS/);
+}
+console.log('PASS: category, brand and variant pending/empty/error/refresh UI.');

@@ -185,5 +185,7 @@
     "apply": "Apply",
     "cancel": "Cancel",
     "selectRange": "Select date range"
-  }
+  },
+  "saving": "Save ho raha hai…",
+  "icon": "Icon"
 }

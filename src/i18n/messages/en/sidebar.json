@@ -51,5 +51,7 @@
   "expandOnHover": "Expand on hover",
   "expandWithButton": "Expand with button",
   "lockExpanded": "Keep sidebar expanded",
-  "unlockSidebar": "Unlock sidebar"
+  "unlockSidebar": "Unlock sidebar",
+  "noCategories": "No categories yet",
+  "noCategoriesDescription": "Create categories to organize your products"
 }

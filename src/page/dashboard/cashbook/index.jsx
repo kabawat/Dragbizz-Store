@@ -35,7 +35,7 @@ export default function CashbookPage() {
   const [description, setDescription] = useState("");
   const [entries, setEntries] = useState([]);
   const [summary, setSummary] = useState(null);
-  const [listLoading, setListLoading] = useState(false);
+  const [listLoading, setListLoading] = useState(true);
   const [listError, setListError] = useState(false);
 
   useEffect(() => {
@@ -81,8 +81,8 @@ export default function CashbookPage() {
   }, [storeId, execute]);
 
   useEffect(() => {
-    if (canRead) refreshData();
-  }, [canRead, refreshData]);
+    if (!permissionLoading && canRead) refreshData();
+  }, [canRead, permissionLoading, refreshData]);
 
   const { loading, error, recordCashIn, recordCashOut, clearError } =
     useCashbookEntry({
@@ -108,7 +108,8 @@ export default function CashbookPage() {
       entries={entries}
       totals={totals}
       closingBalance={closingBalance}
-      listLoading={listLoading}
+      listLoading={listLoading && summary === null}
+      refreshing={listLoading && summary !== null}
       listError={listError}
       onRefresh={refreshData}
       loading={loading}

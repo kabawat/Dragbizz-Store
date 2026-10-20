@@ -1,19 +1,17 @@
 "use client";
-import { NumberedTable } from "@dragorbit/ui";
+
+import { DataTable } from "@dragorbit/ui/table";
 import { Barcode, FileText, Mail, Phone } from "lucide-react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-
 const PurchaseOrderDetails = ({ purchaseOrder }) => {
   const { t } = useTranslation();
-
   const _formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
     }).format(amount || 0);
   };
-
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-IN", {
       year: "numeric",
@@ -21,7 +19,6 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
       day: "2-digit",
     });
   };
-
   const getStatusBadge = (status) => {
     const config = getCommonStatusBadge(status, "purchase-order");
     // Convert to color class format for compatibility
@@ -37,17 +34,14 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
           return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700";
       }
     };
-
     return {
       text: config.text,
       color: getColorClass(config.variant),
     };
   };
-
   const _statusBadge = getStatusBadge(
     purchaseOrder.approvalStatus || purchaseOrder.status
   );
-
   return (
     <div className="p-6">
       {/* Tabs */}
@@ -111,7 +105,7 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
           Product Details
         </h4>
         <div className="overflow-x-auto max-h-64 overflow-y-auto border border-[rgb(var(--color-border-primary))] rounded-lg">
-          <NumberedTable className="min-w-full divide-y divide-[rgb(var(--color-border-primary))]">
+          <DataTable className="min-w-0" caption="Purchase order items">
             <thead className="bg-[rgb(var(--color-bg-secondary))]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
@@ -144,7 +138,7 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
                 </tr>
               ))}
             </tbody>
-          </NumberedTable>
+          </DataTable>
         </div>
       </div>
 
@@ -165,5 +159,4 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
     </div>
   );
 };
-
 export default PurchaseOrderDetails;

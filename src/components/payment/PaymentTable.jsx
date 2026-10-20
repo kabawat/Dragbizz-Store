@@ -1,8 +1,6 @@
 "use client";
 import { PaymentTableView } from "@dragorbit/features/payments";
 
-import { PaymentTableHeaderView } from "@dragorbit/features/payments";
-
 import { PaymentTableRowView } from "@dragorbit/features/payments";
 
 import { useCallback, useMemo } from "react";
@@ -19,12 +17,6 @@ import {
   getPaymentTypeBadge,
   getStatusBadge,
 } from "./utils";
-
-const PaymentTableHeader = () => {
-  const { t } = useTranslation();
-
-  return <PaymentTableHeaderView model={{ t }} />;
-};
 
 const PaymentTableRow = ({
   rowNumber,
@@ -43,15 +35,15 @@ const PaymentTableRow = ({
   const paymentId = payment._id || payment.id;
   const statusBadge = useMemo(
     () => getStatusBadge(payment.paymentStatus || payment.status),
-    [payment.paymentStatus, payment.status],
+    [payment.paymentStatus, payment.status]
   );
   const methodBadge = useMemo(
     () => getPaymentMethodBadge(payment.paymentMethod, t),
-    [payment.paymentMethod, t],
+    [payment.paymentMethod, t]
   );
   const typeBadge = useMemo(
     () => getPaymentTypeBadge(payment.paymentType, t),
-    [payment.paymentType, t],
+    [payment.paymentType, t]
   );
   const StatusIcon = statusBadge.icon;
 
@@ -83,6 +75,9 @@ const PaymentTableRow = ({
 };
 
 const PaymentTable = ({
+  variant,
+  showNumOfData = true,
+  rowNumberOffset = 0,
   payments = [],
   isLoadingMore = false,
   handleMenuAction,
@@ -126,13 +121,15 @@ const PaymentTable = ({
       }
       return items;
     },
-    [t, canEdit, canDelete, closeMenu, handleMenuAction],
+    [t, canEdit, canDelete, closeMenu, handleMenuAction]
   );
 
   return (
     <PaymentTableView
       model={{
-        PaymentTableHeader,
+        variant,
+        showNumOfData,
+        rowNumberOffset,
         payments,
         PaymentTableRow,
         menuRefs,

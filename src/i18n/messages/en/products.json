@@ -433,5 +433,9 @@
   "default": "default",
   "physicalDetailsCollapsed": "Weight and size are optional — expand to fill them in.",
   "noVariantOptionsEmpty": "No options added yet",
-  "isDefaultVariantHint": "Primary SKU for this product"
+  "isDefaultVariantHint": "Primary SKU for this product",
+  "loadFailed": "Unable to load records. Please try again.",
+  "scrollToLoadMore": "Scroll down to load more",
+  "configureStatusVisibility": "Configure status visibility",
+  "download": "Download"
 }

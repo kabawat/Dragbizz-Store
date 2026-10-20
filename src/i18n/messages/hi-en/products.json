@@ -398,5 +398,13 @@
   "contentSeoDescriptionDetail": "Detailed product information aur marketing content",
   "dragToReorderImages": "Order badalne ke liye images drag karo",
   "primaryImage": "Primary",
-  "imageReorderTip": "Order badalne ke liye images drag karo. Pehli image primary product photo banegi."
+  "imageReorderTip": "Order badalne ke liye images drag karo. Pehli image primary product photo banegi.",
+  "loadFailed": "Records load nahi hue. Dobara try karein.",
+  "scrollToLoadMore": "Aur load karne ke liye neeche scroll karein",
+  "download": "Download karein",
+  "addVariant": "Variant jodein",
+  "default": "Default",
+  "deleteVariant": "Variant hatayein",
+  "displayName": "Display name",
+  "variantDeleteConfirm": "Kya aap is variant ko delete karna chahte hain?"
 }

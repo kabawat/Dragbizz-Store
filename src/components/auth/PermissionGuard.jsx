@@ -1,9 +1,6 @@
 "use client";
-import {
-  AccessRestricted,
-  DashboardSkeleton,
-  PageSkeleton,
-} from "@dragorbit/ui/app";
+import { AccessRestricted } from "@dragorbit/ui/app";
+import DashboardContentLoading from "@/components/dashboard/DashboardContentLoading";
 import { usePathname, useRouter } from "next/navigation";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import {
@@ -22,6 +19,7 @@ export const PermissionGuard = ({ children }) => {
   const router = useRouter();
   const {
     authProfile,
+    selectedStore,
     authProfileLoading,
     staffProfile,
     staffProfileLoading,
@@ -108,12 +106,12 @@ export const PermissionGuard = ({ children }) => {
     (shellRestored && !sessionVerified) ||
     (planVerified === false && subscriptionLoading)
   ) {
-    return pathname === "/dashboard" ? <DashboardSkeleton /> : <PageSkeleton />;
+    return <DashboardContentLoading pathname={pathname} storeId={selectedStore?.storeId} />;
   }
 
   // Keep the loading UI until subscription and profile data are resolved.
   if (isChecking) {
-    return pathname === "/dashboard" ? <DashboardSkeleton /> : <PageSkeleton />;
+    return <DashboardContentLoading pathname={pathname} storeId={selectedStore?.storeId} />;
   }
 
   if (authProfile?.role === ROLES.STAFF && !staffProfile && staffProfileError) {

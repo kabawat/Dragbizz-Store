@@ -31,14 +31,16 @@ assert.match(screen({ hasLoaded: true }), /EMPTY/);
 assert.match(screen({ hasLoaded: true, customers: [{ id: 'one' }] }), /CUSTOMERS/);
 assert.doesNotMatch(screen({ customers: [{ id: 'old-store' }] }), /CUSTOMERS/);
 let subscription = { isLoading: true, subscription: null };
+let guardProfile = { isAuthenticated: true, authProfile: { role: 'OWNER' }, authProfileLoading: false, staffProfileLoading: false };
 const { PermissionGuard } = load('src/components/auth/PermissionGuard.jsx', {
  '@dragorbit/ui/app': ui,
+ '@/components/dashboard/DashboardContentLoading': {__esModule: true, default: () => React.createElement('div', null, 'SKELETON')},
  'next/navigation': { usePathname: () => '/dashboard/customers', useRouter: () => ({ push() {} }) },
  '@/contexts/SubscriptionContext': { useSubscription: () => subscription },
  '@/data/config/moduleRegistry': { getModuleFromPath: () => 'customer', getActionFromPath: () => 'read', getCapabilityFromPath: () => null },
  '@/hooks/permissions/useModulePermissions': { ROLES: { OWNER: 'OWNER' } },
  '@/store/slices/profileSlice': { getStaffProfileDetails: () => ({type: 'staff/retry'}) },
- '@/store/hooks': { useAppDispatch: () => () => {}, useAppSelector: callback => callback({ profile: { isAuthenticated: true, authProfile: { role: 'OWNER' }, authProfileLoading: false, staffProfileLoading: false } }) },
+ '@/store/hooks': { useAppDispatch: () => () => {}, useAppSelector: callback => callback({ profile: guardProfile }) },
  '@/utils/helper/domain': { redirectToMainDomain() {} },
  '@/utils/subscriptionCapability.util': { hasFeatureCapability: () => true },
 });
@@ -49,6 +51,14 @@ subscription = { isLoading: false, subscription: { features: [{ module: 'custome
 assert.equal(guard(), 'PAGE');
 subscription = { isLoading: false, subscription: null };
 assert.match(guard(), /RESTRICTED/);
+// A cached plan cannot mount protected content before live session verification.
+subscription = { isVerified: true, isLoading: false, subscription: { features: [{ module: 'customer', usageType: 'UNLIMITED' }] } };
+guardProfile = {...guardProfile, shellRestored: true, sessionVerified: false};
+assert.match(guard(), /SKELETON/);
+assert.doesNotMatch(guard(), /PAGE/);
+guardProfile = {...guardProfile, sessionVerified: true};
+assert.equal(guard(), 'PAGE');
+
 // Provider is pending on its very first render, before its fetch effect starts.
 const context = load('src/contexts/SubscriptionContext.jsx', {
  '@/store/hooks': { useAppSelector: fn => fn({profile:{}}) },

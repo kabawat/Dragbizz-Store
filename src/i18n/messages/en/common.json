@@ -187,5 +187,7 @@
     "apply": "Apply",
     "cancel": "Cancel",
     "selectRange": "Select date range"
-  }
+  },
+  "saving": "Saving…",
+  "icon": "Icon"
 }

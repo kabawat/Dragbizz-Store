@@ -1,6 +1,7 @@
 "use client";
+
+import { DataTable } from "@dragorbit/ui/table";
 import { EmptyState, TableSkeleton } from "@dragorbit/ui";
-import { NumberedTable } from "@dragorbit/ui";
 import {
   AlertTriangle,
   Building2,
@@ -23,9 +24,11 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getAccountStats, getAccounts } from "@/store/slices/accountsSlice";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
-
 const Accounts = () => {
-  useDashboardHeader("Supplier Accounts", "Manage supplier accounts and credit limits");
+  useDashboardHeader(
+    "Supplier Accounts",
+    "Manage supplier accounts and credit limits"
+  );
   const router = useRouter();
   const dispatch = useAppDispatch();
   const {
@@ -40,7 +43,6 @@ const Accounts = () => {
   } = useAppSelector((state) => state.accounts);
   const isLoading = requestLoading || (!hasLoaded && !error);
   const { storeId, ready: storeReady } = useSelectedStoreId();
-
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [riskFilter, setRiskFilter] = useState("all");
@@ -131,7 +133,6 @@ const Accounts = () => {
       PENDING: Clock,
       INACTIVE: Clock,
     };
-
     return {
       variant: config.variant,
       icon: iconMap[statusUpper] || Clock,
@@ -143,26 +144,46 @@ const Accounts = () => {
   const getRiskBadge = (riskLevel) => {
     switch (riskLevel) {
       case "low":
-        return { variant: "success", text: "Low Risk" };
+        return {
+          variant: "success",
+          text: "Low Risk",
+        };
       case "medium":
-        return { variant: "warning", text: "Medium Risk" };
+        return {
+          variant: "warning",
+          text: "Medium Risk",
+        };
       case "high":
-        return { variant: "danger", text: "High Risk" };
+        return {
+          variant: "danger",
+          text: "High Risk",
+        };
       default:
-        return { variant: "secondary", text: "Unknown" };
+        return {
+          variant: "secondary",
+          text: "Unknown",
+        };
     }
   };
 
   // Get debt status badge
   const getDebtBadge = (debtAmount, creditLimit) => {
     const utilization = (debtAmount / creditLimit) * 100;
-
     if (utilization <= 50) {
-      return { variant: "success", text: "Low Debt" };
+      return {
+        variant: "success",
+        text: "Low Debt",
+      };
     } else if (utilization <= 80) {
-      return { variant: "warning", text: "Medium Debt" };
+      return {
+        variant: "warning",
+        text: "Medium Debt",
+      };
     } else {
-      return { variant: "danger", text: "High Debt" };
+      return {
+        variant: "danger",
+        text: "High Debt",
+      };
     }
   };
 
@@ -188,7 +209,6 @@ const Accounts = () => {
     if (limit === 0) return 0;
     return (used / limit) * 100;
   };
-
   return (
     <div className="p-6">
       <div className="max-w-8xl mx-auto w-full">
@@ -264,11 +284,26 @@ const Accounts = () => {
                 value={statusFilter}
                 onChange={(value) => handleFilterChange("status", value)}
                 options={[
-                  { value: "all", label: "All Status" },
-                  { value: "active", label: "Active" },
-                  { value: "suspended", label: "Suspended" },
-                  { value: "pending", label: "Pending" },
-                  { value: "inactive", label: "Inactive" },
+                  {
+                    value: "all",
+                    label: "All Status",
+                  },
+                  {
+                    value: "active",
+                    label: "Active",
+                  },
+                  {
+                    value: "suspended",
+                    label: "Suspended",
+                  },
+                  {
+                    value: "pending",
+                    label: "Pending",
+                  },
+                  {
+                    value: "inactive",
+                    label: "Inactive",
+                  },
                 ]}
               />
 
@@ -276,10 +311,22 @@ const Accounts = () => {
                 value={riskFilter}
                 onChange={(value) => handleFilterChange("risk", value)}
                 options={[
-                  { value: "all", label: "All Risk Levels" },
-                  { value: "low", label: "Low Risk" },
-                  { value: "medium", label: "Medium Risk" },
-                  { value: "high", label: "High Risk" },
+                  {
+                    value: "all",
+                    label: "All Risk Levels",
+                  },
+                  {
+                    value: "low",
+                    label: "Low Risk",
+                  },
+                  {
+                    value: "medium",
+                    label: "Medium Risk",
+                  },
+                  {
+                    value: "high",
+                    label: "High Risk",
+                  },
                 ]}
               />
 
@@ -287,10 +334,22 @@ const Accounts = () => {
                 value={debtFilter}
                 onChange={(value) => handleFilterChange("debt", value)}
                 options={[
-                  { value: "all", label: "All Debt Levels" },
-                  { value: "low", label: "Low Debt" },
-                  { value: "medium", label: "Medium Debt" },
-                  { value: "high", label: "High Debt" },
+                  {
+                    value: "all",
+                    label: "All Debt Levels",
+                  },
+                  {
+                    value: "low",
+                    label: "Low Debt",
+                  },
+                  {
+                    value: "medium",
+                    label: "Medium Debt",
+                  },
+                  {
+                    value: "high",
+                    label: "High Debt",
+                  },
                 ]}
               />
             </div>
@@ -320,7 +379,7 @@ const Accounts = () => {
         {/* Accounts Table */}
         <Card>
           <div className="overflow-x-auto">
-            <NumberedTable className="w-full">
+            <DataTable className="min-w-0" caption="Accounts">
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-left p-4">
@@ -372,7 +431,6 @@ const Accounts = () => {
                   );
                   const availableCredit =
                     account.creditLimit - account.creditUsed;
-
                   return (
                     <tr
                       key={account.id}
@@ -418,10 +476,7 @@ const Accounts = () => {
                       </td>
                       <td className="p-4">
                         <span
-                          className={`font-medium ${availableCredit > 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                            }`}
+                          className={`font-medium ${availableCredit > 0 ? "text-green-600" : "text-red-600"}`}
                         >
                           {formatCurrency(availableCredit)}
                         </span>
@@ -470,18 +525,25 @@ const Accounts = () => {
                   );
                 })}
               </tbody>
-            </NumberedTable>
+            </DataTable>
           </div>
 
           {/* Empty State */}
           {accounts.length === 0 && !isLoading && (
-            <EmptyState fullHeight icon={Building2} title="No accounts found" description="Get started by creating your first supplier account." actionButton={{label: "Create Account", onClick: () => router.push("/dashboard/accounts/create")}} />
+            <EmptyState
+              fullHeight
+              icon={Building2}
+              title="No accounts found"
+              description="Get started by creating your first supplier account."
+              actionButton={{
+                label: "Create Account",
+                onClick: () => router.push("/dashboard/accounts/create"),
+              }}
+            />
           )}
 
           {/* Loading State */}
-          {isLoading && (
-            <TableSkeleton compact rows={2} />
-          )}
+          {isLoading && <TableSkeleton compact rows={2} />}
         </Card>
 
         {/* Delete Confirmation Modal */}
@@ -493,8 +555,8 @@ const Accounts = () => {
         >
           <div className="space-y-4">
             <p className="text-gray-600">
-              Are you sure you want to delete this account? This action cannot be
-              undone.
+              Are you sure you want to delete this account? This action cannot
+              be undone.
             </p>
             {accountToDelete && (
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -507,7 +569,10 @@ const Accounts = () => {
               </div>
             )}
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 Cancel
               </Button>
               <Button variant="danger" onClick={confirmDelete}>
@@ -520,5 +585,4 @@ const Accounts = () => {
     </div>
   );
 };
-
 export default Accounts;

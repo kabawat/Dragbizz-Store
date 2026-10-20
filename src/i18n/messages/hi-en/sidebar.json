@@ -49,5 +49,7 @@
   "expandOnHover": "Hover par expand",
   "expandWithButton": "Button se expand",
   "lockExpanded": "Sidebar khula rakhein",
-  "unlockSidebar": "Sidebar unlock karein"
+  "unlockSidebar": "Sidebar unlock karein",
+  "noCategories": "Abhi koi category nahi hai",
+  "noCategoriesDescription": "Products ko organize karne ke liye categories banayein"
 }

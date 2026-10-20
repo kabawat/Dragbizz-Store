@@ -1,13 +1,7 @@
 "use client";
-import { NumberedTable } from "@dragorbit/ui";
-import {
-  Calendar,
-  Edit,
-  Eye,
-  FileText,
-  MoreVertical,
-  Trash2,
-} from "lucide-react";
+
+import { DataTable } from "@dragorbit/ui/table";
+import { Calendar, Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
@@ -19,8 +13,8 @@ import {
 } from "@/data/constants/expenses";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { renderStatusBadge } from "@/utils/statusBadge";
-
 const ExpenseTable = ({
+  variant,
   expenses = [],
   isLoading = false,
   onEdit,
@@ -32,47 +26,66 @@ const ExpenseTable = ({
   loading = false,
   emptyMessage,
   className = "",
-  headerOnly = false,
-  bodyOnly = false,
 }) => {
   const { t } = useTranslation();
-  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } = useRowActionMenu();
-
+  const { menu, menuRefs, closeMenu, toggleDropdown, openContextMenu } =
+    useRowActionMenu();
   const defaultEmptyMessage = emptyMessage || t("expenses.noExpenses");
-
-  const handleMenuAction = useCallback((expenseId, action) => {
-    closeMenu();
-    const expense = expenses.find((e) => e.id === expenseId);
-    switch (action) {
-      case "view":
-        onView?.(expense?.id?.toString());
-        break;
-      case "edit":
-        onEdit?.(expense?.id?.toString());
-        break;
-      case "delete":
-        onDelete?.(expense?.id?.toString());
-        break;
-      default:
-        break;
-    }
-  }, [closeMenu, expenses, onView, onEdit, onDelete]);
-
-  const buildMenuItems = useCallback((rowId) => {
-    const run = (action) => () => handleMenuAction(rowId, action);
-    const items = [
-      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
-    ];
-    if (onEdit) {
-      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
-    }
-    if (onDelete) {
-      items.push({ type: "separator" });
-      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
-    }
-    return items;
-  }, [t, onEdit, onDelete, handleMenuAction]);
-
+  const handleMenuAction = useCallback(
+    (expenseId, action) => {
+      closeMenu();
+      const expense = expenses.find((e) => e.id === expenseId);
+      switch (action) {
+        case "view":
+          onView?.(expense?.id?.toString());
+          break;
+        case "edit":
+          onEdit?.(expense?.id?.toString());
+          break;
+        case "delete":
+          onDelete?.(expense?.id?.toString());
+          break;
+        default:
+          break;
+      }
+    },
+    [closeMenu, expenses, onView, onEdit, onDelete]
+  );
+  const buildMenuItems = useCallback(
+    (rowId) => {
+      const run = (action) => () => handleMenuAction(rowId, action);
+      const items = [
+        {
+          key: "view",
+          label: t("common.viewDetails"),
+          icon: Eye,
+          onClick: run("view"),
+        },
+      ];
+      if (onEdit) {
+        items.push({
+          key: "edit",
+          label: t("common.edit"),
+          icon: Edit,
+          onClick: run("edit"),
+        });
+      }
+      if (onDelete) {
+        items.push({
+          type: "separator",
+        });
+        items.push({
+          key: "delete",
+          label: t("common.delete"),
+          icon: Trash2,
+          tone: "danger",
+          onClick: run("delete"),
+        });
+      }
+      return items;
+    },
+    [t, onEdit, onDelete, handleMenuAction]
+  );
   const renderActionsCell = (expense) => {
     const rowId = expense.id;
     return (
@@ -95,21 +108,25 @@ const ExpenseTable = ({
       </td>
     );
   };
-
   const contextMenuLayer = (
     <>
-      <RowContextMenuLayer open={menu?.mode === "context"} onClose={closeMenu} />
+      <RowContextMenuLayer
+        open={menu?.mode === "context"}
+        onClose={closeMenu}
+      />
       {menu?.mode === "context" ? (
         <RowActionsMenu
           mode="context"
-          anchorPoint={{ x: menu.x, y: menu.y }}
+          anchorPoint={{
+            x: menu.x,
+            y: menu.y,
+          }}
           items={buildMenuItems(menu.rowId)}
           className="w-48"
         />
       ) : null}
     </>
   );
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -117,204 +134,23 @@ const ExpenseTable = ({
       year: "numeric",
     });
   };
-
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       minimumFractionDigits: 2,
     }).format(amount);
   };
 
-  // headerOnly: sirf header render karo (fixed, non-scrolling)
-  if (headerOnly) {
-    return (
-      <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] shrink-0 overflow-x-auto">
-        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
-          <thead>
-            <tr>
-              <th className="w-[22%] px-6 py-4 text-left">
-                <span className="text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                  {t("expenses.expenseTitle")}
-                </span>
-              </th>
-              <th className="w-[12%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("common.date")}
-              </th>
-              <th className="w-[14%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("expenses.category")}
-              </th>
-              <th className="w-[12%] px-6 py-4 text-right text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("common.amount")}
-              </th>
-              <th className="w-[16%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("expenses.paymentMethod")}
-              </th>
-              <th className="w-[14%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("expenses.vendor")}
-              </th>
-              <th className="w-[10%] px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("common.status")}
-              </th>
-              <th className="w-24 px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("common.actions")}
-              </th>
-            </tr>
-          </thead>
-        </NumberedTable>
-      </div>
-    );
-  }
-
-  // bodyOnly: sirf rows render karo (scrollable container mein hoga)
-  if (bodyOnly) {
-    if (isLoading || loading) {
-      return (
-        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
-          <tbody>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <tr key={index} className="border-b border-[rgb(var(--color-border-primary))]">
-                <td className="w-[22%] px-6 py-4">
-                  <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-3/4 animate-pulse mb-2" />
-                  <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/2 animate-pulse" />
-                </td>
-                <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
-                <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
-                <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-16 animate-pulse" /></td>
-                <td className="w-[16%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-24 animate-pulse" /></td>
-                <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
-                <td className="w-[10%] px-6 py-4"><div className="h-6 bg-[rgb(var(--color-bg-tertiary))] rounded-full w-16 animate-pulse" /></td>
-                <td className="w-24 px-6 py-4" />
-              </tr>
-            ))}
-          </tbody>
-        </NumberedTable>
-      );
-    }
-
-    return (
-      <>
-        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
-          <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-            {expenses.map((expense) => (
-              <tr
-                key={expense.id}
-                className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
-                onContextMenu={(event) => openContextMenu(event, expense.id)}
-              >
-                <td
-                  className="w-[22%] px-6 py-4 cursor-pointer group/cell"
-                  onClick={() => onView?.(expense?.id)}
-                >
-                  <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
-                    {expense.title}
-                  </div>
-                  <div className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
-                    {expense.billNumber || t("expenses.noBillNumber")}
-                  </div>
-                </td>
-                <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-[rgb(var(--color-text-tertiary))] shrink-0" />
-                    <span>{formatDate(expense.date)}</span>
-                  </div>
-                </td>
-                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
-                  {getCategoryLabel(expense.category?.name || expense.category)}
-                </td>
-                <td className="w-[12%] px-6 py-4 text-right">
-                  <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">₹{formatCurrency(expense.amount)}</div>
-                </td>
-                <td className="w-[16%] px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm shrink-0">{getPaymentMethodIcon(expense.paymentMethod)}</span>
-                    <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">{getPaymentMethodLabel(expense.paymentMethod)}</span>
-                  </div>
-                </td>
-                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
-                  {expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "-"}
-                </td>
-                <td className="w-[10%] px-6 py-4 text-center">
-                  <div className="inline-flex">{renderStatusBadge(expense.status, "general")}</div>
-                </td>
-                {renderActionsCell(expense)}
-              </tr>
-            ))}
-          </tbody>
-        </NumberedTable>
-        {contextMenuLayer}
-      </>
-    );
-  }
-
-  // Default full render (standalone use without headerOnly/bodyOnly)
-  if (isLoading || loading) {
-    return (
-      <div className={`h-full ${className}`}>
-        {/* Fixed Header Skeleton */}
-        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-          <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
-            <thead>
-              <tr>
-                <th className="w-[22%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-20 animate-pulse" /></th>
-                <th className="w-[12%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-14 animate-pulse" /></th>
-                <th className="w-[14%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-16 animate-pulse" /></th>
-                <th className="w-[12%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-16 animate-pulse" /></th>
-                <th className="w-[16%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-20 animate-pulse" /></th>
-                <th className="w-[14%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-16 animate-pulse" /></th>
-                <th className="w-[10%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-12 animate-pulse" /></th>
-                <th className="w-24 px-6 py-4" />
-              </tr>
-            </thead>
-          </NumberedTable>
-        </div>
-        {/* Body Skeleton */}
-        <div>
-          <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
-            <tbody>
-              {Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index} className="border-b border-[rgb(var(--color-border-primary))]">
-                  <td className="w-[22%] px-6 py-4">
-                    <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-3/4 animate-pulse mb-2" />
-                    <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/2 animate-pulse" />
-                  </td>
-                  <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
-                  <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
-                  <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-16 animate-pulse" /></td>
-                  <td className="w-[16%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-24 animate-pulse" /></td>
-                  <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
-                  <td className="w-[10%] px-6 py-4"><div className="h-6 bg-[rgb(var(--color-bg-tertiary))] rounded-full w-16 animate-pulse" /></td>
-                  <td className="w-24 px-6 py-4" />
-                </tr>
-              ))}
-            </tbody>
-          </NumberedTable>
-        </div>
-      </div>
-    );
-  }
-
-  if (expenses.length === 0) {
-    return (
-      <div className={`${className}`}>
-        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm">
-          <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-[rgb(var(--color-text-tertiary))] mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {defaultEmptyMessage}
-            </h3>
-            <p className="text-[rgb(var(--color-text-secondary))]">
-              {t("expenses.startAddingExpense")}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`h-full ${className}`}>
-      {/* Fixed Header */}
-      <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
+      <div>
+        <DataTable
+          variant={variant}
+          loading={isLoading || loading}
+          className="min-w-0"
+          minWidth={900}
+          caption={t("expenses.expenseTitle")}
+          emptyContent={defaultEmptyMessage}
+        >
           <thead>
             <tr>
               <th className="w-[22%] px-6 py-4 text-left">
@@ -345,12 +181,6 @@ const ExpenseTable = ({
               </th>
             </tr>
           </thead>
-        </NumberedTable>
-      </div>
-
-      {/* Scrollable Body */}
-      <div>
-        <NumberedTable loading={isLoading || loading} className="w-full min-w-[900px] table-fixed">
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {expenses.map((expense) => {
               return (
@@ -382,7 +212,9 @@ const ExpenseTable = ({
 
                   {/* Category */}
                   <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
-                    {getCategoryLabel(expense.category?.name || expense.category)}
+                    {getCategoryLabel(
+                      expense.category?.name || expense.category
+                    )}
                   </td>
 
                   {/* Amount */}
@@ -406,7 +238,11 @@ const ExpenseTable = ({
 
                   {/* Vendor */}
                   <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
-                    {expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "-"}
+                    {expense.vendor?.name ||
+                      (typeof expense.vendor === "string"
+                        ? expense.vendor
+                        : "") ||
+                      "-"}
                   </td>
 
                   {/* Status */}
@@ -418,14 +254,13 @@ const ExpenseTable = ({
 
                   {renderActionsCell(expense)}
                 </tr>
-              )
+              );
             })}
           </tbody>
-        </NumberedTable>
+        </DataTable>
       </div>
       {contextMenuLayer}
     </div>
   );
 };
-
 export default ExpenseTable;

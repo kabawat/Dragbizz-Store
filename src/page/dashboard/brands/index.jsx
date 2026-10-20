@@ -40,7 +40,7 @@ const BrandsPage = () => {
 	const { execute, loading: requestLoading } = useApiResponse();
 	const [resolvedStoreId, setResolvedStoreId] = useState(null);
 	const [error, setError] = useState(null);
-	const loading = requestLoading || (resolvedStoreId !== storeId && !error);
+	const loading = requestLoading || resolvedStoreId !== storeId;
 
 	const [brands, setBrands] = useState([]);
 	const [showDrawer, setShowDrawer] = useState(false);
@@ -52,13 +52,13 @@ const BrandsPage = () => {
 			brandService.getBrands({ store: storeId, limit: 200 }),
 			{ showToast: false },
 		);
-		if (result?.success === false || result?.status === false) {
-			setError(result.message || "Unable to load records.");
+		if (!result || result.success === false || result.status === false) {
+			setError(result?.message || t("products.loadFailed"));
 		} else {
 		setBrands(unwrapList(result?.data));
 		}
 		setResolvedStoreId(storeId);
-	}, [storeId, execute]);
+	}, [storeId, execute, t]);
 
 	useEffect(() => {
 		if (!permissionsLoading && !can("read")) {
@@ -74,7 +74,7 @@ const BrandsPage = () => {
 		<BrandsScreen
 			model={{
 				t,
-				brands,
+				brands: resolvedStoreId === storeId ? brands : [],
 				canCreate,
 				setShowDrawer,
 				loading,
