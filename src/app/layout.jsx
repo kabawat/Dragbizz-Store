@@ -36,6 +36,10 @@ export default async function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning={true}>
       <head>
         <ThemeScript />
+        <link rel="icon" type="image/svg+xml" href="/_store_assets/favicon.svg" />
+        <link rel="icon" type="image/x-icon" href="/_store_assets/favicon.ico" />
+        <link rel="shortcut icon" href="/_store_assets/favicon.ico" />
+        <link rel="apple-touch-icon" href="/_store_assets/apple-touch-icon.png" />
       </head>
       <body
         className={`${inter.className} antialiased`}

@@ -17,10 +17,10 @@ class AiChatHistoryService extends BaseService {
     );
   }
 
-  async listSessions({ storeId }) {
+  async listSessions({ storeId, page = 1, limit = 20 }) {
     try {
       const response = await this.authAxios.get(this.sessionsEndpoint, {
-        params: { storeId },
+        params: { storeId, page, limit },
         timeout: this.timeout,
       });
       return handleApiSuccess(response, "Sessions loaded");
