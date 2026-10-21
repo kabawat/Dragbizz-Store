@@ -54,6 +54,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [activeTool, setActiveTool] = useState(null);
   const [chatError, setChatError] = useState(null);
 
   const resetChat = useCallback(() => {
@@ -65,30 +66,34 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     sessionIdRef.current = nextId;
     setSessionId(nextId);
     setMessages([]);
+    setActiveTool(null);
     setChatError(null);
   }, []);
 
-  const loadChat = useCallback(({ sessionId: nextSessionId, messages: nextMessages }) => {
-    if (abortRef.current) {
-      abortRef.current.abort();
-      abortRef.current = null;
-    }
-    inflightRef.current = false;
-    setIsSending(false);
-    setIsConfirming(false);
-    const nextId =
-      typeof nextSessionId === "string" && nextSessionId.trim()
-        ? nextSessionId.trim()
-        : generateUUID();
-    sessionIdRef.current = nextId;
-    setSessionId(nextId);
-    setMessages(Array.isArray(nextMessages) ? nextMessages : []);
-    setChatError(null);
-  }, []);
+  const loadChat = useCallback(
+    ({ sessionId: nextSessionId, messages: nextMessages }) => {
+      if (abortRef.current) {
+        abortRef.current.abort();
+        abortRef.current = null;
+      }
+      inflightRef.current = false;
+      setIsSending(false);
+      setIsConfirming(false);
+      setActiveTool(null);
+      const nextId =
+        typeof nextSessionId === "string" && nextSessionId.trim()
+          ? nextSessionId.trim()
+          : generateUUID();
+      sessionIdRef.current = nextId;
+      setSessionId(nextId);
+      setMessages(Array.isArray(nextMessages) ? nextMessages : []);
+      setChatError(null);
+    },
+    []
+  );
 
   const appendAssistantFromPayload = useCallback((payload) => {
-    const message =
-      typeof payload.message === "string" ? payload.message : "";
+    const message = typeof payload.message === "string" ? payload.message : "";
     const tools = Array.isArray(payload.toolResults)
       ? payload.toolResults
       : Array.isArray(payload.tool_results)
@@ -115,6 +120,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
 
       inflightRef.current = true;
       setIsSending(true);
+      setActiveTool(null);
       setChatError(null);
 
       const userMessage = createMessage("user", trimmed);
@@ -122,12 +128,12 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
         ...current.map((item) =>
           item.pendingConfirmation && !item.pendingConfirmation.status
             ? {
-              ...item,
-              pendingConfirmation: {
-                ...item.pendingConfirmation,
-                status: "CANCELLED",
-              },
-            }
+                ...item,
+                pendingConfirmation: {
+                  ...item.pendingConfirmation,
+                  status: "CANCELLED",
+                },
+              }
             : item
         ),
         userMessage,
@@ -144,9 +150,18 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           language,
           signal: controller.signal,
           onEvent: (event, data) => {
+            if (event === "tool.started") {
+              setActiveTool(data?.tool || null);
+              return;
+            }
+            if (event === "tool.completed") {
+              setActiveTool(null);
+              return;
+            }
             if (event !== "assistant.delta" || typeof data?.text !== "string") {
               return;
             }
+            setActiveTool(null);
             setMessages((current) => {
               const last = current[current.length - 1];
               if (last?.role === "assistant" && last?.streaming) {
@@ -196,6 +211,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           abortRef.current = null;
         }
         inflightRef.current = false;
+        setActiveTool(null);
         setIsSending(false);
       }
     },
@@ -204,7 +220,11 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
 
   const resolvePending = useCallback(
     async (pending, action, updates = null) => {
-      if (!pending?.confirmationId || !pending?.draftId || inflightRef.current) {
+      if (
+        !pending?.confirmationId ||
+        !pending?.draftId ||
+        inflightRef.current
+      ) {
         return null;
       }
       if (!storeId) {
@@ -231,12 +251,12 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           current.map((item) =>
             item.pendingConfirmation?.confirmationId === pending.confirmationId
               ? {
-                ...item,
-                pendingConfirmation:
-                  action === "reject"
-                    ? { ...item.pendingConfirmation, status: "CANCELLED" }
-                    : null,
-              }
+                  ...item,
+                  pendingConfirmation:
+                    action === "reject"
+                      ? { ...item.pendingConfirmation, status: "CANCELLED" }
+                      : null,
+                }
               : item
           )
         );
@@ -293,6 +313,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     toolResults,
     isSending,
     isConfirming,
+    activeTool,
     chatError,
     sendChat,
     confirmPending,
