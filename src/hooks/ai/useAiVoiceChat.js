@@ -55,6 +55,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   const [isSending, setIsSending] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [activeTool, setActiveTool] = useState(null);
+  const [progress, setProgress] = useState(null);
   const [chatError, setChatError] = useState(null);
 
   const resetChat = useCallback(() => {
@@ -67,6 +68,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     setSessionId(nextId);
     setMessages([]);
     setActiveTool(null);
+    setProgress(null);
     setChatError(null);
   }, []);
 
@@ -121,6 +123,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
       inflightRef.current = true;
       setIsSending(true);
       setActiveTool(null);
+      setProgress({ stage: "thinking", label: "Thinking…" });
       setChatError(null);
 
       const userMessage = createMessage("user", trimmed);
@@ -150,8 +153,26 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           language,
           signal: controller.signal,
           onEvent: (event, data) => {
+            if (event === "agent.progress") {
+              setProgress({
+                stage: data?.stage || "progress",
+                label: data?.label || "Working on your request…",
+                tool: data?.tools?.[0] || data?.tool || null,
+              });
+              if (data?.stage === "synthesizing") {
+                setActiveTool(null);
+              }
+              return;
+            }
             if (event === "tool.started") {
-              setActiveTool(data?.tool || null);
+              const toolName = data?.tool || null;
+              const toolLabel = data?.label || null;
+              setActiveTool(toolName);
+              setProgress({
+                stage: "tool_executing",
+                label: toolLabel || "Querying store database…",
+                tool: toolName,
+              });
               return;
             }
             if (event === "tool.completed") {
@@ -162,6 +183,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
               return;
             }
             setActiveTool(null);
+            setProgress(null);
             setMessages((current) => {
               const last = current[current.length - 1];
               if (last?.role === "assistant" && last?.streaming) {
@@ -212,6 +234,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
         }
         inflightRef.current = false;
         setActiveTool(null);
+        setProgress(null);
         setIsSending(false);
       }
     },
@@ -314,6 +337,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     isSending,
     isConfirming,
     activeTool,
+    progress,
     chatError,
     sendChat,
     confirmPending,
