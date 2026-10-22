@@ -33,7 +33,12 @@ export function middleware(request) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set(
+    "X-Robots-Tag",
+    "noindex, nofollow, noarchive, nosnippet"
+  );
+  return response;
 }
 
 // Configure which paths the proxy should run on

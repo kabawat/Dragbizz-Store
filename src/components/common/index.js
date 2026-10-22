@@ -7,3 +7,4 @@ export { default as UpiQrModal } from "./UpiQrModal";
 export { default as UpiPaymentQr } from "./UpiPaymentQr";
 export { default as SignatureDrawer } from "./SignatureDrawer";
 export { default as SignaturePreview } from "./Signature/SignaturePreview";
+export { default as DragAiIcon } from "./DragAiIcon";
