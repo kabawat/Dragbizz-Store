@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Percent, ShoppingBag, Sparkles } from "lucide-react";
+import { Percent, ShoppingBag } from "lucide-react";
+import { DragBizzLogoIcon } from "@dragorbit/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
 import useCustomerDisplayAds from "@/hooks/payment/useCustomerDisplayAds";
 
 const DEFAULT_SLIDES = [
-  { id: "welcome", icon: Sparkles, titleKey: "invoice.customerPayment.idleSlideWelcome", bodyKey: "invoice.customerPayment.idleSlideWelcomeBody" },
+  { id: "welcome", icon: DragBizzLogoIcon, titleKey: "invoice.customerPayment.idleSlideWelcome", bodyKey: "invoice.customerPayment.idleSlideWelcomeBody" },
   { id: "offers", icon: Percent, titleKey: "invoice.customerPayment.idleSlideOffers", bodyKey: "invoice.customerPayment.idleSlideOffersBody" },
   { id: "catalog", icon: ShoppingBag, titleKey: "invoice.customerPayment.idleSlideCatalog", bodyKey: "invoice.customerPayment.idleSlideCatalogBody" },
 ];
