@@ -17,6 +17,8 @@ const commonConfig = {
   withCredentials: true, // Cookies
   headers: {
     "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+    Pragma: "no-cache",
     "ngrok-skip-browser-warning": "69420",
   },
 };

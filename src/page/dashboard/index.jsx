@@ -5,6 +5,9 @@ import {
 } from "@dragorbit/features/dashboard";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { ProactiveRetailIntelligence } from "@/components/dashboard/ProactiveRetailIntelligence";
+import { StoreDashboardOverview } from "@/components/dashboard/StoreDashboardOverview";
+import { StoreSalesTrend } from "@/components/dashboard/StoreSalesTrend";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
@@ -14,9 +17,6 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { agencyService, invoiceService } from "@/service/retailer";
 import { cashbookService } from "@/service/retailer/cashbook.service";
 import { useAppSelector } from "@/store/hooks";
-import { ProactiveRetailIntelligence } from "@/components/dashboard/ProactiveRetailIntelligence";
-import { StoreDashboardOverview } from "@/components/dashboard/StoreDashboardOverview";
-import { StoreSalesTrend } from "@/components/dashboard/StoreSalesTrend";
 
 const istDateKey = (date) => {
   const values = Object.fromEntries(
@@ -72,6 +72,9 @@ const buildSalesTrend = (invoices, days) => {
   return salesDays;
 };
 
+const wait = (milliseconds) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
+
 const routes = createDashboardRoutes("/dashboard");
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -88,20 +91,34 @@ export default function Dashboard() {
       : t("dashboard.description")
   );
   const { execute } = useApiResponse();
-  const repository = useMemo(
-    () => ({
+  const repository = useMemo(() => {
+    const executeDashboardRead = async (createRequest) => {
+      const run = () => execute(createRequest(), { showToast: false });
+      const result = await run();
+      const retryable =
+        result?.code === "NETWORK_ERROR" ||
+        [408, 502, 503, 504].includes(Number(result?.status));
+
+      if (result?.success || !retryable) return result;
+
+      // A cold dashboard navigation can race API availability/session refresh.
+      // Retry transient transport failures once before showing an error state.
+      await wait(350);
+      return run();
+    };
+
+    return {
       async getSummary() {
-        const result = await execute(agencyService.getSummary(), {
-          showToast: false,
-        });
+        const result = await executeDashboardRead(() =>
+          agencyService.getSummary()
+        );
         if (!result?.success)
           throw new Error(result?.message || "Unable to load dashboard data.");
         return result.data;
       },
       async getCashbook({ storeId }) {
-        const result = await execute(
-          cashbookService.getAnalytics({ store: storeId }),
-          { showToast: false }
+        const result = await executeDashboardRead(() =>
+          cashbookService.getAnalytics({ store: storeId })
         );
         return result?.data ?? null;
       },
@@ -110,7 +127,7 @@ export default function Dashboard() {
         const start = new Date(`${endDate}T00:00:00.000Z`);
         start.setUTCDate(start.getUTCDate() - (days - 1));
         const startDate = start.toISOString().slice(0, 10);
-        const result = await execute(
+        const result = await executeDashboardRead(() =>
           invoiceService.getInvoices({
             store: storeId,
             invoiceStatus: "RELEASED",
@@ -119,17 +136,15 @@ export default function Dashboard() {
             downloadAll: true,
             fields: "date,totalAmount",
             includeItems: false,
-          }),
-          { showToast: false }
+          })
         );
         if (!result?.success || !Array.isArray(result.data)) {
           throw new Error(result?.message || "Sales trend is unavailable.");
         }
         return buildSalesTrend(result.data, days);
       },
-    }),
-    [execute]
-  );
+    };
+  }, [execute]);
   const userId =
     authProfile?.id ||
     authProfile?._id ||
