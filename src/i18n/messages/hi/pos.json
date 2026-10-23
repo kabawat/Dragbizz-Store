@@ -3,6 +3,9 @@
   "description": "पॉइंट ऑफ सेल — आपकी उंगलियों पर तेज़ बिलिंग",
   "customerSearchPlaceholder": "नाम या फ़ोन से ग्राहक खोजें (वैकल्पिक)",
   "noCustomersFound": "कोई ग्राहक नहीं मिला",
+  "stockLimitReached": "अभी केवल {stock} यूनिट उपलब्ध हैं।",
+  "inventoryUnavailable": "इन्वेंटरी उपलब्ध नहीं है",
+  "inventoryUnavailableDescription": "मौजूदा स्टॉक की जाँच होने तक POS आइटम नहीं दिखेंगे। पेज रीफ़्रेश करके फिर कोशिश करें।",
   "upiQr": {
     "scanToPay": "UPI से भुगतान के लिए स्कैन करें",
     "amount": "राशि",

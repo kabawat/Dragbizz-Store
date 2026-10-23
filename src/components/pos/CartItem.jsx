@@ -3,7 +3,7 @@ import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 
-export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDiscount }) {
+export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDiscount, canIncrease = true }) {
     const price = resolveProductUnitPrice(item) || item.price || 0;
     const name = item.name || "Unknown Product";
     const emoji = item.emoji || item.icon || "📦";
@@ -42,7 +42,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDis
                             <Minus className="w-3.5 h-3.5" />
                         </button>
                         <span className="w-8 text-center text-xs font-black text-[rgb(var(--color-text-primary))]">{item.qty}</span>
-                        <button onClick={() => onIncrease(item.id)} className="w-7 h-7 flex items-center justify-center text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-border-primary))]/20 transition-all rounded-r-lg cursor-pointer">
+                        <button onClick={() => onIncrease(item.id)} disabled={!canIncrease} aria-label="Increase quantity" className="w-7 h-7 flex items-center justify-center text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-border-primary))]/20 transition-all rounded-r-lg enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40">
                             <Plus className="w-3.5 h-3.5" />
                         </button>
                     </div>

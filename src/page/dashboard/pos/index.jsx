@@ -8,6 +8,7 @@ import CartPanel from "@/components/pos/CartPanel";
 import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import PosInvoicePrintModal from "@/components/payment/PosInvoicePrintModal";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 
@@ -16,6 +17,7 @@ const fmt = (n) =>
 
 const POSPage = () => {
   const { t } = useTranslation();
+  const { showError } = useGlobalToast();
   const [cart, setCart] = useState([]);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
   const [cartSummary, setCartSummary] = useState({
@@ -36,7 +38,23 @@ const POSPage = () => {
   const checkoutRef = useRef(null);
 
   const addToCart = (product) => {
+    const productId = product.productId || product.id || product._id;
+    const isService = String(product.productType || "").toUpperCase() === "SERVICE";
+    const quantityInCart = cart
+      .filter((item) => String(item.productId || item.id || item._id) === String(productId))
+      .reduce((total, item) => total + (Number(item.qty) || 0), 0);
+    const availableStock = Number(product.availableStock) || 0;
+    if (!isService && quantityInCart >= availableStock) {
+      showError(t("pos.stockLimitReached", { stock: availableStock }));
+      return;
+    }
+
     setCart((prev) => {
+      const existingProductQty = prev
+        .filter((item) => String(item.productId || item.id || item._id) === String(productId))
+        .reduce((total, item) => total + (Number(item.qty) || 0), 0);
+      if (!isService && existingProductQty >= availableStock) return prev;
+
       // POS cards are sellable variants; keep productId for invoice lines
       const lineId = product.id || product._id;
       const exists = prev.find((i) => (i.id || i._id) === lineId);
@@ -52,6 +70,8 @@ const POSPage = () => {
           id: lineId,
           productId: product.productId || product.id || product._id,
           variantId: product.variantId || null,
+          availableStock: product.availableStock,
+          productType: product.productType,
           qty: 1,
           discount: 0,
         },

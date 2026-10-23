@@ -126,14 +126,17 @@ const InvoicePaymentPanel = ({
                   Number(item.discountedPrice ?? item.price) || 0;
                 const itemName =
                   item.product?.name || item.productName || "Unknown Product";
+                const productId =
+                  item.product?.id || item.product?._id || item.product || "item";
+                const variantId =
+                  item.variantId ||
+                  (typeof item.variant === "object"
+                    ? item.variant?.id || item.variant?._id
+                    : item.variant);
 
                 return (
                   <div
-                    key={
-                      item.product?.id ||
-                      item.product?._id ||
-                      `${itemName}-${index}`
-                    }
+                    key={`${productId}:${variantId || "no-variant"}:${item.id || item._id || "line"}:${index}`}
                     className="flex items-center justify-between gap-3 text-sm"
                   >
                     <div className="min-w-0">

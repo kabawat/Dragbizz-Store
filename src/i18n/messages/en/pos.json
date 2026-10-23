@@ -3,6 +3,9 @@
   "description": "Point of Sale — fast billing at your fingertips",
   "customerSearchPlaceholder": "Search customer by name or phone (optional)",
   "noCustomersFound": "No customers found",
+  "stockLimitReached": "Only {stock} units are currently available.",
+  "inventoryUnavailable": "Inventory unavailable",
+  "inventoryUnavailableDescription": "POS items are hidden until current stock can be checked. Refresh the page and try again.",
   "upiQr": {
     "scanToPay": "Scan to pay via UPI",
     "amount": "Amount",

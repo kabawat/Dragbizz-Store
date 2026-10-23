@@ -3,6 +3,9 @@
   "description": "પોઈન્ટ ઓફ સેલ — તમારી આંગળીના ટેરવે ઝડપી બિલિંગ",
   "customerSearchPlaceholder": "નામ અથવા ફોનથી ગ્રાહક શોધો (વૈકલ્પિક)",
   "noCustomersFound": "કોઈ ગ્રાહક મળ્યો નથી",
+  "stockLimitReached": "હાલમાં માત્ર {stock} એકમ ઉપલબ્ધ છે.",
+  "inventoryUnavailable": "ઇન્વેન્ટરી ઉપલબ્ધ નથી",
+  "inventoryUnavailableDescription": "વર્તમાન સ્ટોક તપાસી શકાય ત્યાં સુધી POS વસ્તુઓ દેખાશે નહીં. પેજ રિફ્રેશ કરીને ફરી પ્રયાસ કરો.",
   "upiQr": {
     "scanToPay": "UPI દ્વારા ચુકવણી માટે સ્કેન કરો",
     "amount": "રકમ",

@@ -3,10 +3,11 @@ import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 
-export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0 }) {
+export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0, productQty = selectedQty, availableStock, isService = false }) {
     const isGrid = viewMode === "grid";
     const price = resolveProductUnitPrice(product);
     const isSelected = selectedQty > 0;
+    const stockLimitReached = !isService && productQty >= availableStock;
 
     const getImageUrl = (images) => {
         const first = images?.[0];
@@ -26,9 +27,9 @@ export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0 
     if (isGrid) {
         return (
             <div
-                onClick={() => onAdd(product)}
+                onClick={() => !stockLimitReached && onAdd(product)}
                 aria-pressed={isSelected}
-                className={`group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-300 text-left overflow-hidden cursor-pointer flex flex-col gap-2 relative ${selectedBorder}`}
+                className={`group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-300 text-left overflow-hidden flex flex-col gap-2 relative ${stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${selectedBorder}`}
             >
                 {isSelected && (
                     <div className="absolute top-2 left-2 z-10 min-w-5 h-5 px-1 rounded-full bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold flex items-center justify-center shadow-sm">
@@ -74,9 +75,9 @@ export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0 
     // List View
     return (
         <div
-            onClick={() => onAdd(product)}
+            onClick={() => !stockLimitReached && onAdd(product)}
             aria-pressed={isSelected}
-            className={`group w-full relative bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-200 text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 cursor-pointer ${selectedBorder}`}
+            className={`group w-full relative bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-200 text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 ${stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${selectedBorder}`}
         >
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-14 h-14 border border-[rgb(var(--color-border-primary))] relative">
                 {imageUrl ? (

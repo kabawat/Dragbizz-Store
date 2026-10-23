@@ -6,20 +6,27 @@ import ProductCard from "./ProductCard";
 import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
 import { CATEGORIES as MOCK_CATEGORIES } from "@/page/dashboard/pos/data/mockData";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { categoryService } from "@/service/retailer";
+import { categoryService, inventoryService } from "@/service/retailer";
 import { getProducts } from "@/store/slices/products/productSlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { expandProductsForPos } from "@/utils/productUtils";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
     const dispatch = useAppDispatch();
+    const { t } = useTranslation();
 
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [viewMode, setViewMode] = useState("grid");
+    const [inventoryByProductId, setInventoryByProductId] = useState(new Map());
+    const [inventoryLoading, setInventoryLoading] = useState(true);
+    const [inventoryLoadFailed, setInventoryLoadFailed] = useState(false);
+    const [inventoryStoreId, setInventoryStoreId] = useState(null);
 
     const [categories, setCategories] = useState([{ id: "all", name: "All Items" }]);
     const { execute: executeGetCategories } = useApiResponse();
+    const { execute: executeGetInventory } = useApiResponse();
 
     // Select products from redux
     const { products, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.products);
@@ -27,7 +34,8 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
 
     const storeId = selectedStore?.storeId;
 
-    const hasFetchedRef = useRef(false);
+    const loadedStoreIdRef = useRef(null);
+    const inventoryRequestRef = useRef(0);
 
     const sentinelRef = useRef(null);
     const isFetchingMoreRef = useRef(isFetchingMore);
@@ -56,13 +64,69 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
         }
     }, [storeId, executeGetCategories]);
 
+    const fetchInventory = useCallback(async () => {
+        if (!storeId) return;
+        const currentRequest = ++inventoryRequestRef.current;
+        setInventoryLoading(true);
+        setInventoryLoadFailed(false);
+        setInventoryStoreId(null);
+        const inventoryMap = new Map();
+        let nextCursor = null;
+        let page = 1;
+
+        try {
+            while (true) {
+                const result = await executeGetInventory(
+                    inventoryService.getInventories({
+                        store: storeId,
+                        limit: 200,
+                        page,
+                        ...(nextCursor ? { nextCursor } : {}),
+                    }),
+                    { showToast: false }
+                );
+                if (currentRequest !== inventoryRequestRef.current) return;
+                if (!result?.success) throw new Error(result?.message || "Inventory unavailable");
+
+                const payload = result.data || {};
+                const rows = Array.isArray(payload)
+                    ? payload
+                    : payload.inventories || payload.data?.inventories || payload.data || [];
+                for (const inventory of rows) {
+                    const productId = inventory?.product?.id || inventory?.product?._id || inventory?.productId;
+                    if (!productId) continue;
+                    const available = Number(
+                        inventory.availableQuantity ?? inventory.stockSummary?.availableQuantity ?? 0
+                    );
+                    inventoryMap.set(String(productId), Number.isFinite(available) ? Math.max(0, available) : 0);
+                }
+
+                const pagination = payload.pagination || payload.data?.pagination;
+                const hasMore = Boolean(pagination?.hasNextPage || pagination?.hasNext);
+                if (!hasMore) break;
+                nextCursor = pagination?.nextCursor || null;
+                if (!nextCursor) page += 1;
+            }
+
+            setInventoryByProductId(inventoryMap);
+            setInventoryStoreId(storeId);
+        } catch {
+            if (currentRequest !== inventoryRequestRef.current) return;
+            setInventoryByProductId(new Map());
+            setInventoryLoadFailed(true);
+        } finally {
+            if (currentRequest === inventoryRequestRef.current) setInventoryLoading(false);
+        }
+    }, [storeId, executeGetInventory]);
+
     // Fetch Products + Categories via Redux
     useEffect(() => {
-        if (!storeId || hasFetchedRef.current) return;
-        hasFetchedRef.current = true;
+        if (!storeId || loadedStoreIdRef.current === storeId) return;
+        loadedStoreIdRef.current = storeId;
         dispatch(getProducts({ store: storeId, limit: 100, isFreshLoad: true }));
         fetchCategories();
-    }, [storeId, dispatch, fetchCategories]);
+        fetchInventory();
+    }, [storeId, dispatch, fetchCategories, fetchInventory]);
 
     // IntersectionObserver for Infinite scroll
     useEffect(() => {
@@ -90,14 +154,29 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
     }, [dispatch, pagination.hasNextPage]);
 
     // One POS card per sellable variant (price/SKU live on variants)
-    const posItems = useMemo(() => expandProductsForPos(products || []), [products]);
+    const posItems = useMemo(() => expandProductsForPos(products || []).map((item) => {
+        const productId = String(item.productId || item.id || item._id);
+        const isService = String(item.productType || "").toUpperCase() === "SERVICE";
+        const availableStock = inventoryByProductId.get(productId) || 0;
+        return { ...item, availableStock, isService };
+    }), [products, inventoryByProductId]);
 
-    const cartQtyById = useMemo(() => {
+    const cartQtyByVariantId = useMemo(() => {
         const map = new Map();
         for (const item of cart || []) {
-            const id = String(item.id || item._id || "");
+            const id = String(item.variantId || item.id || item._id || item.productId || "");
             if (!id) continue;
             map.set(id, (map.get(id) || 0) + (item.qty || 0));
+        }
+        return map;
+    }, [cart]);
+
+    const cartQtyByProductId = useMemo(() => {
+        const map = new Map();
+        for (const item of cart || []) {
+            const id = String(item.productId || item.id || item._id || "");
+            if (!id) continue;
+            map.set(id, (map.get(id) || 0) + (Number(item.qty) || 0));
         }
         return map;
     }, [cart]);
@@ -105,6 +184,7 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
     const filteredProducts = useMemo(() => {
         const q = search.trim().toLowerCase();
         return posItems.filter((p) => {
+            if (!p.isService && p.availableStock <= 0) return false;
             const catId = p.category?._id || p.category || "other";
             const matchCat = selectedCategory === "all" || catId === selectedCategory;
 
@@ -182,7 +262,16 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
                     : "flex flex-col gap-2 sm:gap-3"
                     }`}
             >
-                {isLoading && !products.length ? (
+                {inventoryLoadFailed ? (
+                    <div className="col-span-full">
+                        <EmptyState
+                            className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
+                            title={t("pos.inventoryUnavailable")}
+                            description={t("pos.inventoryUnavailableDescription")}
+                            icon={Package}
+                        />
+                    </div>
+                ) : inventoryLoading || inventoryStoreId !== storeId || (isLoading && !products.length) ? (
                     <TableSkeleton className="col-span-full" compact rows={3} />
                 ) : filteredProducts.length === 0 ? (
                     <div className="col-span-full">
@@ -200,14 +289,18 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
                 ) : (
                     <>
                         {filteredProducts.map((p) => {
-                            const lineId = String(p._id || p.id || "");
+                            const variantId = String(p.variantId || p._id || p.id || "");
+                            const productId = String(p.productId || variantId);
                             return (
                                 <ProductCard
-                                    key={lineId}
+                                    key={variantId}
                                     product={p}
                                     onAdd={addToCart}
                                     viewMode={viewMode}
-                                    selectedQty={cartQtyById.get(lineId) || 0}
+                                    selectedQty={cartQtyByVariantId.get(variantId) || 0}
+                                    productQty={cartQtyByProductId.get(productId) || 0}
+                                    availableStock={p.availableStock}
+                                    isService={p.isService}
                                 />
                             );
                         })}
