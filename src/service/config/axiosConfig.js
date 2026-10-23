@@ -17,8 +17,6 @@ const commonConfig = {
   withCredentials: true, // Cookies
   headers: {
     "Content-Type": "application/json",
-    "Cache-Control": "no-store",
-    Pragma: "no-cache",
     "ngrok-skip-browser-warning": "69420",
   },
 };
@@ -59,6 +57,24 @@ const recoverSession = createSessionRecovery({
 });
 const setupAuthInterceptors = (instance) => {
   instance.interceptors.request.use((config) => {
+    const requestPath = String(config?.url || "").split("?")[0];
+    const isPrivateRead =
+      config?.method?.toLowerCase() === "get" &&
+      (/^\/?auth\//.test(requestPath) || /^\/?retailer\//.test(requestPath));
+
+    if (isPrivateRead) {
+      if (typeof config.headers?.set === "function") {
+        config.headers.set("Cache-Control", "no-store");
+        config.headers.set("Pragma", "no-cache");
+      } else {
+        config.headers = {
+          ...config.headers,
+          "Cache-Control": "no-store",
+          Pragma: "no-cache",
+        };
+      }
+    }
+
     if (
       urlNeedsStoreParam(String(config?.url || "")) &&
       !hasValidStoreOnConfig(config)
