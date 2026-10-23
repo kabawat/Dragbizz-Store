@@ -12,7 +12,10 @@ import KhataDownloadButtons from "./KhataDownloadButtons";
 
 export default function VoiceCommandLauncher({ className = "" }) {
   const { t, locale } = useTranslation();
-  const { selectedStore, user } = useAppSelector((state) => state.profile);
+  const { selectedStore, user, authProfile } = useAppSelector(
+    (state) => state.profile
+  );
+  const currentUser = { ...(user || {}), ...(authProfile || {}) };
   const language =
     locale === "hi" || locale === "hi-en"
       ? "hi-IN"
@@ -56,7 +59,7 @@ export default function VoiceCommandLauncher({ className = "" }) {
       t={t}
       locale={locale}
       selectedStore={selectedStore}
-      user={user}
+      user={currentUser}
       chat={chat}
       history={history}
       voice={voice}
