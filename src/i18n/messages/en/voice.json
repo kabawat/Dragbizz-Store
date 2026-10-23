@@ -198,5 +198,13 @@
     "network": "Speech recognition needs a working internet connection",
     "unknown": "The microphone could not be started",
     "ai_failed": "Assistant could not complete the request"
-  }
+  },
+  "buttonLabel": "AI Assistant",
+  "credit": {
+    "label": "Payment"
+  },
+  "debit": {
+    "label": "Debit"
+  },
+  "userFallback": "Store owner"
 }

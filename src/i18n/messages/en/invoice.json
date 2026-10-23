@@ -280,5 +280,12 @@
     "completeOnStaffScreen": "Complete payment on the staff screen",
     "offlineOnlineRequired": "Internet required for online payment",
     "thankYou": "Thank you!"
-  }
+  },
+  "pleaseTypeSignature": "Please type a signature first.",
+  "pleaseUploadSignature": "Please upload a signature file.",
+  "pleaseDrawSignature": "Please draw a signature first.",
+  "verifyingPermissions": "Verifying permissions...",
+  "updateSuccess": "Invoice updated successfully.",
+  "paymentStatusUpdated": "Payment status updated successfully.",
+  "invoice": "Invoice"
 }

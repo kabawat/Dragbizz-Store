@@ -189,5 +189,15 @@
     "selectRange": "Select date range"
   },
   "saving": "Saving…",
-  "icon": "Icon"
+  "icon": "Icon",
+  "uploadFailed": "Failed to upload image.",
+  "retailManager": "Retail Manager",
+  "noPermissionToEdit": "You do not have permission to manage this order.",
+  "type": "Type",
+  "disabled": "Disabled",
+  "storeNotSelected": "Store not selected.",
+  "other": "Other",
+  "moreActions": "More actions",
+  "noResultsFoundFor": "No results found for",
+  "continue": "Continue"
 }

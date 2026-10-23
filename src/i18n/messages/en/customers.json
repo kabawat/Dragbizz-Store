@@ -191,5 +191,8 @@
   "importedCount": "Imported",
   "openingBalanceImportSuccess": "Opening balance import completed",
   "openingBalancePartialSuccess": "Import partially successful",
-  "downloadErrorsCsv": "Download errors CSV"
+  "downloadErrorsCsv": "Download errors CSV",
+  "uploadError": "Failed to upload customers.",
+  "customers": "Customers",
+  "invalidDateRange": "Please select a valid date range."
 }

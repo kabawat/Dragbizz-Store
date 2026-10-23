@@ -302,7 +302,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
               {/* Bill Details */}
               <div className="md:col-span-2">
                 <Input
-                  label={t("Payment deadline date")}
+                  label={t("bills.paymentDeadlineDate")}
                   size="sm"
                   type="date"
                   value={formData.dueDate}

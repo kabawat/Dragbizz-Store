@@ -14,6 +14,7 @@ const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 
 const PaymentSection = ({
   cart,
+  customer,
   globalDiscount,
   grandTotal,
   checkoutRef,
@@ -31,8 +32,8 @@ const PaymentSection = ({
     if (!storeId) return showError("Store not found. Please select a store.");
 
     const invoiceData = {
-      customer: null,
-      isWalkin: true,
+      customer: customer?.id || customer?._id || null,
+      isWalkin: !customer,
       items: cart.map((item) => ({
         // Catalog product for invoice; variant for sellable price
         product: item.productId || item.id || item._id,

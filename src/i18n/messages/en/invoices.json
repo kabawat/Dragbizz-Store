@@ -77,5 +77,16 @@
   "orderSource": "Order Source",
   "totalAmount": "Total Amount",
   "walkInCustomer": "Walk-in Customer",
-  "discount": "Discount"
+  "discount": "Discount",
+  "invoices": "Invoices",
+  "cancelInvoice": "Cancel invoice",
+  "cancelInvoiceDescription": "Cancel this invoice?",
+  "cancelConfirmMessage": "Are you sure you want to cancel invoice {invoiceNumber}?",
+  "cancelActionCanBeReversed": "This action can be reversed later.",
+  "cancelling": "Cancelling...",
+  "yesCancel": "Yes, cancel invoice",
+  "deleteInvoice": "Delete invoice",
+  "deleteActionCannotBeUndone": "This action cannot be undone.",
+  "deleteConfirmMessage": "Are you sure you want to delete invoice {invoiceNumber}?",
+  "deletePermanentlyRemove": "This will permanently remove the invoice."
 }

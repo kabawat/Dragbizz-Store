@@ -412,5 +412,6 @@
   "createSignaturePrompt": "Create a digital signature to use on your invoices and documents.",
   "createSignature": "Create Signature",
   "deleteSignature": "Delete Signature",
-  "signatureAddedTitle": "Signature Added"
+  "signatureAddedTitle": "Signature Added",
+  "catalogMarketingDescription": "Generate a QR code for your public store catalog. Customers can scan to browse and order directly."
 }

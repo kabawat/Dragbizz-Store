@@ -10,5 +10,8 @@
   "close": "Close",
   "save": "Save",
   "discard": "Discard Changes",
-  "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?"
+  "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
+  "updatedSuccessfully": "{item} updated successfully.",
+  "deleteFailed": "Failed to delete.",
+  "deleteItem": "Delete {item}"
 }

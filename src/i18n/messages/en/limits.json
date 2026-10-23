@@ -8,7 +8,9 @@
         "customer": "Customer Profiles",
         "supplier": "Supplier Profiles",
         "purchase_order": "Purchase Orders",
-        "expense": "Expenses Tracking"
+        "expense": "Expenses Tracking",
+        "payment_reminder": "Payment reminders",
+        "cashbook": "Cashbook"
     },
     "resourceMonitor": {
         "title": "Resource Monitor",

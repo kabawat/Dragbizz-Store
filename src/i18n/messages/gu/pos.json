@@ -1,6 +1,8 @@
 {
   "title": "પીઓએસ (POS)",
   "description": "પોઈન્ટ ઓફ સેલ — તમારી આંગળીના ટેરવે ઝડપી બિલિંગ",
+  "customerSearchPlaceholder": "નામ અથવા ફોનથી ગ્રાહક શોધો (વૈકલ્પિક)",
+  "noCustomersFound": "કોઈ ગ્રાહક મળ્યો નથી",
   "upiQr": {
     "scanToPay": "UPI દ્વારા ચુકવણી માટે સ્કેન કરો",
     "amount": "રકમ",

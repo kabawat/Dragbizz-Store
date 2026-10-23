@@ -9,5 +9,7 @@
   "gstUpsell": "Add your GST number to unlock GSTR export, health score, and full GST analytics.",
   "addGstCta": "Add GST in store settings",
   "gstDailySalesCta": "Need GSTR export or GST health score? Open GST analytics for CA-ready reports.",
-  "openGstAnalytics": "Open GST analytics"
+  "openGstAnalytics": "Open GST analytics",
+  "revenueDescription": "View detailed revenue analytics and insights.",
+  "stockDescription": "View detailed stock analytics and insights."
 }

@@ -1,3 +1,4 @@
+import bulkUpload from "./bulkUpload.json";
 import analytics from "./analytics.json";
 import auth from "./auth.json";
 import bills from "./bills.json";
@@ -37,6 +38,7 @@ import validation from "./validation.json";
 import voice from "./voice.json";
 
 export default {
+  bulkUpload,
   analytics,
   auth,
   bills,

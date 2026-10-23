@@ -142,5 +142,10 @@
   "storeLocationNotAvailable": "Store Location Not Available",
   "unnamedProduct": "Unnamed Product",
   "noItemsTile": "No items added yet.",
-  "noItemsdisc": "Select a product and quantity above to add items."
+  "noItemsdisc": "Select a product and quantity above to add items.",
+  "billDeletedSuccessfully": "Bill deleted successfully.",
+  "expiryDate": "Expiry date",
+  "billDate": "Bill date",
+  "bill": "Bill",
+  "paymentDeadlineDate": "Payment deadline date"
 }

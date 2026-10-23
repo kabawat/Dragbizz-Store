@@ -27,7 +27,8 @@
       "ABSENT": "Absent",
       "HALF_DAY": "Half day",
       "LEAVE": "Leave"
-    }
+    },
+    "offlineHint": "Offline mode: attendance will be saved locally and synced when you are back online."
   },
   "salary": {
     "staff": "Staff member",
@@ -58,6 +59,8 @@
       "UPI": "UPI",
       "BANK_TRANSFER": "Bank transfer",
       "CHEQUE": "Cheque"
-    }
-  }
+    },
+    "offlineHint": "Offline mode: salary will be saved locally and synced when you are back online."
+  },
+  "offlineReadOnly": "Showing cached team from local storage. Invite and edit require an internet connection."
 }

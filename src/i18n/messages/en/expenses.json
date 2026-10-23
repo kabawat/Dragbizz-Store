@@ -183,5 +183,7 @@
     "communication": "Communication",
     "training": "Training & Development",
     "miscellaneous": "Miscellaneous"
-  }
+  },
+  "expenses": "Expenses",
+  "editExpenseDescription": "Update expense details."
 }

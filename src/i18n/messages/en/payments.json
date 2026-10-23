@@ -160,6 +160,24 @@
     "onTimePaymentRate": "On-Time Payment Rate",
     "latePaymentRate": "Late Payment Rate",
     "averageProcessingTime": "Average Processing Time",
-    "paymentSuccessRate": "Payment Success Rate"
-  }
+    "paymentSuccessRate": "Payment Success Rate",
+    "supplier1": "Supplier 1",
+    "supplier2": "Supplier 2"
+  },
+  "paymentCreatedSuccessfully": "Payment created successfully.",
+  "removePayment": "Remove payment",
+  "updatePaymentInformationAndDetails": "Update payment information and details.",
+  "viewPayment": "View payment",
+  "paymentInformationAndDetails": "Payment information and details",
+  "paymentSummary": "Payment summary",
+  "paymentOverview": "Payment overview",
+  "paymentNumber": "Payment number",
+  "supplierInformation": "Supplier information",
+  "supplierDetails": "Supplier details",
+  "supplierName": "Supplier name",
+  "paymentMethodDetails": "Payment method details",
+  "additionalInformation": "Additional information",
+  "manageThisPayment": "Manage this payment",
+  "deletePaymentConfirmation": "Are you sure you want to delete this payment? This action cannot be undone.",
+  "searchPlaceholder": "Search payments..."
 }

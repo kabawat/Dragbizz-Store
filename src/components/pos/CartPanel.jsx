@@ -21,7 +21,7 @@ const CartPanel = ({
     onCheckoutComplete,
     onDraftCreated,
 }) => {
-    const [customerName, setCustomerName] = useState("");
+    const [customer, setCustomer] = useState(null);
     const [globalDiscount, setGlobalDiscount] = useState("");
     const [totals, setTotals] = useState({
         subtotal: 0,
@@ -138,8 +138,8 @@ const CartPanel = ({
             />
 
             <CustomerSearch
-                customerName={customerName}
-                setCustomerName={setCustomerName}
+                customer={customer}
+                onSelect={setCustomer}
             />
 
             <CartItemsList cart={cart} setCart={setCart} />
@@ -159,14 +159,17 @@ const CartPanel = ({
 
                     <PaymentSection
                         cart={cart}
-                        customerName={customerName}
+                        customer={customer}
                         globalDiscount={globalDiscount}
                         grandTotal={grandTotal}
                         subtotal={subtotal}
                         taxTotal={taxTotal}
                         discountAmt={discountAmt}
                         checkoutRef={checkoutRef}
-                        onCheckoutComplete={onCheckoutComplete}
+                        onCheckoutComplete={() => {
+                            setCustomer(null);
+                            onCheckoutComplete?.();
+                        }}
                         onDraftCreated={onDraftCreated}
                     />
                 </div>

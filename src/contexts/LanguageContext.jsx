@@ -80,22 +80,34 @@ export const LanguageProvider = ({ children }) => {
 
   const t = useCallback(
     (key, params = {}) => {
-      if (!messages) return key;
-
-      const keys = key.split(".");
-      let value = messages;
-
-      for (const k of keys) {
-        if (value && typeof value === "object" && k in value) {
-          value = value[k];
-        } else {
-          return key;
+      const resolve = (source) => {
+        const keys = key.split(".");
+        let value = source;
+        for (const k of keys) {
+          if (value && typeof value === "object" && k in value) {
+            value = value[k];
+          } else {
+            return undefined;
+          }
         }
-      }
+        return typeof value === "string" ? value : undefined;
+      };
 
-      if (typeof value !== "string") {
-        return key;
-      }
+      // Some locales intentionally lag behind English. Resolve missing locale
+      // entries from English so users never see translation identifiers.
+      const missingKeyLabel = key
+        .split(".")
+        .at(-1)
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const value =
+        resolve(messages) ??
+        resolve(englishMessages) ??
+        (missingKeyLabel
+          ? missingKeyLabel.charAt(0).toUpperCase() + missingKeyLabel.slice(1)
+          : key);
 
       if (Object.keys(params).length === 0) {
         return value;
