@@ -35,6 +35,18 @@ export default function DashboardLayout({ children }) {
     }
   }, [authProfile?.tenant]);
 
+  useEffect(() => {
+    if (isCustomerPayment) return;
+    const root = document.documentElement;
+    const body = document.body;
+    root.classList.add("dashboard-viewport-active");
+    body.classList.add("dashboard-viewport-active");
+    return () => {
+      root.classList.remove("dashboard-viewport-active");
+      body.classList.remove("dashboard-viewport-active");
+    };
+  }, [isCustomerPayment]);
+
   if (isProfileLoading || !storeReady || !agency || !stores?.length)
     return <StartupLoader />;
 

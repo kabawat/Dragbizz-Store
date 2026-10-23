@@ -1,5 +1,17 @@
 @import "@dragorbit/core/themes.css";
 
+/* Keep dark mode calm and readable: layered slate surfaces instead of near-black. */
+:root[data-theme="default"][data-variant="dark"] {
+  --color-bg-primary: 35 45 60 !important;
+  --color-bg-secondary: 24 32 44 !important;
+  --color-bg-tertiary: 44 56 73 !important;
+  --color-text-primary: 239 244 250 !important;
+  --color-text-secondary: 194 205 220 !important;
+  --color-text-tertiary: 143 158 179 !important;
+  --color-border-primary: 53 66 84 !important;
+  --color-border-secondary: 68 82 101 !important;
+}
+
 /* Application compatibility selectors; palette tokens are shared. */
 /* Ensure all text elements use theme variables */
 /* Exclude status badges to allow inline style colors */
