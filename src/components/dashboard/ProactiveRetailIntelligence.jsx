@@ -2,7 +2,6 @@
 
 import {
 	BellRing,
-	CheckCheck,
 	Clock3,
 	PackageSearch,
 	TrendingDown,
@@ -30,13 +29,6 @@ const demoAlerts = [
 		title: "3 products need a restock",
 		detail: "Below their reorder level",
 		meta: "STOCK",
-	},
-	{
-		icon: CheckCheck,
-		tone: "success",
-		title: "Repeat alerts grouped",
-		detail: "One update per product",
-		meta: "DEDUPED",
 	},
 	{
 		icon: Clock3,
