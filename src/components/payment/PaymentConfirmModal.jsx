@@ -11,6 +11,7 @@ const PaymentConfirmModal = ({
   invoiceId,
   source = "create",
   onSuccess,
+  dismissOnBackdrop = true,
 }) => {
   const { t } = useTranslation();
 
@@ -50,7 +51,7 @@ const PaymentConfirmModal = ({
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"
-        onClick={!isProcessing ? handleDismiss : undefined}
+        onClick={dismissOnBackdrop && !isProcessing ? handleDismiss : undefined}
         aria-hidden
       />
       <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-[0_20px_60px_rgba(0,0,0,0.22)] p-6">

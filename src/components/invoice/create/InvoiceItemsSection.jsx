@@ -1,6 +1,6 @@
 "use client";
 import { Calculator, Package, Plus } from "lucide-react";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Button, Card, EmptyState, Input, Select } from "@/components/ui";
 import { AddedItemsList } from "@dragorbit/features/invoices";
 import { useBarcodeScanner } from "@/hooks/barcode/useBarcodeScanner";
@@ -56,39 +56,6 @@ const InvoiceItemsSection = ({
   );
 
   const showVariantSelector = availableVariants.length > 1;
-
-  useEffect(() => {
-    if (!selectedProduct) {
-      setSelectedVariant("");
-      return;
-    }
-
-    const product =
-      products.find((p) => String(p.id) === String(selectedProduct)) || null;
-    if (!product) {
-      setSelectedVariant("");
-      return;
-    }
-
-    const variants = getActiveVariants(product);
-    if (variants.length === 0) {
-      setSelectedVariant(
-        product.defaultVariantId ? String(product.defaultVariantId) : ""
-      );
-      return;
-    }
-
-    if (variants.length === 1) {
-      const only = variants[0];
-      setSelectedVariant(String(only.id ?? only._id ?? ""));
-      return;
-    }
-
-    const preferred = pickDefaultVariant(variants);
-    setSelectedVariant(
-      preferred ? String(preferred.id ?? preferred._id ?? "") : ""
-    );
-  }, [selectedProduct, products]);
 
   const appendProduct = useCallback(
     (product, quantity = 1, variantId = null) => {
@@ -181,8 +148,9 @@ const InvoiceItemsSection = ({
   });
 
   const handleProductChange = (value) => {
-    setSelectedProduct(value);
-    setSelectedVariant("");
+    const [productId, variantId = ""] = String(value || "").split("::");
+    setSelectedProduct(productId);
+    setSelectedVariant(variantId);
   };
 
   const handleAddItem = () => {
@@ -245,19 +213,19 @@ const InvoiceItemsSection = ({
       <div className="p-4 flex flex-col h-full overflow-hidden">
         <div className="mb-4 flex-shrink-0">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            <div className={showVariantSelector ? "md:col-span-4" : "md:col-span-6"}>
+            <div className="md:col-span-7">
               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                {t("invoice.selectProduct")} *
+                Items *
               </label>
               <Select
                 size="sm"
                 searchable={true}
-                value={selectedProduct}
+                value={selectedProduct ? `${selectedProduct}::${selectedVariant}` : ""}
                 onChange={handleProductChange}
                 options={[
                   {
                     value: "",
-                    label: t("invoice.selectProductPlaceholder"),
+                    label: "Select Item",
                   },
                   ...products
                     .filter((product) => {
@@ -266,45 +234,24 @@ const InvoiceItemsSection = ({
                         String(product.productType || product.type || "").toUpperCase() === "SERVICE";
                       return isService || availableProductIds.has(String(getProductId(product)));
                     })
-                    .map((product) => ({
-                      value: product.id,
-                      label: `${product.name} - ₹${
-                        product.pricing?.sellingPrice ||
-                        product.sellingPrice ||
-                        0
-                      }`,
-                    })),
+                    .flatMap((product) => {
+                      const variants = getActiveVariants(product);
+                      const options = variants.length ? variants : [null];
+                      return options.map((variant, index) => {
+                        const variantId = variant ? String(variant.id ?? variant._id ?? "") : "";
+                        const price = variant?.sellingPrice ?? product.pricing?.sellingPrice ?? product.sellingPrice ?? 0;
+                        const variantName = variant ? variantOptionLabel(variant) : "Default";
+                        return {
+                          value: `${getProductId(product)}::${variantId}`,
+                          label: `${product.name} — ${variantName}${variant?.sku ? ` · ${variant.sku}` : ""} — ₹${price}`,
+                          key: `${getProductId(product)}:${variantId || index}`,
+                        };
+                      });
+                    }),
                 ]}
                 leftIcon={Package}
               />
             </div>
-
-            {showVariantSelector ? (
-              <div className="md:col-span-3">
-                <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                  {t("invoice.selectVariant") || "Variant"} *
-                </label>
-                <Select
-                  size="sm"
-                  searchable={true}
-                  value={selectedVariant}
-                  onChange={(value) => setSelectedVariant(value)}
-                  options={[
-                    {
-                      value: "",
-                      label:
-                        t("invoice.selectVariantPlaceholder") ||
-                        "Select variant",
-                    },
-                    ...availableVariants.map((variant) => ({
-                      value: String(variant.id ?? variant._id),
-                      label: formatVariantOption(variant),
-                    })),
-                  ]}
-                  leftIcon={Package}
-                />
-              </div>
-            ) : null}
 
             <div className="md:col-span-2">
               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">

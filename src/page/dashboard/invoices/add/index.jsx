@@ -362,6 +362,7 @@ const CreateInvoicePage = () => {
         open={Boolean(paymentInvoiceId)}
         invoiceId={paymentInvoiceId}
         source="create"
+        dismissOnBackdrop={false}
         onClose={() => setPaymentInvoiceId(null)}
       />
     </div>

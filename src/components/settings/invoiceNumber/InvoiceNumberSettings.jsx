@@ -7,7 +7,6 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  getRetailerDetails,
   setSelectedStore,
 } from "@/store/slices/profileSlice";
 import { pickStoreId } from "@/utils/tallyIntegration.util";
@@ -79,7 +78,7 @@ const InvoiceNumberSettings = () => {
     setLoading(true);
     try {
       const [templatesRes, storeRes] = await Promise.all([
-        storeService.getInvoiceNumberTemplates(),
+        storeService.getInvoiceNumberTemplates(storeId),
         storeService.getStore(storeId),
       ]);
       const list = templatesRes?.data?.data?.templates || [];
@@ -115,7 +114,9 @@ const InvoiceNumberSettings = () => {
     setForm((prev) => ({ ...prev, templateId: savedTemplateId }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (event) => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
     if (!storeId) return;
     setSaving(true);
     try {
@@ -125,17 +126,14 @@ const InvoiceNumberSettings = () => {
         },
       });
       const updated = response?.data?.data;
-      if (updated?.invoiceNumberConfig && selectedStore) {
-        dispatch(
-          setSelectedStore({
-            ...selectedStore,
-            invoiceNumberConfig: updated.invoiceNumberConfig,
-          }),
-        );
+      const savedId = updated?.invoiceNumberConfig?.templateId;
+      const normalizedSavedId = String(savedId?._id || savedId?.id || savedId || "");
+      if (!updated?.invoiceNumberConfig || normalizedSavedId !== String(form.templateId || "")) {
+        throw new Error(t("invoiceNumber.saveFailed"));
       }
-      await dispatch(getRetailerDetails({ forceRefresh: true })).unwrap();
+      if (selectedStore) dispatch(setSelectedStore({ ...selectedStore, ...updated }));
+      setSavedTemplateId(normalizedSavedId);
       showSuccess(t("invoiceNumber.saveSuccess"));
-      await loadData();
     } catch (err) {
       showError(err?.message || t("invoiceNumber.saveFailed"));
     } finally {
