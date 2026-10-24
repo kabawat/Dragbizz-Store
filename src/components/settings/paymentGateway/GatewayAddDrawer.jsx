@@ -1,7 +1,7 @@
 "use client";
 import { GatewayAddDrawerView } from "@dragorbit/features/integrations";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FormDrawer } from "@/components/common";
 
 import {
@@ -54,14 +54,6 @@ const GatewayAddDrawer = ({
   const [createdWebhookSetup, setCreatedWebhookSetup] = useState(null);
 
   const showingWebhookSetup = Boolean(createdWebhookSetup);
-
-  const liveWebhookSetup = useMemo(() => {
-    if (!form.gatewayType) return null;
-    return {
-      url: getGatewayWebhookUrl(form.gatewayType),
-      gatewayType: form.gatewayType,
-    };
-  }, [form.gatewayType]);
 
   const gatewayTypeOptions = PAYMENT_GATEWAY_V1_TYPES.map((type) => ({
     label: t(`settings.paymentGateway.types.${type}`, type),
@@ -130,11 +122,18 @@ const GatewayAddDrawer = ({
       ).unwrap();
       onSuccess?.(t("settings.paymentGateway.addedSuccess"));
 
-      if (
-        gatewaySupportsWebhookSetup(form.gatewayType) &&
-        result?.data?.webhookSetup?.webhookSecret
-      ) {
-        setCreatedWebhookSetup(result.data.webhookSetup);
+      // Backend returns webhookSetup with generated secret for gateways like Razorpay, Cashfree, Stripe
+      const webhookSetupData =
+        result?.data?.webhookSetup ||
+        (gatewaySupportsWebhookSetup(form.gatewayType)
+          ? { url: getGatewayWebhookUrl(form.gatewayType) }
+          : null);
+
+      if (webhookSetupData?.url) {
+        setCreatedWebhookSetup({
+          ...webhookSetupData,
+          gatewayType: form.gatewayType,
+        });
         return;
       }
 
@@ -186,7 +185,6 @@ const GatewayAddDrawer = ({
         isCreating,
         GatewayWebhookSetup,
         createdWebhookSetup,
-        liveWebhookSetup,
         gatewayTypeOptions,
         form,
         handleGatewayTypeChange,

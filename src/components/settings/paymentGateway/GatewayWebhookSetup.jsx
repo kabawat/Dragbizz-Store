@@ -60,6 +60,7 @@ const GatewayWebhookSetup = ({
   isRegenerating = false,
   gatewayType,
   isLiveSetup = false,
+  hideInnerTitle = false,
 }) => {
   const { t } = useTranslation();
 
@@ -106,6 +107,7 @@ const GatewayWebhookSetup = ({
         events: meta?.events || [],
         instructions,
         secretNote,
+        hideInnerTitle,
       }}
     />
   );
