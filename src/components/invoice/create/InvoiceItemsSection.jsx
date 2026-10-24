@@ -1,7 +1,8 @@
 "use client";
-import { Calculator, Package, Plus, Trash2 } from "lucide-react";
+import { Calculator, Package, Plus } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, EmptyState, Input, Select } from "@/components/ui";
+import { AddedItemsList } from "@dragorbit/features/invoices";
 import { useBarcodeScanner } from "@/hooks/barcode/useBarcodeScanner";
 import { addProductToInvoiceItems } from "@/utils/invoice/addProductToInvoiceItems";
 import { findProductByScanCode, getProductId } from "@/utils/product/findProductByScanCode";
@@ -31,6 +32,7 @@ function formatVariantOption(variant) {
 const InvoiceItemsSection = ({
   t,
   products,
+  availableProductIds = new Set(),
   formData,
   setFormData,
   showError,
@@ -258,7 +260,12 @@ const InvoiceItemsSection = ({
                     label: t("invoice.selectProductPlaceholder"),
                   },
                   ...products
-                    .filter((product) => product.id)
+                    .filter((product) => {
+                      if (!product.id) return false;
+                      const isService =
+                        String(product.productType || product.type || "").toUpperCase() === "SERVICE";
+                      return isService || availableProductIds.has(String(getProductId(product)));
+                    })
                     .map((product) => ({
                       value: product.id,
                       label: `${product.name} - ₹${
@@ -333,103 +340,8 @@ const InvoiceItemsSection = ({
         </div>
 
         {formData.items.length > 0 ? (
-          <div className="mt-6 flex-1 flex flex-col min-h-0">
-            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex-shrink-0">
-              {t("invoice.addedItems")} ({formData.items.length})
-            </h4>
-
-            <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 pr-2 min-h-0">
-              {formData.items.map((item, index) => {
-                const product = products.find((p) => p.id === item.product);
-                return (
-                  <div
-                    key={`${item.product}:${item.variant || ""}:${index}`}
-                    className="group rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 hover:bg-[rgb(var(--color-bg-tertiary))]/50 transition-colors flex-shrink-0"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div>
-                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                            {t("invoice.product")}
-                          </label>
-                          <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            {item.productName || product?.name || "N/A"}
-                          </p>
-                          {item.sku ? (
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5">
-                              SKU: {item.sku}
-                            </p>
-                          ) : null}
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                            {t("invoice.quantity")}
-                          </label>
-                          <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            {item.quantity}{" "}
-                            {item.uom ? (
-                              <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                {item.uom}
-                              </span>
-                            ) : null}
-                          </p>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                            {t("invoice.price")}
-                          </label>
-                          <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            ₹{item.price?.toFixed(2) || "0.00"}
-                          </p>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                            GST %
-                          </label>
-                          <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            {item.gstRate > 0 ? (
-                              <span>
-                                {item.gstRate}%
-                                {item.isInclusive && (
-                                  <span className="text-xs text-[rgb(var(--color-text-secondary))] ml-1">
-                                    (incl.)
-                                  </span>
-                                )}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                Nil
-                              </span>
-                            )}
-                          </p>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                            {t("invoice.total")}
-                          </label>
-                          <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            ₹{item.total?.toFixed(2) || "0.00"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveItem(index)}
-                        className="ml-4 opacity-0 group-hover:opacity-100 flex items-center justify-center w-8 h-8 cursor-pointer text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 rounded-lg transition-all duration-200"
-                        title={t("invoice.removeItem")}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="mt-4 flex-1 flex flex-col min-h-[18rem] lg:min-h-0">
+            <AddedItemsList items={formData.items} products={products} t={t} onRemove={handleRemoveItem} />
 
             <div className="flex-shrink-0 mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]/30 flex justify-end">
               <div className="md:w-72">

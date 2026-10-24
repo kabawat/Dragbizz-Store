@@ -21,6 +21,8 @@ import {
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import { PageSkeleton } from "@dragorbit/ui/app";
+import { getInStockProductIds } from "@dragorbit/features/invoices";
+import { inventoryService } from "@/service";
 
 const INITIAL_FORM_DATA = {
   customer: "",
@@ -40,6 +42,7 @@ const CreateInvoicePage = () => {
   // 2. Local State
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [products, setProducts] = useState([]);
+  const [availableProductIds, setAvailableProductIds] = useState(new Set());
   const [customers, setCustomers] = useState([]);
   const [customersLoading, setCustomersLoading] = useState(false);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
@@ -78,6 +81,11 @@ const CreateInvoicePage = () => {
     }
 
     productsFetchedRef.current = { storeId, fetched: true };
+    const stockIdsPromise = getInStockProductIds({
+      execute,
+      inventoryService,
+      storeId,
+    });
     const result = await execute(
       productService.getProducts({
         limit: 100,
@@ -92,6 +100,7 @@ const CreateInvoicePage = () => {
     } else {
       productsFetchedRef.current = { storeId: null, fetched: false };
     }
+    setAvailableProductIds(await stockIdsPromise);
   }, [storeId, execute]);
 
   const fetchCustomers = useCallback(async () => {
@@ -290,14 +299,15 @@ const CreateInvoicePage = () => {
 
         {/* Form Container - Two Column Layout */}
         <div className="overflow-hidden">
-          <div className="h-[calc(100vh-150px)] overflow-y-auto">
-            <div className="flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="min-h-[calc(100vh-150px)] lg:h-[calc(100vh-150px)] overflow-y-auto">
+            <div className="min-h-full lg:h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col min-h-0">
                 <div className="flex-1 min-h-0">
                   <form onSubmit={handleSubmit} className="h-full">
                     <InvoiceItemsSection
                       t={t}
                       products={products}
+                      availableProductIds={availableProductIds}
                       formData={formData}
                       setFormData={setFormData}
                       showError={showError}

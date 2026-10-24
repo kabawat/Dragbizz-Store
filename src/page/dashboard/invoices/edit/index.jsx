@@ -1,5 +1,6 @@
 "use client";
 import { PageSkeleton } from "@dragorbit/ui/app";
+import { getInStockProductIds } from "@dragorbit/features/invoices";
 import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +14,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import {
   customerService,
+  inventoryService,
   invoiceService,
   productService,
 } from "@/service";
@@ -35,6 +37,7 @@ const EditInvoicePage = ({ invoiceId }) => {
 
   // Local state for products and customers
   const [products, setProducts] = useState([]);
+  const [availableProductIds, setAvailableProductIds] = useState(new Set());
   const [customers, setCustomers] = useState([]);
   const [, setProductsLoading] = useState(false);
   const [customersLoading, setCustomersLoading] = useState(false);
@@ -71,6 +74,11 @@ const EditInvoicePage = ({ invoiceId }) => {
     hasFetchedProducts.current = true;
 
     setProductsLoading(true);
+    const stockIdsPromise = getInStockProductIds({
+      execute,
+      inventoryService,
+      storeId: selectedStore.storeId,
+    });
     const result = await execute(
       productService.getProducts({
         limit: 100,
@@ -84,6 +92,7 @@ const EditInvoicePage = ({ invoiceId }) => {
     } else {
       hasFetchedProducts.current = false;
     }
+    setAvailableProductIds(await stockIdsPromise);
     setProductsLoading(false);
   }, [selectedStore?.storeId, execute]);
 
@@ -354,14 +363,15 @@ const EditInvoicePage = ({ invoiceId }) => {
 
         {/* Form Container - Two Column Layout */}
         <div className="overflow-hidden">
-          <div className="h-[calc(100vh-150px)] overflow-y-auto">
-            <div className="flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-3 gap-6" >
+          <div className="min-h-[calc(100vh-150px)] lg:h-[calc(100vh-150px)] overflow-y-auto">
+            <div className="min-h-full lg:h-full grid grid-cols-1 lg:grid-cols-3 gap-6" >
               <div className="lg:col-span-2 flex flex-col min-h-0">
                 <div className="flex-1 min-h-0">
                   <form onSubmit={handleSubmit} className="h-full">
                     <InvoiceItemsSection
                       t={t}
                       products={products}
+                      availableProductIds={availableProductIds}
                       formData={formData}
                       setFormData={setFormData}
                       showError={showError}

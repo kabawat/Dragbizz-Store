@@ -16,6 +16,7 @@
   "searchCustomers": "Search customers or select walk-in...",
   "invoiceSummary": "Invoice Summary",
   "itemCount": "Item Count",
+  "totalQuantity": "Total Quantity",
   "item": "Item",
   "items": "Items",
   "createInvoiceButton": "Create Invoice",

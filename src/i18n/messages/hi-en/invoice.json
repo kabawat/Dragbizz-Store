@@ -15,6 +15,7 @@
   "searchCustomers": "Customers search karo ya walk-in select karo...",
   "invoiceSummary": "Invoice Summary",
   "itemCount": "Item Count",
+  "totalQuantity": "Total Quantity",
   "item": "Item",
   "items": "Items",
   "createInvoiceButton": "Invoice create karo",

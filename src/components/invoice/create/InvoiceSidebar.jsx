@@ -47,6 +47,10 @@ const InvoiceSidebar = ({
     }, [formData.items, formData.totalDiscount, formData.discountMode]);
 
     const fmt = (num) => Number(num || 0).toFixed(2);
+    const totalQuantity = (formData.items || []).reduce(
+        (total, item) => total + (Number(item.quantity) || 0),
+        0,
+    );
 
     const hasAnyGST = gstSummary.gst.total > 0;
 
@@ -133,6 +137,15 @@ const InvoiceSidebar = ({
                                 </span>
                             </div>
 
+                            <div className="flex justify-between">
+                                <span className="text-[rgb(var(--color-text-secondary))]">
+                                    {t("invoice.totalQuantity")}:
+                                </span>
+                                <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                    {totalQuantity}
+                                </span>
+                            </div>
+
                             {/* Total GST — preview only, no breakdown */}
                             {hasAnyGST && (
                                 <div className="flex justify-between">
@@ -155,23 +168,6 @@ const InvoiceSidebar = ({
                                         ₹{fmt(gstSummary.totalAmount)}
                                     </span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ── Item Count ── */}
-                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                            {t("invoice.itemCount")}
-                        </h4>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
-                                {formData.items.length}
-                            </div>
-                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                {formData.items.length === 1
-                                    ? t("invoice.item")
-                                    : t("invoice.items")}
                             </div>
                         </div>
                     </div>
