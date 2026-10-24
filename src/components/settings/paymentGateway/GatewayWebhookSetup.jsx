@@ -3,6 +3,10 @@ import { GatewayWebhookSetupView } from "@dragorbit/features/integrations";
 
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
+import {
+  GATEWAY_WEBHOOK_META,
+  gatewaySupportsDragbizzWebhookSecret,
+} from "@/constants/paymentGateway.config";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const CopyField = ({ label, value, mono = true }) => {
@@ -54,15 +58,36 @@ const GatewayWebhookSetup = ({
   compact = false,
   onRegenerateSecret,
   isRegenerating = false,
+  gatewayType,
+  isLiveSetup = false,
 }) => {
   const { t } = useTranslation();
 
   if (!webhookSetup?.url) return null;
 
+  const currentGatewayType = gatewayType || webhookSetup.gatewayType;
+  const meta = currentGatewayType
+    ? GATEWAY_WEBHOOK_META[currentGatewayType]
+    : null;
+
   const hasSecret = Boolean(webhookSetup.webhookSecret);
   const secretConfigured =
     webhookSetup.secretGeneratedBy === "DRAGBIZZ" ||
     (webhookSetup.secretsConfigured || []).includes("webhookSecret");
+
+  const instructionsKey = currentGatewayType
+    ? `settings.paymentGateway.webhookInstructions.${currentGatewayType}`
+    : "settings.paymentGateway.webhookSetupDescription";
+  const instructions = t(instructionsKey);
+
+  let secretNote = null;
+  if (isLiveSetup && currentGatewayType) {
+    if (gatewaySupportsDragbizzWebhookSecret(currentGatewayType)) {
+      secretNote = t("settings.paymentGateway.webhookSecretAutoGenerateNote");
+    } else {
+      secretNote = t("settings.paymentGateway.webhookSignatureManagedNote");
+    }
+  }
 
   return (
     <GatewayWebhookSetupView
@@ -76,6 +101,11 @@ const GatewayWebhookSetup = ({
         secretConfigured,
         onRegenerateSecret,
         isRegenerating,
+        gatewayType: currentGatewayType,
+        isLiveSetup,
+        events: meta?.events || [],
+        instructions,
+        secretNote,
       }}
     />
   );

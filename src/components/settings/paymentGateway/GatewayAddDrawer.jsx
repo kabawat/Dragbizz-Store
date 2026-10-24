@@ -1,22 +1,23 @@
 "use client";
 import { GatewayAddDrawerView } from "@dragorbit/features/integrations";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FormDrawer } from "@/components/common";
 
 import {
-  PAYMENT_GATEWAY_V1_TYPES,
-  GATEWAY_MODES,
-  GATEWAY_CREDENTIAL_UI,
   buildCredentialsPayload,
+  GATEWAY_CREDENTIAL_UI,
+  GATEWAY_MODES,
   gatewaySupportsWebhookSetup,
+  getGatewayWebhookUrl,
+  PAYMENT_GATEWAY_V1_TYPES,
 } from "@/constants/paymentGateway.config";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch } from "@/store/hooks";
 import {
   createStorePaymentGateway,
   getStorePaymentGateways,
 } from "@/store/slices/storePaymentGatewaySlice";
-import { useAppDispatch } from "@/store/hooks";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
 import GatewayCredentialFields, {
   validateGatewayCredentials,
@@ -54,6 +55,14 @@ const GatewayAddDrawer = ({
 
   const showingWebhookSetup = Boolean(createdWebhookSetup);
 
+  const liveWebhookSetup = useMemo(() => {
+    if (!form.gatewayType) return null;
+    return {
+      url: getGatewayWebhookUrl(form.gatewayType),
+      gatewayType: form.gatewayType,
+    };
+  }, [form.gatewayType]);
+
   const gatewayTypeOptions = PAYMENT_GATEWAY_V1_TYPES.map((type) => ({
     label: t(`settings.paymentGateway.types.${type}`, type),
     value: type,
@@ -79,7 +88,7 @@ const GatewayAddDrawer = ({
       {
         isEdit: false,
         t,
-      },
+      }
     );
     Object.assign(newErrors, credErrors);
     setErrors(newErrors);
@@ -97,27 +106,27 @@ const GatewayAddDrawer = ({
       setErrors({});
       const credentials = buildCredentialsPayload(
         form.gatewayType,
-        form.credentials,
+        form.credentials
       );
       const payload = {
         gatewayType: form.gatewayType,
         label: form.label?.trim() || undefined,
         mode: form.mode,
         storeIds: form.storeIds.map((id) =>
-          typeof id === "string" ? id : id?.toString?.() || id,
+          typeof id === "string" ? id : id?.toString?.() || id
         ),
         isDefault: form.isDefault,
         credentials,
       };
       const result = await dispatch(
-        createStorePaymentGateway({ storeId, payload }),
+        createStorePaymentGateway({ storeId, payload })
       ).unwrap();
       await dispatch(
         getStorePaymentGateways({
           storeId,
           scope: "agency",
           forceRefresh: true,
-        }),
+        })
       ).unwrap();
       onSuccess?.(t("settings.paymentGateway.addedSuccess"));
 
@@ -177,6 +186,7 @@ const GatewayAddDrawer = ({
         isCreating,
         GatewayWebhookSetup,
         createdWebhookSetup,
+        liveWebhookSetup,
         gatewayTypeOptions,
         form,
         handleGatewayTypeChange,

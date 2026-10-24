@@ -1,11 +1,11 @@
 "use client";
-import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 import { GatewayListView } from "@dragorbit/features/integrations";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 
 import { CreditCard, Plus } from "lucide-react";
+import { maskCredentialDisplay } from "@/constants/paymentGateway.config";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { pickStoreId } from "@/utils/store.util";
-import { maskCredentialDisplay } from "@/constants/paymentGateway.config";
 
 const GatewayList = ({
   gateways = [],
@@ -26,7 +26,7 @@ const GatewayList = ({
       storeIds
         .map((storeId) => {
           const store = stores.find(
-            (entry) => pickStoreId(entry) === String(storeId),
+            (entry) => pickStoreId(entry) === String(storeId)
           );
           return store?.storeName ?? storeId;
         })
@@ -37,7 +37,12 @@ const GatewayList = ({
 
   const getMaskedIdentifier = (gateway) => {
     const fields = gateway.credentials?.fields || {};
-    const raw = fields.keyId || fields.merchantId || fields.appId;
+    const raw =
+      fields.keyId ||
+      fields.merchantId ||
+      fields.appId ||
+      fields.publishableKey ||
+      fields.merchantKey;
     if (raw) return maskCredentialDisplay(raw);
     if ((gateway.credentials?.secretsConfigured?.length ?? 0) > 0) {
       return t("settings.paymentGateway.credentialsConfigured");
@@ -46,13 +51,27 @@ const GatewayList = ({
   };
 
   if (isLoading && gateways.length === 0) {
-    return (
-      <TableSkeleton />
-    );
+    return <TableSkeleton />;
   }
 
   if (!isLoading && gateways.length === 0) {
-    return <EmptyState fullHeight icon={CreditCard} title={t("settings.paymentGateway.noGateways")} description={t("settings.paymentGateway.addFirstGatewayDescription")} actionButton={canCreate ? { label: t("settings.paymentGateway.addGateway"), onClick: onAddGateway, icon: Plus } : null} />;
+    return (
+      <EmptyState
+        fullHeight
+        icon={CreditCard}
+        title={t("settings.paymentGateway.noGateways")}
+        description={t("settings.paymentGateway.addFirstGatewayDescription")}
+        actionButton={
+          canCreate
+            ? {
+                label: t("settings.paymentGateway.addGateway"),
+                onClick: onAddGateway,
+                icon: Plus,
+              }
+            : null
+        }
+      />
+    );
   }
 
   return (

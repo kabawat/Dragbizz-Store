@@ -365,10 +365,26 @@
     "leaveBlankToKeep": "मौजूदा रखने के लिए खाली छोड़ें",
     "enterSecret": "सीक्रेट दर्ज करें",
     "enterValue": "मान दर्ज करें",
+    "recommendedEvents": "अनुशंसित वेबहुक इवेंट्स",
+    "webhookSecretAutoGenerateNote": "सेव करने पर DragBizz द्वारा वेबहुक सीक्रेट अपने आप जेनरेट हो जाएगा।",
+    "webhookSignatureManagedNote": "यह गेटवे आपके मर्चेंट क्रेडेंशियल्स के साथ API हस्ताक्षर / हैश के माध्यम से सुरक्षित रूप से लेनदेन सत्यापित करता है।",
+    "webhookInstructions": {
+      "RAZORPAY": "Razorpay डैशबोर्ड > Settings > Webhooks में 'Add New Webhook' पर क्लिक करें, यह URL पेस्ट करें और नीचे दिए गए अनुशंसित इवेंट्स चुनें।",
+      "CASHFREE": "Cashfree डैशबोर्ड > Developers > Webhooks में रीयल-टाइम अपडेट प्राप्त करने के लिए यह Webhook URL जोड़ें।",
+      "PHONEPE": "PhonePe Business डैशबोर्ड > Developer Settings में इस एंडपॉइंट को S2S Callback / Webhook URL के रूप में सेट करें।",
+      "PAYTM": "Paytm डेवलपर डैशबोर्ड > API Keys & Webhooks में इसे सर्वर-टू-सर्वर नोटिफिकेशन URL के रूप में सेट करें।",
+      "PAYU": "PayU डैशबोर्ड > Manage Webhooks / IPN Notification URL में इस URL को सेट करें।",
+      "EASEBUZZ": "Easebuzz डैशबोर्ड > Developer Settings > Webhooks में रीयल-टाइम अपडेट के लिए यह URL पेस्ट करें।",
+      "STRIPE": "Stripe डैशबोर्ड > Developers > Webhooks में 'Add endpoint' पर क्लिक करें, यह URL पेस्ट करें और इवेंट्स चुनें।"
+    },
     "types": {
       "RAZORPAY": "Razorpay",
       "PAYTM": "Paytm",
-      "CASHFREE": "Cashfree"
+      "CASHFREE": "Cashfree",
+      "PHONEPE": "PhonePe",
+      "PAYU": "PayU",
+      "EASEBUZZ": "Easebuzz",
+      "STRIPE": "Stripe"
     },
     "fields": {
       "RAZORPAY": {
@@ -383,6 +399,28 @@
       },
       "CASHFREE": {
         "appId": "App ID",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PHONEPE": {
+        "merchantId": "Merchant ID",
+        "saltKey": "Salt Key",
+        "saltIndex": "Salt Index",
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "PAYU": {
+        "merchantKey": "Merchant Key",
+        "merchantSalt": "Merchant Salt",
+        "merchantId": "Merchant ID"
+      },
+      "EASEBUZZ": {
+        "merchantKey": "Merchant Key",
+        "salt": "Salt",
+        "merchantEmail": "Merchant Email"
+      },
+      "STRIPE": {
+        "publishableKey": "Publishable Key",
         "secretKey": "Secret Key",
         "webhookSecret": "Webhook Secret"
       }
