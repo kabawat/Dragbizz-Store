@@ -117,26 +117,37 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
               </tr>
             </thead>
             <tbody className="bg-[rgb(var(--color-bg-primary))] divide-y divide-[rgb(var(--color-border-primary))]">
-              {purchaseOrder.items?.map((item, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-2 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                        {item.name || `Item ${index + 1}`}
-                      </div>
-                      {item.barcode && (
-                        <div className="text-xs text-[rgb(var(--color-text-secondary))] flex items-center mt-1">
-                          <Barcode className="w-3 h-3 mr-1" />
-                          {item.barcode}
+              {purchaseOrder.items?.map((item, index) => {
+                const productName = item.product?.name || item.name || `Item ${index + 1}`;
+                const variantName = item.variant?.displayName || item.variantName || "";
+                const code = item.variant?.barcode || item.barcode || item.variant?.sku || item.product?.sku || "";
+
+                return (
+                  <tr key={index}>
+                    <td className="px-6 py-2 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-[rgb(var(--color-text-primary))] flex items-center gap-2">
+                          <span>{productName}</span>
+                          {variantName && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                              {variantName}
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-2 whitespace-nowrap text-sm text-[rgb(var(--color-text-primary))]">
-                    {item.quantity || 0}
-                  </td>
-                </tr>
-              ))}
+                        {code && (
+                          <div className="text-xs text-[rgb(var(--color-text-secondary))] flex items-center mt-1">
+                            <Barcode className="w-3 h-3 mr-1" />
+                            {code}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-2 whitespace-nowrap text-sm text-[rgb(var(--color-text-primary))]">
+                      {item.quantity || 0}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </DataTable>
         </div>

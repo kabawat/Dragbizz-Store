@@ -135,25 +135,32 @@ const PurchaseOrderDetailsTemplate = ({ purchaseOrderData, selectedStore }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {purchaseOrderData.items.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.product?.name || "N/A"}</td>
-                      <td>{item.product?.sku || "N/A"}</td>
-                      <td style={{ textAlign: "right" }}>
-                        {item.quantity || 0}
-                      </td>
-                      <td style={{ textAlign: "right" }}>
-                        {item.receivedQuantity || 0}
-                      </td>
-                      <td style={{ textAlign: "right" }}>
-                        {item.pendingQuantity ??
-                          Math.max(
-                            (item.quantity || 0) - (item.receivedQuantity || 0),
-                            0
-                          )}
-                      </td>
-                    </tr>
-                  ))}
+                  {purchaseOrderData.items.map((item, index) => {
+                    const displayName = item.variant?.displayName
+                      ? (item.variant.displayName !== item.product?.name ? `${item.product?.name || "N/A"} (${item.variant.displayName})` : item.variant.displayName)
+                      : (item.product?.name || "N/A");
+                    const sku = item.variant?.sku || item.product?.sku || "N/A";
+
+                    return (
+                      <tr key={index}>
+                        <td>{displayName}</td>
+                        <td>{sku}</td>
+                        <td style={{ textAlign: "right" }}>
+                          {item.quantity || 0}
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          {item.receivedQuantity || 0}
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          {item.pendingQuantity ??
+                            Math.max(
+                              (item.quantity || 0) - (item.receivedQuantity || 0),
+                              0
+                            )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

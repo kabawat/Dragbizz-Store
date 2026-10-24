@@ -48,39 +48,50 @@ const OrderItems = ({ order }) => {
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary)/0.5)] overflow-hidden flex-shrink-0">
-                        {item.product?.images?.[0] ? (
-                          <img
-                            src={
-                              item.product.images[0].url ||
-                              item.product.images[0]
-                            }
-                            alt={item.product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] opacity-50" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                          {item.product?.name || item.name}
-                        </span>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {item.product?.sku && (
-                            <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">
-                              {t("common.sku")}: {item.product.sku}
-                            </span>
-                          )}
-                          {item.product?.barcode && (
-                            <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">
-                              {t("common.barcode")}: {item.product.barcode}
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                      {(() => {
+                        const img = item.variant?.images?.[0] || item.product?.images?.[0];
+                        const imgUrl = img?.url || (typeof img === "string" ? img : null);
+                        const displayName = item.variant?.displayName
+                          ? (item.variant.displayName !== item.product?.name ? `${item.product?.name || item.name} (${item.variant.displayName})` : item.variant.displayName)
+                          : (item.product?.name || item.name);
+                        const sku = item.variant?.sku || item.product?.sku;
+                        const barcode = item.variant?.barcode || item.product?.barcode;
+
+                        return (
+                          <>
+                            <div className="w-12 h-12 rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary)/0.5)] overflow-hidden flex-shrink-0">
+                              {imgUrl ? (
+                                <img
+                                  src={imgUrl}
+                                  alt={displayName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Package className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] opacity-50" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                {displayName}
+                              </span>
+                              <div className="flex flex-wrap gap-2 mt-1">
+                                {sku && (
+                                  <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">
+                                    {t("common.sku")}: {sku}
+                                  </span>
+                                )}
+                                {barcode && (
+                                  <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">
+                                    {t("common.barcode")}: {barcode}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center text-sm font-medium text-[rgb(var(--color-text-secondary))]">

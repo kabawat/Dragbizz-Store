@@ -76,9 +76,11 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
         goodsReceived: true,
         items:
           purchaseOrder.items?.map((item) => ({
-            product: item.product,
-            productName: "",
-            quantity: item.quantity || 1,
+            product: item.product?.id || item.product?._id || item.product,
+            variant: item.variant?.id || item.variant?._id || item.variant || null,
+            productName: item.product?.name || item.productName || "",
+            variantName: item.variant?.displayName || item.variantName || "",
+            quantity: item.pendingQuantity ?? item.quantity ?? 1,
             purchasePrice: 0,
             expiryDate: "",
           })) || [],
@@ -161,6 +163,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
       totalAmount: calculateTotal(),
       items: formData.items.map((item) => ({
         product: item.product,
+        variant: item.variant || null,
         quantity: item.quantity,
         purchasePrice: item.purchasePrice,
         expiryDate: item.expiryDate,
@@ -333,8 +336,13 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                     className="group p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] flex items-center gap-2">
                         {t("bills.item")} {index + 1}
+                        {item.variantName && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                            {item.variantName}
+                          </span>
+                        )}
                       </h4>
                       {formData.items.length > 1 && (
                         <button

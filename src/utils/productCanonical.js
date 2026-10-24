@@ -526,6 +526,7 @@ export function toProductListItem(input) {
     image: imageUrl,
     stock: record.stock ?? 0,
     defaultVariantId: record.defaultVariantId ?? null,
+    variants: Array.isArray(input?.variants) ? input.variants : Array.isArray(record.variants) ? record.variants : [],
   };
 }
 
@@ -567,6 +568,8 @@ export function expandProductsForPos(products = []) {
         _id: productId,
         productId,
         variantId: product.defaultVariantId ?? null,
+        hasMultipleVariants: false,
+        isVariantCard: false,
         name: product.name,
         sellingPrice: price,
         price,
@@ -599,6 +602,8 @@ export function expandProductsForPos(products = []) {
         _id: variantId,
         productId,
         variantId,
+        hasMultipleVariants: variants.length > 1,
+        isVariantCard: true,
         name,
         sku: variant.sku ?? product.sku ?? "",
         barcode: variant.barcode ?? product.barcode ?? "",
@@ -618,7 +623,6 @@ export function expandProductsForPos(products = []) {
         defaultVariantId: variant.isDefault
           ? variantId
           : product.defaultVariantId,
-        variants: undefined,
       });
     }
   }

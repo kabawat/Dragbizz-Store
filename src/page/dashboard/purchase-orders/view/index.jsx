@@ -277,11 +277,16 @@ export default function ViewPurchaseOrderPage() {
                             className="grid grid-cols-12 text-sm border-t border-[rgb(var(--color-border-primary))]"
                           >
                             <div className="col-span-6 p-3">
-                              <div className="font-medium text-[rgb(var(--color-text-primary))]">
-                                {item.product?.name}
+                              <div className="font-medium text-[rgb(var(--color-text-primary))] flex items-center gap-2">
+                                <span>{item.product?.name}</span>
+                                {item.variant?.displayName && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                                    {item.variant.displayName}
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                SKU: {item.product?.sku}
+                                SKU: {item.variant?.sku || item.product?.sku || "-"}
                               </div>
                             </div>
                             <div className="col-span-2 p-3 text-right">

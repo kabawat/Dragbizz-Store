@@ -5,7 +5,7 @@ import Button from "./Button";
 import Input from "./Input";
 import Select from "./Select";
 import SideDrawer from "./SideDrawer";
-import { stockService, supplierService } from "@/service/retailer";
+import { stockService, supplierService, variantService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -14,23 +14,34 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 const resolveProductContext = (item, type) => {
   if (type === "inventory") {
     const product = item?.product;
+    const variant = item?.variant;
     return {
       productId: product?.id || product?._id || item?.productId,
+      variantId: variant?.id || variant?._id || item?.variantId || null,
       name: product?.name || "Unknown Product",
-      sku: product?.sku || "-",
+      variantName: variant?.displayName || "",
+      sku: variant?.sku || product?.sku || "-",
+      variants: Array.isArray(product?.variants) ? product.variants : [],
       stock:
         item?.stockSummary?.totalQuantity ??
+        item?.totalQuantity ??
+        item?.availableQuantity ??
         item?.stock ??
         product?.stock ??
         0,
     };
   }
 
+  const variants = Array.isArray(item?.variants) ? item.variants : [];
+  const defaultVariant = variants.find((v) => v.isDefault) || variants[0];
   return {
     productId: item?.id || item?._id,
+    variantId: item?.variantId || defaultVariant?.id || defaultVariant?._id || null,
     name: item?.name || "Unknown Product",
-    sku: item?.sku || "-",
-    stock: item?.stock ?? 0,
+    variantName: defaultVariant?.displayName || "",
+    sku: item?.sku || defaultVariant?.sku || "-",
+    variants,
+    stock: item?.stock ?? item?.totalQuantity ?? 0,
   };
 };
 
@@ -44,7 +55,9 @@ const StockInDrawer = ({
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
+  const [loadedVariants, setLoadedVariants] = useState([]);
   const [formData, setFormData] = useState({
+    variantId: "",
     quantity: "",
     purchasePrice: "",
     supplier: "",
@@ -63,7 +76,11 @@ const StockInDrawer = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    const initialVariants = productContext.variants || [];
+    setLoadedVariants(initialVariants);
+
     setFormData({
+      variantId: productContext.variantId || (initialVariants[0]?.id || initialVariants[0]?._id || ""),
       quantity: "",
       purchasePrice: "",
       supplier: "",
@@ -80,8 +97,34 @@ const StockInDrawer = ({
         }),
         { showToast: false }
       );
+
+      // Fetch variants if not provided in item
+      if (productContext.productId && initialVariants.length === 0) {
+        variantService
+          .getVariants({ store: storeId, product: productContext.productId, limit: 100 })
+          .then((res) => {
+            const raw = res?.data?.data || res?.data || [];
+            const list = Array.isArray(raw) ? raw : [];
+            if (list.length > 0) {
+              setLoadedVariants(list);
+              const def = list.find((v) => v.isDefault) || list[0];
+              const defId = def?.id || def?._id || "";
+              setFormData((prev) => ({
+                ...prev,
+                variantId: prev.variantId || defId,
+              }));
+            }
+          })
+          .catch(() => {});
+      }
     }
-  }, [isOpen, selectedStore?.storeId, executeFetchSuppliers]);
+  }, [isOpen, selectedStore?.storeId, executeFetchSuppliers, productContext.variantId, productContext.productId]);
+
+  const selectedVariant = useMemo(() => {
+    const vId = formData.variantId || productContext.variantId;
+    if (!vId) return null;
+    return loadedVariants.find((v) => String(v.id || v._id) === String(vId)) || null;
+  }, [formData.variantId, productContext.variantId, loadedVariants]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -134,8 +177,10 @@ const StockInDrawer = ({
       return;
     }
 
+    const targetVariantId = formData.variantId || productContext.variantId || (loadedVariants[0]?.id || loadedVariants[0]?._id) || undefined;
     const apiPayload = {
       productId: productContext.productId,
+      ...(targetVariantId ? { variantId: targetVariantId } : {}),
       store: storeId,
       batchData: {
         quantity: parseInt(formData.quantity, 10),
@@ -190,12 +235,27 @@ const StockInDrawer = ({
                   {productContext.name}
                 </h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  SKU: {productContext.sku} | {t("inventory.currentStock")}:{" "}
-                  {productContext.stock}
+                  {(selectedVariant?.displayName || productContext.variantName) ? `${selectedVariant?.displayName || productContext.variantName} | ` : ""}SKU: {selectedVariant?.sku || productContext.sku} | {t("inventory.currentStock")}:{" "}
+                  {selectedVariant?.stock ?? productContext.stock}
                 </p>
               </div>
             </div>
           </div>
+
+          {loadedVariants && loadedVariants.length > 1 && (
+            <div>
+              <Select
+                label={t("variants.variant", { defaultValue: "Select Variant" })}
+                placeholder={t("variants.selectVariant", { defaultValue: "Select variant" })}
+                value={formData.variantId || productContext.variantId || ""}
+                onChange={(value) => handleInputChange("variantId", value)}
+                options={loadedVariants.map((v) => ({
+                  value: v.id || v._id,
+                  label: `${v.displayName || v.sku || "Variant"}${v.stock !== undefined ? ` (Stock: ${v.stock})` : ""}${v.sellingPrice ? ` - ₹${v.sellingPrice}` : ""}`,
+                }))}
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>

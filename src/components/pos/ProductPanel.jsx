@@ -20,6 +20,8 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [viewMode, setViewMode] = useState("grid");
     const [inventoryByProductId, setInventoryByProductId] = useState(new Map());
+    const [inventoryByVariantId, setInventoryByVariantId] = useState(new Map());
+    const [inventoryByCompositeKey, setInventoryByCompositeKey] = useState(new Map());
     const [inventoryLoading, setInventoryLoading] = useState(true);
     const [inventoryLoadFailed, setInventoryLoadFailed] = useState(false);
     const [inventoryStoreId, setInventoryStoreId] = useState(null);
@@ -71,6 +73,8 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
         setInventoryLoadFailed(false);
         setInventoryStoreId(null);
         const inventoryMap = new Map();
+        const variantInventoryMap = new Map();
+        const compositeInventoryMap = new Map();
         let nextCursor = null;
         let page = 1;
 
@@ -95,10 +99,18 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
                 for (const inventory of rows) {
                     const productId = inventory?.product?.id || inventory?.product?._id || inventory?.productId;
                     if (!productId) continue;
+                    const variantId = inventory?.variant?.id || inventory?.variant?._id || inventory?.variantId || (typeof inventory?.variant === "string" ? inventory?.variant : null);
                     const available = Number(
                         inventory.availableQuantity ?? inventory.stockSummary?.availableQuantity ?? 0
                     );
-                    inventoryMap.set(String(productId), Number.isFinite(available) ? Math.max(0, available) : 0);
+                    const validAvailable = Number.isFinite(available) ? Math.max(0, available) : 0;
+
+                    if (variantId) {
+                        const vIdStr = String(variantId);
+                        variantInventoryMap.set(vIdStr, validAvailable);
+                        compositeInventoryMap.set(`${productId}_${vIdStr}`, validAvailable);
+                    }
+                    inventoryMap.set(String(productId), (inventoryMap.get(String(productId)) || 0) + validAvailable);
                 }
 
                 const pagination = payload.pagination || payload.data?.pagination;
@@ -109,10 +121,14 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
             }
 
             setInventoryByProductId(inventoryMap);
+            setInventoryByVariantId(variantInventoryMap);
+            setInventoryByCompositeKey(compositeInventoryMap);
             setInventoryStoreId(storeId);
         } catch {
             if (currentRequest !== inventoryRequestRef.current) return;
             setInventoryByProductId(new Map());
+            setInventoryByVariantId(new Map());
+            setInventoryByCompositeKey(new Map());
             setInventoryLoadFailed(true);
         } finally {
             if (currentRequest === inventoryRequestRef.current) setInventoryLoading(false);
@@ -156,10 +172,24 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
     // One POS card per sellable variant (price/SKU live on variants)
     const posItems = useMemo(() => expandProductsForPos(products || []).map((item) => {
         const productId = String(item.productId || item.id || item._id);
+        const variantId = item.variantId ? String(item.variantId) : null;
         const isService = String(item.productType || "").toUpperCase() === "SERVICE";
-        const availableStock = inventoryByProductId.get(productId) || 0;
+
+        let availableStock = 0;
+        if (variantId && inventoryByVariantId.has(variantId)) {
+            availableStock = inventoryByVariantId.get(variantId) || 0;
+        } else if (variantId && inventoryByCompositeKey.has(`${productId}_${variantId}`)) {
+            availableStock = inventoryByCompositeKey.get(`${productId}_${variantId}`) || 0;
+        } else if (!item.hasMultipleVariants && !item.isVariantCard) {
+            // Only legacy/simple products without multiple variants fall back to product-level stock
+            availableStock = inventoryByProductId.get(productId) || 0;
+        } else {
+            // Specific variant has 0 stock if no inventory record exists for it
+            availableStock = 0;
+        }
+
         return { ...item, availableStock, isService };
-    }), [products, inventoryByProductId]);
+    }), [products, inventoryByProductId, inventoryByVariantId, inventoryByCompositeKey]);
 
     const cartQtyByVariantId = useMemo(() => {
         const map = new Map();
@@ -298,7 +328,7 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
                                     onAdd={addToCart}
                                     viewMode={viewMode}
                                     selectedQty={cartQtyByVariantId.get(variantId) || 0}
-                                    productQty={cartQtyByProductId.get(productId) || 0}
+                                    productQty={cartQtyByVariantId.get(variantId) || 0}
                                     availableStock={p.availableStock}
                                     isService={p.isService}
                                 />
