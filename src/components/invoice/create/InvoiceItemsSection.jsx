@@ -312,6 +312,7 @@ const InvoiceItemsSection = ({
               </label>
               <Input
                 type="number"
+                data-ignore-barcode-scanner="true"
                 value={selectedQuantity}
                 onChange={(value) => setSelectedQuantity(value)}
                 min="1"

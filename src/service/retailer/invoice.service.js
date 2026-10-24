@@ -77,7 +77,12 @@ class InvoiceService extends BaseService {
       payload.store = storeId;
     }
 
-    return this.post(`${this.endpoint}/release`, payload);
+    // Release also completes stock, ledger, and analytics work on the server.
+    return this.authAxios.post(
+      this.buildUrl(`${this.endpoint}/release`),
+      payload,
+      { timeout: 60_000 },
+    );
   }
 
   // Cancel Invoice
