@@ -93,6 +93,10 @@
   "standardPrint": "Standard (A4 / Letter)",
   "miniThermalPrint": "Mini / Thermal Printer",
   "templateSettings": "Template Settings",
+  "selectTemplateDescription": "Choose the design used for invoice previews and prints.",
+  "templatePreview": "Live preview",
+  "regularPrinterTemplates": "Regular",
+  "thermalPrinterTemplates": "Thermal",
   "deleteInvoice": "Delete Invoice",
   "deleteActionCannotBeUndone": "This action cannot be undone",
   "deleteConfirmMessage": "Are you sure you want to delete invoice {invoiceNumber}?",
@@ -288,5 +292,6 @@
   "verifyingPermissions": "Verifying permissions...",
   "updateSuccess": "Invoice updated successfully.",
   "paymentStatusUpdated": "Payment status updated successfully.",
-  "invoice": "Invoice"
+  "invoice": "Invoice",
+  "invoiceTemplates": "Invoice Templates"
 }

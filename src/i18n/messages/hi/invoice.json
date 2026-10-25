@@ -92,6 +92,10 @@
   "standardPrint": "मानक (A4 / Letter)",
   "miniThermalPrint": "मिनी / थर्मल प्रिंटर",
   "templateSettings": "टेम्पलेट सेटिंग्स",
+  "selectTemplateDescription": "इनवॉइस प्रीव्यू और प्रिंट के लिए डिज़ाइन चुनें।",
+  "templatePreview": "लाइव प्रीव्यू",
+  "regularPrinterTemplates": "नियमित",
+  "thermalPrinterTemplates": "थर्मल",
   "deleteInvoice": "चालान हटाएं",
   "deleteActionCannotBeUndone": "यह कार्रवाई पूर्ववत नहीं की जा सकती",
   "deleteConfirmMessage": "क्या आप वाकई चालान {invoiceNumber} हटाना चाहते हैं?",
@@ -281,5 +285,6 @@
     "completeOnStaffScreen": "स्टाफ स्क्रीन पर भुगतान पूरा करें",
     "offlineOnlineRequired": "ऑनलाइन भुगतान के लिए इंटरनेट आवश्यक है",
     "thankYou": "धन्यवाद!"
-  }
+  },
+  "invoiceTemplates": "इनवॉइस टेम्पलेट"
 }

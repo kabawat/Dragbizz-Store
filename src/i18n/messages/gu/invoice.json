@@ -93,6 +93,10 @@
   "standardPrint": "સામાન્ય (A4 / Letter)",
   "miniThermalPrint": "મિની / થર્મલ પ્રિન્ટર",
   "templateSettings": "ટેમ્પલેટ સેટિંગ્સ",
+  "selectTemplateDescription": "ઇન્વૉઇસ પ્રીવ્યૂ અને પ્રિન્ટ માટે ડિઝાઇન પસંદ કરો.",
+  "templatePreview": "લાઇવ પ્રીવ્યૂ",
+  "regularPrinterTemplates": "નિયમિત",
+  "thermalPrinterTemplates": "થર્મલ",
   "deleteInvoice": "ઇન્વૉઇસ કાઢી નાખો",
   "deleteActionCannotBeUndone": "આ ક્રિયા પાછી ખેંચી શકાશે નહીં",
   "deleteConfirmMessage": "શું તમે ખરેખર ઇન્વૉઇસ {invoiceNumber} કાઢી નાખવા માંગો છો?",
@@ -281,5 +285,6 @@
     "completeOnStaffScreen": "સ્ટાફ સ્ક્રીન પર ચુકવણી પૂર્ણ કરો",
     "offlineOnlineRequired": "ઓનલાઇન ચુકવણી માટે ઇન્ટરનેટ જરૂરી છે",
     "thankYou": "આભાર!"
-  }
+  },
+  "invoiceTemplates": "ઇન્વૉઇસ ટેમ્પલેટ્સ"
 }

@@ -70,8 +70,8 @@ const SettingsPage = () => {
   const settingsTabs =
     authProfile?.role === ROLES.STAFF
       ? allTabs.filter((tab) =>
-          ["appearance", "language", "profile"].includes(tab.id),
-        )
+        ["appearance", "language", "profile"].includes(tab.id),
+      )
       : allTabs;
 
   useEffect(() => {

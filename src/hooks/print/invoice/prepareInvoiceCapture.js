@@ -7,11 +7,15 @@ export function prepareInvoiceCapture(document) {
     });
   document
     .querySelectorAll(
-      ".dragorbit-document-preview, .dragorbit-document-preview-frame"
+      ".dragorbit-document-preview, .dragorbit-document-preview-frame, .invoice-responsive-viewport, .invoice-responsive-frame"
     )
     .forEach((element) => {
       element.style.overflow = "visible";
       element.style.height = "auto";
       element.style.width = "auto";
     });
+  document.querySelectorAll(".invoice-responsive-page").forEach((element) => {
+    element.style.width = "794px";
+    element.style.transform = "none";
+  });
 }

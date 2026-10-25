@@ -92,6 +92,10 @@
   "standardPrint": "Standard (A4 / Letter)",
   "miniThermalPrint": "Mini / Thermal Printer",
   "templateSettings": "Template Settings",
+  "selectTemplateDescription": "Invoice preview aur print ke liye design chunein.",
+  "templatePreview": "Live preview",
+  "regularPrinterTemplates": "Regular",
+  "thermalPrinterTemplates": "Thermal",
   "deleteInvoice": "Delete Invoice",
   "deleteActionCannotBeUndone": "Yeh action undo nahi ho sakta",
   "deleteConfirmMessage": "Kya aap sure hain ki invoice {invoiceNumber} delete karna chahte hain?",
@@ -281,5 +285,6 @@
     "completeOnStaffScreen": "Staff screen par payment complete karein",
     "offlineOnlineRequired": "Online payment ke liye internet chahiye",
     "thankYou": "Dhanyavaad!"
-  }
+  },
+  "invoiceTemplates": "Invoice Templates"
 }

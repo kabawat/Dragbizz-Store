@@ -11,6 +11,7 @@ import {
     Crown,
     FileSignature,
     FileSpreadsheet,
+    FileText,
     Gauge,
     Hash,
     Headphones,
@@ -83,6 +84,11 @@ export const getFinanceSubMenuItems = (t) => [
 
 /** Utilities / Business Tools */
 export const getUtilitiesSubMenuItems = (t) => [
+    {
+        name: t("invoice.templateSettings"),
+        icon: FileText,
+        href: "/dashboard/utilities/invoice-template",
+    },
     {
         name: t("sidebar.invoiceNumber") || "Invoice Number Format",
         icon: Hash,

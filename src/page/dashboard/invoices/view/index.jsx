@@ -132,8 +132,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
   if (!canRead) return null;
 
   return (
-    <div className="w-full overflow-hidden">
-      <div className="flex-1 p-6 flex flex-col overflow-y-auto">
+    <div className="w-full min-w-0 overflow-x-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto p-3 sm:p-4 lg:p-6">
         {!invoiceData ? (
           <EmptyState
             title={t("invoice.notFoundTitle") || "Invoice Not Found"}
@@ -148,13 +148,16 @@ const ViewInvoicePage = ({ invoiceId }) => {
             }}
           />
         ) : (
-          <div className="max-w-8xl mx-auto w-full">
+          <div className="mx-auto w-full min-w-0 max-w-8xl">
             <InvoiceViewHeader
               invoiceData={invoiceData}
               invoiceId={invoiceId}
               storeId={storeId}
               onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
               onDownloadPDF={canRead ? handleDownloadPDF : undefined}
+              onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
+              onRelease={canEdit && invoiceData?.id ? () => setPaymentInvoiceId(invoiceData.id) : undefined}
+              onPrint={canRead ? handlePrintWithRedirect : undefined}
               canCreate={canCreate}
               t={t}
             />
@@ -166,10 +169,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
               itemsWithGst={itemsWithGst}
               calculatedSubtotal={calculatedSubtotal}
               calculatedGstAmount={calculatedGstAmount}
-              onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
-              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
-              onPrint={canRead ? handlePrintWithRedirect : undefined}
-              onCollectPayment={canEdit ? setPaymentInvoiceId : undefined}
             />
           </div>
         )}
