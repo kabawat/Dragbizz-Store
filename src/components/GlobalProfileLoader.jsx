@@ -47,9 +47,14 @@ export default function GlobalProfileLoader({ initialSessionHint = false }) {
   useEffect(() => {
     saveWorkspacePreview(profile);
   }, [profile]);
+  const isDashboardRoute = Boolean(
+    pathname === "/dashboard" || pathname?.startsWith("/dashboard/")
+  );
   return (
     <ForcePasswordModal
-      isOpen={Boolean(authProfile && authProfile.ispwds === false)}
+      isOpen={Boolean(
+        isDashboardRoute && authProfile && authProfile.ispwds === false
+      )}
     />
   );
 }
