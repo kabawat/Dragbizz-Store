@@ -80,7 +80,7 @@ export default function StoreCreation() {
   // Load agency data from Redux
   useEffect(() => {
     // Check if agency exists with any of the possible ID fields
-    const agencyId = agency?.agencyId || agency?._id || agency?.id;
+    const agencyId = agency?.agencyId ?? agency?._id;
 
     if (agency && agencyId) {
       setFormData((prev) => ({ ...prev, agency: agencyId }));

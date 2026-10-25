@@ -7,12 +7,10 @@ const pick = (value, keys) =>
       .filter((key) => value?.[key] !== undefined)
       .map((key) => [key, value[key]])
   );
-const id = (value) =>
-  String(value?._id || value?.id || value?.sub || value?.userId || "");
 export const workspaceScope = (profile) => {
   const auth = profile?.authProfile;
-  return auth?.agencyId && id(auth)
-    ? `${id(auth)}:${String(auth.agencyId)}:${auth.tenant || ""}`
+  return auth?.agencyId && auth?._id
+    ? `${String(auth._id)}:${String(auth.agencyId)}:${auth.tenant || ""}`
     : null;
 };
 const fresh = (timestamp) =>

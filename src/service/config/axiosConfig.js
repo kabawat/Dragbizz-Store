@@ -21,16 +21,53 @@ const commonConfig = {
   },
 };
 
+// In-flight GET request deduplication map to prevent duplicate concurrent network calls
+const inFlightRequests = new Map();
+
+export const createDeduplicatingAdapter = (baseAdapter) => async (config) => {
+  const method = (config.method || "get").toLowerCase();
+  // Only deduplicate safe, idempotent GET requests unless explicitly disabled
+  if (method !== "get" || config.skipDeduplication) {
+    return baseAdapter(config);
+  }
+  const key = [
+    method,
+    config.baseURL || "",
+    config.url || "",
+    JSON.stringify(config.params || {}),
+  ].join("::");
+
+  if (inFlightRequests.has(key)) {
+    return inFlightRequests.get(key);
+  }
+
+  const promise = (async () => {
+    try {
+      return await baseAdapter(config);
+    } finally {
+      inFlightRequests.delete(key);
+    }
+  })();
+
+  inFlightRequests.set(key, promise);
+  return promise;
+};
+
+const defaultAdapter = axios.getAdapter(commonConfig.adapter || "xhr");
+const deduplicatingAdapter = createDeduplicatingAdapter(defaultAdapter);
+
 // Unauth instance
 export const unauthAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
+  adapter: deduplicatingAdapter,
 });
 
 // Auth instance
 export const authAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
+  adapter: deduplicatingAdapter,
 });
 
 // Upload instance

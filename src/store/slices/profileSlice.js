@@ -147,7 +147,7 @@ export const getAuthProfile = createAsyncThunk(
       if (
         !data ||
         typeof data.role !== "string" ||
-        !(data._id || data.id || data.sub || data.userId)
+        !data._id
       )
         throw new Error("Invalid account response. Please retry.");
 

@@ -1,22 +1,18 @@
 "use client";
-import {
-  createDashboardRoutes,
-  DashboardScreen,
-} from "@dragorbit/features/dashboard";
-import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { createDashboardRoutes, DashboardScreen } from "@dragorbit/features/dashboard";
+import { agencyService, invoiceService } from "@/service/retailer";
 import { ProactiveRetailIntelligence } from "@/components/dashboard/ProactiveRetailIntelligence";
 import { StoreDashboardOverview } from "@/components/dashboard/StoreDashboardOverview";
-import { StoreSalesTrend } from "@/components/dashboard/StoreSalesTrend";
-import { ROLES } from "@/hooks/permissions/useModulePermissions";
-import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useDashboardLayout } from "@/hooks/ui/useDashboardLayout";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import useApiResponse from "@/hooks/useApiResponse";
-import { agencyService, invoiceService } from "@/service/retailer";
+import { StoreSalesTrend } from "@/components/dashboard/StoreSalesTrend";
 import { cashbookService } from "@/service/retailer/cashbook.service";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const istDateKey = (date) => {
   const values = Object.fromEntries(
@@ -50,9 +46,9 @@ const buildSalesTrend = (invoices, days) => {
       label:
         days === 7
           ? new Intl.DateTimeFormat("en-IN", {
-              weekday: "short",
-              timeZone: "UTC",
-            }).format(date)
+            weekday: "short",
+            timeZone: "UTC",
+          }).format(date)
           : dateLabel,
       revenue: 0,
       sales: 0,
@@ -79,9 +75,7 @@ const routes = createDashboardRoutes("/dashboard");
 export default function Dashboard() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { authProfile, staffProfile } = useAppSelector(
-    (state) => state.profile
-  );
+  const { authProfile, staffProfile } = useAppSelector(state => state.profile);
   const { storeId, ready } = useSelectedStoreId();
   const isStaff = authProfile?.role === ROLES.STAFF;
   useDashboardHeader(
@@ -90,21 +84,44 @@ export default function Dashboard() {
       ? "Access your quick tools and assigned modules"
       : t("dashboard.description")
   );
-  const { execute } = useApiResponse();
   const repository = useMemo(() => {
     const executeDashboardRead = async (createRequest) => {
-      const run = () => execute(createRequest(), { showToast: false });
-      const result = await run();
-      const retryable =
-        result?.code === "NETWORK_ERROR" ||
-        [408, 502, 503, 504].includes(Number(result?.status));
+      try {
+        const response = await createRequest();
+        const data = response?.data?.data ?? response?.data ?? response;
+        return { success: true, data };
+      } catch (error) {
+        const status = error?.response?.status;
+        const retryable =
+          error?.code === "ERR_NETWORK" ||
+          error?.code === "ECONNABORTED" ||
+          [408, 502, 503, 504].includes(Number(status));
 
-      if (result?.success || !retryable) return result;
+        if (retryable) {
+          await wait(350);
+          try {
+            const retryRes = await createRequest();
+            const data = retryRes?.data?.data ?? retryRes?.data ?? retryRes;
+            return { success: true, data };
+          } catch (retryErr) {
+            return {
+              success: false,
+              message:
+                retryErr?.response?.data?.message ||
+                retryErr?.message ||
+                "Request failed",
+            };
+          }
+        }
 
-      // A cold dashboard navigation can race API availability/session refresh.
-      // Retry transient transport failures once before showing an error state.
-      await wait(350);
-      return run();
+        return {
+          success: false,
+          message:
+            error?.response?.data?.message ||
+            error?.message ||
+            "Request failed",
+        };
+      }
     };
 
     return {
@@ -144,14 +161,9 @@ export default function Dashboard() {
         return buildSalesTrend(result.data, days);
       },
     };
-  }, [execute]);
-  const userId =
-    authProfile?.id ||
-    authProfile?._id ||
-    authProfile?.user?.id ||
-    authProfile?.user?._id ||
-    authProfile?.userId ||
-    authProfile?.sub;
+  }, []);
+
+  const userId = authProfile?._id;
   const scope = userId && storeId ? `${userId}:${storeId}` : null;
   const stats = useDashboardLayout(scope, "stats");
   const actions = useDashboardLayout(scope, "actions", { columns: 2 });

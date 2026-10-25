@@ -1,7 +1,7 @@
 "use client";
 import { NotificationBell as SharedNotificationBell } from "@dragorbit/ui/app";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSocketContext } from "@/contexts/SocketContext";
 import { useIncomingNotification } from "@/hooks/notifications/useIncomingNotification";
@@ -27,16 +27,21 @@ const NotificationBell = () => {
     (state) => state.notifications.notifications
   );
   const unreadCount = useSelector((state) => state.notifications.unreadCount);
+  const fetchedStoreIdRef = useRef(null);
+  const inFlightRef = useRef(false);
 
   // Fetch persisted AI alerts and briefings whenever active store is ready
   useEffect(() => {
     if (!ready || !storeId) return;
+    if (fetchedStoreIdRef.current === storeId || inFlightRef.current) return;
 
+    inFlightRef.current = true;
     let isMounted = true;
     const fetchStoredNotifications = async () => {
       try {
         const res = await aiNotificationService.listNotifications({ storeId });
         if (isMounted && res?.data?.items) {
+          fetchedStoreIdRef.current = storeId;
           dispatch(
             setStoreNotifications({
               storeId,
@@ -46,6 +51,8 @@ const NotificationBell = () => {
         }
       } catch (err) {
         // Non-blocking for UI resilience
+      } finally {
+        inFlightRef.current = false;
       }
     };
 

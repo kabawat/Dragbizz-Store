@@ -30,7 +30,7 @@ const StoreSelector = ({ isCollapsed, onStoreChange }) => {
     const previousScope = buildSessionScope({
       tenantId: authProfile?.tenant,
       storeId: currentStoreId,
-      userId: authProfile?.id,
+      userId: authProfile?._id,
     });
     if (previousScope) clearPaymentDisplaySession(previousScope);
 

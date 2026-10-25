@@ -116,7 +116,7 @@ export function FcmProvider({ children }) {
     }
 
     fcmDebug("FcmContext: authenticated", {
-      userId: authProfile?.id ?? authProfile?._id,
+      userId: authProfile?._id,
       pushEnabled,
       permission: typeof Notification !== "undefined" ? Notification.permission : "n/a",
     });

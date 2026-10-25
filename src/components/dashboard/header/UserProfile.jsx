@@ -21,14 +21,13 @@ const UserProfile = () => {
   const { user, authProfile } = useAppSelector((state) => state.profile);
 
   const userName =
-    user?.firstName && user?.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : user?.name ||
-        (authProfile?.firstName && authProfile?.lastName
-          ? `${authProfile.firstName} ${authProfile.lastName}`
-          : authProfile?.name || user?.email || t("header.user"));
+    authProfile?.firstName && authProfile?.lastName
+      ? `${authProfile.firstName} ${authProfile.lastName}`
+      : authProfile?.firstName ||
+        authProfile?.email ||
+        t("header.user");
 
-  const userRole = user?.role || authProfile?.role || null;
+  const userRole = authProfile?.role || user?.role || null;
 
   const formatRole = (role) => {
     if (!role) return null;
