@@ -124,7 +124,10 @@ class AiChatService extends BaseService {
           if (typeof onEvent === "function") {
             onEvent(eventName, data);
           }
-          if (eventName === "assistant.delta" && typeof data.text === "string") {
+          if (
+            eventName === "assistant.delta" &&
+            typeof data.text === "string"
+          ) {
             assistantText += data.text;
           }
           if (eventName === "request.completed") {
@@ -149,6 +152,9 @@ class AiChatService extends BaseService {
           requestId: completed?.requestId,
           provider: completed?.provider,
           model: completed?.model,
+          toolResults: Array.isArray(completed?.toolResults)
+            ? completed.toolResults
+            : [],
           pendingConfirmation: completed?.pendingConfirmation || null,
         },
       };
