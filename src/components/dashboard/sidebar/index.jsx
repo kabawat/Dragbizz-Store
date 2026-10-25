@@ -6,13 +6,16 @@ import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
 import {
   getAnalyticsSubMenuItems,
   getBottomItems,
+  getFinanceSubMenuItems,
   getIntegrationsSubMenuItems,
   getInventorySubMenuItems,
   getManagementSubMenuItems,
   getNavigationItems,
+  getProductSubMenuItems,
   getPurchaseSubMenuItems,
   getSalesSubMenuItems,
   getStockSubMenuItems,
+  getUtilitiesSubMenuItems,
 } from "@/data/constants/sidebarData";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
@@ -44,10 +47,15 @@ const Sidebar = ({ onStoreChange }) => {
   const { t } = useTranslation();
 
   // Memoized Menu Items
-  const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
-  const inventorySubMenuItems = useMemo(() => getInventorySubMenuItems(t), [t]);
   const stockSubMenuItems = useMemo(() => getStockSubMenuItems(t), [t]);
+  const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
+  const productSubMenuItems = useMemo(
+    () => getProductSubMenuItems(t, stockSubMenuItems),
+    [t, stockSubMenuItems]
+  );
   const purchaseSubMenuItems = useMemo(() => getPurchaseSubMenuItems(t), [t]);
+  const financeSubMenuItems = useMemo(() => getFinanceSubMenuItems(t), [t]);
+  const utilitiesSubMenuItems = useMemo(() => getUtilitiesSubMenuItems(t), [t]);
   const analyticsSubMenuItems = useMemo(
     () => getAnalyticsSubMenuItems(t, selectedStore),
     [t, selectedStore]
@@ -66,22 +74,26 @@ const Sidebar = ({ onStoreChange }) => {
       getNavigationItems(
         t,
         salesSubMenuItems,
-        inventorySubMenuItems,
+        productSubMenuItems,
         purchaseSubMenuItems,
         analyticsSubMenuItems,
         managementSubMenuItems,
         integrationsSubMenuItems,
-        stockSubMenuItems
+        stockSubMenuItems,
+        utilitiesSubMenuItems,
+        financeSubMenuItems
       ),
     [
       t,
       salesSubMenuItems,
-      inventorySubMenuItems,
+      productSubMenuItems,
       purchaseSubMenuItems,
       analyticsSubMenuItems,
       managementSubMenuItems,
       integrationsSubMenuItems,
       stockSubMenuItems,
+      utilitiesSubMenuItems,
+      financeSubMenuItems,
     ]
   );
   const navigationItems = useMemo(() => {
@@ -102,9 +114,10 @@ const Sidebar = ({ onStoreChange }) => {
       )
         return true;
 
-      // Staff cannot manage other staff, plan settings, or integrations
+      // Staff cannot manage other staff, plan settings, integrations, or store utilities
       if (href.startsWith("/dashboard/management")) return false;
       if (href.startsWith("/dashboard/integrations")) return false;
+      if (href.startsWith("/dashboard/utilities")) return false;
 
       const permissions = staffProfile?.permissions || [];
 
@@ -129,6 +142,7 @@ const Sidebar = ({ onStoreChange }) => {
         "/dashboard/variants": "product",
         "/dashboard/stock": "inventory",
         "/dashboard/suppliers": "supplier",
+        "/dashboard/accounts": "supplier",
         "/dashboard/purchase-orders": "purchase_order",
         "/dashboard/bills": "billing",
         "/dashboard/payments": "billing",

@@ -34,6 +34,8 @@ import { ROLES } from "@/hooks/permissions/useModulePermissions";
 const LEGACY_TAB_REDIRECTS = {
   integrations: "/dashboard/integrations/tally",
   payment: "/dashboard/integrations/payment",
+  invoiceNumber: "/dashboard/utilities/invoice-number",
+  signature: "/dashboard/utilities/signatures",
 };
 
 const SettingsPage = () => {
@@ -57,12 +59,6 @@ const SettingsPage = () => {
     { id: "profile", label: t("settings.profile"), icon: User },
     { id: "account", label: t("settings.account"), icon: SettingsIcon },
     { id: "store", label: t("settings.store"), icon: Store },
-    {
-      id: "signature",
-      label: t("settings.digitalSignatures") || "Signatures",
-      icon: PenTool,
-    },
-    { id: "invoiceNumber", label: t("invoiceNumber.title"), icon: Hash },
     { id: "security", label: t("settings.security"), icon: Shield },
     {
       id: "notifications",

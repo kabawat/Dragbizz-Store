@@ -117,9 +117,11 @@ export const FEATURE_ROUTES = {
       "/dashboard/suppliers",
       "/dashboard/suppliers/edit",
       "/dashboard/suppliers/view",
+      "/dashboard/accounts",
+      "/dashboard/accounts/create",
     ],
     menuItems: ["Purchase"],
-    subMenuItems: ["Suppliers"],
+    subMenuItems: ["Suppliers", "Supplier Accounts"],
   },
 
   reports: {
@@ -132,6 +134,16 @@ export const FEATURE_ROUTES = {
     routes: ["/dashboard/integrations"],
     menuItems: ["Integrations"],
     subMenuItems: ["Tally", "Payment Gateway"],
+  },
+
+  utilities: {
+    routes: [
+      "/dashboard/utilities",
+      "/dashboard/utilities/invoice-number",
+      "/dashboard/utilities/signatures",
+    ],
+    menuItems: ["Utilities"],
+    subMenuItems: ["Invoice Number Format", "Digital Signatures"],
   },
 
   staff: {

@@ -32,6 +32,7 @@ export const ROUTE_MODULE_MAP = {
     "/dashboard/variants": MODULE_KEYS.PRODUCTS,
     "/dashboard/stock": MODULE_KEYS.INVENTORY,
     "/dashboard/suppliers": MODULE_KEYS.SUPPLIERS,
+    "/dashboard/accounts": MODULE_KEYS.SUPPLIERS,
     "/dashboard/purchase-orders": MODULE_KEYS.PURCHASE_ORDER,
     "/dashboard/bills": MODULE_KEYS.BILLING,
     "/dashboard/payments": MODULE_KEYS.BILLING,
@@ -51,6 +52,9 @@ export const ROUTE_MODULE_MAP = {
     "/dashboard/integrations/tally": MODULE_KEYS.REPORTS,
     "/dashboard/integrations/payment": "customer_payment_gateway",
     "/dashboard/integrations": MODULE_KEYS.INTEGRATIONS,
+    "/dashboard/utilities/invoice-number": MODULE_KEYS.STORE,
+    "/dashboard/utilities/signatures": MODULE_KEYS.STORE,
+    "/dashboard/utilities": MODULE_KEYS.STORE,
     "/dashboard/management/staff": MODULE_KEYS.STAFF,
 };
 

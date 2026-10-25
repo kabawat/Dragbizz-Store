@@ -1,47 +1,60 @@
 import {
-    Activity,
-    Headphones,
+    Award,
     BadgePercent,
     BarChart3,
+    BookOpen,
+    Boxes,
     Building2,
-    DollarSign,
-    FileText,
-    IndianRupee,
+    CalendarDays,
+    ClipboardList,
+    CreditCard,
+    Crown,
+    FileSignature,
+    FileSpreadsheet,
+    Gauge,
+    Hash,
+    Headphones,
+    Landmark,
+    Layers,
     LayoutDashboard,
     LineChart,
     Package,
     PieChart,
     Plug,
+    QrCode,
     Receipt,
+    ReceiptText,
     Settings,
-    ShoppingCart,
-    ShoppingBag,
-    Tags,
-    Layers,
-    Award,
-    Users,
-    UserCog,
-    Warehouse,
     Shield,
-    CreditCard,
+    ShoppingBag,
+    ShoppingCart,
+    Store,
+    Tags,
+    TrendingDown,
+    TrendingUp,
+    Truck,
+    UserCheck,
+    UserCog,
+    Users,
     Wallet,
+    Warehouse,
+    Wrench,
 } from "lucide-react";
 
 /** Sales Management */
 export const getSalesSubMenuItems = (t) => [
+    { name: t("sidebar.pos") || "POS", icon: Store, href: "/dashboard/pos", shortcut: "k", module: "invoice", requireCapability: "pos" },
+    { name: t("sidebar.invoices"), icon: ReceiptText, href: "/dashboard/invoices", shortcut: "i", module: "invoice" },
+    { name: t("sidebar.sellOrders") || "Sales Orders", icon: ClipboardList, href: "/dashboard/sales-order", shortcut: "o", module: "sales_order" },
     { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers", shortcut: "c", module: "customer" },
-    { name: t("sidebar.pos") || "POS", icon: ShoppingBag, href: "/dashboard/pos", shortcut: "k", module: "invoice", requireCapability: "pos" },
-    { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i", module: "invoice" },
-    { name: t("sidebar.sellOrders") || "Sales Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o", module: "sales_order" },
-    { name: t("sidebar.cashbook"), icon: Wallet, href: "/dashboard/cashbook", shortcut: "b", module: "cashbook" },
-    { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e", module: "expense" },
 ];
 
-/** Product Catalog — category, brand, product, variant */
-export const getProductSubMenuItems = (t) => [
+/** Product Catalog & Inventory — products, stocks, categories, brands, variants */
+export const getProductSubMenuItems = (t, stockSubMenuItems = []) => [
+    { name: t("sidebar.products"), icon: Package, href: "/dashboard/products", shortcut: "p", module: "product" },
+    ...(stockSubMenuItems || []),
     { name: t("sidebar.categories"), icon: Tags, href: "/dashboard/categories", module: "product" },
     { name: t("sidebar.brands"), icon: Award, href: "/dashboard/brands", module: "product" },
-    { name: t("sidebar.products"), icon: Package, href: "/dashboard/products", shortcut: "p", module: "product" },
     { name: t("sidebar.variants"), icon: Layers, href: "/dashboard/variants", module: "product" },
 ];
 
@@ -55,17 +68,39 @@ export const getInventorySubMenuItems = getProductSubMenuItems;
 
 /** Purchase Management */
 export const getPurchaseSubMenuItems = (t) => [
-    { name: t("sidebar.suppliers"), icon: Building2, href: "/dashboard/suppliers", shortcut: "u", module: "supplier" },
     { name: t("sidebar.purchaseOrders"), icon: ShoppingCart, href: "/dashboard/purchase-orders", shortcut: "shift+o", module: "purchase_order" },
     { name: t("sidebar.bills"), icon: Receipt, href: "/dashboard/bills", shortcut: "b", module: "billing" },
-    { name: t("sidebar.payments"), icon: IndianRupee, href: "/dashboard/payments", shortcut: "y", module: "billing" },
+    { name: t("sidebar.suppliers"), icon: Building2, href: "/dashboard/suppliers", shortcut: "u", module: "supplier" },
+    { name: t("sidebar.accounts") || "Supplier Accounts", icon: Landmark, href: "/dashboard/accounts", module: "supplier" },
+    { name: t("sidebar.payments"), icon: CreditCard, href: "/dashboard/payments", shortcut: "y", module: "billing" },
+];
+
+/** Finance & Accounts */
+export const getFinanceSubMenuItems = (t) => [
+    { name: t("sidebar.cashbook"), icon: BookOpen, href: "/dashboard/cashbook", shortcut: "shift+c", module: "cashbook" },
+    { name: t("sidebar.expenses"), icon: TrendingDown, href: "/dashboard/expenses", shortcut: "e", module: "expense" },
+];
+
+/** Utilities / Business Tools */
+export const getUtilitiesSubMenuItems = (t) => [
+    {
+        name: t("sidebar.invoiceNumber") || "Invoice Number Format",
+        icon: Hash,
+        href: "/dashboard/utilities/invoice-number",
+        shortcut: "n",
+    },
+    {
+        name: t("sidebar.signatures") || "Digital Signatures",
+        icon: FileSignature,
+        href: "/dashboard/utilities/signatures",
+    },
 ];
 
 /** Analytics — `group` renders section headers in sidebar */
 export const getAnalyticsSubMenuItems = (t, selectedStore) => [
     {
         name: t("dashboard.dailySales") || "Daily Sales",
-        icon: Receipt,
+        icon: CalendarDays,
         href: "/dashboard/analytics/daily-sales",
         module: "invoice",
         requireAnalytics: true,
@@ -73,7 +108,7 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
     },
     {
         name: t("dashboard.revenueAnalytics") || "Revenue Analytics",
-        icon: LineChart,
+        icon: TrendingUp,
         href: "/dashboard/analytics/revenue",
         module: "invoice",
         requireAnalytics: true,
@@ -89,7 +124,7 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
     },
     {
         name: t("dashboard.customerAnalytics") || "Customer Analytics",
-        icon: Activity,
+        icon: UserCheck,
         href: "/dashboard/analytics/customers",
         module: "customer",
         requireAnalytics: true,
@@ -97,7 +132,7 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
     },
     {
         name: t("dashboard.expenseAnalytics") || "Expense Analytics",
-        icon: DollarSign,
+        icon: TrendingDown,
         href: "/dashboard/analytics/expenses",
         module: "expense",
         requireAnalytics: true,
@@ -142,7 +177,7 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
     },
     {
         name: t("dashboard.billAnalytics") || "Bill Analytics",
-        icon: Receipt,
+        icon: ReceiptText,
         href: "/dashboard/analytics/bills",
         module: "billing",
         requireAnalytics: true,
@@ -152,21 +187,21 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
 
 export const getManagementSubMenuItems = (t) => [
     { name: t("sidebar.staff") || "Staff", icon: UserCog, href: "/dashboard/management/staff", shortcut: "f" },
-    { name: t("sidebar.subscription") || "Subscription", icon: CreditCard, href: "/dashboard/management/subscription", shortcut: "m" },
-    { name: t("sidebar.planLimits") || "Plan Limits", icon: Activity, href: "/dashboard/management/limits", shortcut: "l" },
+    { name: t("sidebar.subscription") || "Subscription", icon: Crown, href: "/dashboard/management/subscription", shortcut: "m" },
+    { name: t("sidebar.planLimits") || "Plan Limits", icon: Gauge, href: "/dashboard/management/limits", shortcut: "l" },
 ];
 
 export const getIntegrationsSubMenuItems = (t) => [
     {
         name: t("sidebar.tally") || "Tally",
-        icon: FileText,
+        icon: FileSpreadsheet,
         href: "/dashboard/integrations/tally",
         module: "reports",
         requireCapability: "tally",
     },
     {
         name: t("sidebar.paymentGateway") || "Payment Gateway",
-        icon: CreditCard,
+        icon: QrCode,
         href: "/dashboard/integrations/payment",
         module: "customer_payment_gateway",
     },
@@ -181,44 +216,58 @@ export const getNavigationItems = (
     managementSubMenuItems,
     integrationsSubMenuItems,
     stockSubMenuItems = [],
+    utilitiesSubMenuItems = [],
+    financeSubMenuItems = [],
 ) => [
     { name: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/dashboard", shortcut: "d" },
     {
         name: t("sidebar.salesManagement"),
-        icon: Receipt,
-        href: "/dashboard/customers",
+        icon: ShoppingBag,
+        href: "/dashboard/pos",
         hasSubMenu: true,
         subMenuItems: salesSubMenuItems,
         key: "sales",
     },
     {
         name: t("sidebar.productManagement"),
-        icon: Package,
+        icon: Boxes,
         href: "/dashboard/products",
         hasSubMenu: true,
         subMenuItems: productSubMenuItems,
         key: "products",
     },
-    ...(stockSubMenuItems.length
-        ? [
-              {
-                  name: t("sidebar.stockManagement"),
-                  icon: Warehouse,
-                  href: "/dashboard/stock",
-                  hasSubMenu: true,
-                  subMenuItems: stockSubMenuItems,
-                  key: "stock",
-              },
-          ]
-        : []),
     {
         name: t("sidebar.purchaseManagement"),
-        icon: ShoppingCart,
+        icon: Truck,
         href: "/dashboard/purchase-orders",
         hasSubMenu: true,
         subMenuItems: purchaseSubMenuItems,
         key: "purchase",
     },
+    ...(financeSubMenuItems.length
+        ? [
+              {
+                  name: t("sidebar.finance") || "Finance & Accounts",
+                  icon: Wallet,
+                  href: "/dashboard/cashbook",
+                  hasSubMenu: true,
+                  subMenuItems: financeSubMenuItems,
+                  key: "finance",
+              },
+          ]
+        : []),
+    ...(utilitiesSubMenuItems.length
+        ? [
+              {
+                  name: t("sidebar.utilities") || "Utilities",
+                  icon: Wrench,
+                  href: "/dashboard/utilities/invoice-number",
+                  hasSubMenu: true,
+                  subMenuItems: utilitiesSubMenuItems,
+                  key: "utilities",
+              },
+          ]
+        : []),
     {
         name: t("sidebar.analytics") || "Analytics",
         icon: BarChart3,
@@ -254,12 +303,13 @@ export const getMenuToFeatureMap = (t) => ({
     [t("sidebar.salesManagement")]: [
         "customer",
         "invoice",
-        "expense",
-        "cashbook",
         "sales_order",
     ],
-    [t("sidebar.productManagement")]: ["product"],
-    [t("sidebar.stockManagement")]: ["inventory"],
+    [t("sidebar.finance") || "Finance & Accounts"]: [
+        "cashbook",
+        "expense",
+    ],
+    [t("sidebar.productManagement")]: ["product", "inventory"],
     [t("sidebar.inventory")]: ["product", "inventory"],
     [t("sidebar.purchaseManagement")]: [
         "purchase_order",
@@ -267,6 +317,7 @@ export const getMenuToFeatureMap = (t) => ({
         "billing",
     ],
     [t("sidebar.purchase")]: ["purchase_order", "supplier", "billing"],
+    [t("sidebar.utilities") || "Utilities"]: ["store"],
 });
 
 export const getSubMenuToFeatureMap = (t) => ({
@@ -283,8 +334,11 @@ export const getSubMenuToFeatureMap = (t) => ({
     [t("sidebar.stocks")]: ["inventory"],
     [t("sidebar.lowStockAlerts")]: ["inventory"],
     [t("sidebar.suppliers")]: ["supplier", "purchase_order"],
+    [t("sidebar.accounts") || "Supplier Accounts"]: ["supplier"],
     [t("sidebar.purchaseOrders")]: ["purchase_order"],
     [t("sidebar.bills")]: ["billing"],
     [t("sidebar.payments")]: ["billing"],
+    [t("sidebar.invoiceNumber") || "Invoice Number Format"]: ["store"],
+    [t("sidebar.signatures") || "Digital Signatures"]: ["store"],
     [t("gst.gstAnalytics") || "GST Analytics"]: ["reports"],
 });
