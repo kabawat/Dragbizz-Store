@@ -7,6 +7,7 @@ import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { redirectToMainDomain } from "@dragorbit/core/domain";
 
 const SubscriptionManagementPage = () => {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ const SubscriptionManagementPage = () => {
     : subscription?.packageId?.name || t("subscription.trialPlan");
 
   const onUpgrade = () => {
-    window.location.href = "/pricing";
+    redirectToMainDomain("/pricing");
   };
   return (
     <SubscriptionScreen

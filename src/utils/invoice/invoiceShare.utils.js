@@ -1,14 +1,12 @@
+import { getMainDomainUrl } from "@dragorbit/core/domain";
+
 function getPublicWebOrigin() {
   const configured = process.env.NEXT_PUBLIC_PUBLIC_WEB_URL;
   if (typeof configured === "string" && configured.trim()) {
     return configured.replace(/\/$/, "");
   }
-  if (
-    typeof window !== "undefined" &&
-    window.location?.origin &&
-    !/localhost|127\.0\.0\.1/.test(window.location.origin)
-  ) {
-    return window.location.origin;
+  if (typeof window !== "undefined") {
+    return getMainDomainUrl("");
   }
   return "https://dragbizz.io";
 }

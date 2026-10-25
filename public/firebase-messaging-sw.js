@@ -33,11 +33,13 @@ messaging.onBackgroundMessage((payload) => {
   const badge = payload.notification?.badge || payload.data?.badge;
   const data = buildNotificationData(payload);
 
-  self.registration.showNotification(title, {
+  return self.registration.showNotification(title, {
     body,
     icon,
     badge,
     data,
+  }).catch((error) => {
+    console.error("[FCM] background showNotification failed", error);
   });
 });
 
@@ -54,9 +56,6 @@ self.addEventListener("notificationclick", (event) => {
     clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if (client.url.startsWith(self.location.origin) && "focus" in client) {
-          if ("navigate" in client) {
-            return client.navigate(targetUrl).then((c) => (c ? c.focus() : client.focus()));
-          }
           return client.focus();
         }
       }

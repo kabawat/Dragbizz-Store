@@ -3,13 +3,15 @@ import { DashboardShell, StartupLoader } from "@dragorbit/ui/app";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
+import FcmForegroundBridge from "@/components/FcmForegroundBridge";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
+import { FcmProvider } from "@/contexts/FcmContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { HeaderProvider } from "@/contexts/HeaderContext";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { useAppSelector } from "@/store/hooks";
-import { ensureSubdomain } from "@/utils/helper/domain";
+import { ensureSubdomain } from "@dragorbit/core/domain";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -53,14 +55,17 @@ export default function DashboardLayout({ children }) {
   if (planLoading && !hasPlanPreview) return <StartupLoader />;
 
   return (
-    <HeaderProvider>
-      <DashboardShell
-        standalone={isCustomerPayment}
-        sidebar={<Sidebar />}
-        header={<Header />}
-      >
-        <PermissionGuard>{children}</PermissionGuard>
-      </DashboardShell>
-    </HeaderProvider>
+    <FcmProvider>
+      <FcmForegroundBridge />
+      <HeaderProvider>
+        <DashboardShell
+          standalone={isCustomerPayment}
+          sidebar={<Sidebar />}
+          header={<Header />}
+        >
+          <PermissionGuard>{children}</PermissionGuard>
+        </DashboardShell>
+      </HeaderProvider>
+    </FcmProvider>
   );
 }

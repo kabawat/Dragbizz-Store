@@ -1,7 +1,7 @@
 "use client";
 import { SubscriptionNotice } from "@dragorbit/ui/app";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { redirectToMainDomain } from "@/utils/helper/domain";
+import { redirectToMainDomain } from "@dragorbit/core/domain";
 export default function SubscriptionUpgradeModal(props) {
   const { t } = useTranslation();
   return (

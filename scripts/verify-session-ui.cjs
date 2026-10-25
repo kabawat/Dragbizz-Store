@@ -44,7 +44,7 @@ const { compile } = require("@tailwindcss/node");
       "@/components/auth/ForcePasswordModal": "export default ()=>null;",
       "@/contexts/HeaderContext":
         "export const HeaderProvider=({children})=>children;",
-      "@/utils/helper/domain":
+      "@dragorbit/core/domain":
         "export const ensureSubdomain=()=>{};export const redirectToMainDomain=()=>{};",
       "@/contexts/SubscriptionContext":
         "export const useSubscription=()=>({subscription:window.__subLoading?null:{features:[]},isLoading:window.__subLoading,hasPlanPreview:!window.__subLoading,isVerified:!window.__subLoading,error:null,reload(){}});",

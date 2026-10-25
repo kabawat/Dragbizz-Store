@@ -4,13 +4,11 @@ import "@/app/globals.css";
 
 import { siteMetadata, ThemeScript } from "@/app/metadata";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import FcmForegroundBridge from "@/components/FcmForegroundBridge";
 import GlobalHotkeys from "@/components/GlobalHotkeys";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
 import { SettingsDrawer } from "@/components/ui";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
 import NetworkError from "@/components/ui/NetworkError";
-import { FcmProvider } from "@/contexts/FcmContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import { SocketNotificationProvider } from "@/contexts/SocketNotificationContext";
@@ -50,21 +48,18 @@ export default async function RootLayout({ children }) {
             <LanguageProvider>
               <ToastProvider>
                 <SocketProvider>
-                  <FcmProvider>
-                    <SocketNotificationProvider>
-                      <FcmForegroundBridge />
-                      <ErrorBoundary>
-                        <GlobalProfileLoader initialSessionHint={sessionHint} />
-                        <LocationProvider>
-                          <GlobalHotkeys />
-                          {children}
-                          <GlobalToastContainer />
-                          <NetworkError />
-                          <SettingsDrawer />
-                        </LocationProvider>
-                      </ErrorBoundary>
-                    </SocketNotificationProvider>
-                  </FcmProvider>
+                  <SocketNotificationProvider>
+                    <ErrorBoundary>
+                      <GlobalProfileLoader initialSessionHint={sessionHint} />
+                      <LocationProvider>
+                        <GlobalHotkeys />
+                        {children}
+                        <GlobalToastContainer />
+                        <NetworkError />
+                        <SettingsDrawer />
+                      </LocationProvider>
+                    </ErrorBoundary>
+                  </SocketNotificationProvider>
                 </SocketProvider>
               </ToastProvider>
             </LanguageProvider>

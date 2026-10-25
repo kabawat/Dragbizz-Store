@@ -5,6 +5,7 @@ import { StoreListView } from "@dragorbit/features/settings";
 import { Building2, Plus } from "lucide-react";
 import CopyableContactValue from "@/components/common/CopyableContactValue";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { getMainDomain } from "@dragorbit/core/domain";
 
 const StoreList = ({
   stores = [],
@@ -51,7 +52,7 @@ const StoreList = ({
   return (
     <StoreListView
       model={{
-        catalogHost: typeof window !== "undefined" ? window.location.host : "",
+        catalogHost: getMainDomain() || (typeof window !== "undefined" ? window.location.host : ""),
         stores,
         currentStoreId,
         handleEditStore,

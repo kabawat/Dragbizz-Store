@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import { useStore } from "react-redux";
 import { useAppSelector } from "@/store/hooks";
 import * as profileActions from "@/store/slices/profileSlice";
+import { redirectToMainDomain } from "@dragorbit/core/domain";
 
 export default function AuthGuard({ children }) {
   const store = useStore();
@@ -14,7 +15,7 @@ export default function AuthGuard({ children }) {
   const profile = useAppSelector((state) => state.profile);
   const navigate = useCallback(
     (path) => {
-      if (path.startsWith("/login")) window.location.replace(path);
+      if (path.startsWith("/login")) redirectToMainDomain(path);
       else router.replace(path);
     },
     [router]

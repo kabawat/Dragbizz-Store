@@ -13,6 +13,7 @@ import OnboardingLayout from "@/components/onboard/OnboardingLayout";
 import { Button, Input } from "@/components/ui";
 import storeService from "@/service/retailer/store.service";
 import { useAppSelector } from "@/store/hooks";
+import { redirectToMainDomain } from "@dragorbit/core/domain";
 import { agencySubdomainFromName } from "./subdomain";
 
 export default function AgencyCreation() {
@@ -114,7 +115,7 @@ export default function AgencyCreation() {
   };
 
   const handleBack = () => {
-    window.location.href = "/register";
+    redirectToMainDomain("/register");
   };
 
   // Only redirect if we're not currently creating an agency

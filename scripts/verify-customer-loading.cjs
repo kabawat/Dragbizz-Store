@@ -41,7 +41,7 @@ const { PermissionGuard } = load('src/components/auth/PermissionGuard.jsx', {
  '@/hooks/permissions/useModulePermissions': { ROLES: { OWNER: 'OWNER' } },
  '@/store/slices/profileSlice': { getStaffProfileDetails: () => ({type: 'staff/retry'}) },
  '@/store/hooks': { useAppDispatch: () => () => {}, useAppSelector: callback => callback({ profile: guardProfile }) },
- '@/utils/helper/domain': { redirectToMainDomain() {} },
+ '@dragorbit/core/domain': { redirectToMainDomain() {} },
  '@/utils/subscriptionCapability.util': { hasFeatureCapability: () => true },
 });
 function guard() { return renderToStaticMarkup(React.createElement(PermissionGuard, null, 'PAGE')); }

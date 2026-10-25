@@ -48,7 +48,7 @@ async function main() {
       "export const handleSuccess=value=>value;",
     "@/utils/responseHandler/error":
       "export const handleError=error=>({message:error.message});",
-    "@/utils/helper/domain": 'export const getDashboardUrl=()=>"/dashboard";',
+    "@dragorbit/core/domain": 'export const getDashboardUrl=()=>"/dashboard";',
     "@/components/auth/StoreCreationSuccess":
       "export default ()=> <div>Store created</div>;",
     "@/components/ui": [

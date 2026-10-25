@@ -15,7 +15,7 @@ import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { authService } from "@/service";
 import storeService from "@/service/retailer/store.service";
 import { useAppSelector } from "@/store/hooks";
-import { getDashboardUrl } from "@/utils/helper/domain";
+import { getDashboardUrl } from "@dragorbit/core/domain";
 import { handleError } from "@/utils/responseHandler/error";
 import { handleSuccess } from "@/utils/responseHandler/success";
 

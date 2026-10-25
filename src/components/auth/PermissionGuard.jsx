@@ -11,7 +11,7 @@ import {
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getStaffProfileDetails } from "@/store/slices/profileSlice";
-import { redirectToMainDomain } from "@/utils/helper/domain";
+import { redirectToMainDomain } from "@dragorbit/core/domain";
 import { hasFeatureCapability } from "@/utils/subscriptionCapability.util";
 export const PermissionGuard = ({ children }) => {
   const pathname = usePathname();

@@ -5,6 +5,7 @@ import { Modal, Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { getMainDomainUrl, getMainDomain } from "@dragorbit/core/domain";
 
 const CATALOG_LOGO_URL = "/logo/logo.png";
 const QR_SIZE = 500;
@@ -66,11 +67,11 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
     let displayUrl = "";
 
     if (catalogId) {
-        const host = typeof window !== "undefined" ? window.location.host : "";
-        const origin = typeof window !== "undefined" ? window.location.origin : "";
+        const host = getMainDomain() || (typeof window !== "undefined" ? window.location.host : "");
+        const cleanCatalogPath = `/c/${catalogId}`;
 
-        catalogUrl = `${origin}/c/${catalogId}`;
-        displayUrl = `${host}/c/${catalogId}`;
+        catalogUrl = getMainDomainUrl(cleanCatalogPath);
+        displayUrl = `${host}${cleanCatalogPath}`;
 
         if (inStoreLocation.trim().length > 0) {
             const query = `?mode=in_store&location=${encodeURIComponent(inStoreLocation.trim())}`;

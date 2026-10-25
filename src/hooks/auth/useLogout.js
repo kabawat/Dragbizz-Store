@@ -4,7 +4,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
 import fcmService from "@/service/utility/fcm.service";
-import { isLocalhost, getMainDomain, redirectToMainDomain } from "@/utils/helper/domain";
+import { isLocalhost, getMainDomain, redirectToMainDomain } from "@dragorbit/core/domain";
 import { clearAllPaymentDisplaySessions } from "@/utils/payment/paymentDisplaySession";
 
 export function useLogout() {

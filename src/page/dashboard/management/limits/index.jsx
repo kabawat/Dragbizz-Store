@@ -17,6 +17,7 @@ import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useRouter } from "next/navigation";
+import { redirectToMainDomain } from "@dragorbit/core/domain";
 
 const UsageLimitsPage = () => {
   const { t } = useTranslation();
@@ -108,7 +109,7 @@ const UsageLimitsPage = () => {
   });
 
   const onUpgrade = () => {
-    window.location.href = "/pricing";
+    redirectToMainDomain("/pricing");
   };
   return (
     <PlanLimitsScreen

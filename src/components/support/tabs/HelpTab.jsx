@@ -9,7 +9,7 @@ import {
   getQuickStartSteps,
   getRelatedLinks,
 } from "@/data/constants/supportData";
-import { getMainDomainUrl } from "@/utils/helper/domain";
+import { getMainDomainUrl } from "@dragorbit/core/domain";
 
 const iconsMap = {
   Calculator,
