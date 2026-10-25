@@ -5,40 +5,43 @@ import {
   Building,
   Calendar,
   CreditCard,
+  Crown,
   Download,
   Edit,
   FileText,
   Hash,
   IndianRupee,
   Trash2,
-  Crown,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import useApiResponse from "@/hooks/useApiResponse";
-import ExpenseDetailsTemplate from "@/components/templates/expense/ExpenseDetailsTemplate";
 import ExpenseDeleteModal from "@/components/expenses/list/ExpenseDeleteModal";
-import { Badge, Button, } from "@/components/ui";
+import ExpenseDetailsTemplate from "@/components/templates/expense/ExpenseDetailsTemplate";
+import { Badge, Button } from "@/components/ui";
 import {
   getCategoryLabel,
   getPaymentMethodIcon,
   getPaymentMethodLabel,
   getStatusLabel,
 } from "@/data/constants/expenses";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { expenseService } from "@/service";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { useExpenseDetailsPrint } from "./hooks/useExpenseDetailsPrint";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
+import { expenseService } from "@/service";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useExpenseDetailsPrint } from "./hooks/useExpenseDetailsPrint";
 
 const ViewExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("expenses.viewExpense") || "View Expense", t("expenses.viewExpenseDescription") || "Expense information and details");
+  useDashboardHeader(
+    t("expenses.viewExpense") || "View Expense",
+    t("expenses.viewExpenseDescription") || "Expense information and details"
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -128,21 +131,17 @@ const ViewExpensePage = ({ expenseId }) => {
   };
 
   // Loading state while fetching expense data
-  if (fetching || permissionLoading) {
-    return (
-      <TableSkeleton />
-    );
+  if (fetching || permissionLoading || (!expenseData && !error)) {
+    return <TableSkeleton />;
   }
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       {/* Sidebar */}
 
-
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -211,7 +210,10 @@ const ViewExpensePage = ({ expenseId }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: "calc(100vh - 300px)" }}>
+                <div
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                  style={{ height: "calc(100vh - 300px)" }}
+                >
                   {/* Left Side - Expense Info */}
                   <div className="lg:col-span-2 flex flex-col h-full">
                     <div
@@ -334,7 +336,7 @@ const ViewExpensePage = ({ expenseId }) => {
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                 {getCategoryLabel(
                                   expenseData.category?.name ||
-                                  expenseData.category
+                                    expenseData.category
                                 )}
                               </p>
                             </div>
@@ -348,7 +350,11 @@ const ViewExpensePage = ({ expenseId }) => {
                                 Vendor
                               </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {expenseData.vendor?.name || (typeof expenseData.vendor === "string" ? expenseData.vendor : "") || "N/A"}
+                                {expenseData.vendor?.name ||
+                                  (typeof expenseData.vendor === "string"
+                                    ? expenseData.vendor
+                                    : "") ||
+                                  "N/A"}
                               </p>
                             </div>
                           </div>
@@ -361,8 +367,12 @@ const ViewExpensePage = ({ expenseId }) => {
                                 Payment Method
                               </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {getPaymentMethodIcon(expenseData.paymentMethod)}{" "}
-                                {getPaymentMethodLabel(expenseData.paymentMethod)}
+                                {getPaymentMethodIcon(
+                                  expenseData.paymentMethod
+                                )}{" "}
+                                {getPaymentMethodLabel(
+                                  expenseData.paymentMethod
+                                )}
                               </p>
                             </div>
                           </div>

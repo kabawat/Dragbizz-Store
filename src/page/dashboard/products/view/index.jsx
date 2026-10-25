@@ -1,7 +1,31 @@
 "use client";
 import { PageSkeleton } from "@dragorbit/ui/app";
 import {
-  AlertTriangle, ArrowLeft, Barcode, Building2, CheckCircle, CheckCircle2, Clock, Download, Edit, Eye, FileText, Hash, IndianRupee, Package, Package2, Percent, Scale, Shield, ShoppingCart, Star, Tag, Trash2, TrendingUp, XCircle, Zap,
+  AlertTriangle,
+  ArrowLeft,
+  Barcode,
+  Building2,
+  CheckCircle,
+  CheckCircle2,
+  Clock,
+  Download,
+  Edit,
+  Eye,
+  FileText,
+  Hash,
+  IndianRupee,
+  Package,
+  Package2,
+  Percent,
+  Scale,
+  Shield,
+  ShoppingCart,
+  Star,
+  Tag,
+  Trash2,
+  TrendingUp,
+  XCircle,
+  Zap,
 } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
@@ -9,27 +33,29 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ProductDetailsTemplate from "@/components/templates/product/ProductDetailsTemplate";
 import { Badge, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-import { useProductDetailsPrint } from "./hooks/useProductDetailsPrint";
 import {
   mergeVariantIntoProduct,
   normalizeProductRecord,
   pickDefaultVariant,
 } from "@/utils/productUtils";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useProductDetailsPrint } from "./hooks/useProductDetailsPrint";
 
 const ViewProductPage = ({ productId }) => {
   const { t } = useTranslation();
 
-    useDashboardHeader(t("products.viewProduct"), t("products.viewProductDescription"));
+  useDashboardHeader(
+    t("products.viewProduct"),
+    t("products.viewProductDescription")
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId;
+  const storeId = selectedStore?.storeId;
 
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState(null);
@@ -41,10 +67,7 @@ const ViewProductPage = ({ productId }) => {
   const { execute: executeFetch, loading: fetching } = useApiResponse();
   const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
-  const { handleDownloadPDF } = useProductDetailsPrint(
-    fetching,
-    productData
-  );
+  const { handleDownloadPDF } = useProductDetailsPrint(fetching, productData);
 
   // Fetch product data on component mount
   useEffect(() => {
@@ -71,8 +94,12 @@ const ViewProductPage = ({ productId }) => {
 
         if (product) {
           const variantsResult = await executeFetch(
-            variantService.getVariants({ store: storeId, product: productId, limit: 50 }),
-            { showToast: false },
+            variantService.getVariants({
+              store: storeId,
+              product: productId,
+              limit: 50,
+            }),
+            { showToast: false }
           );
           const variantsRaw = variantsResult?.data;
           const variants = Array.isArray(variantsRaw)
@@ -80,7 +107,10 @@ const ViewProductPage = ({ productId }) => {
             : Array.isArray(variantsRaw?.data)
               ? variantsRaw.data
               : [];
-          const merged = mergeVariantIntoProduct(product, pickDefaultVariant(variants));
+          const merged = mergeVariantIntoProduct(
+            product,
+            pickDefaultVariant(variants)
+          );
 
           setProductData({
             ...normalizeProductRecord(merged),
@@ -90,12 +120,14 @@ const ViewProductPage = ({ productId }) => {
             updatedAt: product.updatedAt ?? product.timestamps?.updatedAt,
           });
         } else {
-          setError(t("errors.failedToFetchData", { item: t("common.product") }));
+          setError(
+            t("errors.failedToFetchData", { item: t("common.product") })
+          );
         }
       } else {
         setError(
           result?.message ||
-          t("errors.failedToFetchData", { item: t("common.product") })
+            t("errors.failedToFetchData", { item: t("common.product") })
         );
       }
     };
@@ -119,7 +151,11 @@ const ViewProductPage = ({ productId }) => {
 
     const result = await executeDelete(
       productService.deleteProduct(productId, storeId),
-      { message: t("success.deletedSuccessfully", { item: t("common.product") }) }
+      {
+        message: t("success.deletedSuccessfully", {
+          item: t("common.product"),
+        }),
+      }
     );
 
     if (result?.success) {
@@ -183,21 +219,17 @@ const ViewProductPage = ({ productId }) => {
   };
 
   // Loading state while fetching product data
-  if (fetching) {
-    return (
-      <PageSkeleton />
-    );
+  if (fetching || (!productData && !error)) {
+    return <PageSkeleton />;
   }
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       {/* Sidebar */}
-      
 
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -413,7 +445,7 @@ const ViewProductPage = ({ productId }) => {
                               </p>
                               <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                 {productData.basePrice &&
-                                  productData.basePrice !== ""
+                                productData.basePrice !== ""
                                   ? `${productData.currency || "₹"}${productData.basePrice?.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
                                   : t("common.na")}
                               </p>
@@ -488,7 +520,8 @@ const ViewProductPage = ({ productId }) => {
                           {!selectedStore?.gst ? (
                             <div className="p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-xl flex flex-col items-center text-center justify-center gap-4">
                               <p className="text-base font-medium text-orange-800">
-                                {t("products.gstNotRegisteredMessage") || "Your store does not have a registered GST number. According to government regulations, you cannot collect GST on products."}
+                                {t("products.gstNotRegisteredMessage") ||
+                                  "Your store does not have a registered GST number. According to government regulations, you cannot collect GST on products."}
                               </p>
                             </div>
                           ) : (
@@ -673,7 +706,9 @@ const ViewProductPage = ({ productId }) => {
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
                               Catalog Visibility
                             </p>
-                            {getCatalogVisibilityBadge(productData.showInCatalog)}
+                            {getCatalogVisibilityBadge(
+                              productData.showInCatalog
+                            )}
                           </div>
 
                           {/* Created Date */}

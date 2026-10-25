@@ -21,6 +21,7 @@ export const useApiResponse = () => {
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
 
   const handleApiSuccess = useCallback(
@@ -29,6 +30,7 @@ export const useApiResponse = () => {
       const { message: customMsg = null, showToast = true } = options;
 
       setData(result.data);
+      setError(null);
 
       if (showToast) {
         toastSuccess(customMsg || result.message);
@@ -45,6 +47,7 @@ export const useApiResponse = () => {
       const { showToast = true } = options;
 
       if (!options.keepPreviousDataOnError) setData(null);
+      setError(result.message || "Request failed");
       setFieldErrors(result.fields || {});
 
       // Intercept Subscription / Quota limits globally
@@ -101,6 +104,7 @@ export const useApiResponse = () => {
   const execute = useCallback(async (apiPromise, options = {}) => {
     try {
       setLoading(true);
+      setError(null);
       const response = await apiPromise;
       return handlers.current.success(response, options);
     } catch (error) {
@@ -113,6 +117,7 @@ export const useApiResponse = () => {
   const clearAll = useCallback(() => {
     setData(null);
     setLoading(false);
+    setError(null);
     setFieldErrors({});
   }, []);
 
@@ -120,6 +125,7 @@ export const useApiResponse = () => {
     execute,
     loading,
     data,
+    error,
     clearAll,
     fieldErrors,
     setFieldErrors,

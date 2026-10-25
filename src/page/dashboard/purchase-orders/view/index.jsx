@@ -14,25 +14,31 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PurchaseOrderDetailsTemplate from "@/components/templates/purchaseOrder/PurchaseOrderDetailsTemplate";
-import { Button, Card, } from "@/components/ui";
+import { Button, Card } from "@/components/ui";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { purchaseOrderService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
-import { useApiResponse } from "@/hooks/useApiResponse";
 import { usePurchaseOrderDetailsPrint } from "./hooks/usePurchaseOrderDetailsPrint";
-
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 
 export default function ViewPurchaseOrderPage() {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("purchaseOrders.purchaseOrderDetails"), t("purchaseOrders.viewPODescription"));
+  useDashboardHeader(
+    t("purchaseOrders.purchaseOrderDetails"),
+    t("purchaseOrders.viewPODescription")
+  );
   const router = useRouter();
   const params = useParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const poId = params?.id;
-  const { can, edit: canEdit, loading: permissionsLoading } = useModulePermissions("purchase_order");
+  const {
+    can,
+    edit: canEdit,
+    loading: permissionsLoading,
+  } = useModulePermissions("purchase_order");
 
   useEffect(() => {
     if (!permissionsLoading && !can("read")) {
@@ -90,7 +96,11 @@ export default function ViewPurchaseOrderPage() {
     const fetchPo = async () => {
       if (!poId || poId === "new" || poId === "create") return;
 
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || null;
+      const storeId =
+        selectedStore?.storeId ||
+        selectedStore?._id ||
+        selectedStore?.id ||
+        null;
       const result = await executeFetch(
         purchaseOrderService.getPurchaseOrders({ id: poId, store: storeId }),
         { showToast: false }
@@ -127,9 +137,7 @@ export default function ViewPurchaseOrderPage() {
           </Link>
         </div>
 
-        {loading && (
-          <TableSkeleton compact rows={2} />
-        )}
+        {(loading || (!po && !error)) && <TableSkeleton compact rows={2} />}
 
         {!loading && error && (
           <Card>
@@ -162,8 +170,7 @@ export default function ViewPurchaseOrderPage() {
                         <div
                           className="w-10 h-10 rounded-lg flex items-center justify-center"
                           style={{
-                            backgroundColor:
-                              "rgba(var(--color-success), 0.1)",
+                            backgroundColor: "rgba(var(--color-success), 0.1)",
                           }}
                         >
                           <CheckCircle
@@ -185,7 +192,8 @@ export default function ViewPurchaseOrderPage() {
                           className="px-3 py-1 rounded-full text-xs font-medium border"
                           style={getApprovalStyles(po.approvalStatus)}
                         >
-                          {t("purchaseOrders.approvalStatus")}: {po.approvalStatus || t("common.na")}
+                          {t("purchaseOrders.approvalStatus")}:{" "}
+                          {po.approvalStatus || t("common.na")}
                         </span>
                       </div>
                     </div>
@@ -244,8 +252,7 @@ export default function ViewPurchaseOrderPage() {
                         <div
                           className="w-8 h-8 rounded-lg flex items-center justify-center"
                           style={{
-                            backgroundColor:
-                              "rgba(var(--color-primary), 0.1)",
+                            backgroundColor: "rgba(var(--color-primary), 0.1)",
                           }}
                         >
                           <Package
@@ -260,7 +267,9 @@ export default function ViewPurchaseOrderPage() {
 
                       <div className="overflow-y-auto max-h-64 border border-[rgb(var(--color-border-primary))] rounded-lg">
                         <div className="grid grid-cols-12 text-xs text-[rgb(var(--color-text-secondary))] sticky top-0 z-10 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
-                          <div className="col-span-6 p-3">{t("purchaseOrders.product")}</div>
+                          <div className="col-span-6 p-3">
+                            {t("purchaseOrders.product")}
+                          </div>
                           <div className="col-span-2 p-3 text-right">
                             {t(`purchaseOrders.ordered`)}
                           </div>
@@ -286,7 +295,8 @@ export default function ViewPurchaseOrderPage() {
                                 )}
                               </div>
                               <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                SKU: {item.variant?.sku || item.product?.sku || "-"}
+                                SKU:{" "}
+                                {item.variant?.sku || item.product?.sku || "-"}
                               </div>
                             </div>
                             <div className="col-span-2 p-3 text-right">
@@ -299,7 +309,7 @@ export default function ViewPurchaseOrderPage() {
                               {item.pendingQuantity ??
                                 Math.max(
                                   (item.quantity || 0) -
-                                  (item.receivedQuantity || 0),
+                                    (item.receivedQuantity || 0),
                                   0
                                 )}
                             </div>
@@ -342,11 +352,11 @@ export default function ViewPurchaseOrderPage() {
                                   (sum, item) => sum + (item.quantity || 0),
                                   0
                                 ) -
-                                (po.items || []).reduce(
-                                  (sum, item) =>
-                                    sum + (item.receivedQuantity || 0),
-                                  0
-                                ),
+                                  (po.items || []).reduce(
+                                    (sum, item) =>
+                                      sum + (item.receivedQuantity || 0),
+                                    0
+                                  ),
                                 0
                               )}
                             </span>
@@ -406,8 +416,12 @@ export default function ViewPurchaseOrderPage() {
                         onClick={() => handleDownloadPDF(po)}
                         leftIcon={Download}
                       >
-                        <span className="hidden sm:inline">{t("common.download")}</span>
-                        <span className="sm:hidden">{t("common.download")}</span>
+                        <span className="hidden sm:inline">
+                          {t("common.download")}
+                        </span>
+                        <span className="sm:hidden">
+                          {t("common.download")}
+                        </span>
                       </Button>
                     </div>
 
@@ -434,8 +448,7 @@ export default function ViewPurchaseOrderPage() {
                           </span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
                             {(po.items || []).reduce(
-                              (sum, item) =>
-                                sum + (item.receivedQuantity || 0),
+                              (sum, item) => sum + (item.receivedQuantity || 0),
                               0
                             )}
                           </span>
@@ -450,11 +463,11 @@ export default function ViewPurchaseOrderPage() {
                                 (sum, item) => sum + (item.quantity || 0),
                                 0
                               ) -
-                              (po.items || []).reduce(
-                                (sum, item) =>
-                                  sum + (item.receivedQuantity || 0),
-                                0
-                              ),
+                                (po.items || []).reduce(
+                                  (sum, item) =>
+                                    sum + (item.receivedQuantity || 0),
+                                  0
+                                ),
                               0
                             )}
                           </span>
@@ -517,13 +530,17 @@ export default function ViewPurchaseOrderPage() {
                           )}
                           {po.internalNotes && (
                             <p className="text-[rgb(var(--color-text-secondary))]">
-                              <span className="font-medium">{t("common.internal")}:</span>{" "}
+                              <span className="font-medium">
+                                {t("common.internal")}:
+                              </span>{" "}
                               {po.internalNotes}
                             </p>
                           )}
                           {po.supplierNotes && (
                             <p className="text-[rgb(var(--color-text-secondary))]">
-                              <span className="font-medium">{t("purchaseOrders.supplier")}:</span>{" "}
+                              <span className="font-medium">
+                                {t("purchaseOrders.supplier")}:
+                              </span>{" "}
                               {po.supplierNotes}
                             </p>
                           )}

@@ -21,18 +21,21 @@ import { useEffect, useRef, useState } from "react";
 // Import components
 import PaymentDetailsTemplate from "@/components/templates/payment/PaymentDetailsTemplate";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { usePaymentDetailsPrint } from "./hooks/usePaymentDetailsPrint";
-import useApiResponse from "@/hooks/useApiResponse";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewPaymentPage = ({ paymentId }) => {
   const { t } = useTranslation();
 
-    useDashboardHeader(t("payments.viewPayment"), t("payments.paymentInformationAndDetails"));
+  useDashboardHeader(
+    t("payments.viewPayment"),
+    t("payments.paymentInformationAndDetails")
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -55,10 +58,7 @@ const ViewPaymentPage = ({ paymentId }) => {
     }
   }, [canRead, permissionLoading, router]);
 
-  const { handleDownloadPDF } = usePaymentDetailsPrint(
-    fetching,
-    paymentData
-  );
+  const { handleDownloadPDF } = usePaymentDetailsPrint(fetching, paymentData);
 
   // Fetch payment data on component mount
   useEffect(() => {
@@ -79,19 +79,19 @@ const ViewPaymentPage = ({ paymentId }) => {
 
       if (result?.success) {
         const data =
-          result.data?.data?.payment ||
-          result.data?.payment ||
-          result.data;
+          result.data?.data?.payment || result.data?.payment || result.data;
 
         if (data) {
           setPaymentData(data);
         } else {
-          setError(t("errors.failedToFetchData", { item: t("payments.payment") }));
+          setError(
+            t("errors.failedToFetchData", { item: t("payments.payment") })
+          );
         }
       } else {
         setError(
           result?.message ||
-          t("errors.failedToFetchData", { item: t("payments.payment") })
+            t("errors.failedToFetchData", { item: t("payments.payment") })
         );
       }
     };
@@ -109,7 +109,9 @@ const ViewPaymentPage = ({ paymentId }) => {
     const methodMap = {
       CASH: t("payments.cash", { defaultValue: "Cash" }),
       UPI: t("payments.upi", { defaultValue: "UPI" }),
-      BANK_TRANSFER: t("payments.bankTransfer", { defaultValue: "Bank Transfer" }),
+      BANK_TRANSFER: t("payments.bankTransfer", {
+        defaultValue: "Bank Transfer",
+      }),
       CHEQUE: t("payments.cheque", { defaultValue: "Cheque" }),
       CREDIT: t("payments.credit", { defaultValue: "Credit" }),
     };
@@ -120,17 +122,17 @@ const ViewPaymentPage = ({ paymentId }) => {
   const getPaymentTypeLabel = (type) => {
     const typeMap = {
       BILL_PAYMENT: t("payments.billPayment", { defaultValue: "Bill Payment" }),
-      ADVANCE: t("payments.advancePayment", { defaultValue: "Advance Payment" }),
+      ADVANCE: t("payments.advancePayment", {
+        defaultValue: "Advance Payment",
+      }),
       OTHER: t("common.other", { defaultValue: "Other" }),
     };
     return typeMap[type] || type || t("common.na");
   };
 
   // Loading state
-  if (fetching || permissionLoading) {
-    return (
-      <PageSkeleton />
-    );
+  if (fetching || permissionLoading || (!paymentData && !error)) {
+    return <PageSkeleton />;
   }
 
   return (
@@ -177,12 +179,10 @@ const ViewPaymentPage = ({ paymentId }) => {
 
       <div className="flex h-screen relative w-full overflow-hidden">
         {/* Sidebar */}
-        
 
         {/* Main Content */}
         <div className="min-h-screen w-full flex flex-col">
           {/* Header */}
-          
 
           {/* Main Content */}
           <div className="flex-1 p-6">
@@ -195,7 +195,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm font-medium">
-                    {t("payments.backToPayments", { defaultValue: "Back to Payments" })}
+                    {t("payments.backToPayments", {
+                      defaultValue: "Back to Payments",
+                    })}
                   </span>
                 </Link>
               </div>
@@ -213,8 +215,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                           Payment Not Found
                         </h2>
                         <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                          The payment you're looking for doesn't exist or has been
-                          removed. Please check the payment ID and try again.
+                          The payment you're looking for doesn't exist or has
+                          been removed. Please check the payment ID and try
+                          again.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                           <Button
@@ -222,14 +225,18 @@ const ViewPaymentPage = ({ paymentId }) => {
                             onClick={() => router.push("/dashboard/payments")}
                             className="px-6 py-3"
                           >
-                            {t("payments.backToPayments", { defaultValue: "Back to Payments" })}
+                            {t("payments.backToPayments", {
+                              defaultValue: "Back to Payments",
+                            })}
                           </Button>
                           <Button
                             variant="primary"
                             onClick={() => window.location.reload()}
                             className="px-6 py-3"
                           >
-                            {t("common.tryAgain", { defaultValue: "Try Again" })}
+                            {t("common.tryAgain", {
+                              defaultValue: "Try Again",
+                            })}
                           </Button>
                         </div>
                       </div>
@@ -261,10 +268,14 @@ const ViewPaymentPage = ({ paymentId }) => {
                           </div>
                           <div>
                             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {t("payments.paymentSummary", { defaultValue: "Payment Summary" })}
+                              {t("payments.paymentSummary", {
+                                defaultValue: "Payment Summary",
+                              })}
                             </h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                              {t("payments.paymentOverview", { defaultValue: "Payment overview" })}
+                              {t("payments.paymentOverview", {
+                                defaultValue: "Payment overview",
+                              })}
                             </p>
                           </div>
                         </div>
@@ -276,7 +287,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                               <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
                               <div className="relative z-10">
                                 <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                  {t("payments.paymentNumber", { defaultValue: "Payment Number" })}
+                                  {t("payments.paymentNumber", {
+                                    defaultValue: "Payment Number",
+                                  })}
                                 </p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
                                   {paymentData.paymentNumber || t("common.na")}
@@ -289,9 +302,11 @@ const ViewPaymentPage = ({ paymentId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
                             <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                             <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                  {t("payments.totalAmount", { defaultValue: "Total Amount" })}
-                                </p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                {t("payments.totalAmount", {
+                                  defaultValue: "Total Amount",
+                                })}
+                              </p>
                               <p className="text-lg font-bold text-green-600 dark:text-green-400">
                                 ₹
                                 {paymentData.totalAmount?.toLocaleString(
@@ -306,9 +321,11 @@ const ViewPaymentPage = ({ paymentId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
                             <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                             <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                  {t("payments.paymentType", { defaultValue: "Payment Type" })}
-                                </p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                {t("payments.paymentType", {
+                                  defaultValue: "Payment Type",
+                                })}
+                              </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                 {getPaymentTypeLabel(paymentData.paymentType)}
                               </p>
@@ -321,7 +338,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                               <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
                               <div className="relative z-10">
                                 <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                  {t("payments.paymentDate", { defaultValue: "Payment Date" })}
+                                  {t("payments.paymentDate", {
+                                    defaultValue: "Payment Date",
+                                  })}
                                 </p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                   {moment(paymentData.paymentDate).format(
@@ -342,12 +361,16 @@ const ViewPaymentPage = ({ paymentId }) => {
                               <Building2 className="w-6 h-6 text-blue-500" />
                             </div>
                             <div>
-                                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {t("payments.supplierInformation", { defaultValue: "Supplier Information" })}
-                                </h2>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                  {t("payments.supplierDetails", { defaultValue: "Supplier details" })}
-                                </p>
+                              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                {t("payments.supplierInformation", {
+                                  defaultValue: "Supplier Information",
+                                })}
+                              </h2>
+                              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                {t("payments.supplierDetails", {
+                                  defaultValue: "Supplier details",
+                                })}
+                              </p>
                             </div>
                           </div>
 
@@ -357,7 +380,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                               <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                               <div className="relative z-10">
                                 <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                  {t("payments.supplierName", { defaultValue: "Supplier Name" })}
+                                  {t("payments.supplierName", {
+                                    defaultValue: "Supplier Name",
+                                  })}
                                 </p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                   {paymentData.supplier?.name || t("common.na")}
@@ -371,7 +396,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                                 <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                                 <div className="relative z-10">
                                   <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                    {t("common.phone", { defaultValue: "Phone" })}
+                                    {t("common.phone", {
+                                      defaultValue: "Phone",
+                                    })}
                                   </p>
                                   <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                     {paymentData.supplier.phone}
@@ -386,7 +413,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                                 <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
                                 <div className="relative z-10">
                                   <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                    {t("common.email", { defaultValue: "Email" })}
+                                    {t("common.email", {
+                                      defaultValue: "Email",
+                                    })}
                                   </p>
                                   <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] break-all">
                                     {paymentData.supplier.email}
@@ -408,58 +437,70 @@ const ViewPaymentPage = ({ paymentId }) => {
                               </div>
                               <div>
                                 <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {t("payments.paymentMethods", { defaultValue: "Payment Methods" })}
+                                  {t("payments.paymentMethods", {
+                                    defaultValue: "Payment Methods",
+                                  })}
                                 </h2>
                                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                  {t("payments.paymentMethodDetails", { defaultValue: "Payment method details" })}
+                                  {t("payments.paymentMethodDetails", {
+                                    defaultValue: "Payment method details",
+                                  })}
                                 </p>
                               </div>
                             </div>
 
                             <div className="space-y-4">
-                              {paymentData.paymentMethods.map((method, index) => (
-                                <div
-                                  key={index}
-                                  className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]"
-                                >
-                                  <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-3">
-                                      {method.method === "CASH" && (
-                                        <Banknote className="w-5 h-5 text-green-500" />
-                                      )}
-                                      {method.method === "UPI" && (
-                                        <Smartphone className="w-5 h-5 text-blue-500" />
-                                      )}
-                                      {method.method === "BANK_TRANSFER" && (
-                                        <CreditCard className="w-5 h-5 text-purple-500" />
-                                      )}
-                                      {method.method === "CHEQUE" && (
-                                        <FileText className="w-5 h-5 text-orange-500" />
-                                      )}
-                                      {method.method === "CREDIT" && (
-                                        <CreditCard className="w-5 h-5 text-indigo-500" />
-                                      )}
-                                      <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                                        {getPaymentMethodLabel(method.method)}
+                              {paymentData.paymentMethods.map(
+                                (method, index) => (
+                                  <div
+                                    key={index}
+                                    className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]"
+                                  >
+                                    <div className="flex items-center justify-between mb-3">
+                                      <div className="flex items-center gap-3">
+                                        {method.method === "CASH" && (
+                                          <Banknote className="w-5 h-5 text-green-500" />
+                                        )}
+                                        {method.method === "UPI" && (
+                                          <Smartphone className="w-5 h-5 text-blue-500" />
+                                        )}
+                                        {method.method === "BANK_TRANSFER" && (
+                                          <CreditCard className="w-5 h-5 text-purple-500" />
+                                        )}
+                                        {method.method === "CHEQUE" && (
+                                          <FileText className="w-5 h-5 text-orange-500" />
+                                        )}
+                                        {method.method === "CREDIT" && (
+                                          <CreditCard className="w-5 h-5 text-indigo-500" />
+                                        )}
+                                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                                          {getPaymentMethodLabel(method.method)}
+                                        </span>
+                                      </div>
+                                      <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                        ₹
+                                        {method.amount?.toLocaleString(
+                                          "en-IN",
+                                          {
+                                            maximumFractionDigits: 2,
+                                          }
+                                        ) || "0.00"}
                                       </span>
                                     </div>
-                                    <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                                      ₹
-                                      {method.amount?.toLocaleString("en-IN", {
-                                        maximumFractionDigits: 2,
-                                      }) || "0.00"}
-                                    </span>
+                                    {method.reference && (
+                                      <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                        {t("payments.reference", {
+                                          defaultValue: "Reference",
+                                        })}
+                                        :{" "}
+                                        <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                          {method.reference}
+                                        </span>
+                                      </p>
+                                    )}
                                   </div>
-                                  {method.reference && (
-                                    <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                      {t("payments.reference", { defaultValue: "Reference" })}:{" "}
-                                      <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                                        {method.reference}
-                                      </span>
-                                    </p>
-                                  )}
-                                </div>
-                              ))}
+                                )
+                              )}
                             </div>
                           </div>
                         )}
@@ -472,12 +513,14 @@ const ViewPaymentPage = ({ paymentId }) => {
                               <FileText className="w-6 h-6 text-gray-500" />
                             </div>
                             <div>
-                                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {t("payments.notes", { defaultValue: "Notes" })}
-                                </h2>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                  {t("payments.additionalInformation", { defaultValue: "Additional information" })}
-                                </p>
+                              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                {t("payments.notes", { defaultValue: "Notes" })}
+                              </h2>
+                              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                {t("payments.additionalInformation", {
+                                  defaultValue: "Additional information",
+                                })}
+                              </p>
                             </div>
                           </div>
                           <p className="text-[rgb(var(--color-text-primary))] leading-relaxed">
@@ -498,10 +541,14 @@ const ViewPaymentPage = ({ paymentId }) => {
                           </div>
                           <div>
                             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                              {t("common.quickActions", { defaultValue: "Quick Actions" })}
+                              {t("common.quickActions", {
+                                defaultValue: "Quick Actions",
+                              })}
                             </h3>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                              {t("payments.manageThisPayment", { defaultValue: "Manage this payment" })}
+                              {t("payments.manageThisPayment", {
+                                defaultValue: "Manage this payment",
+                              })}
                             </p>
                           </div>
                         </div>
@@ -525,20 +572,33 @@ const ViewPaymentPage = ({ paymentId }) => {
                             onClick={() => handleDownloadPDF(paymentData)}
                             disabled={fetching || !paymentData || !canRead}
                           >
-                            <span className="hidden sm:inline">{t("common.download", { defaultValue: "Download" })}</span>
-                            <span className="sm:hidden">{t("common.download", { defaultValue: "Download" })}</span>
+                            <span className="hidden sm:inline">
+                              {t("common.download", {
+                                defaultValue: "Download",
+                              })}
+                            </span>
+                            <span className="sm:hidden">
+                              {t("common.download", {
+                                defaultValue: "Download",
+                              })}
+                            </span>
                           </Button>
                         </div>
 
                         {/* Quick Stats */}
                         <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
                           <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                            {t("common.quickStats", { defaultValue: "Quick Stats" })}
+                            {t("common.quickStats", {
+                              defaultValue: "Quick Stats",
+                            })}
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                {t("payments.totalAmount", { defaultValue: "Total Amount" })}:
+                                {t("payments.totalAmount", {
+                                  defaultValue: "Total Amount",
+                                })}
+                                :
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 ₹
@@ -550,7 +610,10 @@ const ViewPaymentPage = ({ paymentId }) => {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                {t("payments.paymentMethods", { defaultValue: "Payment Methods" })}:
+                                {t("payments.paymentMethods", {
+                                  defaultValue: "Payment Methods",
+                                })}
+                                :
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {paymentData.paymentMethods?.length || 0}
@@ -559,7 +622,10 @@ const ViewPaymentPage = ({ paymentId }) => {
                             {paymentData.paymentDate && (
                               <div className="flex justify-between">
                                 <span className="text-[rgb(var(--color-text-secondary))]">
-                                  {t("payments.paymentDate", { defaultValue: "Payment Date" })}:
+                                  {t("payments.paymentDate", {
+                                    defaultValue: "Payment Date",
+                                  })}
+                                  :
                                 </span>
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                   {moment(paymentData.paymentDate).format(

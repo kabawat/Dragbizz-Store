@@ -1,25 +1,26 @@
 "use client";
 import { PageSkeleton } from "@dragorbit/ui/app";
+import { ArrowLeft, Receipt } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Button } from "@/components/ui";
-
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { billService } from "@/service/retailer";
-import { useAppSelector } from "@/store/hooks";
-import { useApiResponse } from "@/hooks/useApiResponse";
-
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BillItemsSection from "@/components/bills/create/BillItemsSection";
 import BillSidebar from "@/components/bills/create/BillSidebar";
-import Link from "next/link";
-import { ArrowLeft, Receipt } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { billService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const EditBill = ({ billId }) => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("bills.editBill"), t("bills.updateBillInformationAndDetails"));
+  useDashboardHeader(
+    t("bills.editBill"),
+    t("bills.updateBillInformationAndDetails")
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -37,7 +38,12 @@ const EditBill = ({ billId }) => {
   const [errors, setErrors] = useState({});
 
   const { showError } = useGlobalToast();
-  const { execute: executeFetch, data: fetchedBill, loading: fetching, error: fetchError } = useApiResponse();
+  const {
+    execute: executeFetch,
+    data: fetchedBill,
+    loading: fetching,
+    error: fetchError,
+  } = useApiResponse();
   const { execute: executeUpdate, loading: isUpdating } = useApiResponse();
 
   // Populate form when data arrives natively
@@ -46,10 +52,12 @@ const EditBill = ({ billId }) => {
       setFormData({
         supplier: fetchedBill.supplier?._id || "",
         purchaseOrder: fetchedBill.purchaseOrder?._id || "",
-        dueDate: fetchedBill.dueDate ? new Date(fetchedBill.dueDate).toISOString().split("T")[0] : "",
+        dueDate: fetchedBill.dueDate
+          ? new Date(fetchedBill.dueDate).toISOString().split("T")[0]
+          : "",
         notes: fetchedBill.notes || "",
         goodsReceived: fetchedBill.goodsReceived ?? true,
-        items: (fetchedBill.items || []).map(item => ({
+        items: (fetchedBill.items || []).map((item) => ({
           product: item.product,
           productName: item.productName || "",
           quantity: item.quantity || 1,
@@ -70,29 +78,31 @@ const EditBill = ({ billId }) => {
     }
   }, [billId, selectedStore?.storeId, executeFetch]);
 
-
   // Handle input changes
-  const handleInputChange = useCallback((field, value) => {
-    if (value === "add-new-supplier") {
-      router.push("/dashboard/suppliers/add");
-      return;
-    }
+  const handleInputChange = useCallback(
+    (field, value) => {
+      if (value === "add-new-supplier") {
+        router.push("/dashboard/suppliers/add");
+        return;
+      }
 
-    if (value === "add-new-purchase-order") {
-      router.push("/dashboard/purchase-orders/create");
-      return;
-    }
+      if (value === "add-new-purchase-order") {
+        router.push("/dashboard/purchase-orders/create");
+        return;
+      }
 
-    setFormData((prev) => {
-      const newData = { ...prev, [field]: value };
-      if (field === "supplier") newData.purchaseOrder = "";
-      return newData;
-    });
+      setFormData((prev) => {
+        const newData = { ...prev, [field]: value };
+        if (field === "supplier") newData.purchaseOrder = "";
+        return newData;
+      });
 
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  }, [errors, router]);
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: "" }));
+      }
+    },
+    [errors, router]
+  );
 
   // Validate form
   const validateForm = useCallback(() => {
@@ -116,8 +126,10 @@ const EditBill = ({ billId }) => {
     }
 
     formData.items.forEach((item, index) => {
-      if (!item.product) newErrors[`item_${index}_product`] = "Product is required";
-      if (!item.quantity || item.quantity <= 0) newErrors[`item_${index}_quantity`] = "Valid quantity is required";
+      if (!item.product)
+        newErrors[`item_${index}_product`] = "Product is required";
+      if (!item.quantity || item.quantity <= 0)
+        newErrors[`item_${index}_quantity`] = "Valid quantity is required";
       if (item.purchasePrice === undefined || item.purchasePrice < 0) {
         newErrors[`item_${index}_purchasePrice`] = "Valid price is required";
       }
@@ -157,36 +169,56 @@ const EditBill = ({ billId }) => {
     } else if (result?.fieldErrors) {
       setErrors(result.fieldErrors);
     }
-  }, [billId, formData, selectedStore?.storeId, validateForm, t, executeUpdate, router]);
+  }, [
+    billId,
+    formData,
+    selectedStore?.storeId,
+    validateForm,
+    t,
+    executeUpdate,
+    router,
+  ]);
 
-  const memoizedBillItemsSection = useMemo(() => (
-    <BillItemsSection
-      t={t}
-      formData={formData}
-      setFormData={setFormData}
-      showError={showError}
-      errors={errors}
-      setErrors={setErrors}
-    />
-  ), [errors, formData, setErrors, setFormData, showError, t]);
+  const memoizedBillItemsSection = useMemo(
+    () => (
+      <BillItemsSection
+        t={t}
+        formData={formData}
+        setFormData={setFormData}
+        showError={showError}
+        errors={errors}
+        setErrors={setErrors}
+      />
+    ),
+    [errors, formData, setErrors, setFormData, showError, t]
+  );
 
-  const memoizedBillSidebar = useMemo(() => (
-    <BillSidebar
-      t={t}
-      formData={formData}
-      handleInputChange={handleInputChange}
-      setFormData={setFormData}
-      errors={errors}
-      isCreating={isUpdating}
-      handleSubmit={handleSubmit}
-      isEditing={true}
-    />
-  ), [errors, formData, handleInputChange, handleSubmit, isUpdating, setFormData, t]);
+  const memoizedBillSidebar = useMemo(
+    () => (
+      <BillSidebar
+        t={t}
+        formData={formData}
+        handleInputChange={handleInputChange}
+        setFormData={setFormData}
+        errors={errors}
+        isCreating={isUpdating}
+        handleSubmit={handleSubmit}
+        isEditing={true}
+      />
+    ),
+    [
+      errors,
+      formData,
+      handleInputChange,
+      handleSubmit,
+      isUpdating,
+      setFormData,
+      t,
+    ]
+  );
 
-  if (fetching) {
-    return (
-      <PageSkeleton />
-    );
+  if (fetching || (!fetchedBill && !fetchError)) {
+    return <PageSkeleton />;
   }
 
   if (fetchError) {
@@ -194,8 +226,14 @@ const EditBill = ({ billId }) => {
       <div className="flex-1 flex items-center justify-center min-h-screen">
         <div className="text-center max-w-md p-8 bg-[rgb(var(--color-bg-primary))] rounded-xl shadow-sm border border-[rgb(var(--color-border-primary))]">
           <Receipt className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2">{fetchError}</h2>
-          <Button variant="outline" onClick={() => router.push("/dashboard/bills")} className="mt-4">
+          <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-2">
+            {fetchError}
+          </h2>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/dashboard/bills")}
+            className="mt-4"
+          >
             {t("common.backTo", { item: t("common.bills") })}
           </Button>
         </div>
@@ -207,15 +245,25 @@ const EditBill = ({ billId }) => {
     <div className="overflow-hidden">
       <div className="max-w-8xl mx-auto w-full">
         <div className="p-5">
-          <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+          <Link
+            href="/dashboard/bills"
+            className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">{t("common.backTo", { item: t("common.bills") })}</span>
+            <span className="text-sm font-medium">
+              {t("common.backTo", { item: t("common.bills") })}
+            </span>
           </Link>
         </div>
         <div className="h-[calc(100vh-150px)] overflow-y-auto px-5 pb-5">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+              >
                 {memoizedBillItemsSection}
               </form>
             </div>

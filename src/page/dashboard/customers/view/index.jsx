@@ -1,27 +1,30 @@
 "use client";
+import { Users } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import CustomerDetailsTemplate from "@/components/templates/customer/CustomerDetailsTemplate";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { EditCustomer } from "@/components/customer";
 import CustomerViewHeader from "@/components/customer/view/CustomerViewHeader";
 import CustomerViewLayout from "@/components/customer/view/CustomerViewLayout";
 import ErrorState from "@/components/customer/view/components/ErrorState";
 import LoadingState from "@/components/customer/view/components/LoadingState";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import CustomerDetailsTemplate from "@/components/templates/customer/CustomerDetailsTemplate";
+import { SideDrawer } from "@/components/ui";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useCustomerDetailsPrint } from "./hooks/useCustomerDetailsPrint";
-import useApiResponse from "@/hooks/useApiResponse";
-import { SideDrawer } from "@/components/ui";
-import { EditCustomer } from "@/components/customer";
-import { Users } from "lucide-react";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("customers.viewCustomer"), t("customers.viewCustomerDescription"));
+  useDashboardHeader(
+    t("customers.viewCustomer"),
+    t("customers.viewCustomerDescription")
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -32,38 +35,34 @@ const ViewCustomerPage = ({ customerId }) => {
   const customerPerm = useModulePermissions("customer");
   const canEdit = customerPerm.edit;
 
-  const { execute, data: customerData, error: hookError, loading } = useApiResponse();
-  const [error, setError] = useState(null);
+  const { execute, data: customerData, error, loading } = useApiResponse();
   const fetchedCustomerRef = useRef(null);
 
   // Edit drawer state
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
 
-  const { handleDownloadPDF } = useCustomerDetailsPrint(loading || (!customerData && !error), customerData);
+  const { handleDownloadPDF } = useCustomerDetailsPrint(
+    loading || (!customerData && !error),
+    customerData
+  );
 
   useEffect(() => {
     setActiveTab(searchParams.get("tab") === "khata" ? "khata" : "details");
   }, [searchParams]);
 
-  // Sync natively
-  useEffect(() => {
-    if (hookError) setError(hookError);
-  }, [hookError]);
-
-  const fetchCustomerData = () => {
+  const fetchCustomerData = useCallback(() => {
     if (!customerId || !storeId) return;
-    execute(
-      customerService.getCustomers({ id: customerId, store: storeId }),
-      { showToast: false }
-    );
-  };
+    execute(customerService.getCustomers({ id: customerId, store: storeId }), {
+      showToast: false,
+    });
+  }, [customerId, storeId, execute]);
 
   useEffect(() => {
     if (customerId && storeId && fetchedCustomerRef.current !== customerId) {
       fetchedCustomerRef.current = customerId;
       fetchCustomerData();
     }
-  }, [customerId, storeId, execute]);
+  }, [customerId, storeId, fetchCustomerData]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -74,7 +73,7 @@ const ViewCustomerPage = ({ customerId }) => {
     router.replace(href);
   };
 
-  const handleEditSuccess = (updatedData) => {
+  const handleEditSuccess = (_updatedData) => {
     setIsEditDrawerOpen(false);
     fetchCustomerData(); // Refetch customer data directly after edit
   };
@@ -87,35 +86,42 @@ const ViewCustomerPage = ({ customerId }) => {
     onClose: () => setIsEditDrawerOpen(false),
   });
 
-  if (!customerData && !error) return <LoadingState />;
+  if (loading || (!customerData && !error)) return <LoadingState />;
 
   return (
     <div className="overflow-hidden">
       <div className="w-full">
-        <CustomerViewHeader t={t} activeTab={activeTab} onTabChange={handleTabChange} />
+        <CustomerViewHeader
+          t={t}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          showTabs={!error && !!customerData}
+        />
 
         <div className="px-5">
-          {error && <ErrorState error={error} />}
+          {error ? (
+            <ErrorState error={error} />
+          ) : (
+            customerData && (
+              <div>
+                <div id="customer-details-report-area" className="hidden">
+                  <CustomerDetailsTemplate
+                    customerData={customerData}
+                    selectedStore={selectedStore}
+                  />
+                </div>
 
-          {!error && customerData && (
-            <div>
-              <div id="customer-details-report-area" className="hidden">
-                <CustomerDetailsTemplate
+                <CustomerViewLayout
                   customerData={customerData}
-                  selectedStore={selectedStore}
+                  customerId={customerId}
+                  storeId={storeId}
+                  activeTab={activeTab}
+                  onEdit={canEdit ? () => setIsEditDrawerOpen(true) : undefined}
+                  onDownloadPDF={handleDownloadPDF}
+                  onKhataSuccess={fetchCustomerData}
                 />
               </div>
-
-              <CustomerViewLayout
-                customerData={customerData}
-                customerId={customerId}
-                storeId={storeId}
-                activeTab={activeTab}
-                onEdit={canEdit ? () => setIsEditDrawerOpen(true) : undefined}
-                onDownloadPDF={handleDownloadPDF}
-                onKhataSuccess={fetchCustomerData}
-              />
-            </div>
+            )
           )}
         </div>
       </div>

@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BillDetailsTemplate from "@/components/templates/bill/BillDetailsTemplate";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { billService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDate, formatDateTime } from "@/utils/dateFormatter";
-import { useApiResponse } from "@/hooks/useApiResponse";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import BillActions from "./components/BillActions";
 import BillBatches from "./components/BillBatches";
 import BillHeader from "./components/BillHeader";
@@ -27,7 +27,7 @@ import { useBillDetailsPrint } from "./hooks/useBillDetailsPrint";
 const ViewBillPage = ({ billId }) => {
   const { t } = useTranslation();
 
-    useDashboardHeader(t("bills.viewBill"), t("bills.viewBillDescription"));
+  useDashboardHeader(t("bills.viewBill"), t("bills.viewBillDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -42,7 +42,12 @@ const ViewBillPage = ({ billId }) => {
   const [deletedBillNumber, setDeletedBillNumber] = useState("");
   const fetchedBillRef = useRef(null);
 
-  const { execute: executeFetch, data: billData, loading: fetching, error: activeError } = useApiResponse();
+  const {
+    execute: executeFetch,
+    data: billData,
+    loading: fetching,
+    error: activeError,
+  } = useApiResponse();
   const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   const { handleDownloadPDF } = useBillDetailsPrint(fetching, billData);
@@ -50,10 +55,9 @@ const ViewBillPage = ({ billId }) => {
   useEffect(() => {
     if (billId && storeId && fetchedBillRef.current !== billId) {
       fetchedBillRef.current = billId;
-      executeFetch(
-        billService.getBills({ store: storeId, id: billId }),
-        { showToast: false }
-      );
+      executeFetch(billService.getBills({ store: storeId, id: billId }), {
+        showToast: false,
+      });
     }
   }, [billId, storeId, executeFetch]);
 
@@ -70,7 +74,11 @@ const ViewBillPage = ({ billId }) => {
 
     const result = await executeDelete(
       billService.deleteBill(billId, storeId),
-      { message: billData?.billNumber ? `${billData.billNumber} deleted successfully` : "Bill deleted successfully" }
+      {
+        message: billData?.billNumber
+          ? `${billData.billNumber} deleted successfully`
+          : "Bill deleted successfully",
+      }
     );
 
     if (result?.success) {
@@ -91,15 +99,13 @@ const ViewBillPage = ({ billId }) => {
     router.push("/dashboard/bills");
   };
 
-  if (fetching) {
+  if (fetching || (!billData && !activeError)) {
     return <LoadingState />;
   }
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
-      
       <div className="h-screen w-full flex flex-col overflow-hidden">
-        
         <div className="flex-1 p-6 overflow-hidden">
           <div className="">
             <div className="mb-6">
@@ -108,7 +114,9 @@ const ViewBillPage = ({ billId }) => {
                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t("bills.backToBills", { defaultValue: "Back to Bills" })}</span>
+                <span className="text-sm font-medium">
+                  {t("bills.backToBills", { defaultValue: "Back to Bills" })}
+                </span>
               </Link>
             </div>
 
@@ -128,7 +136,10 @@ const ViewBillPage = ({ billId }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: "calc(100vh - 184px)" }}>
+                <div
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                  style={{ height: "calc(100vh - 184px)" }}
+                >
                   <div className="lg:col-span-2 flex flex-col overflow-y-auto pe-4 space-y-5 custom-scrollbar">
                     {/* Main Bill Sheet (Document Style) */}
                     <div className="bg-white dark:bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]/60">
@@ -145,7 +156,7 @@ const ViewBillPage = ({ billId }) => {
                           ...billData.itemsSummary,
                           subtotal: billData.subtotal,
                           gstAmount: billData.gstAmount,
-                          totalValue: billData.totalAmount
+                          totalValue: billData.totalAmount,
                         }}
                         gstBreakdown={billData.gstBreakdown}
                         formatCurrency={formatCurrency}

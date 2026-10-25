@@ -4,14 +4,14 @@ import { AlertTriangle, ArrowLeft, Edit, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { VariantForm } from "@/components/variant";
 import { Button, PageLoader } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
+import { VariantForm } from "@/components/variant";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import {
   getInitialVariantFormData,
   mapImageRecords,
@@ -36,7 +36,11 @@ const ViewVariantPage = ({ variantId }) => {
   );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const {
+    execute: executeFetch,
+    loading: fetching,
+    error: fetchError,
+  } = useApiResponse();
   const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   useEffect(() => {
@@ -90,8 +94,59 @@ const ViewVariantPage = ({ variantId }) => {
     }
   };
 
-  if (fetching && !formData.id) {
+  if (fetching || (!formData.id && !fetchError)) {
     return <PageLoader />;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="overflow-hidden">
+        <div className="max-w-8xl mx-auto w-full">
+          <div className="p-5">
+            <Link
+              href="/dashboard/variants"
+              className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {t("products.backToVariants") || "Back to variants"}
+              </span>
+            </Link>
+          </div>
+          <div className="w-full p-8 flex items-center justify-center min-h-[400px]">
+            <div className="text-center max-w-md">
+              <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertTriangle className="w-10 h-10 text-red-600" />
+              </div>
+              <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
+                {fetchError}
+              </h2>
+              <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
+                {t("common.doesntExistOrRemoved", {
+                  item: t("common.variant") || "Variant",
+                })}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/dashboard/variants")}
+                  className="px-6 py-3"
+                >
+                  {t("products.backToVariants") || "Back to variants"}
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-3"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

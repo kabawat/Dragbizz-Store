@@ -1,7 +1,7 @@
 "use client";
 
-import { DataTable } from "@dragorbit/ui/table";
 import { PageSkeleton } from "@dragorbit/ui/app";
+import { DataTable } from "@dragorbit/ui/table";
 import {
   AlertCircle,
   ArrowLeft,
@@ -22,14 +22,15 @@ import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import InventoryDetailsTemplate from "@/components/templates/inventory/InventoryDetailsTemplate";
 import { Button } from "@/components/ui";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
 import { useInventoryDetailsPrint } from "./hooks/useInventoryDetailsPrint";
+
 const ViewInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -79,7 +80,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
     useDashboardHeader("View Stock", "Stock information and details");
     router.push(`/dashboard/stock/add?productId=${inventory?.product?.id}`);
   };
-  if (loading) {
+  if (loading || (!inventory && !error)) {
     return <PageSkeleton />;
   }
   return (
@@ -551,7 +552,10 @@ const ViewInventoryPage = ({ inventoryId }) => {
                       </div>
 
                       <div className="overflow-x-auto">
-                        <DataTable className="min-w-0" caption="Inventory batches">
+                        <DataTable
+                          className="min-w-0"
+                          caption="Inventory batches"
+                        >
                           <thead>
                             <tr className="border-b border-[rgb(var(--color-border-primary))]">
                               <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">
