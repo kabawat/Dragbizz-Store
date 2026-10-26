@@ -1,6 +1,7 @@
 "use client";
 
 import { DocumentPreview, Modal } from "@dragorbit/ui";
+import { ConfiguredInvoiceTemplate } from "@dragorbit/features/invoices";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Printer, X } from "lucide-react";
 import useApiResponse from "@/hooks/useApiResponse";
@@ -9,20 +10,23 @@ import { useMiniInvoicePrint } from "@/hooks/print/invoice/useMiniInvoicePrint";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { invoiceService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
+import { fetchSignatures } from "@/store/slices/signaturesSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   calculateGstAmount,
   calculateSubtotal,
   getItemsWithGst,
 } from "@/utils/invoice/invoiceCalculations.utils";
-import { getTemplateComponent } from "@/utils/invoice/invoiceView.utils";
 import { pickStoreId } from "@/utils/store.util";
 
 const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
   const { t } = useTranslation();
   const { showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { agency, signatures } = useAppSelector((state) => ({ agency: state.profile.agency, signatures: state.signatures }));
+  const dispatch = useAppDispatch();
   const storeId = pickStoreId(selectedStore);
+  const agencyId = agency?.agencyId || agency?._id || selectedStore?.agencyId || selectedStore?.agency?.agencyId || selectedStore?.agency?._id || selectedStore?.agency;
   const { execute, loading: fetching } = useApiResponse();
 
   const [invoiceData, setInvoiceData] = useState(null);
@@ -43,6 +47,12 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
     const savedTemplate = localStorage.getItem("invoice-template");
     if (savedTemplate) setSelectedTemplate(savedTemplate);
   }, []);
+
+  useEffect(() => {
+    if (open && agencyId && !signatures.items.length && !signatures.loading && !signatures.lastFetched && !signatures.error) {
+      dispatch(fetchSignatures({ agencyId, lightweight: true }));
+    }
+  }, [open, agencyId, dispatch, signatures.items.length, signatures.loading, signatures.lastFetched, signatures.error]);
 
   useEffect(() => {
     if (!open) {
@@ -86,7 +96,6 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
 
   if (!open || !invoiceId) return null;
 
-  const Template = getTemplateComponent(selectedTemplate);
   const showPreview = Boolean(invoiceData) && !fetching && !loadError;
 
   return (
@@ -147,7 +156,8 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
           {showPreview && (
             <DocumentPreview>
               <div id="invoice-area" className="bg-white">
-                <Template
+                <ConfiguredInvoiceTemplate
+                  templateKey={selectedTemplate}
                   invoiceData={{
                     ...invoiceData,
                     items:
@@ -164,6 +174,8 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
                         : invoiceData.gstAmount,
                   }}
                   selectedStore={selectedStore}
+                  signatures={signatures.items}
+                  signatureSettingsUrl="/dashboard/utilities/signatures"
                 />
               </div>
             </DocumentPreview>
