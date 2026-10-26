@@ -4,5 +4,9 @@
   "preferences": "Preferences",
   "signOut": "Sign Out karo",
   "suggestions": "Suggestions",
-  "user": "User"
+  "user": "User",
+  "signOutPrompt": "Account se sign out karna chahte hain?",
+  "signOutDescription": "Kya aap sure hain? Store aur dashboard access karne ke liye aapko dubara log in karna padega.",
+  "signingOut": "Sign out ho raha hai...",
+  "signedInAs": "Signed in as"
 }
