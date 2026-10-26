@@ -1,5 +1,7 @@
 "use client";
+import { DataTable, TableRowActions } from "@dragorbit/ui/table";
 import {
+  Bell,
   BookOpen,
   Edit,
   Eye,
@@ -8,16 +10,15 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
-import CopyableContactValue from "@/components/customer/CopyableContactValue";
+import { useCallback } from "react";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import CopyableContactValue from "@/components/customer/CopyableContactValue";
+import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateDash, getRecordCreatedAt } from "@/utils/dateFormatter";
-import { useCallback } from "react";
-import { DataTable, TableRowActions } from "@dragorbit/ui/table";
 
 function CustomerBalanceAmount({ totalDue }) {
   const amount = Number(totalDue) || 0;
@@ -43,11 +44,13 @@ const CustomerTable = ({
   onViewDetails,
   onManageKhata,
   onQuickKhataEntry,
+  onSendReminder,
   className = "",
   canEdit = true,
   canDelete = true,
   canManageKhata = true,
   canQuickKhataEntry = true,
+  canRemind = true,
   maxHeight = "calc(100vh - 210px)",
   scrollFooter,
   loading = false,
@@ -72,6 +75,9 @@ const CustomerTable = ({
         case "quickKhata":
           onQuickKhataEntry?.(customerId);
           break;
+        case "reminder":
+          onSendReminder?.(customerId);
+          break;
         case "delete":
           onDelete?.(customerId);
           break;
@@ -85,6 +91,7 @@ const CustomerTable = ({
       onEdit,
       onManageKhata,
       onQuickKhataEntry,
+      onSendReminder,
       onDelete,
     ]
   );
@@ -97,6 +104,7 @@ const CustomerTable = ({
           key: "view",
           label: t("common.viewDetails"),
           icon: Eye,
+          iconClassName: "text-blue-500 dark:text-blue-400",
           onClick: run("view"),
         },
       ];
@@ -105,6 +113,7 @@ const CustomerTable = ({
           key: "quickKhata",
           label: t("khata.quickEntry"),
           icon: Receipt,
+          iconClassName: "text-emerald-500 dark:text-emerald-400",
           onClick: run("quickKhata"),
         });
       }
@@ -113,7 +122,19 @@ const CustomerTable = ({
           key: "khata",
           label: t("khata.manageKhata"),
           icon: BookOpen,
+          iconClassName: "text-indigo-500 dark:text-indigo-400",
           onClick: run("khata"),
+        });
+      }
+      if (canRemind && onSendReminder) {
+        items.push({
+          key: "reminder",
+          label:
+            t("khata.reminder") || t("khata.paymentReminder") || "Reminder",
+          icon: Bell,
+          tone: "warning",
+          iconClassName: "text-amber-500 dark:text-amber-400",
+          onClick: run("reminder"),
         });
       }
       if (canEdit) {
@@ -121,10 +142,11 @@ const CustomerTable = ({
           key: "edit",
           label: t("common.edit"),
           icon: Edit,
+          iconClassName: "text-slate-500 dark:text-slate-400",
           onClick: run("edit"),
         });
       }
-      if (canEdit && canDelete) {
+      if ((canEdit || canRemind) && canDelete) {
         items.push({ type: "separator" });
       }
       if (canDelete) {
@@ -133,6 +155,7 @@ const CustomerTable = ({
           label: t("common.delete"),
           icon: Trash2,
           tone: "danger",
+          iconClassName: "text-red-500 dark:text-red-400",
           onClick: run("delete"),
         });
       }
@@ -144,6 +167,8 @@ const CustomerTable = ({
       onQuickKhataEntry,
       canManageKhata,
       onManageKhata,
+      canRemind,
+      onSendReminder,
       canEdit,
       canDelete,
       handleMenuAction,

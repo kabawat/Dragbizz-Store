@@ -1,5 +1,6 @@
 "use client";
 import {
+  Bell,
   BookOpen,
   Edit,
   Eye,
@@ -10,9 +11,9 @@ import {
   Users,
 } from "lucide-react";
 import { useCallback } from "react";
-import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
-import CopyableContactValue from "@/components/customer/CopyableContactValue";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
+import CopyableContactValue from "@/components/customer/CopyableContactValue";
+import CustomerSourceBadge from "@/components/customer/CustomerSourceBadge";
 import KhataDueBadge from "@/components/khata/KhataDueBadge";
 import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -26,61 +27,133 @@ const CustomerCard = ({
   onViewDetails,
   onManageKhata,
   onQuickKhataEntry,
+  onSendReminder,
   className = "",
   canEdit = true,
   canDelete = true,
   canManageKhata = true,
   canQuickKhataEntry = true,
+  canRemind = true,
   ...props
 }) => {
   const { t } = useTranslation();
   const { menu, menuRefs, closeMenu, toggleDropdown } = useRowActionMenu();
 
-  const handleMenuAction = useCallback((customerId, action) => {
-    closeMenu();
-    switch (action) {
-      case "view":
-        onViewDetails?.(customerId);
-        break;
-      case "edit":
-        onEdit?.(customerId);
-        break;
-      case "khata":
-        onManageKhata?.(customerId);
-        break;
-      case "quickKhata":
-        onQuickKhataEntry?.(customerId);
-        break;
-      case "delete":
-        onDelete?.(customerId);
-        break;
-      default:
-        break;
-    }
-  }, [closeMenu, onViewDetails, onEdit, onManageKhata, onQuickKhataEntry, onDelete]);
+  const handleMenuAction = useCallback(
+    (customerId, action) => {
+      closeMenu();
+      switch (action) {
+        case "view":
+          onViewDetails?.(customerId);
+          break;
+        case "edit":
+          onEdit?.(customerId);
+          break;
+        case "khata":
+          onManageKhata?.(customerId);
+          break;
+        case "quickKhata":
+          onQuickKhataEntry?.(customerId);
+          break;
+        case "reminder":
+          onSendReminder?.(customerId);
+          break;
+        case "delete":
+          onDelete?.(customerId);
+          break;
+        default:
+          break;
+      }
+    },
+    [
+      closeMenu,
+      onViewDetails,
+      onEdit,
+      onManageKhata,
+      onQuickKhataEntry,
+      onSendReminder,
+      onDelete,
+    ]
+  );
 
-  const buildMenuItems = useCallback((rowId) => {
-    const run = (action) => () => handleMenuAction(rowId, action);
-    const items = [
-      { key: "view", label: t("common.viewDetails"), icon: Eye, onClick: run("view") },
-    ];
-    if (canQuickKhataEntry && onQuickKhataEntry) {
-      items.push({ key: "quickKhata", label: t("khata.quickEntry"), icon: Receipt, onClick: run("quickKhata") });
-    }
-    if (canManageKhata && onManageKhata) {
-      items.push({ key: "khata", label: t("khata.manageKhata"), icon: BookOpen, onClick: run("khata") });
-    }
-    if (canEdit) {
-      items.push({ key: "edit", label: t("common.edit"), icon: Edit, onClick: run("edit") });
-    }
-    if (canEdit && canDelete) {
-      items.push({ type: "separator" });
-    }
-    if (canDelete) {
-      items.push({ key: "delete", label: t("common.delete"), icon: Trash2, tone: "danger", onClick: run("delete") });
-    }
-    return items;
-  }, [t, canQuickKhataEntry, onQuickKhataEntry, canManageKhata, onManageKhata, canEdit, canDelete, handleMenuAction]);
+  const buildMenuItems = useCallback(
+    (rowId) => {
+      const run = (action) => () => handleMenuAction(rowId, action);
+      const items = [
+        {
+          key: "view",
+          label: t("common.viewDetails"),
+          icon: Eye,
+          iconClassName: "text-blue-500 dark:text-blue-400",
+          onClick: run("view"),
+        },
+      ];
+      if (canQuickKhataEntry && onQuickKhataEntry) {
+        items.push({
+          key: "quickKhata",
+          label: t("khata.quickEntry"),
+          icon: Receipt,
+          iconClassName: "text-emerald-500 dark:text-emerald-400",
+          onClick: run("quickKhata"),
+        });
+      }
+      if (canManageKhata && onManageKhata) {
+        items.push({
+          key: "khata",
+          label: t("khata.manageKhata"),
+          icon: BookOpen,
+          iconClassName: "text-indigo-500 dark:text-indigo-400",
+          onClick: run("khata"),
+        });
+      }
+      if (canRemind && onSendReminder) {
+        items.push({
+          key: "reminder",
+          label:
+            t("khata.reminder") || t("khata.paymentReminder") || "Reminder",
+          icon: Bell,
+          tone: "warning",
+          iconClassName: "text-amber-500 dark:text-amber-400",
+          onClick: run("reminder"),
+        });
+      }
+      if (canEdit) {
+        items.push({
+          key: "edit",
+          label: t("common.edit"),
+          icon: Edit,
+          iconClassName: "text-slate-500 dark:text-slate-400",
+          onClick: run("edit"),
+        });
+      }
+      if ((canEdit || canRemind) && canDelete) {
+        items.push({ type: "separator" });
+      }
+      if (canDelete) {
+        items.push({
+          key: "delete",
+          label: t("common.delete"),
+          icon: Trash2,
+          tone: "danger",
+          iconClassName: "text-red-500 dark:text-red-400",
+          onClick: run("delete"),
+        });
+      }
+      return items;
+    },
+    [
+      t,
+      canQuickKhataEntry,
+      onQuickKhataEntry,
+      canManageKhata,
+      onManageKhata,
+      canRemind,
+      onSendReminder,
+      canEdit,
+      canDelete,
+      handleMenuAction,
+    ]
+  );
 
   // Grid view - Modern Card Design
   return (
@@ -102,11 +175,17 @@ const CustomerCard = ({
 
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
-          <div className="relative" ref={(el) => (menuRefs.current[customer.id] = el)}>
+          <div
+            className="relative"
+            ref={(el) => (menuRefs.current[customer.id] = el)}
+          >
             <IconButton onClick={() => toggleDropdown(customer.id)} />
 
             {menu?.rowId === customer.id && menu.mode === "dropdown" ? (
-              <RowActionsMenu items={buildMenuItems(customer.id)} mode="dropdown" />
+              <RowActionsMenu
+                items={buildMenuItems(customer.id)}
+                mode="dropdown"
+              />
             ) : null}
           </div>
         </div>
@@ -127,7 +206,9 @@ const CustomerCard = ({
             <h3 className="font-bold text-md sm:text-xl text-[rgb(var(--color-text-primary))]">
               {customer.name || t("common.notAvailable")}
             </h3>
-            <KhataDueBadge totalDue={customer.account?.totalDue ?? customer.totalDue} />
+            <KhataDueBadge
+              totalDue={customer.account?.totalDue ?? customer.totalDue}
+            />
           </div>
         </div>
 
@@ -140,7 +221,10 @@ const CustomerCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-medium truncate text-[rgb(var(--color-text-primary))]">
-                <CopyableContactValue value={customer.phone} fallback={t("common.notAvailable")} />
+                <CopyableContactValue
+                  value={customer.phone}
+                  fallback={t("common.notAvailable")}
+                />
               </p>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                 {t("common.phone")}
@@ -155,7 +239,10 @@ const CustomerCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-medium truncate text-[rgb(var(--color-text-primary))]">
-                <CopyableContactValue value={customer.email} fallback={t("common.notAvailable")} />
+                <CopyableContactValue
+                  value={customer.email}
+                  fallback={t("common.notAvailable")}
+                />
               </p>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                 {t("common.email")}

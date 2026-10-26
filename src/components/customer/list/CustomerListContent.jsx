@@ -1,23 +1,27 @@
 "use client";
-import { EmptyState, TableSkeleton } from "@dragorbit/ui";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ConfirmDialog, EmptyState, TableSkeleton } from "@dragorbit/ui";
+import { Bell, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  EditCustomer,
-  CustomerTable,
   CustomerCard,
+  CustomerTable,
+  EditCustomer,
 } from "@/components/customer";
-import CustomerDeleteModal from "./CustomerDeleteModal";
+import KhataQuickEntry from "@/components/khata/KhataQuickEntry";
 import { SideDrawer } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { usePaymentReminder } from "@/hooks/payment/usePaymentReminder";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomers } from "@/store/slices/customers/customerSlice";
-import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { Users } from "lucide-react";
-import { buildCustomerListParams } from "@/utils/customer/customerList.util";
+import { formatCurrency } from "@/utils/currencyFormatter";
 import { filterCustomersByBalance } from "@/utils/customer/customerKhataBalance.util";
-import KhataQuickEntry from "@/components/khata/KhataQuickEntry";
+import { buildCustomerListParams } from "@/utils/customer/customerList.util";
+import CustomerDeleteModal from "./CustomerDeleteModal";
 
 function findCustomerQuickEntryTarget(customers, customerId) {
   const customer = customers.find(
@@ -54,10 +58,61 @@ const CustomerListContent = ({
   const storeId = selectedStore?.storeId;
 
   const { can } = useModulePermissions("customer");
+  const { hasAccess } = useSubscriptionAccess();
   const canEdit = can("edit");
   const canDelete = can("delete");
   const canManageKhata = can("read");
   const canQuickKhataEntry = canEdit;
+  const canRemindByPlan = hasAccess("payment_reminder");
+  const canRemindByPermission = can("create");
+  const canRemind = canRemindByPlan && canRemindByPermission;
+
+  const [reminderTarget, setReminderTarget] = useState(null);
+  const { sendReminder, loading: reminderLoading } = usePaymentReminder({
+    storeId,
+  });
+  const { showError } = useGlobalToast();
+
+  const handleSendReminder = useCallback(
+    (customerId) => {
+      const customer = visibleCustomers.find(
+        (c) => (c.id || c._id) === customerId
+      );
+      if (!customer) return;
+
+      const dueAmount = Number(customer.totalDue) || 0;
+      if (dueAmount <= 0) {
+        showError(
+          t("khata.noDueBalance") ||
+            "Customer has no outstanding balance to remind"
+        );
+        return;
+      }
+
+      if (!customer.email?.trim()) {
+        showError(
+          t("khata.noCustomerEmail") ||
+            "Customer email is required to send a reminder"
+        );
+        return;
+      }
+
+      setReminderTarget(customer);
+    },
+    [visibleCustomers, showError, t]
+  );
+
+  const handleConfirmSendReminder = useCallback(async () => {
+    if (!reminderTarget) return;
+    const customerId = reminderTarget.id || reminderTarget._id;
+    const result = await sendReminder({
+      customerId,
+      includePaymentLink: true,
+    });
+    if (result) {
+      setReminderTarget(null);
+    }
+  }, [reminderTarget, sendReminder]);
 
   const goToDetails = (id) => router.push(`/dashboard/customers/${id}`);
   const goToKhata = (id) => router.push(`/dashboard/customers/${id}?tab=khata`);
@@ -217,13 +272,15 @@ const CustomerListContent = ({
 
   if (!isLoading && balanceFilter && visibleCustomers.length === 0) {
     if (pagination.hasNextPage || isFetchingMore) {
-      return (
-        <TableSkeleton />
-      );
+      return <TableSkeleton />;
     }
 
     return (
-      <EmptyState fullHeight title={t("common.noResults")} description={t("khata.balanceFilter")} />
+      <EmptyState
+        fullHeight
+        title={t("common.noResults")}
+        description={t("khata.balanceFilter")}
+      />
     );
   }
 
@@ -267,10 +324,12 @@ const CustomerListContent = ({
                 onQuickKhataEntry={
                   canQuickKhataEntry ? openQuickKhataEntry : undefined
                 }
+                onSendReminder={canRemind ? handleSendReminder : undefined}
                 canEdit={canEdit}
                 canDelete={canDelete}
                 canManageKhata={canManageKhata}
                 canQuickKhataEntry={canQuickKhataEntry}
+                canRemind={canRemind}
               />
             </div>
           ) : (
@@ -291,10 +350,12 @@ const CustomerListContent = ({
                     onQuickKhataEntry={
                       canQuickKhataEntry ? openQuickKhataEntry : undefined
                     }
+                    onSendReminder={canRemind ? handleSendReminder : undefined}
                     canEdit={canEdit}
                     canDelete={canDelete}
                     canManageKhata={canManageKhata}
                     canQuickKhataEntry={canQuickKhataEntry}
+                    canRemind={canRemind}
                   />
                 ))}
               </div>
@@ -354,6 +415,42 @@ const CustomerListContent = ({
           )}
         </div>
       </SideDrawer>
+
+      {/* Payment Reminder Confirmation Dialog */}
+      {reminderTarget && (
+        <ConfirmDialog
+          isOpen={Boolean(reminderTarget)}
+          onClose={() => {
+            if (!reminderLoading) setReminderTarget(null);
+          }}
+          onConfirm={handleConfirmSendReminder}
+          busy={reminderLoading}
+          icon={Bell}
+          variant="primary"
+          title={t("khata.sendReminder") || "Send Payment Reminder"}
+          description={
+            <span>
+              {t("khata.reminderConfirmText") ||
+                "Are you sure you want to send a payment reminder to"}{" "}
+              <strong className="font-semibold text-[rgb(var(--color-text-primary))]">
+                {reminderTarget?.name}
+              </strong>
+              {Number(reminderTarget?.totalDue) > 0 && (
+                <>
+                  {" "}
+                  {t("khata.forDueAmount") || "for outstanding balance of"}{" "}
+                  <strong className="text-orange-600 font-semibold">
+                    {formatCurrency(reminderTarget?.totalDue)}
+                  </strong>
+                </>
+              )}
+              ?
+            </span>
+          }
+          confirmLabel={t("khata.sendReminder") || "Send Reminder"}
+          cancelLabel={t("common.cancel") || "Cancel"}
+        />
+      )}
     </>
   );
 };
