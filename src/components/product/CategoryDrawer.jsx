@@ -1,163 +1,242 @@
 "use client";
 import { CategoryDrawerView } from "@dragorbit/features/categories";
 
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Checkbox, FileUpload } from "@/components/ui";
 
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { categoryService, utilityService, productService } from "@/service";
 import useApiResponse from "@/hooks/useApiResponse";
+import { categoryService, productService, utilityService } from "@/service";
 
-const CategoryDrawer = ({ isOpen, onClose, storeId, onCategoryAdded }) => {
-	const { t } = useTranslation();
+const CategoryDrawer = ({
+  isOpen,
+  onClose,
+  storeId,
+  categoryToEdit = null,
+  onCategoryAdded,
+  onCategoryUpdated,
+}) => {
+  const { t } = useTranslation();
+  const isEditing = Boolean(categoryToEdit);
 
-	const [newCategoryData, setNewCategoryData] = useState({
-		name: "",
-		description: "",
-		hasExpiryDate: false,
-		metadata: {
-			icon: null,
-			tags: [],
-		},
-	});
+  const [newCategoryData, setNewCategoryData] = useState({
+    name: "",
+    description: "",
+    hasExpiryDate: false,
+    metadata: {
+      icon: null,
+      tags: [],
+    },
+  });
 
-	const [iconUploading, setIconUploading] = useState(false);
-	const { execute: executeCreate, loading: addCategoryLoading } =
-		useApiResponse();
+  const [iconUploading, setIconUploading] = useState(false);
+  const { execute: executeSave, loading: saveCategoryLoading } =
+    useApiResponse();
 
-	const resetCategoryData = useCallback(() => {
-		setNewCategoryData({
-			name: "",
-			description: "",
-			hasExpiryDate: false,
-			metadata: {
-				icon: null,
-				tags: [],
-			},
-		});
-		setIconUploading(false);
-	}, []);
+  const resetCategoryData = useCallback(() => {
+    setNewCategoryData({
+      name: "",
+      description: "",
+      hasExpiryDate: false,
+      metadata: {
+        icon: null,
+        tags: [],
+      },
+    });
+    setIconUploading(false);
+  }, []);
 
-	const handleClose = () => {
-		resetCategoryData();
-		onClose();
-	};
+  useEffect(() => {
+    if (isOpen) {
+      if (categoryToEdit) {
+        const existingIcon = categoryToEdit.metadata?.icon;
+        setNewCategoryData({
+          name: categoryToEdit.name || "",
+          description: categoryToEdit.description || "",
+          hasExpiryDate: categoryToEdit.hasExpiryDate === true,
+          metadata: {
+            icon:
+              existingIcon && existingIcon !== "category" ? existingIcon : null,
+            tags: Array.isArray(categoryToEdit.metadata?.tags)
+              ? [...categoryToEdit.metadata.tags]
+              : [],
+          },
+        });
+      } else {
+        resetCategoryData();
+      }
+    }
+  }, [isOpen, categoryToEdit, resetCategoryData]);
 
-	const handleRemoveIcon = async () => {
-		const currentIcon = newCategoryData.metadata.icon;
-		if (
-			currentIcon &&
-			typeof currentIcon === "string" &&
-			(currentIcon.includes("bucket") || currentIcon.includes("r2.dev"))
-		) {
-			try {
-				await utilityService.deleteFile(currentIcon);
-			} catch (err) {
-				console.warn("Failed to delete category icon from storage:", err);
-			}
-		}
+  const handleClose = () => {
+    resetCategoryData();
+    onClose();
+  };
 
-		setNewCategoryData((prev) => ({
-			...prev,
-			metadata: { ...prev.metadata, icon: null },
-		}));
-	};
+  const handleRemoveIcon = async () => {
+    const currentIcon = newCategoryData.metadata.icon;
+    if (
+      currentIcon &&
+      typeof currentIcon === "string" &&
+      (currentIcon.includes("bucket") || currentIcon.includes("r2.dev"))
+    ) {
+      try {
+        await utilityService.deleteFile(currentIcon);
+      } catch (err) {
+        console.warn("Failed to delete category icon from storage:", err);
+      }
+    }
 
-	const handleIconUpload = async (files) => {
-		const file = files?.[0];
-		if (!file) return;
+    setNewCategoryData((prev) => ({
+      ...prev,
+      metadata: { ...prev.metadata, icon: null },
+    }));
+  };
 
-		if (
-			newCategoryData.metadata.icon &&
-			typeof newCategoryData.metadata.icon === "string"
-		) {
-			await handleRemoveIcon();
-		}
+  const handleIconUpload = async (files) => {
+    const file = files?.[0];
+    if (!file) return;
 
-		try {
-			setIconUploading(true);
-			const uploadResult = await utilityService.uploadFile(file, "category");
+    if (
+      newCategoryData.metadata.icon &&
+      typeof newCategoryData.metadata.icon === "string"
+    ) {
+      await handleRemoveIcon();
+    }
 
-			setNewCategoryData((prev) => ({
-				...prev,
-				metadata: { ...prev.metadata, icon: uploadResult.publicFileUrl },
-			}));
-		} catch (error) {
-			console.error("Icon upload failed:", error);
-		} finally {
-			setIconUploading(false);
-		}
-	};
+    try {
+      setIconUploading(true);
+      const uploadResult = await utilityService.uploadFile(file, "category");
 
-	const handleAddCategory = async () => {
-		if (!newCategoryData.name.trim()) return;
+      setNewCategoryData((prev) => ({
+        ...prev,
+        metadata: { ...prev.metadata, icon: uploadResult.publicFileUrl },
+      }));
+    } catch (error) {
+      console.error("Icon upload failed:", error);
+    } finally {
+      setIconUploading(false);
+    }
+  };
 
-		try {
-			const iconUrl = newCategoryData.metadata.icon;
+  const handleSaveCategory = async () => {
+    if (!newCategoryData.name.trim()) return;
 
-			const apiPayload = {
-				name: newCategoryData.name.trim(),
-				description: newCategoryData.description.trim(),
-				hasExpiryDate: newCategoryData.hasExpiryDate === true,
-				metadata: {
-					...newCategoryData.metadata,
-					icon: iconUrl || "category",
-				},
-			};
+    try {
+      const iconUrl = newCategoryData.metadata.icon;
 
-			const result = await executeCreate(
-				categoryService.createCategory(apiPayload, storeId),
-			);
+      const apiPayload = {
+        name: newCategoryData.name.trim(),
+        description: newCategoryData.description.trim(),
+        hasExpiryDate: newCategoryData.hasExpiryDate === true,
+        metadata: {
+          ...newCategoryData.metadata,
+          icon: iconUrl || "category",
+        },
+      };
 
-			if (result?.success) {
-				const body = result.data?.data || result.data;
-				const categoryId = body?.id || body?._id;
+      if (isEditing) {
+        const categoryId = categoryToEdit.id || categoryToEdit._id;
+        const result = await executeSave(
+          categoryService.updateCategory(categoryId, apiPayload, storeId),
+          {
+            message:
+              t("products.categoryUpdateSuccess") ||
+              "Category updated successfully",
+          }
+        );
 
-				if (iconUrl && categoryId) {
-					try {
-						await productService.saveProductImage({
-							entityId: categoryId,
-							entityType: "Category",
-							url: iconUrl,
-							isPrimary: true,
-							metadata: { name: newCategoryData.name },
-						});
-					} catch (err) {
-						console.warn("Category image metadata sync failed:", err);
-					}
-				}
+        if (result?.success) {
+          const body = result.data?.data || result.data;
 
-				onCategoryAdded?.({
-					value: categoryId,
-					label: newCategoryData.name.trim(),
-				});
-				resetCategoryData();
-				onClose();
-			}
-		} catch (error) {
-			console.error("Category creation failed:", error);
-		}
-	};
+          if (
+            iconUrl &&
+            categoryId &&
+            iconUrl !== categoryToEdit?.metadata?.icon
+          ) {
+            try {
+              await productService.saveProductImage({
+                entityId: categoryId,
+                entityType: "Category",
+                url: iconUrl,
+                isPrimary: true,
+                metadata: { name: newCategoryData.name },
+              });
+            } catch (err) {
+              console.warn("Category image metadata sync failed:", err);
+            }
+          }
 
-	return (
-		<CategoryDrawerView
-			model={{
-				isOpen,
-				handleClose,
-				t,
-				handleAddCategory,
-				addCategoryLoading,
-				newCategoryData,
-				iconUploading,
-				setNewCategoryData,
-				Checkbox,
-				FileUpload,
-				handleIconUpload,
-				handleRemoveIcon,
-			}}
-		/>
-	);
+          onCategoryUpdated?.({
+            value: categoryId,
+            label: newCategoryData.name.trim(),
+            data: body,
+          });
+          resetCategoryData();
+          onClose();
+        }
+      } else {
+        const result = await executeSave(
+          categoryService.createCategory(apiPayload, storeId),
+          {
+            message:
+              t("products.categoryCreateSuccess") ||
+              "Category created successfully",
+          }
+        );
+
+        if (result?.success) {
+          const body = result.data?.data || result.data;
+          const categoryId = body?.id || body?._id;
+
+          if (iconUrl && categoryId) {
+            try {
+              await productService.saveProductImage({
+                entityId: categoryId,
+                entityType: "Category",
+                url: iconUrl,
+                isPrimary: true,
+                metadata: { name: newCategoryData.name },
+              });
+            } catch (err) {
+              console.warn("Category image metadata sync failed:", err);
+            }
+          }
+
+          onCategoryAdded?.({
+            value: categoryId,
+            label: newCategoryData.name.trim(),
+            data: body,
+          });
+          resetCategoryData();
+          onClose();
+        }
+      }
+    } catch (error) {
+      console.error("Category save failed:", error);
+    }
+  };
+
+  return (
+    <CategoryDrawerView
+      model={{
+        isOpen,
+        handleClose,
+        t,
+        handleAddCategory: handleSaveCategory,
+        addCategoryLoading: saveCategoryLoading,
+        newCategoryData,
+        iconUploading,
+        setNewCategoryData,
+        Checkbox,
+        FileUpload,
+        handleIconUpload,
+        handleRemoveIcon,
+        isEditing,
+      }}
+    />
+  );
 };
 
 export default CategoryDrawer;
