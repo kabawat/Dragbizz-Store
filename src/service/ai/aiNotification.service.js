@@ -5,8 +5,8 @@ import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 class AiNotificationService extends BaseService {
   constructor() {
     super();
-    this.notificationsEndpoint = API_CONFIG?.AI?.NOTIFICATIONS || "/brain/api/v1/notifications";
-    this.notificationReadEndpoint = API_CONFIG?.AI?.NOTIFICATION_READ || "/brain/api/v1/notifications/:id/read";
+    this.notificationsEndpoint = API_CONFIG?.AI?.NOTIFICATIONS;
+    this.notificationReadEndpoint = API_CONFIG?.AI?.NOTIFICATION_READ;
     this.timeout = 10_000;
   }
 

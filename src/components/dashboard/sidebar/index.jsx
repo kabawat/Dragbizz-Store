@@ -8,7 +8,6 @@ import {
   getBottomItems,
   getFinanceSubMenuItems,
   getIntegrationsSubMenuItems,
-  getInventorySubMenuItems,
   getManagementSubMenuItems,
   getNavigationItems,
   getProductSubMenuItems,

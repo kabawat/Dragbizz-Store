@@ -15,7 +15,7 @@ export { mapHistoryMessages } from "@/utils/ai/chatHistory";
 
 const PAGE_SIZE = 20;
 
-export function useChatHistory(storeId) {
+export function useChatHistory(storeId, { enabled = true } = {}) {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -33,13 +33,15 @@ export function useChatHistory(storeId) {
   }, [storeId]);
 
   const refresh = useCallback(async () => {
-    if (!storeId) {
-      setSessions([]);
-      setError(null);
-      setLoading(false);
-      setHasMore(false);
-      setTotal(0);
-      setPage(1);
+    if (!storeId || !enabled) {
+      if (!storeId) {
+        setSessions([]);
+        setError(null);
+        setLoading(false);
+        setHasMore(false);
+        setTotal(0);
+        setPage(1);
+      }
       return [];
     }
     setLoading(true);
@@ -84,10 +86,10 @@ export function useChatHistory(storeId) {
     } finally {
       setLoading(false);
     }
-  }, [storeId]);
+  }, [storeId, enabled]);
 
   const loadMore = useCallback(async () => {
-    if (!storeId || loading || loadingMore || !hasMore) return;
+    if (!storeId || !enabled || loading || loadingMore || !hasMore) return;
     setLoadingMore(true);
     try {
       const nextPage = page + 1;
@@ -130,11 +132,12 @@ export function useChatHistory(storeId) {
     } finally {
       setLoadingMore(false);
     }
-  }, [storeId, loading, loadingMore, hasMore, page, total]);
+  }, [storeId, enabled, loading, loadingMore, hasMore, page, total]);
 
   useEffect(() => {
+    if (!enabled) return;
     void refresh();
-  }, [refresh]);
+  }, [refresh, enabled]);
 
   const getSession = useCallback(
     async (sessionId, { bypassCache = false } = {}) => {

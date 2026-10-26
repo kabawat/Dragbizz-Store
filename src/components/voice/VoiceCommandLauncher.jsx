@@ -2,6 +2,7 @@
 
 import { BrainPanel, useVoiceCapture } from "@dragorbit/features/brain";
 import Link from "next/link";
+import { useState } from "react";
 import ENV_CONFIG from "@/config/env.config";
 import { useAiVoiceChat } from "@/hooks/ai/useAiVoiceChat";
 import { useChatHistory } from "@/hooks/ai/useChatHistory";
@@ -11,6 +12,7 @@ import AiLottieIcon from "./AiLottieIcon";
 import KhataDownloadButtons from "./KhataDownloadButtons";
 
 export default function VoiceCommandLauncher({ className = "" }) {
+  const [isOpen, setIsOpen] = useState(false);
   const { t, locale } = useTranslation();
   const { selectedStore, user, authProfile } = useAppSelector(
     (state) => state.profile
@@ -23,7 +25,7 @@ export default function VoiceCommandLauncher({ className = "" }) {
         ? "gu-IN"
         : "en-IN";
   const chat = useAiVoiceChat({ language });
-  const history = useChatHistory(chat.storeId);
+  const history = useChatHistory(chat.storeId, { enabled: isOpen });
   const voice = useVoiceCapture({ language });
 
   const renderTrigger = ({ isOpen, setIsOpen, togglePanel }) => (
@@ -56,6 +58,8 @@ export default function VoiceCommandLauncher({ className = "" }) {
 
   return (
     <BrainPanel
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
       t={t}
       locale={locale}
       selectedStore={selectedStore}
