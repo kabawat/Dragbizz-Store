@@ -269,6 +269,14 @@ export function useStaffInvoicePayment({
     async ({ paidAmount, paymentMode }) => {
       if (!invoice?.id || !storeId || processingRef.current) return;
 
+      console.log('[DEBUG-PAYMENT-MODAL] handleManualRelease called:', {
+        invoiceId: invoice.id,
+        invoiceNumber,
+        storeId,
+        paidAmount,
+        paymentMode,
+      });
+
       processingRef.current = true;
       setIsProcessing(true);
       try {
@@ -283,6 +291,8 @@ export function useStaffInvoicePayment({
           { message: "Payment Recorded Successfully!" }
         );
 
+        console.log('[DEBUG-PAYMENT-MODAL] releaseInvoice result:', result);
+
         if (result?.success) {
           markDisplayPaid(paidAmount);
           await navigateAfterSuccess(invoice.id);
@@ -292,7 +302,7 @@ export function useStaffInvoicePayment({
         setIsProcessing(false);
       }
     },
-    [invoice, storeId, execute, markDisplayPaid, navigateAfterSuccess]
+    [invoice, storeId, execute, markDisplayPaid, navigateAfterSuccess, invoiceNumber]
   );
 
   const handleOnlinePay = useCallback(() => {
@@ -310,6 +320,12 @@ export function useStaffInvoicePayment({
   const handleUnpaidRelease = useCallback(async () => {
     if (!invoice?.id || !storeId || processingRef.current) return;
 
+    console.log('[DEBUG-PAYMENT-MODAL] handleUnpaidRelease called for invoice:', {
+      invoiceId: invoice.id,
+      invoiceNumber,
+      storeId,
+    });
+
     processingRef.current = true;
     setIsProcessing(true);
     try {
@@ -317,6 +333,8 @@ export function useStaffInvoicePayment({
         invoiceService.releaseInvoice(invoice.id, "UNPAID", storeId),
         { message: "Invoice released successfully" }
       );
+
+      console.log('[DEBUG-PAYMENT-MODAL] handleUnpaidRelease result:', result);
 
       if (result?.success) {
         clearDisplaySession();
@@ -326,7 +344,7 @@ export function useStaffInvoicePayment({
       processingRef.current = false;
       setIsProcessing(false);
     }
-  }, [invoice, storeId, execute, clearDisplaySession, navigateAfterSuccess]);
+  }, [invoice, storeId, execute, clearDisplaySession, navigateAfterSuccess, invoiceNumber]);
 
   const handleClose = useCallback(() => {
     clearDisplaySession();

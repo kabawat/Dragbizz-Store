@@ -47,12 +47,23 @@ const PaymentSection = ({
       orderSource: "POS",
     };
 
+    console.log('[DEBUG-POS-CHECKOUT] Initiating POS checkout:', {
+      customer,
+      customerId: customer?.id || customer?._id || null,
+      isWalkin: !customer,
+      cart,
+      grandTotal,
+      storeId,
+    });
+
     setInvoiceLoading(true);
     const result = await execute(
       invoiceService.createDraftInvoice(invoiceData),
       { showToast: false },
     );
     setInvoiceLoading(false);
+
+    console.log('[DEBUG-POS-CHECKOUT] Draft invoice response:', result);
 
     if (result?.success) {
       const createdId = result?.data?.id;
