@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
 import {
+  DEFAULT_EXPANDED_MENUS,
   getAnalyticsSubMenuItems,
   getBottomItems,
   getFinanceSubMenuItems,
@@ -202,6 +203,10 @@ const Sidebar = ({ onStoreChange }) => {
   }, [dispatch, pathname, navigationItems]);
 
   const expandedMenus = useAppSelector((state) => state.ui.expandedMenus);
+  const effectiveExpandedMenus = useMemo(
+    () => ({ ...DEFAULT_EXPANDED_MENUS, ...expandedMenus }),
+    [expandedMenus]
+  );
   const router = useRouter();
   const { hasAccess, withAccess } = useSubscriptionAccess();
   const isItemLocked = (item) =>
@@ -233,7 +238,7 @@ const Sidebar = ({ onStoreChange }) => {
       pathname={pathname}
       navigationItems={navigationItems}
       bottomItems={bottomItems}
-      expandedMenus={expandedMenus}
+      expandedMenus={effectiveExpandedMenus}
       onToggleMenu={(key) => dispatch(toggleExpandedMenu(key))}
       onNavigate={onNavigate}
       isItemLocked={isItemLocked}
