@@ -1,6 +1,6 @@
 "use client";
 import { AppHeader } from "@dragorbit/ui/header";
-import { SettingsButton } from "@/components/ui";
+import { SettingsButton } from "@/components/ui/ThemeSelector";
 import VoiceCommandLauncher from "@/components/voice/VoiceCommandLauncher";
 import { useHeader } from "@/contexts/HeaderContext";
 import HeaderTitle from "./HeaderTitle";
