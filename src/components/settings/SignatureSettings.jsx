@@ -1,20 +1,19 @@
 "use client";
 import { SignatureSettingsView } from "@dragorbit/features/settings";
-
-import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 
 import { SignatureDrawer } from "@/components/common";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import useApiResponse from "@/hooks/useApiResponse";
+import { signatureService, utilityService } from "@/service";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  fetchSignatures,
   addSignature,
+  fetchSignatures,
   removeSignature,
 } from "@/store/slices/signaturesSlice";
-import { signatureService, utilityService } from "@/service";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import useApiResponse from "@/hooks/useApiResponse";
 
 import SignatureDeleteModal from "./SignatureDeleteModal";
 
@@ -24,10 +23,10 @@ const SignatureSettings = () => {
   const { showToast } = useGlobalToast();
 
   const { items: signatures, loading: signaturesLoading } = useAppSelector(
-    (state) => state.signatures,
+    (state) => state.signatures
   );
   const { agency: profileAgency, selectedStore } = useAppSelector(
-    (state) => state.profile,
+    (state) => state.profile
   );
   const themeVariant = useAppSelector((state) => state.theme.variant);
 
@@ -55,7 +54,6 @@ const SignatureSettings = () => {
   const handleCreateSuccess = (signatureData) => {
     dispatch(addSignature(signatureData));
     setShowDrawer(false);
-    showToast("Signature saved successfully!", "success");
   };
 
   const confirmDelete = async () => {
@@ -80,7 +78,7 @@ const SignatureSettings = () => {
       dispatch(removeSignature(id));
       showToast(
         t("settings.signatureDeleted") || "Signature deleted successfully",
-        "success",
+        "success"
       );
       setSignatureToDelete(null);
     } else {
