@@ -54,6 +54,7 @@ const API_CONFIG = {
     STAFF: "/retailer/staff",
     PACKAGES: "/retailer/packages",
     SUBSCRIPTION: "/retailer/subscription",
+    SETTING: "/retailer/setting",
   },
 
   UTILITY: {

@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  checkSubdomainPublicRedirect,
-  getDomainInfo,
-} from "@dragorbit/core/domain";
+import { checkSubdomainPublicRedirect, getDomainInfo } from "@dragorbit/core/domain";
 
 const protectedRoutes = [
   "/dashboard",

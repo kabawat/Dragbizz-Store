@@ -3,7 +3,7 @@ import { isValidStoreId } from "@/utils/store.util";
 let pendingSuppressStoreIdToast = false;
 
 const STORE_SCOPED_URL =
-  /\/(customer|supplier|product|category|stock|invoices|expense|analytics|sales-order|purchase-order|supplier-account|sync|conflict|suggestion)/;
+  /\/(customer|supplier|product|category|stock|invoices|expense|analytics|sales-order|purchase-order|supplier-account|sync|conflict|suggestion|cashbook|setting|settings)/;
 
 export function urlNeedsStoreParam(url = "") {
   const path = String(url);

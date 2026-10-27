@@ -34,6 +34,8 @@ export default function CashbookPage() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [entries, setEntries] = useState([]);
+  const [entrySettings, setEntrySettings] = useState(null);
+  const [settingsStoreId, setSettingsStoreId] = useState(null);
   const [summary, setSummary] = useState(null);
   const [listLoading, setListLoading] = useState(true);
   const [listError, setListError] = useState(false);
@@ -52,7 +54,7 @@ export default function CashbookPage() {
     const { startDate, endDate } = dateRange;
     const rangeParams = { from: startDate || undefined, to: endDate || undefined };
     try {
-      const [listResult, summaryResult] = await Promise.all([
+      const [listResult, summaryResult, settingsResult] = await Promise.all([
         execute(
           cashbookService.getEntries({
             store: storeId,
@@ -65,10 +67,13 @@ export default function CashbookPage() {
           cashbookService.getSummary({ store: storeId, from: startDate || "1970-01-01", to: endDate || todayKey() }),
           { showToast: false }
         ),
+        execute(cashbookService.getSettings(storeId), { showToast: false }),
       ]);
       if (currentRequest !== requestId.current) return;
-      if (!listResult?.success || !summaryResult?.success)
+      if (!listResult?.success || !summaryResult?.success || !settingsResult?.success)
         throw new Error("Cashbook unavailable");
+      setEntrySettings(settingsResult.data);
+      setSettingsStoreId(storeId);
       setEntries(
         Array.isArray(listResult?.data)
           ? listResult.data
@@ -101,11 +106,13 @@ export default function CashbookPage() {
 
   return (
     <CashbookScreen
+      key={storeId}
       t={t}
+      entrySettings={settingsStoreId === storeId ? entrySettings : null}
       startDate={dateRange.startDate}
       endDate={dateRange.endDate}
       onDateChange={setDateRange}
-      disabled={!storeId || permissionLoading || !can("create")}
+      disabled={!storeId || (!entrySettings || settingsStoreId !== storeId) || permissionLoading || !can("create")}
       amount={amount}
       setAmount={setAmount}
       description={description}

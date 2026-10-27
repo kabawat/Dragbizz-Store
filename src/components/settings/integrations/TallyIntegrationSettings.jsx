@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { settingService } from "@/service/retailer/setting.service";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -38,9 +39,9 @@ const TallyIntegrationSettings = () => {
     if (!storeId) return;
     setLoading(true);
     try {
-      const response = await storeService.getStore(storeId);
-      const store = response?.data?.data;
-      if (store) setForm(buildTallyFormState(store));
+      const response = await settingService.getTallySetting(storeId);
+      const setting = response?.data?.data;
+      if (setting) setForm(buildTallyFormState(setting));
     } catch (err) {
       showError(err?.message || t("integrations.loadFailed"));
     } finally {
@@ -62,13 +63,16 @@ const TallyIntegrationSettings = () => {
     setSaving(true);
     try {
       const payload = buildTallyIntegrationPayload(form);
-      const response = await storeService.updateStore(storeId, payload);
+      const response = await settingService.updateTallySetting(
+        storeId,
+        payload?.tallyIntegration || payload,
+      );
       const updated = response?.data?.data;
-      if (updated?.tallyIntegration && selectedStore) {
+      if (updated && selectedStore) {
         dispatch(
           setSelectedStore({
             ...selectedStore,
-            tallyIntegration: updated.tallyIntegration,
+            tallyIntegration: updated,
           }),
         );
       }

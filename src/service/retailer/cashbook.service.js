@@ -7,6 +7,16 @@ class CashbookService extends BaseService {
     this.endpoint = API_CONFIG?.RETAILER?.CASHBOOK;
   }
 
+  getSettings(store) {
+    const settingEndpoint = API_CONFIG?.RETAILER?.SETTING || "/retailer/setting";
+    return this.get(`${settingEndpoint}/cashbook`, { store });
+  }
+  updateSettings(store, settings) {
+    const settingEndpoint = API_CONFIG?.RETAILER?.SETTING || "/retailer/setting";
+    return this.put(`${settingEndpoint}/cashbook`, settings, { store });
+  }
+  setOpeningBalance(store, date, openingBalance) { return this.put(`${this.endpoint}/day/${date}/opening`, { openingBalance }, { store }); }
+
   createEntry(data) {
     return this.post(this.endpoint, data);
   }

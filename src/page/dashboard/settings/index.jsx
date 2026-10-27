@@ -3,6 +3,7 @@ import { SettingsScreen } from "@dragorbit/features/settings";
 
 import {
   Bell,
+  Wallet,
   Hash,
   Palette,
   Settings as SettingsIcon,
@@ -30,6 +31,8 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useAppSelector } from "@/store/hooks";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
+
+import CashbookSettings from "@/components/settings/CashbookSettings";
 
 const LEGACY_TAB_REDIRECTS = {
   integrations: "/dashboard/integrations/tally",
@@ -59,6 +62,7 @@ const SettingsPage = () => {
     { id: "profile", label: t("settings.profile"), icon: User },
     { id: "account", label: t("settings.account"), icon: SettingsIcon },
     { id: "store", label: t("settings.store"), icon: Store },
+    { id: "cashbook", label: t("cashbook.title"), icon: Wallet },
     { id: "security", label: t("settings.security"), icon: Shield },
     {
       id: "notifications",
@@ -131,6 +135,7 @@ const SettingsPage = () => {
           {activeTab === "language" && <LanguageSettings />}
           {activeTab === "profile" && <ProfileSettings user={user} />}
           {activeTab === "account" && <AccountSettings />}
+          {activeTab === "cashbook" && <CashbookSettings />}
           {activeTab === "store" && (
             <StoreSettings selectedStore={selectedStore} />
           )}

@@ -4,6 +4,7 @@ import { InvoiceNumberSettingsView } from "@dragorbit/features/settings";
 
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { settingService } from "@/service/retailer/setting.service";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -12,8 +13,8 @@ import {
 import { pickStoreId } from "@/utils/tallyIntegration.util";
 import { useCallback, useEffect, useState } from "react";
 
-function buildFormState(store, templates = []) {
-  const config = store?.invoiceNumberConfig || {};
+function buildFormState(storeOrConfig, templates = []) {
+  const config = storeOrConfig?.invoiceNumberConfig || storeOrConfig || {};
   const defaultTemplate = templates.find((t) => t.isDefault) || templates[0];
   const configuredTemplate = templates.find(
     (item) => String(item.id) === String(config.templateId),
@@ -77,14 +78,14 @@ const InvoiceNumberSettings = () => {
     if (!storeId) return;
     setLoading(true);
     try {
-      const [templatesRes, storeRes] = await Promise.all([
+      const [templatesRes, settingRes] = await Promise.all([
         storeService.getInvoiceNumberTemplates(storeId),
-        storeService.getStore(storeId),
+        settingService.getInvoiceSetting(storeId),
       ]);
       const list = templatesRes?.data?.data?.templates || [];
       setTemplates(list);
-      const store = storeRes?.data?.data;
-      const nextForm = buildFormState(store || selectedStore, list);
+      const invoiceConfig = settingRes?.data?.data;
+      const nextForm = buildFormState(invoiceConfig || selectedStore, list);
       setForm(nextForm);
       setSavedTemplateId(nextForm.templateId);
     } catch (err) {
@@ -120,18 +121,21 @@ const InvoiceNumberSettings = () => {
     if (!storeId) return;
     setSaving(true);
     try {
-      const response = await storeService.updateStore(storeId, {
-        invoiceNumberConfig: {
-          templateId: form.templateId || null,
-        },
+      const response = await settingService.updateInvoiceSetting(storeId, {
+        templateId: form.templateId || null,
       });
       const updated = response?.data?.data;
-      const savedId = updated?.invoiceNumberConfig?.templateId;
+      const savedId = updated?.templateId;
       const normalizedSavedId = String(savedId?._id || savedId?.id || savedId || "");
-      if (!updated?.invoiceNumberConfig || normalizedSavedId !== String(form.templateId || "")) {
+      if (normalizedSavedId !== String(form.templateId || "")) {
         throw new Error(t("invoiceNumber.saveFailed"));
       }
-      if (selectedStore) dispatch(setSelectedStore({ ...selectedStore, ...updated }));
+      if (selectedStore) {
+        dispatch(setSelectedStore({
+          ...selectedStore,
+          invoiceNumberConfig: updated,
+        }));
+      }
       setSavedTemplateId(normalizedSavedId);
       showSuccess(t("invoiceNumber.saveSuccess"));
     } catch (err) {

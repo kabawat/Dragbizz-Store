@@ -63,5 +63,35 @@
     "supplierPayment": "Supplier payment",
     "officeExpense": "Office expense",
     "transport": "Transport"
-  }
+  },
+  "addEntry": "Add entry",
+  "closeEntry": "Close quick entry",
+  "settings": {
+    "title": "Cashbook settings",
+    "subtitle": "Settings apply to this store only.",
+    "loading": "Loading cashbook settings…",
+    "loadFailed": "Could not load cashbook settings.",
+    "automation": "Automatic entries",
+    "autoInvoiceCashIn": "Cash sales → Cash in",
+    "autoInvoiceCashInHint": "Automatically link received cash payments from invoices. Unpaid invoices and digital payments are excluded.",
+    "autoExpenseCashOut": "Paid cash expenses → Cash out",
+    "autoExpenseCashOutHint": "Automatically link expenses marked Paid with Cash as the payment method.",
+    "autoSalaryCashOut": "Cash salary payments → Cash out",
+    "autoSalaryCashOutHint": "Control staff salary cash entries separately from other expenses.",
+    "automationNote": "These switches control new automatic entries. Existing linked entries continue to sync; cancellations still reverse them. Saving settings does not import old transactions.",
+    "entryRules": "Manual entry rules",
+    "maxAmount": "Maximum amount per manual entry (₹)",
+    "defaultEntryType": "Default quick-entry type",
+    "requireDescription": "Require a description",
+    "requireDescriptionHint": "A description must be supplied for manual cashbook entries.",
+    "allowBackdatedEntries": "Allow backdated manual entries",
+    "allowBackdatedEntriesHint": "Allow manual entries dated before the current Indian business day.",
+    "save": "Save settings",
+    "invalidLimit": "Enter an amount between ₹0.01 and ₹10,00,00,000.",
+    "openingBalance": "Opening cash balance (₹)",
+    "openingHint": "Set the actual cash in hand for this date. This recalculates that day’s balance and carries the change into later days.",
+    "saveOpening": "Save opening balance",
+    "ownerOnly": "Only the store owner can manage cashbook settings."
+  },
+  "requiredDescription": "Description"
 }

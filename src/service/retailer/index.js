@@ -28,3 +28,5 @@ export { default as salesOrderService } from "./salesOrder.service";
 export { default as signatureService } from "./signature.service";
 export { default as suggestionService } from "./suggestion.service";
 export { default as subscriptionService } from "./subscription.service";
+export { default as cashbookService } from "./cashbook.service";
+export { default as settingService } from "./setting.service";

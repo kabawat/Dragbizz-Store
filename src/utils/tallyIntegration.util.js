@@ -43,7 +43,7 @@ export function mapToObject(value) {
 }
 
 export function buildTallyFormState(store) {
-  const integration = store?.tallyIntegration || {};
+  const integration = store?.tallyIntegration || store || {};
   return {
     enabled: integration.enabled === true,
     companyName: integration.companyName || store?.name || "",
