@@ -53,7 +53,10 @@ export const createDeduplicatingAdapter = (baseAdapter) => async (config) => {
   return promise;
 };
 
-const defaultAdapter = axios.getAdapter(commonConfig.adapter || "xhr");
+// The browser XHR adapter is unavailable during Next.js server rendering.
+// Select the runtime's supported adapter before wrapping it for GET dedupe.
+const runtimeAdapter = typeof window === "undefined" ? "http" : "xhr";
+const defaultAdapter = axios.getAdapter(commonConfig.adapter || runtimeAdapter);
 const deduplicatingAdapter = createDeduplicatingAdapter(defaultAdapter);
 
 // Unauth instance

@@ -161,8 +161,8 @@
       "prompt": "Show GST summary"
     },
     "help": {
-      "label": "How to use DragBizz chat",
-      "prompt": "How do I use DragBizz chat?"
+      "label": "What DragAI can do",
+      "prompt": "help"
     }
   },
   "confirm": {

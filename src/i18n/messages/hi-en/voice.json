@@ -161,8 +161,8 @@
       "prompt": "GST summary dikhao"
     },
     "help": {
-      "label": "Chat kaise use karein",
-      "prompt": "DragBizz chat kaise use karein?"
+      "label": "DragAI kya kar sakta hai",
+      "prompt": "help"
     }
   },
   "confirm": {
