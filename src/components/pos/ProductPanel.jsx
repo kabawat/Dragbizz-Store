@@ -12,7 +12,7 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import { expandProductsForPos } from "@/utils/productUtils";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
+const ProductPanel = ({ addToCart, decreaseFromCart, searchRef, cart = [] }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
@@ -326,6 +326,8 @@ const ProductPanel = ({ addToCart, searchRef, cart = [] }) => {
                                     key={variantId}
                                     product={p}
                                     onAdd={addToCart}
+                                    onIncrease={addToCart}
+                                    onDecrease={decreaseFromCart}
                                     viewMode={viewMode}
                                     selectedQty={cartQtyByVariantId.get(variantId) || 0}
                                     productQty={cartQtyByVariantId.get(variantId) || 0}

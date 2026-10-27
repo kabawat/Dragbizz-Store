@@ -1,13 +1,39 @@
-import { Check, Plus } from "lucide-react";
+import { Check, Plus, Minus } from "lucide-react";
 import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 
-export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0, productQty = selectedQty, availableStock, isService = false }) {
+export default function ProductCard({
+    product,
+    onAdd,
+    onIncrease,
+    onDecrease,
+    viewMode,
+    selectedQty = 0,
+    productQty = selectedQty,
+    availableStock,
+    isService = false,
+}) {
     const isGrid = viewMode === "grid";
     const price = resolveProductUnitPrice(product);
     const isSelected = selectedQty > 0;
     const stockLimitReached = !isService && productQty >= availableStock;
+
+    const handleIncrease = onIncrease || onAdd;
+    const handleDecrease = onDecrease;
+
+    const handleCardClick = (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            if (isSelected) {
+                handleDecrease?.(product);
+            }
+        } else {
+            if (!stockLimitReached) {
+                handleIncrease?.(product);
+            }
+        }
+    };
 
     const getImageUrl = (images) => {
         const first = images?.[0];
@@ -27,9 +53,12 @@ export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0,
     if (isGrid) {
         return (
             <div
-                onClick={() => !stockLimitReached && onAdd(product)}
+                onClick={handleCardClick}
                 aria-pressed={isSelected}
-                className={`group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-300 text-left overflow-hidden flex flex-col gap-2 relative ${stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${selectedBorder}`}
+                title={isSelected ? "Click to increase, Ctrl+Click to decrease" : undefined}
+                className={`group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-300 text-left overflow-hidden flex flex-col gap-2 relative ${
+                    !isSelected && stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+                } ${selectedBorder}`}
             >
                 {isSelected && (
                     <div className="absolute top-2 left-2 z-10 min-w-5 h-5 px-1 rounded-full bg-[rgb(var(--color-primary))] text-white text-[0.625rem] font-bold flex items-center justify-center shadow-sm">
@@ -51,21 +80,53 @@ export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0,
                         <p className="text-[0.6875rem] font-bold text-[rgb(var(--color-text-primary))] leading-[1.2] line-clamp-2 mb-0.5">{product.name}</p>
                         <p className="text-[0.5625rem] text-[rgb(var(--color-text-secondary))] font-medium truncate uppercase tracking-wider">{product.sku || "NO SKU"}</p>
                     </div>
-                    <div className="flex items-center justify-between mt-auto">
-                        <span className="text-xs font-black text-[rgb(var(--color-primary))]">{fmt(price)}</span>
-                        <div
-                            className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors duration-200 ${
-                                isSelected
-                                    ? "bg-[rgb(var(--color-primary))] text-white"
-                                    : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] group-hover:bg-[rgb(var(--color-primary))] group-hover:text-white"
-                            }`}
-                        >
-                            {isSelected ? (
-                                <Check className="w-3 h-3" strokeWidth={3} />
-                            ) : (
+                    <div className="flex items-center justify-between mt-auto pt-1 gap-1">
+                        <span className="text-xs font-black text-[rgb(var(--color-primary))] whitespace-nowrap">{fmt(price)}</span>
+                        {isSelected ? (
+                            <div
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex items-center bg-[rgb(var(--color-primary))] text-white rounded-lg shadow-sm overflow-hidden flex-shrink-0"
+                            >
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDecrease?.(product);
+                                    }}
+                                    className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center hover:bg-white/20 active:bg-white/30 transition-colors cursor-pointer"
+                                    aria-label="Decrease quantity"
+                                >
+                                    <Minus className="w-3 h-3" strokeWidth={2.5} />
+                                </button>
+                                <span className="min-w-4 sm:min-w-5 px-0.5 text-center text-[0.6875rem] sm:text-xs font-black select-none">
+                                    {selectedQty}
+                                </span>
+                                <button
+                                    type="button"
+                                    disabled={stockLimitReached}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!stockLimitReached) handleIncrease?.(product);
+                                    }}
+                                    className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center hover:bg-white/20 active:bg-white/30 transition-colors enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+                                    aria-label="Increase quantity"
+                                >
+                                    <Plus className="w-3 h-3" strokeWidth={2.5} />
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!stockLimitReached) handleIncrease?.(product);
+                                }}
+                                className="w-5 h-5 rounded-full flex items-center justify-center transition-colors duration-200 bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] group-hover:bg-[rgb(var(--color-primary))] group-hover:text-white flex-shrink-0 cursor-pointer"
+                                aria-label="Add to cart"
+                            >
                                 <Plus className="w-3 h-3" strokeWidth={3} />
-                            )}
-                        </div>
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -75,9 +136,12 @@ export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0,
     // List View
     return (
         <div
-            onClick={() => !stockLimitReached && onAdd(product)}
+            onClick={handleCardClick}
             aria-pressed={isSelected}
-            className={`group w-full relative bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-200 text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 ${stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${selectedBorder}`}
+            title={isSelected ? "Click to increase, Ctrl+Click to decrease" : undefined}
+            className={`group w-full relative bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-200 text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 ${
+                !isSelected && stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+            } ${selectedBorder}`}
         >
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden w-14 h-14 border border-[rgb(var(--color-border-primary))] relative">
                 {imageUrl ? (
@@ -106,19 +170,51 @@ export default function ProductCard({ product, onAdd, viewMode, selectedQty = 0,
                 </div>
             </div>
             <div className="flex-shrink-0">
-                <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        isSelected
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "bg-[rgb(var(--color-primary))] text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                    }`}
-                >
-                    {isSelected ? (
-                        <Check className="w-4 h-4" strokeWidth={2.5} />
-                    ) : (
+                {isSelected ? (
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center bg-[rgb(var(--color-primary))] text-white rounded-lg shadow-sm overflow-hidden"
+                    >
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDecrease?.(product);
+                            }}
+                            className="w-7 h-7 flex items-center justify-center hover:bg-white/20 active:bg-white/30 transition-colors cursor-pointer"
+                            aria-label="Decrease quantity"
+                        >
+                            <Minus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                        </button>
+                        <span className="min-w-6 px-1 text-center text-xs font-black select-none">
+                            {selectedQty}
+                        </span>
+                        <button
+                            type="button"
+                            disabled={stockLimitReached}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!stockLimitReached) handleIncrease?.(product);
+                            }}
+                            className="w-7 h-7 flex items-center justify-center hover:bg-white/20 active:bg-white/30 transition-colors enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+                            aria-label="Increase quantity"
+                        >
+                            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (!stockLimitReached) handleIncrease?.(product);
+                        }}
+                        className="w-8 h-8 rounded-full flex items-center justify-center bg-[rgb(var(--color-primary))] text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        aria-label="Add to cart"
+                    >
                         <Plus className="w-5 h-5" strokeWidth={2.5} />
-                    )}
-                </div>
+                    </button>
+                )}
             </div>
         </div>
     );

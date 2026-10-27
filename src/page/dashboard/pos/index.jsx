@@ -79,6 +79,25 @@ const POSPage = () => {
     });
   };
 
+  const decreaseFromCart = (product) => {
+    const lineId = String(product.id || product._id);
+    setCart((prev) => {
+      const existing = prev.find(
+        (i) =>
+          String(i.id || i._id) === lineId ||
+          (product.variantId && String(i.variantId) === String(product.variantId)),
+      );
+      if (!existing) return prev;
+      const targetId = existing.id || existing._id;
+      if (existing.qty <= 1) {
+        return prev.filter((i) => (i.id || i._id) !== targetId);
+      }
+      return prev.map((i) =>
+        (i.id || i._id) === targetId ? { ...i, qty: i.qty - 1 } : i,
+      );
+    });
+  };
+
   const handleTotalsChange = useCallback(({ grandTotal, itemCount }) => {
     setCartSummary({ grandTotal, itemCount });
   }, []);
@@ -127,7 +146,12 @@ const POSPage = () => {
           formatTotal={fmt}
           className="flex-1 min-h-0 h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)]"
           productPanel={
-            <ProductPanel addToCart={addToCart} searchRef={searchRef} cart={cart} />
+            <ProductPanel
+              addToCart={addToCart}
+              decreaseFromCart={decreaseFromCart}
+              searchRef={searchRef}
+              cart={cart}
+            />
           }
           cartPanel={
             <CartPanel
