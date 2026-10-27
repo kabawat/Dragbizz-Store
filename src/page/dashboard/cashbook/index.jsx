@@ -1,7 +1,7 @@
 "use client";
 import { CashbookScreen } from "@dragorbit/features/cashbook";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
@@ -12,11 +12,9 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { useCashbookEntry } from "@/hooks/cashbook/useCashbookEntry";
 
 function todayKey() {
-  const today = new Date();
-  const year = today.getUTCFullYear();
-  const month = String(today.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(today.getUTCDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date());
 }
 
 export default function CashbookPage() {
@@ -31,6 +29,8 @@ export default function CashbookPage() {
   const { can, loading: permissionLoading } = useModulePermissions("cashbook");
   const canRead = can("read");
 
+  const [dateRange, setDateRange] = useState(() => ({ startDate: todayKey(), endDate: todayKey() }));
+  const requestId = useRef(0);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [entries, setEntries] = useState([]);
@@ -46,25 +46,27 @@ export default function CashbookPage() {
 
   const refreshData = useCallback(async () => {
     if (!storeId) return;
+    const currentRequest = ++requestId.current;
     setListLoading(true);
     setListError(false);
-    const key = todayKey();
+    const { startDate, endDate } = dateRange;
+    const rangeParams = { from: startDate || undefined, to: endDate || undefined };
     try {
       const [listResult, summaryResult] = await Promise.all([
         execute(
           cashbookService.getEntries({
             store: storeId,
-            from: key,
-            to: key,
+            ...rangeParams,
             limit: 50,
           }),
           { showToast: false }
         ),
         execute(
-          cashbookService.getSummary({ store: storeId, from: key, to: key }),
+          cashbookService.getSummary({ store: storeId, from: startDate || "1970-01-01", to: endDate || todayKey() }),
           { showToast: false }
         ),
       ]);
+      if (currentRequest !== requestId.current) return;
       if (!listResult?.success || !summaryResult?.success)
         throw new Error("Cashbook unavailable");
       setEntries(
@@ -74,11 +76,11 @@ export default function CashbookPage() {
       );
       setSummary(summaryResult?.data ?? summaryResult?.data?.data ?? null);
     } catch {
-      setListError(true);
+      if (currentRequest === requestId.current) setListError(true);
     } finally {
-      setListLoading(false);
+      if (currentRequest === requestId.current) setListLoading(false);
     }
-  }, [storeId, execute]);
+  }, [storeId, execute, dateRange]);
 
   useEffect(() => {
     if (!permissionLoading && canRead) refreshData();
@@ -95,11 +97,14 @@ export default function CashbookPage() {
     });
 
   const totals = summary?.totals ?? { cashIn: 0, cashOut: 0, netFlow: 0 };
-  const closingBalance = summary?.days?.[0]?.closingBalance ?? totals.netFlow;
+  const closingBalance = summary?.days?.at(-1)?.closingBalance ?? totals.netFlow;
 
   return (
     <CashbookScreen
       t={t}
+      startDate={dateRange.startDate}
+      endDate={dateRange.endDate}
+      onDateChange={setDateRange}
       disabled={!storeId || permissionLoading || !can("create")}
       amount={amount}
       setAmount={setAmount}
@@ -108,7 +113,7 @@ export default function CashbookPage() {
       entries={entries}
       totals={totals}
       closingBalance={closingBalance}
-      listLoading={listLoading && summary === null}
+      listLoading={listLoading}
       refreshing={listLoading && summary !== null}
       listError={listError}
       onRefresh={refreshData}
