@@ -52,10 +52,6 @@ const GlobalHotkeys = () => {
             e.preventDefault();
             navigateTo("/dashboard/expenses", "expense");
         },
-        "alt+s": (e) => { // Stock
-            e.preventDefault();
-            navigateTo("/dashboard/stock", "inventory");
-        },
         "alt+u": (e) => { // Suppliers
             e.preventDefault();
             navigateTo("/dashboard/suppliers", "supplier");

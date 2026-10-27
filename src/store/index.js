@@ -22,8 +22,6 @@ import themeSlice from "./slices/themeSlice";
 import suggestionsSlice from "./slices/suggestionsSlice";
 import notificationsSlice from "./slices/notificationsSlice";
 import uiSlice from "./slices/uiSlice";
-import inventorySlice from "./slices/inventory/inventorySlice";
-
 import notificationSettingsSlice from "./slices/notificationSettingsSlice";
 
 export const store = configureStore({
@@ -52,7 +50,6 @@ export const store = configureStore({
     theme: themeSlice,
     suggestions: suggestionsSlice,
     ui: uiSlice,
-    inventory: inventorySlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

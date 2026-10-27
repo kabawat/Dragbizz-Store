@@ -41,7 +41,7 @@ export const getNotificationConfig = (type, data) => {
       icon: <ShoppingCart className="w-5 h-5 text-green-500" />,
     },
     STOCK_ALERT: {
-      url: "/dashboard/inventory",
+      url: "/dashboard/products",
       icon: <AlertTriangle className="w-5 h-5 text-amber-500" />,
     },
     PAYMENT: {
@@ -57,15 +57,15 @@ export const getNotificationConfig = (type, data) => {
       icon: <Info className="w-5 h-5 text-sky-500" />,
     },
     INVENTORY: {
-      url: "/dashboard/inventory",
+      url: "/dashboard/products",
       icon: <Package className="w-5 h-5 text-amber-500" />,
     },
     LOW_STOCK: {
-      url: "/dashboard/inventory",
+      url: "/dashboard/products",
       icon: <AlertTriangle className="w-5 h-5 text-amber-500" />,
     },
     OUT_OF_STOCK: {
-      url: "/dashboard/inventory",
+      url: "/dashboard/products",
       icon: <AlertTriangle className="w-5 h-5 text-rose-500" />,
     },
     DAILY_BRIEF: {

@@ -74,8 +74,8 @@ export const getSalesSubMenuItems = (t) => [
     },
 ];
 
-/** Product Catalog & Inventory — products, stocks, categories, brands, variants */
-export const getProductSubMenuItems = (t, stockSubMenuItems = []) => [
+/** Product Catalog — products, categories, brands, variants */
+export const getProductSubMenuItems = (t) => [
     {
         name: t("sidebar.products"),
         icon: Package,
@@ -83,7 +83,6 @@ export const getProductSubMenuItems = (t, stockSubMenuItems = []) => [
         shortcut: "p",
         module: "product",
     },
-    ...(stockSubMenuItems || []),
     {
         name: t("sidebar.categories"),
         icon: Tags,
@@ -101,18 +100,6 @@ export const getProductSubMenuItems = (t, stockSubMenuItems = []) => [
         icon: Layers,
         href: "/dashboard/variants",
         module: "product",
-    },
-];
-
-/** Stock Management */
-export const getStockSubMenuItems = (t) => [
-    {
-        name: t("sidebar.stocks"),
-        icon: Warehouse,
-        href: "/dashboard/stock",
-        shortcut: "s",
-        module: "inventory",
-        requireCapability: "fifo",
     },
 ];
 

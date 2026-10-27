@@ -19,7 +19,6 @@ const ui={PageLoader,EmptyState,TableSkeleton};
 const specs=[
  ['products/productSlice.js','getProducts','products','products','ProductsScreen','Product'],
  ['supplier/supplierSlice.js','getSuppliers','suppliers','suppliers','SuppliersScreen','Supplier'],
- ['inventory/inventorySlice.js','getInventories','inventories','inventory','InventoryScreen','Inventory'],
  ['expenses/expenseSlice.js','getExpenses','expenses','expenses','ExpensesScreen','Expense'],
  ['billsSlice.js','getBills','bills','bills','BillsScreen','Bill'],
  ['paymentsSlice.js','getPayments','payments','payments','PaymentsScreen','Payment'],

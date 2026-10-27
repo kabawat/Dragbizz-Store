@@ -23,22 +23,6 @@ export const FEATURE_ROUTES = {
     subMenuItems: ["Category", "Brand", "Products", "Variant"],
   },
 
-  inventory: {
-    routes: [
-      "/dashboard/stock",
-      "/dashboard/stock/alerts",
-      "/dashboard/stock/add",
-      "/dashboard/stock/edit",
-      "/dashboard/stock/view",
-      "/dashboard/inventory",
-      "/dashboard/inventory/add",
-      "/dashboard/inventory/edit",
-      "/dashboard/inventory/view",
-    ],
-    menuItems: ["Stock Management", "Product & Stock"],
-    subMenuItems: ["Stocks", "Low Stock Alerts", "Inventory"],
-  },
-
   invoice: {
     routes: [
       "/dashboard/invoices",

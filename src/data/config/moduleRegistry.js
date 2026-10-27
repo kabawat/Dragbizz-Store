@@ -30,7 +30,6 @@ export const ROUTE_MODULE_MAP = {
     "/dashboard/categories": MODULE_KEYS.PRODUCTS,
     "/dashboard/brands": MODULE_KEYS.PRODUCTS,
     "/dashboard/variants": MODULE_KEYS.PRODUCTS,
-    "/dashboard/stock": MODULE_KEYS.INVENTORY,
     "/dashboard/suppliers": MODULE_KEYS.SUPPLIERS,
     "/dashboard/accounts": MODULE_KEYS.SUPPLIERS,
     "/dashboard/purchase-orders": MODULE_KEYS.PURCHASE_ORDER,
@@ -104,9 +103,6 @@ export const getCapabilityFromPath = (path) => {
     }
     if (path.startsWith("/dashboard/integrations/tally")) {
         return "tally";
-    }
-    if (path === "/dashboard/stock" || path.startsWith("/dashboard/stock/")) {
-        return "fifo";
     }
     return null;
 };
