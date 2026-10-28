@@ -101,7 +101,7 @@ function computeDiscount(mrp, sellingPrice, discount) {
 
 function resolveVariantProductId(variant) {
   if (!variant) return null;
-  const product = variant.product;
+  const product = variant.product ?? variant.productId ?? variant.product_id;
   if (!product) return null;
   if (typeof product === "string") return product;
   return product.id ?? product._id ?? null;
@@ -199,7 +199,15 @@ export function mergeVariantsIntoProducts(products = [], variants = []) {
 
   return products.map((product) => {
     const id = String(product?.id ?? product?._id ?? "");
-    const productVariants = byProduct.get(id) ?? product.variants ?? [];
+    const productVariants = [
+      ...(product.variants ?? []),
+      ...(byProduct.get(id) ?? []),
+    ].filter((variant, index, list) => {
+      const variantId = String(variant?.id ?? variant?._id ?? "");
+      return !variantId || list.findIndex((candidate) =>
+        String(candidate?.id ?? candidate?._id ?? "") === variantId
+      ) === index;
+    });
     const merged = mergeVariantIntoProduct(
       product,
       pickDefaultVariant(productVariants)

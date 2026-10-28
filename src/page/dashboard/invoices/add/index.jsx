@@ -8,6 +8,7 @@ import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService, invoiceService, productService } from "@/service";
+import { variantService } from "@/service/retailer/variant.service";
 import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
@@ -21,8 +22,6 @@ import {
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import { PageSkeleton } from "@dragorbit/ui/app";
-import { getInStockProductIds } from "@dragorbit/features/invoices";
-import { inventoryService } from "@/service";
 
 const INITIAL_FORM_DATA = {
   customer: "",
@@ -42,7 +41,6 @@ const CreateInvoicePage = () => {
   // 2. Local State
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const [availableProductIds, setAvailableProductIds] = useState(new Set());
   const [customers, setCustomers] = useState([]);
   const [customersLoading, setCustomersLoading] = useState(false);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
@@ -60,7 +58,6 @@ const CreateInvoicePage = () => {
   }, [canCreate, permissionLoading, router]);
 
   // 3. Refs
-  const productsFetchedRef = useRef({ storeId: null, fetched: false });
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // 4. Custom Hooks
@@ -71,38 +68,6 @@ const CreateInvoicePage = () => {
   const storeId = selectedStore?.storeId;
 
   // 6. Data Fetching Callbacks
-  const fetchProducts = useCallback(async () => {
-    if (!storeId) return;
-    if (
-      productsFetchedRef.current.storeId === storeId &&
-      productsFetchedRef.current.fetched
-    ) {
-      return;
-    }
-
-    productsFetchedRef.current = { storeId, fetched: true };
-    const stockIdsPromise = getInStockProductIds({
-      execute,
-      inventoryService,
-      storeId,
-    });
-    const result = await execute(
-      productService.getProducts({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      }),
-      { showToast: false }
-    );
-
-    if (result?.success) {
-      setProducts(result?.data || []);
-    } else {
-      productsFetchedRef.current = { storeId: null, fetched: false };
-    }
-    setAvailableProductIds(await stockIdsPromise);
-  }, [storeId, execute]);
-
   const fetchCustomers = useCallback(async () => {
     if (!storeId) return;
     if (
@@ -142,21 +107,15 @@ const CreateInvoicePage = () => {
 
   // 7. Effects
   useEffect(() => {
-    if (
-      storeId &&
-      (productsFetchedRef.current.storeId !== storeId ||
-        customersFetchedRef.current.storeId !== storeId)
-    ) {
-      productsFetchedRef.current = { storeId: null, fetched: false };
+    if (storeId && customersFetchedRef.current.storeId !== storeId) {
       customersFetchedRef.current = { storeId: null, fetched: false };
     }
   }, [storeId]);
 
   useEffect(() => {
     if (!storeId) return;
-    fetchProducts();
     fetchCustomers();
-  }, [storeId, fetchProducts, fetchCustomers]);
+  }, [storeId, fetchCustomers]);
 
   // 8. Event Handlers
   const handleCustomerChange = (value) => {
@@ -170,6 +129,38 @@ const CreateInvoicePage = () => {
   const lookupProductByCode = useCallback(
     async (code) => {
       if (!storeId) return null;
+      const variantResult = await execute(
+        variantService.getVariants({ store: storeId, search: code, limit: 30 }),
+        { showToast: false },
+      );
+      const matchingVariant = (variantResult?.data || []).find((variant) =>
+        [variant?.barcode, variant?.sku].some(
+          (value) => String(value || "").trim().toLowerCase() === String(code).trim().toLowerCase(),
+        ),
+      );
+      if (matchingVariant) {
+        const relatedProduct = matchingVariant.product;
+        const productId = typeof relatedProduct === "object"
+          ? relatedProduct?.id || relatedProduct?._id
+          : relatedProduct || matchingVariant.productId;
+        if (productId) {
+          return {
+            id: String(productId),
+            _id: String(productId),
+            name: typeof relatedProduct === "object" ? relatedProduct?.name || "Item" : "Item",
+            sellingPrice: matchingVariant.sellingPrice,
+            mrp: matchingVariant.mrp,
+            sku: matchingVariant.sku,
+            barcode: matchingVariant.barcode,
+            gstInfo: matchingVariant.gstInfo || {},
+            uom: matchingVariant.uom,
+            variants: [matchingVariant],
+            matchedVariantId: matchingVariant.id || matchingVariant._id,
+          };
+        }
+      }
+
+      // Keep support for product-level barcodes that are not attached to a variant.
       const result = await execute(
         productService.getProducts({
           search: code,
@@ -307,12 +298,12 @@ const CreateInvoicePage = () => {
                     <InvoiceItemsSection
                       t={t}
                       products={products}
-                      availableProductIds={availableProductIds}
                       formData={formData}
                       setFormData={setFormData}
                       showError={showError}
                       lookupProductByCode={lookupProductByCode}
                       onProductResolved={handleProductResolved}
+                      storeId={storeId}
                     />
                   </form>
                 </div>

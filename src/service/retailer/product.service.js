@@ -7,7 +7,19 @@ function unwrapList(data) {
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.data)) return data.data;
   if (Array.isArray(data?.products)) return data.products;
+  if (Array.isArray(data?.variants)) return data.variants;
   return [];
+}
+
+function getPagination(response) {
+  return (
+    response?.pagination ||
+    response?.data?.pagination ||
+    response?.data?.meta?.pagination ||
+    response?.data?.data?.pagination ||
+    response?.data?.data?.meta?.pagination ||
+    null
+  );
 }
 
 function applyEnrichedList(response, enriched) {
@@ -41,27 +53,31 @@ class ProductService extends BaseService {
   }
 
   async getProducts(params = {}) {
-    const response = await this.get(this.endpoint, params);
+    const { includeVariants, ...requestParams } = params;
+    const response = await this.get(this.endpoint, requestParams);
 
     // Single product fetch — caller merges variants separately when needed
-    if (params?.id) return response;
+    if (params?.id || includeVariants === false) return response;
 
     try {
       const store = params.store;
       if (!store) return response;
 
-      // Variants hold sellable price/SKU — fetch enough to cover the product page
-      const variantLimit = Math.min(
-        Math.max(Number(params.limit) || 100, 100) * 5,
-        500
-      );
-      const variantsResponse = await variantService.getVariants({
-        store,
-        limit: variantLimit,
-        lightweight: true,
-      });
+      // Variants hold invoice-selectable price/SKU; load every page so the selector can show all variants.
+      const variantLimit = 200;
       const products = unwrapList(response?.data?.data ?? response?.data);
-      const variants = unwrapList(variantsResponse?.data?.data ?? variantsResponse?.data);
+      const variants = [];
+      let nextCursor = null;
+      do {
+        const variantsResponse = await variantService.getVariants({
+          store,
+          limit: variantLimit,
+          ...(nextCursor ? { nextCursor } : {}),
+        });
+        variants.push(...unwrapList(variantsResponse?.data?.data ?? variantsResponse?.data));
+        const pagination = getPagination(variantsResponse);
+        nextCursor = pagination?.hasNextPage ? pagination.nextCursor || null : null;
+      } while (nextCursor);
       const enriched = mergeVariantsIntoProducts(products, variants);
       return applyEnrichedList(response, enriched);
     } catch {

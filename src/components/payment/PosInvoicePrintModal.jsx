@@ -176,6 +176,7 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
                   selectedStore={selectedStore}
                   signatures={signatures.items}
                   signatureSettingsUrl="/dashboard/utilities/signatures"
+                  fitPreview
                 />
               </div>
             </DocumentPreview>

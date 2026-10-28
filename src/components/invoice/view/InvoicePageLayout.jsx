@@ -24,8 +24,8 @@ const InvoicePageLayout = ({
 
     return (
         <div className="min-w-0 lg:h-[calc(100vh-150px)]">
-            <div className="min-w-0 lg:h-full lg:overflow-x-hidden lg:overflow-y-auto">
-        <div id="invoice-area" className="min-w-0 overflow-x-hidden rounded-lg bg-white">
+            <div className="min-w-0 lg:h-full lg:overflow-hidden">
+        <div id="invoice-area" className="min-w-0 overflow-x-hidden rounded-lg bg-white lg:h-full">
           <ConfiguredInvoiceTemplate
             templateKey={selectedTemplate}
             invoiceData={{
@@ -37,6 +37,7 @@ const InvoicePageLayout = ({
             selectedStore={selectedStore}
             signatures={signatures.items}
             signatureSettingsUrl="/dashboard/utilities/signatures"
+            fitPreview
           />
         </div>
             </div>

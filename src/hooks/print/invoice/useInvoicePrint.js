@@ -27,8 +27,8 @@ export const useInvoicePrint = (
       const { default: html2canvas } = await import("html2canvas");
       const { default: jsPDF } = await import("jspdf");
 
-      // 210mm = ~794px at 96 DPI, 297mm = ~1123px
-      const a4WidthPx = 794;
+      const paperSize = invoice.closest(".invoice-print-document")?.dataset.paperSize || "A4";
+      const pageWidthPx = invoice.offsetWidth || 794;
       const canvas = await html2canvas(invoice, {
         scale: 2,
         useCORS: true,
@@ -36,17 +36,16 @@ export const useInvoicePrint = (
         backgroundColor: "#ffffff",
         logging: false,
         onclone: prepareInvoiceCapture,
-        width: a4WidthPx,
-        // padding: 10,
+        width: pageWidthPx,
         height: invoice.scrollHeight,
-        windowWidth: a4WidthPx,
+        windowWidth: pageWidthPx,
         windowHeight: invoice.scrollHeight,
       });
 
-      const pdf = new jsPDF("p", "mm", "a4");
-      const padding = 5;
-      const contentWidth = pdf.internal.pageSize.getWidth() - padding * 2;
-      const pageHeight = pdf.internal.pageSize.getHeight() - padding * 2;
+      const pdf = new jsPDF({ orientation: "p", unit: "mm", format: paperSize.toLowerCase() });
+      const padding = 0;
+      const contentWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       const pixelsPerPage = Math.floor(
         (pageHeight * canvas.width) / contentWidth
       );
