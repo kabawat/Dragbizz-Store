@@ -170,7 +170,6 @@ export const getUtilitiesSubMenuItems = (t) => [
         name: t("sidebar.invoiceNumber") || "Invoice Number Format",
         icon: Hash,
         href: "/dashboard/utilities/invoice-number",
-        shortcut: "n",
     },
     {
         name: t("sidebar.signatures") || "Digital Signatures",
@@ -321,7 +320,7 @@ export const getNavigationItems = (
             name: t("sidebar.dashboard"),
             icon: LayoutDashboard,
             href: "/dashboard",
-            shortcut: "d",
+            shortcut: "h",
         },
         {
             name: t("sidebar.salesManagement"),
@@ -402,13 +401,13 @@ export const getBottomItems = (t) => [
         name: t("sidebar.supportCenter") || "Support Center",
         icon: Headphones,
         href: "/dashboard/support",
-        shortcut: "h",
+        shortcut: "q",
     },
     {
         name: t("sidebar.settings"),
         icon: Settings,
         href: "/dashboard/settings",
-        shortcut: ",",
+        shortcut: "g",
     },
 ];
 

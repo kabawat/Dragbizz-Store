@@ -116,7 +116,7 @@ const POSPage = () => {
       e.preventDefault();
       searchRef.current?.focus();
     },
-    "ctrl+k": (e) => {
+    "alt+shift+f": (e) => {
       e.preventDefault();
       searchRef.current?.focus();
     },

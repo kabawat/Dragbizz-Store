@@ -2,7 +2,7 @@
     "faqs": {
         "createInvoice": {
             "q": "How do I create a new invoice?",
-            "a": "Go to the Invoices page and click 'Add Invoice' or just use the Shift+N shortcut from anywhere. Fill in the client details and items, then click save."
+            "a": "Go to the Invoices page and click 'Add Invoice' or use Alt+N on the Invoices page. Fill in the client details and items, then click save."
         },
         "multipleStores": {
             "q": "Can I manage multiple stores?",
@@ -14,7 +14,7 @@
         },
         "exportData": {
             "q": "How do I export my data?",
-            "a": "Most list pages have a 'Download' button or Ctrl+D shortcut. You can export data to PDF, Excel, or CSV formats for your accounting needs."
+            "a": "Most list pages have a 'Download' button or Alt+Shift+D shortcut. You can export data to PDF, Excel, or CSV formats for your accounting needs."
         },
         "lowStock": {
             "q": "How to track low stock?",
