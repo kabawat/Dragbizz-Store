@@ -14,6 +14,7 @@ export const MODULE_KEYS = {
     REPORTS: "reports",
     STAFF: "staff",
     INTEGRATIONS: "integrations",
+    ONLINE_STORE: "online_store",
     MANAGEMENT: "management",
 };
 
@@ -55,6 +56,7 @@ export const ROUTE_MODULE_MAP = {
     "/dashboard/utilities/signatures": MODULE_KEYS.STORE,
     "/dashboard/utilities": MODULE_KEYS.STORE,
     "/dashboard/management/staff": MODULE_KEYS.STAFF,
+    "/dashboard/management/catalogs": MODULE_KEYS.ONLINE_STORE,
 };
 
 // Extract module from path

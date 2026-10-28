@@ -271,6 +271,12 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
 
 export const getManagementSubMenuItems = (t) => [
     {
+        name: t("sidebar.digitalShop", t("sidebar.catalogs", "Digital Shop")),
+        icon: BookOpen,
+        href: "/dashboard/management/catalogs",
+        module: "online_store",
+    },
+    {
         name: t("sidebar.staff") || "Staff",
         icon: UserCog,
         href: "/dashboard/management/staff",

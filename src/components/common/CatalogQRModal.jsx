@@ -152,7 +152,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
             doc.setTextColor(31, 41, 55);
             doc.setFontSize(22);
             doc.setFont('helvetica', 'bold');
-            doc.text(store?.name || 'Exclusive Product Catalog', 105, y, { align: 'center' });
+            doc.text(store?.name || 'Exclusive Digital Shop', 105, y, { align: 'center' });
 
             y += 12;
             doc.setFontSize(12);
@@ -215,7 +215,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
             doc.text('Thank you for choosing DragBizz - Empowering Small Businesses', 105, 275, { align: 'center' });
             doc.text('www.dragbizz.com', 105, 282, { align: 'center' });
 
-            doc.save(`${store?.name?.replace(/\s+/g, '-').toLowerCase() || 'catalog'}-qr.pdf`);
+            doc.save(`${store?.name?.replace(/\s+/g, '-').toLowerCase() || 'digital-shop'}-qr.pdf`);
             showSuccess("PDF generated successfully");
         } catch (error) {
 
@@ -230,7 +230,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
         printWindow.document.write(`
             <html>
                 <head>
-                    <title>Print QR Code - ${store?.name || 'Catalog'}</title>
+                    <title>Print QR Code - ${store?.name || 'Digital Shop'}</title>
                     <style>
                         body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
                         img { width: 350px; height: 350px; border: 1px solid #eee; padding: 10px; border-radius: 10px; }
@@ -241,7 +241,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                     </style>
                 </head>
                 <body>
-                    <h1>${store?.name || 'Our Product Catalog'}</h1>
+                    <h1>${store?.name || 'Our Digital Shop'}</h1>
                     <div class="marketing">Scan to browse & order products online!</div>
                     <img src="${displayQrUrl}" alt="QR Code" />
                     <p>${displayUrl}</p>
@@ -313,7 +313,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                         <div className="bg-[rgb(var(--color-bg-secondary))] p-4 rounded-xl border border-[rgb(var(--color-border-primary)/0.4)] flex items-center justify-between gap-4">
                             <div className="flex flex-col truncate">
                                 <span className="text-[0.625rem] uppercase tracking-widest font-bold text-[rgb(var(--color-text-tertiary))] mb-1">
-                                    Catalog URL
+                                    Digital Shop URL
                                 </span>
                                 <code className="text-[0.8125rem] text-[rgb(var(--color-primary))] font-mono font-bold truncate">
                                     {displayUrl}
@@ -361,7 +361,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                             onClick={handleView}
                             leftIcon={ExternalLink}
                         >
-                            Visit Public Catalog
+                            Visit Digital Shop
                         </Button>
                     </div>
                 </div>

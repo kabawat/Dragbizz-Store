@@ -29,6 +29,7 @@ const API_CONFIG = {
     PROFILE: "/retailer/profile",
     AGENCY: "/retailer/agencies",
     STORE: "/retailer/store",
+    CATALOG: "/retailer/catalog",
     STOCK: "/retailer/stock",
 
     PURCHASE_ORDER: "/retailer/purchase-order",

@@ -6,6 +6,7 @@ export { default as analyticsService } from "./analytics.service";
 export { default as gstService } from "./gst.service";
 export { default as tallyService } from "./tally.service";
 export { default as billService } from "./bill.service";
+export { default as catalogService } from "./catalog.service";
 export { default as categoryService } from "./category.service";
 export { default as brandService } from "./brand.service";
 export { default as customerService } from "./customer.service";

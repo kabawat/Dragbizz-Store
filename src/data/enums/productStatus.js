@@ -1,14 +1,14 @@
-// Product Visibility in Catalog
+// Product Visibility in Digital Shop
 export const PRODUCT_VISIBILITY_OPTIONS = [
   {
     value: "true",
-    label: "Show in Catalog",
-    description: "Visible to customers in public QR catalog",
+    label: "Show in Digital Shop",
+    description: "Visible to customers in digital shop",
   },
   {
     value: "false",
     label: "Hidden",
-    description: "Hidden from public QR catalog",
+    description: "Hidden from digital shop",
   },
 ];
 

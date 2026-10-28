@@ -1,4 +1,6 @@
 {
+  "catalogs": "Digital Shop",
+  "digitalShop": "Digital Shop",
   "dashboard": "Dashboard",
   "salesTransactions": "Sales & Transactions",
   "salesManagement": "Sales Management",
