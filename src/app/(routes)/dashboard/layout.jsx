@@ -11,7 +11,6 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { HeaderProvider } from "@/contexts/HeaderContext";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 import { useAppSelector } from "@/store/hooks";
-import { ensureSubdomain } from "@dragorbit/core/domain";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -30,12 +29,6 @@ export default function DashboardLayout({ children }) {
   const { ready: storeReady } = useSelectedStoreId();
   const isProfileLoading =
     !agency && (isLoading || authProfileLoading || staffProfileLoading);
-
-  useEffect(() => {
-    if (authProfile?.tenant) {
-      ensureSubdomain(authProfile.tenant);
-    }
-  }, [authProfile?.tenant]);
 
   useEffect(() => {
     if (isCustomerPayment) return;

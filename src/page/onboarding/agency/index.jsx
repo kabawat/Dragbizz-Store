@@ -13,7 +13,7 @@ import OnboardingLayout from "@/components/onboard/OnboardingLayout";
 import { Button, Input } from "@/components/ui";
 import storeService from "@/service/retailer/store.service";
 import { useAppSelector } from "@/store/hooks";
-import { redirectToMainDomain } from "@dragorbit/core/domain";
+import { isReservedSubdomain, redirectToMainDomain } from "@dragorbit/core/domain";
 import { agencySubdomainFromName } from "./subdomain";
 
 export default function AgencyCreation() {
@@ -77,6 +77,8 @@ export default function AgencyCreation() {
       formData.subdomain.endsWith("-")
     ) {
       newErrors.subdomain = "Subdomain cannot start or end with a hyphen";
+    } else if (isReservedSubdomain(formData.subdomain)) {
+      newErrors.subdomain = "This subdomain is reserved. Please choose a different one";
     }
 
     setErrors(newErrors);
