@@ -241,22 +241,18 @@ const InvoicesListTable = ({
                 className="transition-colors"
                 onContextMenu={(event) => openContextMenu(event, invoiceId)}
               >
-                <SharedTooltip content={t("common.viewDetails")}><td
+                <td
                   className="px-4 py-2 cursor-pointer transition-colors hover:bg-[rgb(var(--color-bg-secondary))]"
                   onClick={() => onViewDetails?.(invoiceId)}
-
+                  title={t("common.viewDetails")}
                 >
-                  <div className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
-                  </div>
-                </td></SharedTooltip>
-                <SharedTooltip content={
-                    invoice.customer?.id
-                      ? t("customers.viewDetails", {
-                          defaultValue: "View Customer Details",
-                        })
-                      : ""
-                  }><td
+                  <SharedTooltip content={t("common.viewDetails")}>
+                    <div className="font-medium text-[rgb(var(--color-text-primary))]">
+                      {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
+                    </div>
+                  </SharedTooltip>
+                </td>
+                <td
                   className={`px-4 py-2 ${invoice?.customer?.id && "cursor-pointer"} `}
                   onClick={(e) => {
                     if (invoice.customer?.id) {
@@ -266,15 +262,31 @@ const InvoicesListTable = ({
                       );
                     }
                   }}
-
+                  title={
+                    invoice.customer?.id
+                      ? t("customers.viewDetails", {
+                          defaultValue: "View Customer Details",
+                        })
+                      : ""
+                  }
                 >
-                  <div className="flex items-center gap-2">
-                    <User className={`w-4 h-4`} />
-                    <span className={`text-sm truncate`}>
-                      {invoice.customer?.name || t("invoice.walkInCustomer")}
-                    </span>
-                  </div>
-                </td></SharedTooltip>
+                  <SharedTooltip
+                    content={
+                      invoice.customer?.id
+                        ? t("customers.viewDetails", {
+                            defaultValue: "View Customer Details",
+                          })
+                        : ""
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      <User className={`w-4 h-4`} />
+                      <span className={`text-sm truncate`}>
+                        {invoice.customer?.name || t("invoice.walkInCustomer")}
+                      </span>
+                    </div>
+                  </SharedTooltip>
+                </td>
                 <td className="px-4 py-2 text-right">
                   <div className="flex flex-col items-end leading-tight">
                     <span className="text-sm text-[rgb(var(--color-text-secondary))]">

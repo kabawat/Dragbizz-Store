@@ -105,7 +105,7 @@ const InvoiceListContent = () => {
 
     return (
         <>
-            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
+            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-xl overflow-hidden">
                 <div>
                     {viewMode === "table" ? (
                         <div className="min-h-full">
@@ -124,7 +124,7 @@ const InvoiceListContent = () => {
                         </div>
                     ) : (
                         <div>
-                            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5">
                                 {invoices.map((invoice) => (
                                     <InvoiceCard
                                         key={invoice.id || invoice._id}

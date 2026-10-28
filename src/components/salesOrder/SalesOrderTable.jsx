@@ -218,27 +218,29 @@ const SalesOrderTable = ({
                   onMouseLeave={() => setHoveredRow(null)}
                   onContextMenu={(event) => openContextMenu(event, orderId)}
                 >
-                  <SharedTooltip content={t("common.viewDetails")}><td
+                  <td
                     className="w-1/4 px-4 py-2 relative cursor-pointer transition-colors "
                     onClick={() => onViewDetails?.(orderId)}
-
+                    title={t("common.viewDetails")}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
-                        <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-[rgb(var(--color-text-primary))] text-sm truncate">
-                          #{order.orderNumber}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            {order.itemCount || 0} {t("common.products")}
-                          </span>
+                    <SharedTooltip content={t("common.viewDetails")}>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
+                          <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-[rgb(var(--color-text-primary))] text-sm truncate">
+                            #{order.orderNumber}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {order.itemCount || 0} {t("common.products")}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td></SharedTooltip>
+                    </SharedTooltip>
+                  </td>
                   <td className="w-1/6 px-4 py-2">
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
@@ -253,13 +255,7 @@ const SalesOrderTable = ({
                       </span>
                     </div>
                   </td>
-                  <SharedTooltip content={
-                      order.customer?.id
-                        ? t("customers.viewDetails", {
-                            defaultValue: "View Customer Details",
-                          })
-                        : ""
-                    }><td
+                  <td
                     className={`w-1/5 px-4 py-2 relative transition-colors cursor-pointer`}
                     onClick={(e) => {
                       if (order.customer?.id) {
@@ -269,24 +265,40 @@ const SalesOrderTable = ({
                         );
                       }
                     }}
-
+                    title={
+                      order.customer?.id
+                        ? t("customers.viewDetails", {
+                            defaultValue: "View Customer Details",
+                          })
+                        : ""
+                    }
                   >
-                    <div className="flex flex-col">
-                      <span className={`text-sm font-semibold truncate`}>
-                        {order.customer?.name || t("common.guest")}
-                      </span>
-                      <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate block">
-                        {order.customer?.phone || order.customer?.email ? (
-                          <CopyableContactValue
-                            value={
-                              order.customer?.phone || order.customer?.email
-                            }
-                            className="text-xs"
-                          />
-                        ) : null}
-                      </span>
-                    </div>
-                  </td></SharedTooltip>
+                    <SharedTooltip
+                      content={
+                        order.customer?.id
+                          ? t("customers.viewDetails", {
+                              defaultValue: "View Customer Details",
+                            })
+                          : ""
+                      }
+                    >
+                      <div className="flex flex-col">
+                        <span className={`text-sm font-semibold truncate`}>
+                          {order.customer?.name || t("common.guest")}
+                        </span>
+                        <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate block">
+                          {order.customer?.phone || order.customer?.email ? (
+                            <CopyableContactValue
+                              value={
+                                order.customer?.phone || order.customer?.email
+                              }
+                              className="text-xs"
+                            />
+                          ) : null}
+                        </span>
+                      </div>
+                    </SharedTooltip>
+                  </td>
 
                   <td className="w-1/6 px-4 py-2 text-left">
                     <div className="flex flex-col items-start">

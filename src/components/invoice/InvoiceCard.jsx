@@ -130,16 +130,13 @@ const InvoiceCard = ({
       onClick: () => onDuplicate?.(invoice.id || invoice._id),
       show: !!onDuplicate,
     },
-    ...(isReleased &&
-      onUpdatePaymentStatus &&
-      invoice.paymentStatus !== "PAID"
+    ...(isReleased && onUpdatePaymentStatus && invoice.paymentStatus !== "PAID"
       ? [
         {
           value: "paymentStatus",
           label: t("invoice.paymentStatus"),
           icon: CreditCard,
-          onClick: () =>
-            onUpdatePaymentStatus?.(invoice.id || invoice._id, invoice),
+          onClick: () => onUpdatePaymentStatus?.(invoice.id || invoice._id, invoice),
           className: "cursor-pointer",
           show: true,
         },
@@ -175,6 +172,7 @@ const InvoiceCard = ({
   };
 
   const invoiceId = invoice.id || invoice._id;
+  const invoiceNumber = invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`;
 
   const getStatusDisplay = () => {
     const status = invoice.invoiceStatus || invoice.status || "DRAFT";
@@ -184,18 +182,34 @@ const InvoiceCard = ({
     const paymentConfig = getStatusBadge(payment, "invoice");
 
     return (
-      <div className="flex flex-col gap-1">
-        <Badge variant={config.variant || "outline"} style={config.style} size="xs" className="text-[0.625rem] px-2 py-0 w-fit">{config.text}</Badge>
-        <Badge variant={paymentConfig.variant || "outline"} style={paymentConfig.style} size="xs" className="text-[0.625rem] px-2 py-0 w-fit">{paymentConfig.text}</Badge>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <Badge
+          variant={config.variant || "outline"}
+          style={config.style}
+          size="xs"
+          className="text-[0.625rem] px-2 py-0.5 rounded-full font-medium"
+        >
+          {config.text}
+        </Badge>
+        <Badge
+          variant={paymentConfig.variant || "outline"}
+          style={paymentConfig.style}
+          size="xs"
+          className="text-[0.625rem] px-2 py-0.5 rounded-full font-medium"
+        >
+          {paymentConfig.text}
+        </Badge>
       </div>
     );
   };
 
   const gstAmount = invoice.gstAmount !== undefined ? invoice.gstAmount : (invoice.gst?.amount || 0);
+  const subtotalAmount = invoice.subtotal || (invoice.totalAmount - (gstAmount || 0));
 
   return (
     <Card
-      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] group overflow-hidden cursor-pointer shadow-none hover:shadow-md hover:border-[rgb(var(--color-primary))]/30 transition-all duration-300 ease-out ${className}`}
+      padding="none"
+      className={`w-full h-full flex flex-col justify-between rounded-xl border border-[rgb(var(--color-border-primary))] group cursor-pointer shadow-none hover:shadow-md hover:border-[rgb(var(--color-primary))]/40 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] ${className}`}
       onClick={(e) => {
         // Prevent routing if clicking on action menu or customer section
         if (e.target.closest('.action-menu-container') || e.target.closest('.customer-section')) return;
@@ -204,25 +218,24 @@ const InvoiceCard = ({
       title={t("common.viewDetails")}
       {...props}
     >
-      {/* Header with Background Pattern */}
-      <div className="h-28 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] relative p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
-            <FileText className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+      {/* Top Header: Invoice No + Badges + Action Menu */}
+      <div className="rounded-t-xl bg-gradient-to-r from-[rgb(var(--color-primary))]/8 via-transparent to-transparent border-b border-[rgb(var(--color-border-primary))]/50 px-3.5 py-3 flex items-center justify-between gap-2.5">
+        <div className="w-full">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="w-3.5 h-3.5" />
+            <span className="font-semibold text-xs text-[rgb(var(--color-text-primary))] tracking-tight">
+              {invoiceNumber}
+            </span>
           </div>
-          <div>
-            <h3 className="font-bold text-lg text-[rgb(var(--color-text-primary))] leading-tight">
-              {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
-            </h3>
-          </div>
+          {getStatusDisplay()}
         </div>
 
         {/* Action Menu */}
-        <div className="relative action-menu-container" ref={menuRef}>
+        <div className="relative action-menu-container flex-shrink-0" ref={menuRef}>
           <IconButton onClick={() => setOpenMenuId(openMenuId ? null : invoiceId)} />
 
           {openMenuId === invoiceId && (
-            <div className="absolute right-0 top-full mt-2 w-52 bg-[rgb(var(--color-bg-primary))] rounded-xl shadow-xl border border-[rgb(var(--color-border-primary))] py-1.5 z-[100] animate-in fade-in zoom-in duration-200">
+            <div className="absolute right-0 top-full mt-1.5 w-48 bg-[rgb(var(--color-bg-primary))] rounded-xl shadow-xl border border-[rgb(var(--color-border-primary))] py-1.5 z-[100] animate-in fade-in zoom-in duration-200">
               {actionMenuItems.map((item, index) => (
                 <div key={item.value}>
                   {index > 0 && item.value === "delete" && (
@@ -234,14 +247,14 @@ const InvoiceCard = ({
                       item.onClick();
                     }}
                     disabled={item.disabled}
-                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 ${item.disabled
+                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2.5 transition-colors duration-200 ${item.disabled
                       ? "text-[rgb(var(--color-text-tertiary))] cursor-not-allowed opacity-50"
                       : item.className ||
                       "text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer"
                       }`}
                   >
-                    <item.icon className={`w-4 h-4 ${item.className ? "" : "text-[rgb(var(--color-text-secondary))]"}`} />
-                    {item.label}
+                    <item.icon className={`w-4 h-4 flex-shrink-0 ${item.className ? "" : "text-[rgb(var(--color-text-secondary))]"}`} />
+                    <span>{item.label}</span>
                   </button>
                 </div>
               ))}
@@ -250,109 +263,99 @@ const InvoiceCard = ({
         </div>
       </div>
 
-      {/* Main Info */}
-      <div className="p-4 sm:p-5 space-y-4">
-        {/* Customer & Date */}
-        <div className="grid grid-cols-2 gap-4">
-          <SharedTooltip content={invoice.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}><div
-            className={`space-y-1 customer-section rounded-lg p-1.5 -ml-1.5 transition-colors ${invoice.customer?.id ? 'cursor-pointer group/customer hover:bg-[rgb(var(--color-bg-secondary))]' : ''}`}
-            onClick={(e) => {
-              if (invoice.customer?.id) {
-                e.stopPropagation();
-                router.push(`/dashboard/customers/${invoice.customer.id}`);
-              }
-            }}
-
-          >
-            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
-              {t("invoice.customer")}
-            </span>
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                <User className="w-3 h-3 text-blue-500 group-hover/customer:text-[rgb(var(--color-primary))]" />
-              </div>
-              <span className={`text-sm font-semibold truncate ${invoice.customer?.id ? 'text-[rgb(var(--color-primary))] group-hover/customer:underline' : 'text-[rgb(var(--color-text-primary))]'}`}>
-                {invoice.customer?.name || t("invoice.walkInCustomer")}
-              </span>
-            </div>
-          </div></SharedTooltip>
-          <div className="space-y-1 text-right">
-            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
-              {t("common.date")}
-            </span>
-            <div className="flex items-start justify-end gap-2">
-              <div className="flex flex-col items-end leading-tight">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {formatDate(invoice.createdAt)}
-                </span>
-                <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
-                  {formatInvoiceTime(invoice.createdAt)}
-                </span>
-              </div>
-              <div className="w-5 h-5 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-3 h-3 text-orange-500" />
-              </div>
-            </div>
+      {/* Middle Body: Customer & Date in clean dedicated lines */}
+      <div className="px-3.5 py-3 space-y-2 flex-1">
+        {/* Customer */}
+        <div
+          className={`flex items-center gap-2 customer-section rounded-md p-1 -ml-1 transition-colors ${invoice.customer?.id ? 'cursor-pointer group/customer hover:bg-[rgb(var(--color-bg-secondary))]' : ''}`}
+          onClick={(e) => {
+            if (invoice.customer?.id) {
+              e.stopPropagation();
+              router.push(`/dashboard/customers/${invoice.customer.id}`);
+            }
+          }}
+          title={invoice.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
+        >
+          <div className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+            <User className="w-3 h-3 text-blue-500 group-hover/customer:text-[rgb(var(--color-primary))]" />
           </div>
+          <span className={`text-sm font-medium ${invoice.customer?.id ? 'text-[rgb(var(--color-primary))] group-hover/customer:underline' : 'text-[rgb(var(--color-text-primary))]'}`}>
+            {invoice.customer?.name || t("invoice.walkInCustomer")}
+          </span>
         </div>
 
-        {/* Status Section */}
-        <div className="flex items-center justify-between pb-4 border-b border-[rgb(var(--color-border-primary))]/50">
-          <div className="flex flex-col gap-1">
-            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))]">
-              {t("common.status")}
-            </span>
-            {getStatusDisplay()}
-          </div>
-          <div className="text-right">
-            <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block mb-1">
-              {t("invoice.total")}
-            </span>
-            <span className="text-xl font-bold text-[rgb(var(--color-primary))]">
-              {formatCurrency(invoice.totalAmount)}
-            </span>
-          </div>
+        {/* Date & Time */}
+        <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))] pl-0.5">
+          <Calendar className="w-3.5 h-3.5 text-[rgb(var(--color-text-tertiary))] flex-shrink-0" />
+          <span>
+            {formatDate(invoice.createdAt)}
+            <span className="mx-1.5 text-[rgb(var(--color-text-tertiary))]">•</span>
+            <span className="text-[rgb(var(--color-text-tertiary))]">{formatInvoiceTime(invoice.createdAt)}</span>
+          </span>
         </div>
+      </div>
 
-        {/* Detailed Stats */}
-        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl p-3 border border-[rgb(var(--color-border-primary))] space-y-2">
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-[rgb(var(--color-text-secondary))] font-medium">{t("invoices.subtotal")}</span>
-            <span className="text-[rgb(var(--color-text-primary))] font-semibold">
-              {formatCurrency(invoice.subtotal || (invoice.totalAmount - (gstAmount || 0)))}
+      {/* Footer: Compact Stats & Grand Total */}
+      <div className="rounded-b-xl px-3.5 py-2.5 border-t border-[rgb(var(--color-border-primary))]/50 flex items-center justify-between gap-3">
+        {/* Left: Key Stats */}
+        <div className="flex items-center gap-3 text-xs text-[rgb(var(--color-text-secondary))] flex-wrap">
+          <div>
+            <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] block uppercase font-medium">
+              {t("invoice.items")}
             </span>
-          </div>
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-[rgb(var(--color-text-secondary))]">{t("invoice.items")}</span>
-            <Badge variant="secondary" className="px-1.5 py-0 min-w-[20px] text-center">
+            <span className="font-semibold text-[rgb(var(--color-text-primary))]">
               {invoice.items?.length || 0}
-            </Badge>
-          </div>
-          <div className="flex justify-between items-center text-xs">
-            <div className="flex flex-col">
-              <span className="text-[rgb(var(--color-text-secondary))] font-medium">{t("products.gst")}</span>
-              {invoice.gst?.breakdown?.total > 0 && (
-                <span className="text-[0.5625rem] text-[rgb(var(--color-text-tertiary))] leading-none">
-                  {[
-                    invoice.gst.breakdown.cgst > 0 ? "C" : "",
-                    invoice.gst.breakdown.sgst > 0 ? "S" : "",
-                    invoice.gst.breakdown.igst > 0 ? "I" : ""
-                  ].filter(Boolean).join("+")}
-                </span>
-              )}
-            </div>
-            <span className="text-[rgb(var(--color-text-primary))] font-semibold">
-              {formatCurrency(gstAmount)}
             </span>
           </div>
-          {invoice.totalDiscount > 0 && (
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-red-500 font-medium">{t("invoice.discount")}</span>
-              <span className="text-red-500 font-semibold italic">
-                -{formatCurrency(invoice.totalDiscount)}
-              </span>
-            </div>
+
+          <div className="h-5 w-px bg-[rgb(var(--color-border-primary))]/60" />
+
+          <div>
+            <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] block uppercase font-medium">
+              {t("invoices.subtotal")}
+            </span>
+            <span className="font-semibold text-[rgb(var(--color-text-primary))] whitespace-nowrap">
+              {formatCurrency(subtotalAmount)}
+            </span>
+          </div>
+
+          {gstAmount > 0 && (
+            <>
+              <div className="h-5 w-px bg-[rgb(var(--color-border-primary))]/60" />
+              <div>
+                <span className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] block uppercase font-medium">
+                  {t("products.gst")}
+                </span>
+                <span className="font-semibold text-[rgb(var(--color-text-primary))] whitespace-nowrap">
+                  {formatCurrency(gstAmount)}
+                </span>
+              </div>
+            </>
           )}
+
+          {invoice.totalDiscount > 0 && (
+            <>
+              <div className="h-5 w-px bg-[rgb(var(--color-border-primary))]/60" />
+              <div>
+                <span className="text-[0.625rem] text-red-500 block uppercase font-medium">
+                  {t("invoice.discount")}
+                </span>
+                <span className="font-semibold text-red-500 whitespace-nowrap">
+                  -{formatCurrency(invoice.totalDiscount)}
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Right: Grand Total */}
+        <div className="text-right flex-shrink-0">
+          <span className="text-[0.625rem] uppercase font-bold tracking-wider text-[rgb(var(--color-text-tertiary))] block">
+            {t("invoice.total")}
+          </span>
+          <span className="text-base font-bold text-[rgb(var(--color-primary))] whitespace-nowrap">
+            {formatCurrency(invoice.totalAmount)}
+          </span>
         </div>
       </div>
     </Card>
