@@ -51,7 +51,8 @@ const PurchaseOrderTable = ({
       if (
         openSendMenuId &&
         sendMenuRefs.current[openSendMenuId] &&
-        !sendMenuRefs.current[openSendMenuId].contains(event.target)
+        !sendMenuRefs.current[openSendMenuId].contains(event.target) &&
+        !event.target.closest(".table-share-menu")
       ) {
         setOpenSendMenuId(null);
       }

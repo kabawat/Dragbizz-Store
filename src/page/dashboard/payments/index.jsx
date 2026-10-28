@@ -48,6 +48,7 @@ const Payments = () => {
   const [selectedPayments, setSelectedPayments] = useState([]);
   const menuRefs = useRef({});
   const scrollRef = useRef(null);
+  const sentinelRef = useRef(null);
   const hasFetched = useRef(false);
 
   // Get stable storeId
@@ -171,25 +172,19 @@ const Payments = () => {
     await fetchPayments(false);
   }, [isFetchingMore, pagination?.hasNextPage, fetchPayments]);
 
-  // Infinite scroll
+  // Infinite scroll follows the dashboard page scroll, not a nested list scroller.
   useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollRef.current || isFetchingMore || !pagination?.hasNextPage)
-        return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel || isFetchingMore || !pagination?.hasNextPage) return;
 
-      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      const threshold = 100;
-
-      if (scrollTop + clientHeight >= scrollHeight - threshold) {
-        handleLoadMore();
-      }
-    };
-
-    const scrollElement = scrollRef.current;
-    if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll);
-      return () => scrollElement.removeEventListener("scroll", handleScroll);
-    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) handleLoadMore();
+      },
+      { root: null, rootMargin: "120px", threshold: 0 },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, [isFetchingMore, pagination?.hasNextPage, handleLoadMore]);
 
   // Handle payment selection
@@ -258,6 +253,7 @@ const Payments = () => {
               isFetchingMore,
               viewMode,
               scrollRef,
+              sentinelRef,
               PaymentTable,
               handleMenuAction,
               canEdit,

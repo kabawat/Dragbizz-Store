@@ -65,7 +65,8 @@ const InvoicesListTable = ({
       if (
         openSendMenuId &&
         sendMenuRefs.current[openSendMenuId] &&
-        !sendMenuRefs.current[openSendMenuId].contains(event.target)
+        !sendMenuRefs.current[openSendMenuId].contains(event.target) &&
+        !event.target.closest(".invoice-share-menu")
       ) {
         setOpenSendMenuId(null);
       }
@@ -350,36 +351,39 @@ const InvoicesListTable = ({
                         className="h-9 px-3 rounded-lg"
                       />
                       {openSendMenuId === invoiceId && (
-                        <div
-                          className={`absolute right-0 ${isLastItems ? "bottom-full mb-1" : "top-full mt-1"} w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50`}
-                        >
-                          <button
-                            className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                            onClick={() => handleWhatsAppShare(invoice)}
-                          >
-                            <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" />{" "}
-                            {t("common.whatsapp")}
-                          </button>
-                          <button
-                            className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                            onClick={() => handleEmailShare(invoice)}
-                          >
-                            <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" />{" "}
-                            {t("common.email")}
-                          </button>
-                          <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
-                            <MessageSquare className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />{" "}
-                            {t("common.message")}
-                          </button>
-                          <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
-                          <button
-                            className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                            onClick={() => handleCopyLink(invoice)}
-                          >
-                            <Copy className="w-4 h-4 text-purple-500 dark:text-purple-400" />{" "}
-                            {t("common.copyLink")}
-                          </button>
-                        </div>
+                        <RowActionsMenu
+                          className="w-48 invoice-share-menu"
+                          items={[
+                            {
+                              key: "whatsapp",
+                              label: t("common.whatsapp"),
+                              icon: MessageCircle,
+                              iconClassName: "text-green-500 dark:text-green-400",
+                              onClick: () => handleWhatsAppShare(invoice),
+                            },
+                            {
+                              key: "email",
+                              label: t("common.email"),
+                              icon: Mail,
+                              iconClassName: "text-blue-500 dark:text-blue-400",
+                              onClick: () => handleEmailShare(invoice),
+                            },
+                            {
+                              key: "message",
+                              label: t("common.message"),
+                              icon: MessageSquare,
+                              onClick: () => setOpenSendMenuId(null),
+                            },
+                            { key: "share-separator", type: "separator" },
+                            {
+                              key: "copy-link",
+                              label: t("common.copyLink"),
+                              icon: Copy,
+                              iconClassName: "text-purple-500 dark:text-purple-400",
+                              onClick: () => handleCopyLink(invoice),
+                            },
+                          ]}
+                        />
                       )}
                     </div>
 
