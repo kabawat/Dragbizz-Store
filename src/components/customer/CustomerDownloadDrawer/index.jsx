@@ -42,6 +42,9 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     { key: "phone", label: t("customers.fieldPhone"), default: true },
     { key: "email", label: t("customers.fieldEmail"), default: true },
     { key: "address", label: t("customers.fieldAddress"), default: true },
+    { key: "companyName", label: t("customers.companyName", "Company Name"), default: false },
+    { key: "gstin", label: t("customers.gstin", "GSTIN"), default: false },
+    { key: "dueAmount", label: t("customers.fieldDueAmount", "Due Amount"), default: false },
     { key: "createdAt", label: t("customers.fieldCreatedAt"), default: true },
     { key: "updatedAt", label: t("customers.fieldUpdatedAt"), default: false },
   ];
