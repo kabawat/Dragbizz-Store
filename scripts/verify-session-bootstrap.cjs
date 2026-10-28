@@ -71,7 +71,7 @@ function deferred() {
     })
   );
   assert.equal(core.handleSuccess({ success: true, data: null }).data, null);
-  for (const project of ["dragbizz-store-fe", "DragBizz-Web"]) {
+  for (const project of ["Dragbizz-Store", "DragBizz-Web"]) {
     let authCalls = 0,
       retailerCalls = 0,
       staffCalls = 0,

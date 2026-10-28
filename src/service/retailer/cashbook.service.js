@@ -7,15 +7,9 @@ class CashbookService extends BaseService {
     this.endpoint = API_CONFIG?.RETAILER?.CASHBOOK;
   }
 
-  getSettings(store) {
-    const settingEndpoint = API_CONFIG?.RETAILER?.SETTING || "/retailer/setting";
-    return this.get(`${settingEndpoint}/cashbook`, { store });
+  reconcile(storeId, data) {
+    return this.post(`${this.endpoint}/reconcile`, { ...data, store: storeId });
   }
-  updateSettings(store, settings) {
-    const settingEndpoint = API_CONFIG?.RETAILER?.SETTING || "/retailer/setting";
-    return this.put(`${settingEndpoint}/cashbook`, settings, { store });
-  }
-  setOpeningBalance(store, date, openingBalance) { return this.put(`${this.endpoint}/day/${date}/opening`, { openingBalance }, { store }); }
 
   createEntry(data) {
     return this.post(this.endpoint, data);
@@ -23,7 +17,7 @@ class CashbookService extends BaseService {
 
   updateEntry(entryId, data, storeId = null) {
     const url = this.buildResourceUrl(this.endpoint, entryId, storeId);
-    return this.put(url, data);
+    return this.patch(url, data);
   }
 
   getEntries(params = {}) {

@@ -1,19 +1,21 @@
 "use client";
 import { CashbookScreen } from "@dragorbit/features/cashbook";
-
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useAppSelector } from "@/store/hooks";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { cashbookService } from "@/service/retailer/cashbook.service";
-import useApiResponse from "@/hooks/useApiResponse";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useCashbookEntry } from "@/hooks/cashbook/useCashbookEntry";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
+import { cashbookService } from "@/service/retailer/cashbook.service";
+import { useAppSelector } from "@/store/hooks";
 
 function todayKey() {
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit",
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   }).format(new Date());
 }
 
@@ -29,7 +31,10 @@ export default function CashbookPage() {
   const { can, loading: permissionLoading } = useModulePermissions("cashbook");
   const canRead = can("read");
 
-  const [dateRange, setDateRange] = useState(() => ({ startDate: todayKey(), endDate: todayKey() }));
+  const [dateRange, setDateRange] = useState(() => ({
+    startDate: todayKey(),
+    endDate: todayKey(),
+  }));
   const requestId = useRef(0);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -37,6 +42,8 @@ export default function CashbookPage() {
   const [entrySettings, setEntrySettings] = useState(null);
   const [settingsStoreId, setSettingsStoreId] = useState(null);
   const [summary, setSummary] = useState(null);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [moreLoading, setMoreLoading] = useState(false);
   const [listLoading, setListLoading] = useState(true);
   const [listError, setListError] = useState(false);
 
@@ -52,32 +59,36 @@ export default function CashbookPage() {
     setListLoading(true);
     setListError(false);
     const { startDate, endDate } = dateRange;
-    const rangeParams = { from: startDate || undefined, to: endDate || undefined };
+    const rangeParams = {
+      from: startDate || undefined,
+      to: endDate || undefined,
+    };
     try {
-      const [listResult, summaryResult, settingsResult] = await Promise.all([
+      const [listResult, summaryResult] = await Promise.all([
+        execute(cashbookService.getEntries({ store: storeId, ...rangeParams, limit: 50 }), {
+          showToast: false,
+        }),
         execute(
-          cashbookService.getEntries({
+          cashbookService.getSummary({
             store: storeId,
-            ...rangeParams,
-            limit: 50,
+            from: startDate || "1970-01-01",
+            to: endDate || todayKey(),
           }),
-          { showToast: false }
+          { showToast: false },
         ),
-        execute(
-          cashbookService.getSummary({ store: storeId, from: startDate || "1970-01-01", to: endDate || todayKey() }),
-          { showToast: false }
-        ),
-        execute(cashbookService.getSettings(storeId), { showToast: false }),
       ]);
       if (currentRequest !== requestId.current) return;
-      if (!listResult?.success || !summaryResult?.success || !settingsResult?.success)
-        throw new Error("Cashbook unavailable");
-      setEntrySettings(settingsResult.data);
+      if (!listResult?.success || !summaryResult?.success) throw new Error("Cashbook unavailable");
+      setNextCursor(
+        listResult.pagination?.nextCursor ||
+          listResult.nextCursor ||
+          listResult.meta?.nextCursor ||
+          null,
+      );
+      setEntrySettings(summaryResult?.data?.entrySettings || null);
       setSettingsStoreId(storeId);
       setEntries(
-        Array.isArray(listResult?.data)
-          ? listResult.data
-          : (listResult?.data?.data ?? [])
+        Array.isArray(listResult?.data) ? listResult.data : (listResult?.data?.data ?? []),
       );
       setSummary(summaryResult?.data ?? summaryResult?.data?.data ?? null);
     } catch {
@@ -91,15 +102,50 @@ export default function CashbookPage() {
     if (!permissionLoading && canRead) refreshData();
   }, [canRead, permissionLoading, refreshData]);
 
-  const { loading, error, recordCashIn, recordCashOut, clearError } =
-    useCashbookEntry({
-      storeId,
-      onSuccess: () => {
-        setAmount("");
-        setDescription("");
-        refreshData();
-      },
-    });
+  const { loading, error, recordCashIn, recordCashOut, clearError } = useCashbookEntry({
+    storeId,
+    onSuccess: () => {
+      setAmount("");
+      setDescription("");
+      refreshData();
+    },
+  });
+
+  const onReconcile = async (data) => {
+    const result = await execute(cashbookService.reconcile(storeId, data), { showToast: false });
+    await refreshData();
+    if (!result?.success)
+      throw Object.assign(new Error(result?.message || t("cashbook.saveFailed")), {
+        code: result?.code,
+      });
+  };
+
+  const loadMore = async () => {
+    if (!nextCursor || moreLoading) return;
+    const currentRequest = requestId.current;
+    setMoreLoading(true);
+    try {
+      const result = await execute(
+        cashbookService.getEntries({
+          store: storeId,
+          from: dateRange.startDate || undefined,
+          to: dateRange.endDate || undefined,
+          limit: 50,
+          nextCursor,
+        }),
+        { showToast: false },
+      );
+      if (currentRequest !== requestId.current) return;
+      if (result?.success) {
+        setEntries((previous) => [...previous, ...(Array.isArray(result.data) ? result.data : [])]);
+        setNextCursor(
+          result.pagination?.nextCursor || result.nextCursor || result.meta?.nextCursor || null,
+        );
+      }
+    } finally {
+      setMoreLoading(false);
+    }
+  };
 
   const totals = summary?.totals ?? { cashIn: 0, cashOut: 0, netFlow: 0 };
   const closingBalance = summary?.days?.at(-1)?.closingBalance ?? totals.netFlow;
@@ -109,10 +155,23 @@ export default function CashbookPage() {
       key={storeId}
       t={t}
       entrySettings={settingsStoreId === storeId ? entrySettings : null}
+      days={settingsStoreId === storeId ? summary?.days || [] : []}
+      ledgerVersion={settingsStoreId === storeId ? summary?.ledgerVersion : undefined}
+      onReconcile={onReconcile}
+      canEdit={!permissionLoading && can("edit") && Boolean(storeId)}
+      hasMore={Boolean(nextCursor)}
+      moreLoading={moreLoading}
+      onLoadMore={loadMore}
       startDate={dateRange.startDate}
       endDate={dateRange.endDate}
       onDateChange={setDateRange}
-      disabled={!storeId || (!entrySettings || settingsStoreId !== storeId) || permissionLoading || !can("create")}
+      disabled={
+        !storeId ||
+        !entrySettings ||
+        settingsStoreId !== storeId ||
+        permissionLoading ||
+        !can("create")
+      }
       amount={amount}
       setAmount={setAmount}
       description={description}
@@ -126,13 +185,13 @@ export default function CashbookPage() {
       onRefresh={refreshData}
       loading={loading}
       error={error}
-      handleCashIn={() => {
+      handleCashIn={(details = {}) => {
         clearError();
-        return recordCashIn({ amount, description });
+        return recordCashIn({ amount, description, ...details });
       }}
-      handleCashOut={() => {
+      handleCashOut={(details = {}) => {
         clearError();
-        return recordCashOut({ amount, description });
+        return recordCashOut({ amount, description, ...details });
       }}
     />
   );

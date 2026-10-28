@@ -7,7 +7,7 @@ This document explains the end-to-end flow of Firebase Cloud Messaging (Push Not
 To test or develop FCM features locally, you need:
 1. **HTTPS or Localhost:** Service workers and Push APIs strictly require a secure context. Use `http://localhost:3000` or an HTTPS proxy. Custom local domains like `http://dragbizz.local` will **block** FCM.
 2. **Environment Variables:**
-   Create `.env.local` in `FE/dragbizz-store-fe` and populate it with your Firebase project config:
+   Create `.env.local` in `FE/Dragbizz-Store` and populate it with your Firebase project config:
    ```env
    NEXT_PUBLIC_FIREBASE_API_KEY="..."
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."

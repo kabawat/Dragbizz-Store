@@ -1,3 +1,4 @@
+import cashbook from "./cashbook.json";
 import bulkUpload from "./bulkUpload.json";
 import auth from "./auth.json";
 import bills from "./bills.json";
@@ -33,6 +34,7 @@ import validation from "./validation.json";
 import voice from "./voice.json";
 
 export default {
+  cashbook,
   bulkUpload,
   auth,
   bills,
