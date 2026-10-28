@@ -313,7 +313,9 @@ const InvoiceItemsSection = ({
       return;
     }
 
-    const product = productsById.get(String(selectedProduct));
+    // The invoice picker is driven by variants; their populated `product` ID/name
+    // is sufficient even when that product is not present in the local cache.
+    const product = selectedProductObj;
     if (!product) {
       showError(t("invoice.productNotFound"));
       return;
