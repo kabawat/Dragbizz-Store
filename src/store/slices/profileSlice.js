@@ -69,7 +69,7 @@ export const getRetailerDetails = createAsyncThunk(
               stores: existingStores,
             },
             message: "Agency found, store details required",
-            redirectTo: "/onboarding/store",
+            redirectTo: "/setup",
           };
         }
 
@@ -106,7 +106,7 @@ export const getRetailerDetails = createAsyncThunk(
           success: true,
           data: combinedData,
           message: "Store details required",
-          redirectTo: "/onboarding/store",
+          redirectTo: "/setup",
         };
       }
 
@@ -148,7 +148,7 @@ export const getAuthProfile = createAsyncThunk(
           success: true,
           data,
           message: "Store onboarding required",
-          redirectTo: "/onboarding/store",
+          redirectTo: "/setup",
         };
       }
 

@@ -5,7 +5,7 @@ const protectedRoutes = [
   "/profile",
   "/settings",
   "/admin",
-  "/onboarding",
+  "/setup",
 ];
 
 export function proxy(request) {

@@ -49,8 +49,6 @@ async function main() {
     "@/utils/responseHandler/error":
       "export const handleError=error=>({message:error.message});",
     "@dragorbit/core/domain": 'export const getDashboardUrl=()=>"/dashboard";',
-    "@/components/auth/StoreCreationSuccess":
-      "export default ()=> <div>Store created</div>;",
     "@/components/ui": [
       "Input:input/Input.jsx",
       "Select:select/Select.jsx",
@@ -83,7 +81,7 @@ async function main() {
         resolveDir: root,
         loader: "jsx",
         contents:
-          'import React from "react";import{createRoot}from"react-dom/client";import Page from "./src/page/onboarding/store/index.jsx";window.__gstRequests=[];window.__created=[];window.mount=()=>createRoot(document.getElementById("root")).render(<Page/>);window.mount();',
+          'import React from "react";import{createRoot}from"react-dom/client";import Page from "./src/page/setup/index.jsx";window.__gstRequests=[];window.__created=[];window.mount=()=>createRoot(document.getElementById("root")).render(<Page/>);window.mount();',
       },
       bundle: true,
       jsx: "automatic",

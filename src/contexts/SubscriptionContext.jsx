@@ -32,7 +32,7 @@ const SubscriptionContext = createContext({
 });
 export const SubscriptionProvider = ({ children }) => {
   const pathname = usePathname();
-  const onboarding = pathname?.startsWith("/onboarding") === true;
+  const isSetup = pathname?.startsWith("/setup") === true;
   const profile = useAppSelector((state) => state.profile);
   const scope = workspaceScope(profile);
   const [state, setState] = useState(() => {
@@ -49,7 +49,7 @@ export const SubscriptionProvider = ({ children }) => {
   const request = useRef(0);
   const inFlight = useRef(null);
   const reload = useCallback(async () => {
-    if (!scope || onboarding) return;
+    if (!scope || isSetup) return;
     const generation = ++request.current;
     setState((previous) => {
       const preview =
@@ -102,7 +102,7 @@ export const SubscriptionProvider = ({ children }) => {
         error: error?.message || "Unable to load subscription.",
       }));
     }
-  }, [scope, onboarding]);
+  }, [scope, isSetup]);
   useEffect(() => {
     reload();
     return () => {

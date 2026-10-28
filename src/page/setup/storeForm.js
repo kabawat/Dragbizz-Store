@@ -34,9 +34,10 @@ export function validateStoreForm(form) {
 }
 
 export function storePayload(form, location) {
-  const { phone, email, ...rest } = form;
+  const { phone, email, agency, ...rest } = form;
   return {
     ...rest,
+    ...(agency ? { agency } : {}),
     name: form.name.trim(),
     ...(phone.trim() ? { phone: phone.replace(/[\s()-]/g, "") } : {}),
     ...(email.trim() ? { email: email.trim().toLowerCase() } : {}),

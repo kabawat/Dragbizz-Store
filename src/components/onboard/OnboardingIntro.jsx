@@ -1,29 +1,7 @@
-import { Building2, Globe, Package, Phone, Store, Tags } from "lucide-react";
+import { Phone, Store } from "lucide-react";
 import styles from "./Onboarding.module.css";
 
 const content = {
-  agency: {
-    title: (
-      <>
-        Your business starts with{" "}
-        <span className={styles.gradient}>DragBizz</span>
-      </>
-    ),
-    description:
-      "An agency is your main business or brand. Keep all your stores and business activity together, even if you’re starting with one outlet.",
-    items: [
-      [
-        Building2,
-        "One business identity",
-        "Use your brand name, such as Drag Stores. You’ll name your individual stores next.",
-      ],
-      [
-        Globe,
-        "Your own workspace",
-        "We suggest a workspace address from your agency name. You can edit it before continuing.",
-      ],
-    ],
-  },
   store: {
     title: (
       <>
@@ -45,31 +23,10 @@ const content = {
       ],
     ],
   },
-  business: {
-    title: (
-      <>
-        Set up your store, <span className={styles.gradient}>your way</span>
-      </>
-    ),
-    description:
-      "Choose the category that best describes what you sell. This completes your store setup.",
-    items: [
-      [
-        Tags,
-        "Choose your business category",
-        "Pick the closest match for your store from the available categories.",
-      ],
-      [
-        Package,
-        "Ready for your first products",
-        "Once your store is created, you can add inventory and start making sales.",
-      ],
-    ],
-  },
 };
 
-export default function OnboardingIntro({ variant = "agency" }) {
-  const { title, description, items } = content[variant];
+export default function OnboardingIntro({ variant = "store" }) {
+  const { title, description, items } = content[variant] || content.store;
   return (
     <aside className={styles.guide}>
       <div key={variant} className={styles.introContent}>

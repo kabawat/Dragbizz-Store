@@ -2,7 +2,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@/app/LocationProvider";
-import StoreCreationSuccess from "@/components/auth/StoreCreationSuccess";
 import {
   BasicInfoStep,
   ErrorDisplay,
@@ -56,7 +55,6 @@ export default function StoreCreation() {
   const [errors, setErrors] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [manualPan, setManualPan] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const submitting = useRef(false);
@@ -164,10 +162,6 @@ export default function StoreCreation() {
       }
 
       window.location.href = "/dashboard";
-      return;
-
-      setShowSuccessScreen(true);
-      setIsSubmitting(false);
     } catch (error) {
       submitting.current = false;
       const result = handleError(error);
@@ -185,23 +179,14 @@ export default function StoreCreation() {
     }
   };
 
-  const handleContinue = () => {
-    router.push("/dashboard");
-  };
-
-  // If store already exists, redirect to dashboard (onboarding is one-time only)
+  // If store already exists, redirect to dashboard
   useEffect(() => {
-    if (stores && stores.length > 0 && !showSuccessScreen) {
+    if (stores && stores.length > 0) {
       router.push("/dashboard");
     }
-  }, [stores, router, showSuccessScreen]);
+  }, [stores, router]);
 
-  // Show success screen if store creation was successful
-  if (showSuccessScreen) {
-    return <StoreCreationSuccess onContinue={handleContinue} />;
-  }
-
-  if (profileLoading || !agency) {
+  if (profileLoading) {
     return <LoadingScreen />;
   }
 

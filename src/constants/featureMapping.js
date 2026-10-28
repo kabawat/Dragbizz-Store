@@ -1,7 +1,7 @@
 // Route / menu mapping aligned with subscription PACKAGE_MODULES (short keys)
 export const FEATURE_ROUTES = {
   store: {
-    routes: ["/dashboard/settings", "/onboarding/store"],
+    routes: ["/dashboard/settings", "/setup"],
     menuItems: ["Settings"],
     subMenuItems: ["Store Settings"],
   },
