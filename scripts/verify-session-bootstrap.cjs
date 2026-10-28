@@ -202,7 +202,7 @@ function deferred() {
     await bootstrapSession(app, profile, { sessionHint: true });
     assert.equal(
       sessionDecision(app.getState().profile).to,
-      "/onboarding/agency"
+      "/onboarding/store"
     );
     app = makeStore();
     authValue = { data: validProfile };

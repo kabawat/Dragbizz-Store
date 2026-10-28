@@ -13,15 +13,6 @@ class StoreService extends BaseService {
     return this.post(API_CONFIG?.RETAILER?.PROFILE);
   }
 
-  // Create agency using auth service token
-  async createAgency(agencyData) {
-    const payload = {
-      name: agencyData.name,
-      subdomain: agencyData.subdomain,
-    };
-    return this.post(API_CONFIG?.RETAILER?.AGENCY, payload);
-  }
-
   // Create store using auth service token
   async createStore(storeData) {
     return this.post(this.endpoint, storeData);

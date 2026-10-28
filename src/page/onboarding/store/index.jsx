@@ -15,7 +15,6 @@ import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { authService } from "@/service";
 import storeService from "@/service/retailer/store.service";
 import { useAppSelector } from "@/store/hooks";
-import { getDashboardUrl } from "@dragorbit/core/domain";
 import { handleError } from "@/utils/responseHandler/error";
 import { handleSuccess } from "@/utils/responseHandler/success";
 
@@ -77,17 +76,13 @@ export default function StoreCreation() {
       }),
   });
 
-  // Load agency data from Redux
+  // Load agency data from Redux if already exists
   useEffect(() => {
-    // Check if agency exists with any of the possible ID fields
     const agencyId = agency?.agencyId ?? agency?._id;
-
     if (agency && agencyId) {
       setFormData((prev) => ({ ...prev, agency: agencyId }));
-    } else if (agency === null && !profileLoading) {
-      router.push("/onboarding/agency");
     }
-  }, [agency, profileLoading, router]);
+  }, [agency]);
 
   const handleVerifyGst = async () => {
     const message = taxFieldError("gst", formData.gst);
@@ -163,18 +158,13 @@ export default function StoreCreation() {
       handleSuccess(response);
 
       try {
-        const userProfile = await authService.refreshToken();
-
-        const subdomain = userProfile.data?.tenant;
-
-        if (subdomain) {
-          window.location.href = getDashboardUrl(subdomain);
-          // Intentionally not setting isSubmitting=false so the loader spins until navigation completes
-          return;
-        }
+        await authService.refreshToken();
       } catch (_refreshError) {
-        // Don't throw, just proceed to show success screen so user isn't stuck
+        // Silently proceed
       }
+
+      window.location.href = "/dashboard";
+      return;
 
       setShowSuccessScreen(true);
       setIsSubmitting(false);

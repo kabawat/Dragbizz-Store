@@ -100,21 +100,12 @@ export const getRetailerDetails = createAsyncThunk(
         stores: actualData.stores || [],
       };
 
-      const { agency, stores } = combinedData;
-      if (!agency) {
+      const { stores } = combinedData;
+      if (!stores || stores.length === 0) {
         return {
           success: true,
           data: combinedData,
-          message: "Agency details required",
-          redirectTo: "/onboarding/agency",
-        };
-      }
-
-      if (agency && (!stores || stores.length === 0)) {
-        return {
-          success: true,
-          data: combinedData,
-          message: "Agency found, store details required",
+          message: "Store details required",
           redirectTo: "/onboarding/store",
         };
       }
@@ -151,13 +142,13 @@ export const getAuthProfile = createAsyncThunk(
       )
         throw new Error("Invalid account response. Please retry.");
 
-      // Check if agencyId is null/missing - user needs onboarding
+      // Check if agencyId is null/missing - user needs store onboarding
       if (data && !data.agencyId) {
         return {
           success: true,
           data,
-          message: "Agency onboarding required",
-          redirectTo: "/onboarding/agency",
+          message: "Store onboarding required",
+          redirectTo: "/onboarding/store",
         };
       }
 
