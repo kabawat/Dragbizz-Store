@@ -23,7 +23,7 @@ export default function CashbookPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const { execute } = useApiResponse();
-  const { selectedStore } = useAppSelector((state) => state.profile);
+  const { selectedStore, authProfile } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
   useDashboardHeader(t("cashbook.title"), t("cashbook.subtitle"));
@@ -148,6 +148,9 @@ export default function CashbookPage() {
     <CashbookScreen
       key={storeId}
       t={t}
+      onOpenSettings={authProfile?.role === "store_owner"
+        ? () => router.push("/dashboard/settings?tab=cashbook")
+        : undefined}
       entrySettings={settingsStoreId === storeId ? entrySettings : null}
       days={settingsStoreId === storeId ? summary?.days || [] : []}
       ledgerVersion={settingsStoreId === storeId ? summary?.ledgerVersion : undefined}

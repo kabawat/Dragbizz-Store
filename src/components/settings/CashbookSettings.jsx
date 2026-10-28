@@ -35,11 +35,11 @@ function StoreCashbookSettings({ storeId, storeName }) {
   }, [load]);
   const onSave = async (event) => {
     event.preventDefault();
-    if (savingRef.current) return;
+    if (savingRef.current) return false;
     const maxAmount = Number(settings.maxAmount);
     if (!Number.isFinite(maxAmount) || maxAmount < 0.01 || maxAmount > 100000000) {
       setError(t("cashbook.settings.invalidLimit"));
-      return;
+      return false;
     }
     savingRef.current = true;
     setSaving(true);
@@ -47,9 +47,11 @@ function StoreCashbookSettings({ storeId, storeName }) {
     try {
       const result = await execute(
         settingService.updateCashbookSetting(storeId, { ...settings, maxAmount }),
+        { showToast: false },
       );
       if (result?.success) setSettings(result.data);
       else setError(result?.message || t("cashbook.saveFailed"));
+      return Boolean(result?.success);
     } finally {
       savingRef.current = false;
       setSaving(false);

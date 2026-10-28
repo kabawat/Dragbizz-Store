@@ -67,6 +67,12 @@
   "addEntry": "Add entry",
   "closeEntry": "Close quick entry",
   "settings": {
+    "autoSaveEnabled": "Changes save automatically",
+    "autoSavePending": "Waiting to save…",
+    "autoSaving": "Saving changes…",
+    "autoSaved": "All changes saved",
+    "autoSaveFailed": "Changes not saved",
+
     "title": "Cashbook settings",
     "subtitle": "Settings apply to this store only.",
     "loading": "Loading cashbook settings…",

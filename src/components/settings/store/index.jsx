@@ -2,7 +2,6 @@
 import { StoreSettingsView } from "@dragorbit/features/settings";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CatalogQRModal } from "@/components/common";
 import { FEATURES } from "@/constants/features";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -67,8 +66,6 @@ const StoreSettings = () => {
   const [editingStore, setEditingStore] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState(null);
-  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
-  const [activeStore, setActiveStore] = useState(null);
 
   // Refs to prevent duplicate API calls
   const hasFetchedRef = useRef(false);
@@ -136,12 +133,6 @@ const StoreSettings = () => {
     setIsDeleteModalOpen(true);
   };
 
-  // Handle show catalog QR
-  const handleShowCatalog = (store) => {
-    setActiveStore(store);
-    setIsCatalogModalOpen(true);
-  };
-
   // Handle success callbacks
   const handleAddSuccess = (message) => {
     showSuccess(message);
@@ -178,7 +169,6 @@ const StoreSettings = () => {
         selectedStore,
         handleEditStore,
         handleDeleteStore,
-        handleShowCatalog,
         StoreAddDrawer,
         isAddDrawerOpen,
         setIsAddDrawerOpen,
@@ -197,11 +187,6 @@ const StoreSettings = () => {
         setIsDeleteModalOpen,
         setStoreToDelete,
         handleDeleteSuccess,
-        CatalogQRModal,
-        isCatalogModalOpen,
-        setIsCatalogModalOpen,
-        setActiveStore,
-        activeStore,
       }}
     />
   );

@@ -67,6 +67,12 @@
   "addEntry": "Entry add karein",
   "closeEntry": "Quick entry band karein",
   "settings": {
+    "autoSaveEnabled": "Changes apne aap save honge",
+    "autoSavePending": "Save hone ka intezaar…",
+    "autoSaving": "Changes save ho rahe hain…",
+    "autoSaved": "Saare changes save ho gaye",
+    "autoSaveFailed": "Changes save nahi hue",
+
     "title": "Cashbook settings",
     "subtitle": "Settings sirf is store par apply hoti hain.",
     "loading": "Cashbook settings load ho rahi hain…",
