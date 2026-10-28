@@ -1,4 +1,5 @@
 "use client";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import {
   Building2,
   CheckCircle,
@@ -18,9 +19,9 @@ import {
 } from "@/components/ui";
 import SideDrawer from "@/components/ui/SideDrawer";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
-import { useApiResponse } from "@/hooks/useApiResponse";
 
 const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
   const { t } = useTranslation();
@@ -396,13 +397,13 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                       {t("payments.paymentMethodNumber", { number: index + 1 })}
                     </h4>
                     {formData.paymentMethods.length > 1 && (
-                      <button
+                      <SharedTooltip content={t("payments.removePaymentMethod")}><button aria-label={t("payments.removePaymentMethod")}
                         onClick={() => removePaymentMethod(index)}
                         className="opacity-0 group-hover:opacity-100 p-2 hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all cursor-pointer"
-                        title={t("payments.removePaymentMethod")}
+
                       >
                         <Trash2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-danger))] transition-colors" />
-                      </button>
+                      </button></SharedTooltip>
                     )}
                   </div>
 

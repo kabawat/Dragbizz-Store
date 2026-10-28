@@ -12,7 +12,7 @@ export function useCashbookEntry({ storeId, onSuccess }) {
   const [error, setError] = useState(null);
 
   const recordEntry = useCallback(
-    async ({ type, amount, description, category = "OTHER", entryDate }) => {
+    async ({ type, amount, description, category = "OTHER" }) => {
       const numericAmount = Number(amount);
       if (!storeId) {
         setError(t("cashbook.storeRequired"));
@@ -33,7 +33,6 @@ export function useCashbookEntry({ storeId, onSuccess }) {
             amount: numericAmount,
             category,
             description: description?.trim() || undefined,
-            entryDate: entryDate || new Date().toISOString(),
           }),
           { successMessage: t("cashbook.entrySaved") }
         );

@@ -14,15 +14,16 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { GripVertical, Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { FileUpload } from "../ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { utilityService } from "@/service";
 import { productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { FileUpload } from "../ui";
 
 const MAX_IMAGES = 10;
 
@@ -88,27 +89,27 @@ function SortableImageCard({ id, img, index, onRemove, primaryLabel, readOnly = 
       </div>
 
       {!readOnly && (
-        <button
+        <SharedTooltip content={"Drag to reorder"}><button aria-label={"Drag to reorder"}
           type="button"
           className="absolute top-2 right-2 p-1.5 rounded-md bg-black/55 text-white cursor-grab active:cursor-grabbing touch-none opacity-80 group-hover:opacity-100"
-          title="Drag to reorder"
+
           {...attributes}
           {...listeners}
         >
           <GripVertical className="w-4 h-4" />
-        </button>
+        </button></SharedTooltip>
       )}
 
       {!readOnly && (
         <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
-          <button
+          <SharedTooltip content={"Remove Image"}><button aria-label={"Remove Image"}
             onClick={() => onRemove(index)}
             className="p-2 bg-red-500 hover:bg-red-600 rounded-xl text-white transition-all shadow-lg cursor-pointer"
-            title="Remove Image"
+
             type="button"
           >
             <Trash2 className="w-4 h-4" />
-          </button>
+          </button></SharedTooltip>
         </div>
       )}
     </div>

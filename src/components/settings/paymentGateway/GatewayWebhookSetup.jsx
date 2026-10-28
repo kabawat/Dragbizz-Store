@@ -1,5 +1,6 @@
 "use client";
 import { GatewayWebhookSetupView } from "@dragorbit/features/integrations";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
@@ -35,18 +36,18 @@ const CopyField = ({ label, value, mono = true }) => {
         >
           {value}
         </p>
-        <button
+        <SharedTooltip content={t("settings.paymentGateway.copyValue")}><button
           type="button"
           onClick={handleCopy}
           className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg border border-[rgb(var(--color-border-primary))]/60 hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
-          title={t("settings.paymentGateway.copyValue")}
+
         >
           {copied ? (
             <Check className="w-4 h-4 text-green-500" />
           ) : (
             <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
           )}
-        </button>
+        </button></SharedTooltip>
       </div>
     </div>
   );

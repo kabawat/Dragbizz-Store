@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Modal } from "@dragorbit/ui";
+import { Button, Modal, Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -106,10 +106,10 @@ export default function LogoutModal({
                 <p className="text-xs font-semibold text-[rgb(var(--color-text-primary))] truncate">
                   {userName}
                 </p>
-                <span
+                <SharedTooltip content={"Active session"}><span
                   className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
-                  title="Active session"
-                />
+
+                /></SharedTooltip>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] text-[rgb(var(--color-text-tertiary))] truncate">
                 {userEmail && <span className="truncate">{userEmail}</span>}

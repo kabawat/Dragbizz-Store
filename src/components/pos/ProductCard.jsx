@@ -1,4 +1,5 @@
-import { Check, Plus, Minus } from "lucide-react";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
+import { Check, Minus, Plus } from "lucide-react";
 import { resolveProductUnitPrice } from "@/utils/productUtils";
 
 const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
@@ -52,10 +53,10 @@ export default function ProductCard({
     // Grid View
     if (isGrid) {
         return (
-            <div
+            <SharedTooltip content={isSelected ? "Click to increase, Ctrl+Click to decrease" : undefined}><div
                 onClick={handleCardClick}
                 aria-pressed={isSelected}
-                title={isSelected ? "Click to increase, Ctrl+Click to decrease" : undefined}
+
                 className={`group w-full h-full p-2 bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-300 text-left overflow-hidden flex flex-col gap-2 relative ${
                     !isSelected && stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"
                 } ${selectedBorder}`}
@@ -129,16 +130,16 @@ export default function ProductCard({
                         )}
                     </div>
                 </div>
-            </div>
+            </div></SharedTooltip>
         );
     }
 
     // List View
     return (
-        <div
+        <SharedTooltip content={isSelected ? "Click to increase, Ctrl+Click to decrease" : undefined}><div
             onClick={handleCardClick}
             aria-pressed={isSelected}
-            title={isSelected ? "Click to increase, Ctrl+Click to decrease" : undefined}
+
             className={`group w-full relative bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all duration-200 text-left overflow-hidden flex-shrink-0 p-2.5 flex items-center gap-3 ${
                 !isSelected && stockLimitReached ? "cursor-not-allowed opacity-60" : "cursor-pointer"
             } ${selectedBorder}`}
@@ -216,6 +217,6 @@ export default function ProductCard({
                     </button>
                 )}
             </div>
-        </div>
+        </div></SharedTooltip>
     );
 }

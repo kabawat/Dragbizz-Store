@@ -31,10 +31,7 @@ export default function CashbookPage() {
   const { can, loading: permissionLoading } = useModulePermissions("cashbook");
   const canRead = can("read");
 
-  const [dateRange, setDateRange] = useState(() => ({
-    startDate: todayKey(),
-    endDate: todayKey(),
-  }));
+  const [selectedDate, setSelectedDate] = useState(todayKey);
   const requestId = useRef(0);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -58,10 +55,9 @@ export default function CashbookPage() {
     const currentRequest = ++requestId.current;
     setListLoading(true);
     setListError(false);
-    const { startDate, endDate } = dateRange;
     const rangeParams = {
-      from: startDate || undefined,
-      to: endDate || undefined,
+      from: selectedDate,
+      to: selectedDate,
     };
     try {
       const [listResult, summaryResult] = await Promise.all([
@@ -71,8 +67,8 @@ export default function CashbookPage() {
         execute(
           cashbookService.getSummary({
             store: storeId,
-            from: startDate || "1970-01-01",
-            to: endDate || todayKey(),
+            from: selectedDate,
+            to: selectedDate,
           }),
           { showToast: false },
         ),
@@ -96,7 +92,7 @@ export default function CashbookPage() {
     } finally {
       if (currentRequest === requestId.current) setListLoading(false);
     }
-  }, [storeId, execute, dateRange]);
+  }, [storeId, execute, selectedDate]);
 
   useEffect(() => {
     if (!permissionLoading && canRead) refreshData();
@@ -128,8 +124,8 @@ export default function CashbookPage() {
       const result = await execute(
         cashbookService.getEntries({
           store: storeId,
-          from: dateRange.startDate || undefined,
-          to: dateRange.endDate || undefined,
+          from: selectedDate,
+          to: selectedDate,
           limit: 50,
           nextCursor,
         }),
@@ -147,8 +143,6 @@ export default function CashbookPage() {
     }
   };
 
-  const totals = summary?.totals ?? { cashIn: 0, cashOut: 0, netFlow: 0 };
-  const closingBalance = summary?.days?.at(-1)?.closingBalance ?? totals.netFlow;
 
   return (
     <CashbookScreen
@@ -162,9 +156,8 @@ export default function CashbookPage() {
       hasMore={Boolean(nextCursor)}
       moreLoading={moreLoading}
       onLoadMore={loadMore}
-      startDate={dateRange.startDate}
-      endDate={dateRange.endDate}
-      onDateChange={setDateRange}
+      selectedDate={selectedDate}
+      onDateChange={setSelectedDate}
       disabled={
         !storeId ||
         !entrySettings ||
@@ -177,8 +170,6 @@ export default function CashbookPage() {
       description={description}
       setDescription={setDescription}
       entries={entries}
-      totals={totals}
-      closingBalance={closingBalance}
       listLoading={listLoading}
       refreshing={listLoading && summary !== null}
       listError={listError}

@@ -1,6 +1,7 @@
 "use client";
 
 import { BrainPanel, useVoiceCapture } from "@dragorbit/features/brain";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import Link from "next/link";
 import { useState } from "react";
 import ENV_CONFIG from "@/config/env.config";
@@ -29,13 +30,13 @@ export default function VoiceCommandLauncher({ className = "" }) {
   const voice = useVoiceCapture({ language });
 
   const renderTrigger = ({ isOpen, setIsOpen, togglePanel }) => (
-    <button
+    <SharedTooltip content={t("voice.title", "AI Assistant")}><button
       aria-haspopup="dialog"
       aria-expanded={isOpen}
       aria-label={t("voice.buttonLabel", "AI Assistant")}
       onClick={togglePanel || (() => setIsOpen?.(!isOpen))}
       type="button"
-      title={t("voice.title", "AI Assistant")}
+
       className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 group cursor-pointer active:scale-95 border ${
         isOpen
           ? "bg-[rgb(var(--color-primary))]/15 border-[rgb(var(--color-primary))]/40 ring-2 ring-[rgb(var(--color-primary))]/20"
@@ -53,7 +54,7 @@ export default function VoiceCommandLauncher({ className = "" }) {
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[rgb(var(--color-primary))] opacity-75" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-[rgb(var(--color-primary))] ring-1 ring-[rgb(var(--color-bg-primary))]" />
       </span>
-    </button>
+    </button></SharedTooltip>
   );
 
   return (

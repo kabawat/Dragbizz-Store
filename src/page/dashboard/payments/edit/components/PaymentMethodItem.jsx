@@ -1,6 +1,7 @@
 "use client";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { Building2, FileText, Smartphone, Trash2 } from "lucide-react";
-import { Card, Select, Input } from "@/components/ui";
+import { Card, Input, Select } from "@/components/ui";
 import { METHOD_OPTIONS } from "../constants";
 
 export const PaymentMethodItem = ({ index, method, errors, onUpdate, onRemove, showRemove, t }) => {
@@ -13,14 +14,14 @@ export const PaymentMethodItem = ({ index, method, errors, onUpdate, onRemove, s
                     {t("payments.paymentMethodNumber", { number: index + 1 })}
                 </h4>
                 {showRemove && (
-                    <button
+                    <SharedTooltip content={t("payments.removePaymentMethod")}><button aria-label={t("payments.removePaymentMethod")}
                         type="button"
                         onClick={() => onRemove(index)}
                         className="p-2 cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg transition-colors duration-200"
-                        title={t("payments.removePaymentMethod")}
+
                     >
                         <Trash2 className="w-4 h-4" />
-                    </button>
+                    </button></SharedTooltip>
                 )}
             </div>
 

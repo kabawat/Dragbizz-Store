@@ -1,4 +1,5 @@
 "use client";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import {
   Building2,
   Calendar,
@@ -19,8 +20,8 @@ import {
   SideDrawer,
   Textarea,
 } from "@/components/ui";
-import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { billService, productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 
@@ -226,34 +227,34 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                       <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">
                         {t("purchaseOrders.poNumber")}:
                       </span>
-                      <p
+                      <SharedTooltip content={String(purchaseOrder.poNumber)}><p
                         className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate"
-                        title={String(purchaseOrder.poNumber)}
+
                       >
                         {purchaseOrder.poNumber}
-                      </p>
+                      </p></SharedTooltip>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">
                         {t("bills.poDate")}:
                       </span>
-                      <p
+                      <SharedTooltip content={formatDate(purchaseOrder.poDate)}><p
                         className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate"
-                        title={formatDate(purchaseOrder.poDate)}
+
                       >
                         {formatDate(purchaseOrder.poDate)}
-                      </p>
+                      </p></SharedTooltip>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">
                         {t("bills.expectedDelivery")}:
                       </span>
-                      <p
+                      <SharedTooltip content={formatDate(purchaseOrder.expectedDeliveryDate)}><p
                         className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate"
-                        title={formatDate(purchaseOrder.expectedDeliveryDate)}
+
                       >
                         {formatDate(purchaseOrder.expectedDeliveryDate)}
-                      </p>
+                      </p></SharedTooltip>
                     </div>
                   </div>
                 </Card>
@@ -269,34 +270,34 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                       <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">
                         {t("bills.name")}:
                       </span>
-                      <p
+                      <SharedTooltip content={purchaseOrder.supplier?.name || ""}><p
                         className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate"
-                        title={purchaseOrder.supplier?.name || ""}
+
                       >
                         {purchaseOrder.supplier?.name}
-                      </p>
+                      </p></SharedTooltip>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">
                         {t("bills.email")}:
                       </span>
-                      <p
+                      <SharedTooltip content={purchaseOrder.supplier?.email || ""}><p
                         className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate"
-                        title={purchaseOrder.supplier?.email || ""}
+
                       >
                         {purchaseOrder.supplier?.email}
-                      </p>
+                      </p></SharedTooltip>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">
                         {t("bills.phone")}:
                       </span>
-                      <p
+                      <SharedTooltip content={purchaseOrder.supplier?.phone || ""}><p
                         className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate"
-                        title={purchaseOrder.supplier?.phone || ""}
+
                       >
                         {purchaseOrder.supplier?.phone}
-                      </p>
+                      </p></SharedTooltip>
                     </div>
                   </div>
                 </Card>
@@ -345,14 +346,14 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                         )}
                       </h4>
                       {formData.items.length > 1 && (
-                        <button
+                        <SharedTooltip content={t("bills.removeItem")}><button aria-label={t("bills.removeItem")}
                           type="button"
                           onClick={() => removeItem(index)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 cursor-pointer"
-                          title={t("bills.removeItem")}
+
                         >
                           <Minus className="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors duration-200" />
-                        </button>
+                        </button></SharedTooltip>
                       )}
                     </div>
 

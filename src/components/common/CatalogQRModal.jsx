@@ -1,11 +1,12 @@
 "use client";
+import { getMainDomain, getMainDomainUrl } from "@dragorbit/core/domain";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
+import { Check, Copy, Download, ExternalLink, Printer, ShoppingBag } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Check, Copy, ExternalLink, ShoppingBag, Download, Printer } from "lucide-react";
-import { Modal, Button, Input } from "@/components/ui";
+import { Button, Input, Modal } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { getMainDomainUrl, getMainDomain } from "@dragorbit/core/domain";
 
 const CATALOG_LOGO_URL = "/logo/logo.png";
 const QR_SIZE = 500;
@@ -318,20 +319,20 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                                     {displayUrl}
                                 </code>
                             </div>
-                            <button
+                            <SharedTooltip content={copied ? t("settings.upi.copied", "Copied") : t("common.copyLink")}><button
                                 onClick={handleCopy}
                                 className={`flex-shrink-0 p-2.5 rounded-lg transition-colors active:scale-95 ${copied
                                     ? "bg-green-500/10 text-green-600 dark:text-green-400"
                                     : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white"
                                     }`}
-                                title={copied ? t("settings.upi.copied", "Copied") : t("common.copyLink")}
+
                             >
                                 {copied ? (
                                     <Check className="w-4.5 h-4.5" />
                                 ) : (
                                     <Copy className="w-4.5 h-4.5" />
                                 )}
-                            </button>
+                            </button></SharedTooltip>
                         </div>
 
                         {/* Action Buttons */}

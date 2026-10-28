@@ -1,7 +1,8 @@
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import React from "react";
 import { Input } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { SIGNATURE_FONTS } from "@/constants/signatureFonts";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const TypeTab = ({
     typedName,
@@ -24,22 +25,22 @@ const TypeTab = ({
                     className="text-lg flex-1"
                 />
                 <div className="flex items-center gap-2 mb-0.5">
-                    <button
+                    <SharedTooltip content={"Bold"}><button aria-label={"Bold"}
                         onClick={() => setSelectedStyle(prev => ({ ...prev, bold: !prev.bold }))}
                         className={`w-10 rounded-lg border transition-all flex items-center justify-center ${selectedStyle.bold ? 'bg-[rgb(var(--color-primary))]/10 border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))]' : 'bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]'}`}
-                        title="Bold"
+
                         type="button"
                     >
                         <span className="font-bold text-lg">B</span>
-                    </button>
-                    <button
+                    </button></SharedTooltip>
+                    <SharedTooltip content={"Italic"}><button aria-label={"Italic"}
                         onClick={() => setSelectedStyle(prev => ({ ...prev, italic: !prev.italic }))}
                         className={`w-10 rounded-lg border transition-all flex items-center justify-center ${selectedStyle.italic ? 'bg-[rgb(var(--color-primary))]/10 border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))]' : 'bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]'}`}
-                        title="Italic"
+
                         type="button"
                     >
                         <span className="italic text-lg font-serif">I</span>
-                    </button>
+                    </button></SharedTooltip>
                 </div>
             </div>
 

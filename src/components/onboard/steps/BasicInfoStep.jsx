@@ -1,3 +1,4 @@
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import {
   Building2,
   Check,
@@ -46,14 +47,14 @@ export default function BasicInfoStep({
           errorMessage={fieldError("gst")}
           rightElement={
             formData.gst.length === 15 ? (
-              <button
+              <SharedTooltip content={isGstVerified ? "GST verified" : "Verify GST"}><button
                 type="button"
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={onVerifyGst}
                 disabled={isVerifyingGst || isGstVerified}
                 className={styles.verifyGst}
                 aria-label={isGstVerified ? "GST verified" : "Verify GST"}
-                title={isGstVerified ? "GST verified" : "Verify GST"}
+
               >
                 {isVerifyingGst ? (
                   <span className={styles.smallSpinner} />
@@ -62,7 +63,7 @@ export default function BasicInfoStep({
                 ) : (
                   <ShieldCheck size={16} />
                 )}
-              </button>
+              </button></SharedTooltip>
             ) : undefined
           }
         />

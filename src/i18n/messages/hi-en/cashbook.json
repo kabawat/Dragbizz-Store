@@ -149,6 +149,13 @@
     "REFUND": "Cash refund",
     "SUPPLIER_PAYMENT": "Supplier payment",
     "CUSTOMER_PAYMENT": "Customer payment",
+        "CUSTOMER_ADVANCE": "Customer advance",
+    "LOAN_RECEIVED": "Loan mila",
+    "SALARY": "Staff salary",
+    "RENT": "Kiraya",
+    "UTILITIES": "Bijli-paani bills",
+    "TRANSPORT": "Transport",
+    "LOAN_REPAYMENT": "Loan repayment",
     "OTHER": "Other"
   },
   "reconciliation": {

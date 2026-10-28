@@ -1,7 +1,7 @@
 "use client";
 
+import { EmptyState, Tooltip as SharedTooltip, TableSkeleton } from "@dragorbit/ui";
 import { DataTable } from "@dragorbit/ui/table";
-import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 import {
   CheckCircle,
   Copy,
@@ -17,14 +17,14 @@ import {
   Trash2,
   User,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AddActionButton } from "@/components/ui";
+import { useCallback, useEffect, useRef, useState } from "react";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
+import { AddActionButton } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useGlobalToast } from "@/contexts/ToastContext";
 import { formatCurrencySimple as formatCurrency } from "@/utils/currencyFormatter";
 import {
   formatDateLong as formatDate,
@@ -37,6 +37,7 @@ import {
   openWhatsAppShare,
 } from "@/utils/invoice/invoiceShare.utils";
 import { renderStatusBadge } from "@/utils/statusBadge";
+
 const InvoicesListTable = ({
   invoices = [],
   onEdit,
@@ -240,16 +241,22 @@ const InvoicesListTable = ({
                 className="transition-colors"
                 onContextMenu={(event) => openContextMenu(event, invoiceId)}
               >
-                <td
+                <SharedTooltip content={t("common.viewDetails")}><td
                   className="px-4 py-2 cursor-pointer transition-colors hover:bg-[rgb(var(--color-bg-secondary))]"
                   onClick={() => onViewDetails?.(invoiceId)}
-                  title={t("common.viewDetails")}
+
                 >
                   <div className="font-medium text-[rgb(var(--color-text-primary))]">
                     {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
                   </div>
-                </td>
-                <td
+                </td></SharedTooltip>
+                <SharedTooltip content={
+                    invoice.customer?.id
+                      ? t("customers.viewDetails", {
+                          defaultValue: "View Customer Details",
+                        })
+                      : ""
+                  }><td
                   className={`px-4 py-2 ${invoice?.customer?.id && "cursor-pointer"} `}
                   onClick={(e) => {
                     if (invoice.customer?.id) {
@@ -259,13 +266,7 @@ const InvoicesListTable = ({
                       );
                     }
                   }}
-                  title={
-                    invoice.customer?.id
-                      ? t("customers.viewDetails", {
-                          defaultValue: "View Customer Details",
-                        })
-                      : ""
-                  }
+
                 >
                   <div className="flex items-center gap-2">
                     <User className={`w-4 h-4`} />
@@ -273,7 +274,7 @@ const InvoicesListTable = ({
                       {invoice.customer?.name || t("invoice.walkInCustomer")}
                     </span>
                   </div>
-                </td>
+                </td></SharedTooltip>
                 <td className="px-4 py-2 text-right">
                   <div className="flex flex-col items-end leading-tight">
                     <span className="text-sm text-[rgb(var(--color-text-secondary))]">

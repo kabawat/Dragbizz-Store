@@ -1,7 +1,8 @@
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
+import { AlertCircle, Calendar, CheckCircle, Clock, CreditCard, Eye, Package, Printer, RotateCcw, Truck, User, XCircle } from "lucide-react";
 import moment from "moment";
-import { Eye, Printer, Clock, CheckCircle, Package, XCircle, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { IconButton } from "../ui";
 
@@ -126,14 +127,14 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
     };
 
     return (
-        <div
+        <SharedTooltip content={t("common.viewDetails")}><div
             className="w-full rounded-xl border border-[rgb(var(--color-border-primary))]/50 transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))] cursor-pointer hover:border-[rgb(var(--color-primary))]/30 shadow-none hover:shadow-md"
             onClick={(e) => {
                 // Prevent routing if clicking on action menu, badge, or customer section
                 if (e.target.closest('.action-menu-container') || e.target.closest('.status-badge-container') || e.target.closest('.customer-section')) return;
                 onViewDetails?.(order.id || order._id);
             }}
-            title={t("common.viewDetails")}
+
         >
             {/* Header Section with Gradient */}
             <div className="w-full h-32 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] relative"
@@ -187,7 +188,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
                 </div>
 
                 {/* Customer Info */}
-                <div
+                <SharedTooltip content={order.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}><div
                     className={`customer-section truncate flex items-center gap-3 p-3 rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] ${order.customer?.id ? 'cursor-pointer hover:bg-[rgb(var(--color-bg-tertiary))] transition-colors' : ''}`}
                     onClick={(e) => {
                         if (order.customer?.id) {
@@ -195,7 +196,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
                             router.push(`/dashboard/customers/${order.customer.id}`);
                         }
                     }}
-                    title={order.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
+
                 >
                     <div className="w-10 h-10 rounded-full bg-[rgb(var(--color-bg-primary))] flex items-center justify-center border border-[rgb(var(--color-border-primary))] flex-shrink-0">
                         <User size={18} className="text-[rgb(var(--color-primary))]" />
@@ -204,7 +205,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
                         <p className={`text-sm font-bold truncate ${order.customer?.id ? 'text-[rgb(var(--color-primary))] group-hover:underline' : 'text-[rgb(var(--color-text-primary))]'}`}>{order.customer?.name || t("common.guest")}</p>
                         <p className="text-xs text-[rgb(var(--color-text-secondary))] truncate">{order.customer?.phone || order.customer?.email || ""}</p>
                     </div>
-                </div>
+                </div></SharedTooltip>
 
                 {/* Footer Stats Section */}
                 <div className="rounded-xl p-3 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
@@ -224,7 +225,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit
                 </div>
 
             </div>
-        </div>
+        </div></SharedTooltip>
     );
 };
 

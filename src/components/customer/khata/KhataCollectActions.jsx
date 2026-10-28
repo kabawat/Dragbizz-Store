@@ -1,16 +1,17 @@
 "use client";
 
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { Bell, Link2, Loader2, QrCode } from "lucide-react";
 import { useMemo, useState } from "react";
 import { UpiQrModal } from "@/components/common";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
 import { usePaymentCollect } from "@/hooks/payment/usePaymentCollect";
 import { usePaymentReminder } from "@/hooks/payment/usePaymentReminder";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
-import { buildKhataUpiNote } from "@/utils/payment/paymentCollect.util";
+import { useStoreDefaultUpi } from "@/hooks/store/useStoreDefaultUpi";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
+import { buildKhataUpiNote } from "@/utils/payment/paymentCollect.util";
 
 const KhataCollectActions = ({
   storeId,
@@ -93,16 +94,16 @@ const KhataCollectActions = ({
         {linkLoading ? <Loader2 className="h-4 w-4 animate-spin shrink-0" /> : <Link2 className="h-4 w-4 shrink-0" />}
         <span>{t("khata.paymentLink")}</span>
       </button>
-      <button
+      <SharedTooltip content={remindDisabledReason}><button
         type="button"
         disabled={!canCollect || reminderLoading || !canRemind}
-        title={remindDisabledReason}
+
         onClick={handleSendReminder}
         className={`${buttonClass} border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10`}
       >
         {reminderLoading ? <Loader2 className="h-4 w-4 animate-spin shrink-0" /> : <Bell className="h-4 w-4 shrink-0" />}
         <span>{t("khata.remind")}</span>
-      </button>
+      </button></SharedTooltip>
     </>
   );
 

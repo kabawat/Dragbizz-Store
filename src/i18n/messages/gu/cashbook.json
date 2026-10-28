@@ -149,6 +149,13 @@
     "REFUND": "રોકડ રિફંડ",
     "SUPPLIER_PAYMENT": "સપ્લાયર ચૂકવણી",
     "CUSTOMER_PAYMENT": "ગ્રાહક ચૂકવણી",
+        "CUSTOMER_ADVANCE": "ગ્રાહક પાસેથી એડવાન્સ",
+    "LOAN_RECEIVED": "પ્રાપ્ત લોન",
+    "SALARY": "કર્મચારી પગાર",
+    "RENT": "ભાડું",
+    "UTILITIES": "વીજળી-પાણીનાં બિલ",
+    "TRANSPORT": "પરિવહન",
+    "LOAN_REPAYMENT": "લોનની ચુકવણી",
     "OTHER": "અન્ય"
   },
   "reconciliation": {

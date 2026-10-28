@@ -1,25 +1,27 @@
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { DataTable } from "@dragorbit/ui/table";
-import moment from "moment";
 import {
-  Eye,
-  Printer,
-  Clock,
-  CheckCircle,
-  Package,
-  XCircle,
-  MoreVertical,
-  CreditCard,
   AlertCircle,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  Eye,
+  MoreVertical,
+  Package,
+  Printer,
   RotateCcw,
   Truck,
+  XCircle,
 } from "lucide-react";
-import { useState, useCallback } from "react";
+import moment from "moment";
 import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import CopyableContactValue from "@/components/common/CopyableContactValue";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
 import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+
 const StatusBadge = ({ order, statusField = "status" }) => {
   const status = order[statusField];
   const { t } = useTranslation();
@@ -216,10 +218,10 @@ const SalesOrderTable = ({
                   onMouseLeave={() => setHoveredRow(null)}
                   onContextMenu={(event) => openContextMenu(event, orderId)}
                 >
-                  <td
+                  <SharedTooltip content={t("common.viewDetails")}><td
                     className="w-1/4 px-4 py-2 relative cursor-pointer transition-colors "
                     onClick={() => onViewDetails?.(orderId)}
-                    title={t("common.viewDetails")}
+
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
@@ -236,7 +238,7 @@ const SalesOrderTable = ({
                         </div>
                       </div>
                     </div>
-                  </td>
+                  </td></SharedTooltip>
                   <td className="w-1/6 px-4 py-2">
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
@@ -251,7 +253,13 @@ const SalesOrderTable = ({
                       </span>
                     </div>
                   </td>
-                  <td
+                  <SharedTooltip content={
+                      order.customer?.id
+                        ? t("customers.viewDetails", {
+                            defaultValue: "View Customer Details",
+                          })
+                        : ""
+                    }><td
                     className={`w-1/5 px-4 py-2 relative transition-colors cursor-pointer`}
                     onClick={(e) => {
                       if (order.customer?.id) {
@@ -261,13 +269,7 @@ const SalesOrderTable = ({
                         );
                       }
                     }}
-                    title={
-                      order.customer?.id
-                        ? t("customers.viewDetails", {
-                            defaultValue: "View Customer Details",
-                          })
-                        : ""
-                    }
+
                   >
                     <div className="flex flex-col">
                       <span className={`text-sm font-semibold truncate`}>
@@ -284,7 +286,7 @@ const SalesOrderTable = ({
                         ) : null}
                       </span>
                     </div>
-                  </td>
+                  </td></SharedTooltip>
 
                   <td className="w-1/6 px-4 py-2 text-left">
                     <div className="flex flex-col items-start">
@@ -310,16 +312,16 @@ const SalesOrderTable = ({
                       className="relative inline-block"
                       ref={(el) => (menuRefs.current[orderId] = el)}
                     >
-                      <button
+                      <SharedTooltip content={t("common.actions")}><button aria-label={t("common.actions")}
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleDropdown(orderId);
                         }}
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                        title={t("common.actions")}
+
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-                      </button>
+                      </button></SharedTooltip>
 
                       {menu?.rowId === orderId && menu.mode === "dropdown" ? (
                         <RowActionsMenu

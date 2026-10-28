@@ -149,6 +149,13 @@
     "REFUND": "नकद रिफंड",
     "SUPPLIER_PAYMENT": "सप्लायर भुगतान",
     "CUSTOMER_PAYMENT": "ग्राहक भुगतान",
+        "CUSTOMER_ADVANCE": "ग्राहक से अग्रिम",
+    "LOAN_RECEIVED": "प्राप्त ऋण",
+    "SALARY": "कर्मचारी वेतन",
+    "RENT": "किराया",
+    "UTILITIES": "बिजली-पानी के बिल",
+    "TRANSPORT": "परिवहन",
+    "LOAN_REPAYMENT": "ऋण चुकौती",
     "OTHER": "अन्य"
   },
   "reconciliation": {

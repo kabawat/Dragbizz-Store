@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { Package, Plus, Trash2 } from "lucide-react";
+import React, { useState } from "react";
 import { Button, Card, Input, Select } from "@/components/ui";
 import { productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
@@ -236,14 +237,14 @@ const BillItemsSection = ({
                                                 </div>
                                             </div>
 
-                                            <button
+                                            <SharedTooltip content={t("common.remove")}><button aria-label={t("common.remove")}
                                                 type="button"
                                                 onClick={() => handleRemoveItem(index)}
                                                 className="ml-4 opacity-0 group-hover:opacity-100 flex items-center justify-center w-8 h-8 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-all duration-200"
-                                                title={t("common.remove")}
+
                                             >
                                                 <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            </button></SharedTooltip>
                                         </div>
                                     </div>
                                 );

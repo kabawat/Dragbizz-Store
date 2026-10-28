@@ -1,18 +1,20 @@
 "use client";
 
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { DataTable } from "@dragorbit/ui/table";
 import { Calendar, Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
-import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import {
   getCategoryLabel,
   getPaymentMethodIcon,
   getPaymentMethodLabel,
 } from "@/data/constants/expenses";
+import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { renderStatusBadge } from "@/utils/statusBadge";
+
 const ExpenseTable = ({
   variant,
   expenses = [],
@@ -94,13 +96,13 @@ const ExpenseTable = ({
           className="relative inline-block"
           ref={(el) => (menuRefs.current[rowId] = el)}
         >
-          <button
+          <SharedTooltip content={t("common.actions")}><button aria-label={t("common.actions")}
             onClick={() => toggleDropdown(rowId)}
             className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-            title={t("common.actions")}
+
           >
             <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-          </button>
+          </button></SharedTooltip>
           {menu?.rowId === rowId && menu.mode === "dropdown" ? (
             <RowActionsMenu items={buildMenuItems(rowId)} mode="dropdown" />
           ) : null}

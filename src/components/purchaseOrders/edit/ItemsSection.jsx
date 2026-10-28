@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { Package, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { AddActionButton, Card, Input, Select } from "@/components/ui";
 import variantService from "@/service/retailer/variant.service";
 
@@ -277,14 +278,14 @@ const ItemsSection = ({
                         </span>
                       </div>
                     </div>
-                    <button
+                    <SharedTooltip content={"Remove item"}><button aria-label={"Remove item"}
                       type="button"
                       onClick={() => removeItem(index)}
                       className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                      title="Remove item"
+
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </button></SharedTooltip>
                   </div>
                 </div>
               ))}

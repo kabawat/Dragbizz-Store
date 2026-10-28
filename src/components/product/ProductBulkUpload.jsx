@@ -1,11 +1,12 @@
 "use client";
-import { AlertCircle, CheckCircle2, FileJson, FileSpreadsheet, FileText, Upload, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
+import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileJson, FileSpreadsheet, FileText, Upload, X } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import { Button, BulkTemplateDownloadButton, SideDrawer } from "@/components/ui";
+import { BulkTemplateDownloadButton, Button, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { productService } from "@/service/retailer/product.service";
 import useApiResponse from "@/hooks/useApiResponse";
+import { productService } from "@/service/retailer/product.service";
 import { useAppSelector } from "@/store/hooks";
 
 const ProductBulkUpload = ({ isOpen, onClose, onSuccess }) => {
@@ -345,14 +346,14 @@ const ProductBulkUpload = ({ isOpen, onClose, onSuccess }) => {
                       </div>
                     </div>
 
-                    <button
+                    <SharedTooltip content={"Remove file"}><button aria-label={"Remove file"}
                       type="button"
                       onClick={removeFile}
                       className="p-2 cursor-pointer text-gray-500 hover:text-red-500 rounded-lg transition-colors duration-200 hover:bg-red-500/10"
-                      title="Remove file"
+
                     >
                       <X className="w-5 h-5" />
-                    </button>
+                    </button></SharedTooltip>
                   </div>
                 </div>
               )}

@@ -1,5 +1,7 @@
 "use client";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import {
+  Calendar,
   CheckCircle,
   Copy,
   CreditCard,
@@ -9,21 +11,20 @@ import {
   MessageCircle,
   Printer,
   Trash2,
-  Calendar,
   User,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { getStatusBadge } from "@/utils/statusBadge";
+import { formatDateLong, formatTime } from "@/utils/dateFormatter";
 import {
   buildInvoiceShareUrl,
   copyInvoiceShareLink,
   openWhatsAppShare,
 } from "@/utils/invoice/invoiceShare.utils";
-import { Card, Badge, IconButton } from "../ui";
-import { useTheme } from "@/contexts/ThemeContext";
-import { formatDateLong, formatTime } from "@/utils/dateFormatter";
+import { getStatusBadge } from "@/utils/statusBadge";
+import { Badge, Card, IconButton } from "../ui";
 
 const InvoiceCard = ({
   invoice,
@@ -253,7 +254,7 @@ const InvoiceCard = ({
       <div className="p-4 sm:p-5 space-y-4">
         {/* Customer & Date */}
         <div className="grid grid-cols-2 gap-4">
-          <div
+          <SharedTooltip content={invoice.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}><div
             className={`space-y-1 customer-section rounded-lg p-1.5 -ml-1.5 transition-colors ${invoice.customer?.id ? 'cursor-pointer group/customer hover:bg-[rgb(var(--color-bg-secondary))]' : ''}`}
             onClick={(e) => {
               if (invoice.customer?.id) {
@@ -261,7 +262,7 @@ const InvoiceCard = ({
                 router.push(`/dashboard/customers/${invoice.customer.id}`);
               }
             }}
-            title={invoice.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
+
           >
             <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
               {t("invoice.customer")}
@@ -274,7 +275,7 @@ const InvoiceCard = ({
                 {invoice.customer?.name || t("invoice.walkInCustomer")}
               </span>
             </div>
-          </div>
+          </div></SharedTooltip>
           <div className="space-y-1 text-right">
             <span className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
               {t("common.date")}

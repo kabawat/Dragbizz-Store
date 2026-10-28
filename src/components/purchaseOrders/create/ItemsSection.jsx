@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { Package, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { AddActionButton, Card, EmptyState, Input, Select } from "@/components/ui";
 import variantService from "@/service/retailer/variant.service";
 
@@ -273,14 +274,14 @@ const ItemsSection = ({ t, formData, setFormData, products, productsLoading, err
                                                 </span>
                                             </div>
                                         </div>
-                                        <button
+                                        <SharedTooltip content={t("purchaseOrders.removeItem")}><button aria-label={t("purchaseOrders.removeItem")}
                                             type="button"
                                             onClick={() => removeItem(index)}
                                             className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                                            title={t("purchaseOrders.removeItem")}
+
                                         >
                                             <Trash2 className="w-4 h-4" />
-                                        </button>
+                                        </button></SharedTooltip>
                                     </div>
                                 </div>
                             ))}
