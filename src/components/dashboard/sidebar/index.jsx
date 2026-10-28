@@ -3,6 +3,7 @@ import { ResponsiveSidebar } from "@dragorbit/ui";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
+import GlobalHotkeys from "@/components/GlobalHotkeys";
 import {
   DEFAULT_EXPANDED_MENUS,
   getAnalyticsSubMenuItems,
@@ -47,10 +48,7 @@ const Sidebar = ({ onStoreChange }) => {
 
   // Memoized Menu Items
   const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
-  const productSubMenuItems = useMemo(
-    () => getProductSubMenuItems(t),
-    [t]
-  );
+  const productSubMenuItems = useMemo(() => getProductSubMenuItems(t), [t]);
   const purchaseSubMenuItems = useMemo(() => getPurchaseSubMenuItems(t), [t]);
   const financeSubMenuItems = useMemo(() => getFinanceSubMenuItems(t), [t]);
   const utilitiesSubMenuItems = useMemo(() => getUtilitiesSubMenuItems(t), [t]);
@@ -227,28 +225,35 @@ const Sidebar = ({ onStoreChange }) => {
   };
 
   return (
-    <ResponsiveSidebar
-      collapsed={isCollapsed}
-      onCollapsedChange={setCollapsed}
-      t={t}
-      pathname={pathname}
-      navigationItems={navigationItems}
-      bottomItems={bottomItems}
-      expandedMenus={effectiveExpandedMenus}
-      onToggleMenu={(key) => dispatch(toggleExpandedMenu(key))}
-      onNavigate={onNavigate}
-      isItemLocked={isItemLocked}
-      header={(controls) => <SidebarHeader {...controls} />}
-      selector={({ isCollapsed, onAction }) => (
-        <StoreSelector
-          isCollapsed={isCollapsed}
-          onStoreChange={(store) => {
-            onStoreChange?.(store);
-            onAction();
-          }}
-        />
-      )}
-    />
+    <>
+      <GlobalHotkeys
+        navigationItems={navigationItems}
+        bottomItems={bottomItems}
+        onNavigate={onNavigate}
+      />
+      <ResponsiveSidebar
+        collapsed={isCollapsed}
+        onCollapsedChange={setCollapsed}
+        t={t}
+        pathname={pathname}
+        navigationItems={navigationItems}
+        bottomItems={bottomItems}
+        expandedMenus={effectiveExpandedMenus}
+        onToggleMenu={(key) => dispatch(toggleExpandedMenu(key))}
+        onNavigate={onNavigate}
+        isItemLocked={isItemLocked}
+        header={(controls) => <SidebarHeader {...controls} />}
+        selector={({ isCollapsed, onAction }) => (
+          <StoreSelector
+            isCollapsed={isCollapsed}
+            onStoreChange={(store) => {
+              onStoreChange?.(store);
+              onAction();
+            }}
+          />
+        )}
+      />
+    </>
   );
 };
 export default Sidebar;

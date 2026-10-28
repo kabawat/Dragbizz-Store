@@ -3,7 +3,6 @@ import "@/app/globals.css";
 
 import { siteMetadata, ThemeScript } from "@/app/metadata";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import GlobalHotkeys from "@/components/GlobalHotkeys";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
 import NetworkError from "@/components/ui/NetworkError";
@@ -53,7 +52,6 @@ export default async function RootLayout({ children }) {
                     <ErrorBoundary>
                       <GlobalProfileLoader initialSessionHint={sessionHint} />
                       <LocationProvider>
-                        <GlobalHotkeys />
                         {children}
                         <GlobalToastContainer />
                         <NetworkError />
