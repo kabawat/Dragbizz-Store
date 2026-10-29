@@ -176,6 +176,7 @@ const CreatePurchaseOrder = () => {
       supplier: formData.supplier,
       products: formData.products.map((item) => ({
         product: item.product,
+        variant: item.variant || undefined,
         quantity: parseInt(item.quantity, 10),
       })),
       payment: formData.payment,
@@ -261,8 +262,7 @@ const CreatePurchaseOrder = () => {
                       t={t}
                       formData={formData}
                       setFormData={setFormData}
-                      products={products}
-                      productsLoading={productsLoading}
+                      storeId={selectedStore?.storeId}
                       errors={errors}
                       setErrors={setErrors}
                     />
