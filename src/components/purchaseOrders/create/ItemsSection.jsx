@@ -189,16 +189,6 @@ const ItemsSection = ({
     }
   };
 
-  const previewPrice = useMemo(() => {
-    if (!selectedVariantData) return null;
-    const price = Number(
-      selectedVariantData.sellingPrice ??
-      selectedVariantData.price ??
-      selectedVariantData.mrp
-    );
-    return Number.isFinite(price) && price > 0 ? price : null;
-  }, [selectedVariantData]);
-
   const handleAddItem = () => {
     if (!selectedVariant) {
       setErrors?.((prev) => ({
@@ -347,7 +337,6 @@ const ItemsSection = ({
                 className="w-full"
               >
                 {t("purchaseOrders.addItem") || "Add Item"}
-                {previewPrice != null ? ` · ₹${Number(previewPrice).toFixed(0)}` : ""}
               </Button>
             </div>
           </div>

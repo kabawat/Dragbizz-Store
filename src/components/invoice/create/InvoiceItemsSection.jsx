@@ -9,7 +9,6 @@ import { findProductByScanCode, getProductId } from "@/utils/product/findProduct
 import { variantService } from "@/service/retailer/variant.service";
 import {
   pickDefaultVariant,
-  resolveProductUnitPrice,
   variantOptionLabel,
 } from "@/utils/productUtils";
 
@@ -344,24 +343,6 @@ const InvoiceItemsSection = ({
     setFormData({ ...formData, items: updatedItems });
   };
 
-  const previewPrice = useMemo(() => {
-    if (!selectedProductObj) return null;
-    if (selectedVariantObj) {
-      return resolveProductUnitPrice({
-        ...selectedProductObj,
-        variants: [selectedVariantObj],
-        sellingPrice: selectedVariantObj.sellingPrice,
-        mrp: selectedVariantObj.mrp,
-        pricing: {
-          ...(selectedProductObj.pricing || {}),
-          sellingPrice: selectedVariantObj.sellingPrice,
-          mrp: selectedVariantObj.mrp,
-        },
-      });
-    }
-    return resolveProductUnitPrice(selectedProductObj);
-  }, [selectedProductObj, selectedVariantObj]);
-
   return (
     <Card
       padding="none"
@@ -418,7 +399,6 @@ const InvoiceItemsSection = ({
                 }
               >
                 {t("invoice.addItem")}
-                {previewPrice != null ? ` · ₹${Number(previewPrice).toFixed(0)}` : ""}
               </Button>
             </div>
           </div>

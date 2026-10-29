@@ -89,8 +89,8 @@ const ViewCustomerPage = ({ customerId }) => {
   if (loading || (!customerData && !error)) return <LoadingState />;
 
   return (
-    <div className="overflow-hidden">
-      <div className="w-full">
+    <div className="min-h-full pb-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <CustomerViewHeader
           t={t}
           activeTab={activeTab}
@@ -98,7 +98,7 @@ const ViewCustomerPage = ({ customerId }) => {
           showTabs={!error && !!customerData}
         />
 
-        <div className="px-5">
+        <div>
           {error ? (
             <ErrorState error={error} />
           ) : (
