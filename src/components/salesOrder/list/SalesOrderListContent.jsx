@@ -8,6 +8,7 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { salesOrderService } from "@/service/retailer";
 import { getSalesOrders } from "@/store/slices/salesOrdersSlice";
+import socketService from "@/service/socket/socket.service";
 import SalesOrderTable from "@/components/salesOrder/SalesOrderTable";
 import SalesOrderCard from "@/components/salesOrder/SalesOrderCard";
 
@@ -54,6 +55,39 @@ const SalesOrderListContent = ({
     sourceRef.current = orderSourceFilter;
     startDateRef.current = startDate;
     endDateRef.current = endDate;
+
+    // ─── Realtime order updates via Socket ────────────────────────────────────
+    useEffect(() => {
+        if (!socketService) return;
+
+        const handleRealtimeOrder = (payload) => {
+            const incomingStoreId = payload?.store || payload?.data?.store;
+            if (incomingStoreId && storeIdRef.current && String(incomingStoreId) !== String(storeIdRef.current)) {
+                return;
+            }
+
+            if (storeIdRef.current) {
+                dispatch(
+                    getSalesOrders({
+                        store: storeIdRef.current,
+                        limit: 20,
+                        search: searchRef.current || undefined,
+                        status: statusRef.current !== "all" ? statusRef.current : undefined,
+                        orderSource: sourceRef.current !== "all" ? sourceRef.current : undefined,
+                        startDate: startDateRef.current || undefined,
+                        endDate: endDateRef.current || undefined,
+                        cursor: null,
+                        isFreshLoad: true,
+                    })
+                );
+            }
+        };
+
+        socketService.on("sales_order_created", handleRealtimeOrder);
+        return () => {
+            socketService.off("sales_order_created", handleRealtimeOrder);
+        };
+    }, [dispatch]);
 
     // ─── Infinite scroll via IntersectionObserver ─────────────────────────────
     useEffect(() => {
