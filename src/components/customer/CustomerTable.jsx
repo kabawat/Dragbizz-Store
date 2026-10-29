@@ -195,11 +195,11 @@ const CustomerTable = ({
                 {customer.name || "N/A"}
               </h3>
               <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {t("common.added")}:{" "}
+                {t("common.added")}:
                 {formatDateDash(getRecordCreatedAt(customer))}
               </span>
             </div>
-          </div>{" "}
+          </div>
         </>
       ),
     },
@@ -209,10 +209,10 @@ const CustomerTable = ({
       width: "12%",
       cell: (customer) => (
         <>
-          {" "}
+          
           <CustomerBalanceAmount
             totalDue={customer.account?.totalDue ?? customer.totalDue}
-          />{" "}
+          />
         </>
       ),
     },
@@ -222,11 +222,11 @@ const CustomerTable = ({
       width: "14%",
       cell: (customer) => (
         <>
-          {" "}
+          
           <CopyableContactValue
             value={customer.phone}
             className="text-sm font-semibold text-[rgb(var(--color-text-primary))]"
-          />{" "}
+          />
         </>
       ),
     },
@@ -236,11 +236,11 @@ const CustomerTable = ({
       width: "18%",
       cell: (customer) => (
         <>
-          {" "}
+          
           <CopyableContactValue
             value={customer.email}
             className="text-sm text-[rgb(var(--color-text-primary))]"
-          />{" "}
+          />
         </>
       ),
     },
@@ -250,8 +250,8 @@ const CustomerTable = ({
       width: "14%",
       cell: (customer) => (
         <>
-          {" "}
-          <CustomerSourceBadge source={customer.source} />{" "}
+          
+          <CustomerSourceBadge source={customer.source} />
         </>
       ),
     },
@@ -261,7 +261,7 @@ const CustomerTable = ({
       width: "12%",
       cell: (customer) => (
         <>
-          {" "}
+          
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
               customer.isActive === false
@@ -272,7 +272,7 @@ const CustomerTable = ({
             {customer.isActive === false
               ? t("common.inactive")
               : t("common.active")}
-          </span>{" "}
+          </span>
         </>
       ),
     },

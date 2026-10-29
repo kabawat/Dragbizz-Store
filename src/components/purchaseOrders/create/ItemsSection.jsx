@@ -240,8 +240,8 @@ const ItemsSection = ({ t, formData, setFormData, products, productsLoading, err
                                     {t("purchaseOrders.addedItems")} ({formData.products.length})
                                 </h4>
                                 <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                    {t("purchaseOrders.totalItems")}:{" "}
-                                    {formData.products.reduce((sum, item) => sum + (item.quantity || 0), 0)}{" "}
+                                    {t("purchaseOrders.totalItems")}:
+                                    {formData.products.reduce((sum, item) => sum + (item.quantity || 0), 0)}
                                     {t("purchaseOrders.items")}
                                 </div>
                             </div>

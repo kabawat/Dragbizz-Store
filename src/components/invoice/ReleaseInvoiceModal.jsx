@@ -82,7 +82,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) 
           </div>
         </div>
         <p className="text-[rgb(var(--color-text-primary))] mb-4">
-          Are you sure you want to release invoice{" "}
+          Are you sure you want to release invoice
           <strong>{invoiceNumber}</strong>? This will finalize the invoice and
           it cannot be edited afterwards.
         </p>

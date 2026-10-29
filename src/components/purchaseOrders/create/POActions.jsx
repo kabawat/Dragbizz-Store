@@ -10,8 +10,8 @@ const POActions = ({ t, formData, isCreating, handleSaveDraft, handleSubmit }) =
                 <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                     {formData.products.length > 0 && (
                         <span>
-                            {formData.products.length}{" "}
-                            {formData.products.length !== 1 ? t("purchaseOrders.items") : t("purchaseOrders.item")}{" "}
+                            {formData.products.length}
+                            {formData.products.length !== 1 ? t("purchaseOrders.items") : t("purchaseOrders.item")}
                             {t("purchaseOrders.added")}
                         </span>
                     )}

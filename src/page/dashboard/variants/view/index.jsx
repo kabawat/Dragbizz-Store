@@ -229,7 +229,7 @@ const ViewVariantPage = ({ variantId }) => {
             <div className="px-6 py-4">
               <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
                 {t("products.variantDeleteConfirm") ||
-                  "Are you sure you want to delete"}{" "}
+                  "Are you sure you want to delete"}
                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                   {variantDisplayLabel(formData)}
                 </span>

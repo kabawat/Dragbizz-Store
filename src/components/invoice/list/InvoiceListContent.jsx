@@ -156,10 +156,10 @@ const InvoiceListContent = () => {
                         <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                             {pagination?.hasNextPage ? (
                                 <>
-                                    Showing{" "}
+                                    Showing
                                     <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                         {invoices.length}
-                                    </span>{" "}
+                                    </span>
                                     invoices
                                     <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
                                         • Scroll down to load more
@@ -167,10 +167,10 @@ const InvoiceListContent = () => {
                                 </>
                             ) : (
                                 <>
-                                    Showing{" "}
+                                    Showing
                                     <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                         {invoices.length}
-                                    </span>{" "}
+                                    </span>
                                     invoices
                                     <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
                                         • No more invoices

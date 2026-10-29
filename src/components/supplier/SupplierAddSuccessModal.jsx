@@ -86,7 +86,7 @@ const SupplierAddSuccessModal = ({
               {modalTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
-              "{supplierName}" has been {isEditMode ? "updated in" : "added to"}{" "}
+              "{supplierName}" has been {isEditMode ? "updated in" : "added to"}
               your supplier list
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">

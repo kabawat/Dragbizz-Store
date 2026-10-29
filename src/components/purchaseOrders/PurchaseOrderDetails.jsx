@@ -68,12 +68,12 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
               </h3>
               <div className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
                 <span>
-                  Purchase Order Date{" "}
+                  Purchase Order Date
                   {formatDate(purchaseOrder.poDate || purchaseOrder.billDate)}
                 </span>
                 <span className="mx-2">•</span>
                 <span>
-                  Due Date{" "}
+                  Due Date
                   {formatDate(
                     purchaseOrder.expectedDeliveryDate || purchaseOrder.dueDate
                   )}

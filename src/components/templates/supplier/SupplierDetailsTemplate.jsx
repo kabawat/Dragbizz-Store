@@ -51,26 +51,26 @@ const SupplierDetailsTemplate = ({ supplierData, selectedStore }) => {
           <div className="text-[rgb(var(--color-text-secondary))]">
             <span className="font-[500] text-[rgb(var(--color-text-primary))]">
               Supplier Name
-            </span>{" "}
+            </span>
             - <span className="font-[600]">{supplierData.name || "N/A"}</span>
           </div>
           <div className="text-[rgb(var(--color-text-secondary))]">
             <span className="font-[500] text-[rgb(var(--color-text-primary))]">
               Phone Number
-            </span>{" "}
+            </span>
             - <span>{supplierData.phone || "N/A"}</span>
           </div>
           <div className="text-[rgb(var(--color-text-secondary))] break-all">
             <span className="font-[500] text-[rgb(var(--color-text-primary))]">
               Email Address
-            </span>{" "}
+            </span>
             - <span>{supplierData.email || "N/A"}</span>
           </div>
           {supplierData.agency && (
             <div className="text-[rgb(var(--color-text-secondary))]">
               <span className="font-[500] text-[rgb(var(--color-text-primary))]">
                 Agency
-              </span>{" "}
+              </span>
               - <span>{supplierData.agency}</span>
             </div>
           )}
@@ -78,8 +78,8 @@ const SupplierDetailsTemplate = ({ supplierData, selectedStore }) => {
             <div className="text-[rgb(var(--color-text-secondary))]">
               <span className="font-[500] text-[rgb(var(--color-text-primary))]">
                 GST Number
-              </span>{" "}
-              -{" "}
+              </span>
+              -
               <span className="font-mono font-[600]">
                 {supplierData.gstNumber}
               </span>

@@ -235,7 +235,7 @@ const StockInDrawer = ({
                   {productContext.name}
                 </h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {(selectedVariant?.displayName || productContext.variantName) ? `${selectedVariant?.displayName || productContext.variantName} | ` : ""}SKU: {selectedVariant?.sku || productContext.sku} | {t("inventory.currentStock")}:{" "}
+                  {(selectedVariant?.displayName || productContext.variantName) ? `${selectedVariant?.displayName || productContext.variantName} | ` : ""}SKU: {selectedVariant?.sku || productContext.sku} | {t("inventory.currentStock")}:
                   {selectedVariant?.stock ?? productContext.stock}
                 </p>
               </div>
@@ -334,7 +334,7 @@ const StockInDrawer = ({
                   {t("inventory.totalValue")}:
                 </span>
                 <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                  ₹{" "}
+                  ₹
                   {(
                     (parseFloat(formData.quantity) || 0) *
                     (parseFloat(formData.purchasePrice) || 0)

@@ -368,10 +368,10 @@ const CustomerListContent = ({
         {/* Footer */}
         <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
           <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {t("common.showing") || "Showing"}{" "}
+            {t("common.showing") || "Showing"}
             <span className="font-semibold text-[rgb(var(--color-text-primary))]">
               {visibleCustomers.length}
-            </span>{" "}
+            </span>
             {t("customers.title").toLowerCase()}
             {pagination.hasNextPage && (
               <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
@@ -431,14 +431,14 @@ const CustomerListContent = ({
           description={
             <span>
               {t("khata.reminderConfirmText") ||
-                "Are you sure you want to send a payment reminder to"}{" "}
+                "Are you sure you want to send a payment reminder to"}
               <strong className="font-semibold text-[rgb(var(--color-text-primary))]">
                 {reminderTarget?.name}
               </strong>
               {Number(reminderTarget?.totalDue) > 0 && (
                 <>
-                  {" "}
-                  {t("khata.forDueAmount") || "for outstanding balance of"}{" "}
+                  
+                  {t("khata.forDueAmount") || "for outstanding balance of"}
                   <strong className="text-orange-600 font-semibold">
                     {formatCurrency(reminderTarget?.totalDue)}
                   </strong>

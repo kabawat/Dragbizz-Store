@@ -492,7 +492,7 @@ const ViewPaymentPage = ({ paymentId }) => {
                                         {t("payments.reference", {
                                           defaultValue: "Reference",
                                         })}
-                                        :{" "}
+                                        :
                                         <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                           {method.reference}
                                         </span>

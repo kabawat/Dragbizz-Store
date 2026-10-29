@@ -192,7 +192,7 @@ export default function ViewPurchaseOrderPage() {
                           className="px-3 py-1 rounded-full text-xs font-medium border"
                           style={getApprovalStyles(po.approvalStatus)}
                         >
-                          {t("purchaseOrders.approvalStatus")}:{" "}
+                          {t("purchaseOrders.approvalStatus")}:
                           {po.approvalStatus || t("common.na")}
                         </span>
                       </div>
@@ -203,7 +203,7 @@ export default function ViewPurchaseOrderPage() {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                           <span className="text-sm">
-                            {t("purchaseOrders.poDate")}:{" "}
+                            {t("purchaseOrders.poDate")}:
                             <span className="font-medium text-[rgb(var(--color-text-primary))]">
                               {formatDate(po.poDate)}
                             </span>
@@ -212,7 +212,7 @@ export default function ViewPurchaseOrderPage() {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                           <span className="text-sm">
-                            {t("purchaseOrders.expectedDelivery")}:{" "}
+                            {t("purchaseOrders.expectedDelivery")}:
                             <span className="font-medium text-[rgb(var(--color-text-primary))]">
                               {formatDate(po.expectedDeliveryDate)}
                             </span>
@@ -221,7 +221,7 @@ export default function ViewPurchaseOrderPage() {
                         <div className="flex items-center gap-2">
                           <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                           <span className="text-sm">
-                            {t("purchaseOrders.paymentDueIn")}:{" "}
+                            {t("purchaseOrders.paymentDueIn")}:
                             <span className="font-medium text-[rgb(var(--color-text-primary))]">
                               {po.paymentTerms || "-"}
                             </span>
@@ -295,7 +295,7 @@ export default function ViewPurchaseOrderPage() {
                                 )}
                               </div>
                               <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                SKU:{" "}
+                                SKU:
                                 {item.variant?.sku || item.product?.sku || "-"}
                               </div>
                             </div>
@@ -532,7 +532,7 @@ export default function ViewPurchaseOrderPage() {
                             <p className="text-[rgb(var(--color-text-secondary))]">
                               <span className="font-medium">
                                 {t("common.internal")}:
-                              </span>{" "}
+                              </span>
                               {po.internalNotes}
                             </p>
                           )}
@@ -540,7 +540,7 @@ export default function ViewPurchaseOrderPage() {
                             <p className="text-[rgb(var(--color-text-secondary))]">
                               <span className="font-medium">
                                 {t("purchaseOrders.supplier")}:
-                              </span>{" "}
+                              </span>
                               {po.supplierNotes}
                             </p>
                           )}

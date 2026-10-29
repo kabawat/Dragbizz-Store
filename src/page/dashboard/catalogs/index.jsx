@@ -341,7 +341,7 @@ function CatalogsWorkspace({ stores }) {
       >
         <div className="space-y-3 text-sm text-[rgb(var(--color-text-secondary))]">
           <p>
-            Delete{" "}
+            Delete
             <strong className="break-words text-[rgb(var(--color-text-primary))]">
               {deleteTarget?.name}
             </strong>

@@ -733,7 +733,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                 Payment Created Successfully!
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                Payment{" "}
+                Payment
                 <span className="font-medium">{createdPaymentNumber}</span> has
                 been created successfully.
               </p>

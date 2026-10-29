@@ -369,7 +369,7 @@ const ViewExpensePage = ({ expenseId }) => {
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                 {getPaymentMethodIcon(
                                   expenseData.paymentMethod
-                                )}{" "}
+                                )}
                                 {getPaymentMethodLabel(
                                   expenseData.paymentMethod
                                 )}
