@@ -197,24 +197,20 @@ const SalesOrderListHeader = ({
                         </button>
                     </div>
 
-                    {canCreate && selectedStore?.catalogId && (
-                        <>
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsCatalogModalOpen(true)}
-                                leftIcon={QrCode}
-                                className="h-9 font-semibold border-[rgb(var(--color-primary))]/20 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5"
-                            >
-                                {t("settings.publicCatalog")}
-                            </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => setIsCatalogModalOpen(true)}
+                        leftIcon={QrCode}
+                        className="h-9 font-semibold border-[rgb(var(--color-primary))]/20 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5"
+                    >
+                        {t("settings.publicCatalog")}
+                    </Button>
 
-                            <CatalogQRModal
-                                isOpen={isCatalogModalOpen}
-                                onClose={() => setIsCatalogModalOpen(false)}
-                                store={selectedStore}
-                            />
-                        </>
-                    )}
+                    <CatalogQRModal
+                        isOpen={isCatalogModalOpen}
+                        onClose={() => setIsCatalogModalOpen(false)}
+                        store={selectedStore}
+                    />
                 </div>
             </div>
         </div>

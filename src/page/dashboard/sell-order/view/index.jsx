@@ -201,24 +201,21 @@ const ViewSellOrderPage = ({ orderId }) => {
             <span className="text-sm font-medium">{t("salesOrder.backToOrders")}</span>
           </Link>
           <div className="flex gap-3">
-            {canCreate && selectedStore?.catalogId && (
-              <>
-                <Button
-                  variant="primary"
-                  onClick={() => setIsCatalogModalOpen(true)}
-                  leftIcon={QrCode}
-                  className="h-9 font-semibold"
-                >
-                  {t("settings.publicCatalog")}
-                </Button>
+            <Button
+              variant="primary"
+              onClick={() => setIsCatalogModalOpen(true)}
+              leftIcon={QrCode}
+              className="h-9 font-semibold"
+            >
+              {t("settings.publicCatalog")}
+            </Button>
 
-                <CatalogQRModal
-                  isOpen={isCatalogModalOpen}
-                  onClose={() => setIsCatalogModalOpen(false)}
-                  store={selectedStore}
-                />
-              </>
-            )}
+            <CatalogQRModal
+              isOpen={isCatalogModalOpen}
+              onClose={() => setIsCatalogModalOpen(false)}
+              store={selectedStore}
+              order={order}
+            />
             <Button variant="outline" leftIcon={Printer}>{t("common.print")}</Button>
             <Button variant="outline" leftIcon={Download}>{t("common.download")}</Button>
           </div>
