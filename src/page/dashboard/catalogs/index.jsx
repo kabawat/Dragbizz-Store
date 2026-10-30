@@ -4,10 +4,11 @@ import { getCatalogUrl } from "@dragorbit/core/domain";
 import { CatalogsScreen } from "@dragorbit/features/catalogs";
 import { SideDrawer, TableSkeleton } from "@dragorbit/ui";
 import { Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CatalogDetailsDrawer from "@/components/catalog/CatalogDetailsDrawer";
 import CatalogFormDrawer from "@/components/catalog/CatalogFormDrawer";
 import { Button, EmptyState, Modal } from "@/components/ui";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useDebounce from "@/hooks/form/useDebounce";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -20,6 +21,10 @@ import { useAppSelector } from "@/store/hooks";
 import { appendCatalogs, CATALOG_STATUSES } from "@/utils/catalog.util";
 import { copyToClipboard } from "@/utils/clipboard";
 import { pickStoreId } from "@/utils/store.util";
+import {
+  canUseFeatureQuota,
+  getFeatureFromSubscription,
+} from "@/utils/subscriptionCapability.util";
 
 function CatalogsWorkspace({ stores }) {
   const [search, setSearch] = useState("");
@@ -177,9 +182,68 @@ function CatalogsWorkspace({ stores }) {
     }
   };
 
+  const {
+    subscription,
+    showUpgradeModal,
+    isLoading: subscriptionLoading,
+  } = useSubscription();
+
+  const onlineStoreFeature = useMemo(
+    () => getFeatureFromSubscription(subscription, "online_store"),
+    [subscription]
+  );
+
+  const catalogLimit = useMemo(() => {
+    if (!onlineStoreFeature) return 0;
+    if (
+      onlineStoreFeature.usageType === "UNLIMITED" ||
+      onlineStoreFeature.maxLimit === null
+    ) {
+      return null;
+    }
+    return Math.max(0, Number(onlineStoreFeature.maxLimit) || 0);
+  }, [onlineStoreFeature]);
+
+  const activeCatalogsCount = useMemo(() => {
+    return list.data ? list.data.length : 0;
+  }, [list.data]);
+
+  const canCreateCatalog = useMemo(() => {
+    if (subscriptionLoading && !subscription) return true;
+    return canUseFeatureQuota(onlineStoreFeature, {
+      quantity: 1,
+      fallbackUsage: activeCatalogsCount,
+    });
+  }, [
+    subscriptionLoading,
+    subscription,
+    onlineStoreFeature,
+    activeCatalogsCount,
+  ]);
+
+  const quotaLabel = useMemo(() => {
+    if (subscriptionLoading && !subscription) return null;
+    if (catalogLimit === null) return "Unlimited Shops";
+    if (catalogLimit === 0) return "Upgrade required";
+    return `${activeCatalogsCount} / ${catalogLimit} used`;
+  }, [subscriptionLoading, subscription, catalogLimit, activeCatalogsCount]);
+
+  const handleCreate = () => {
+    if (!canCreateCatalog) {
+      const limitText = catalogLimit != null ? ` of ${catalogLimit}` : "";
+      const message =
+        catalogLimit === 0
+          ? "Digital Shops are not available in your current plan. Please upgrade to unlock Online Store."
+          : `Your plan allows a maximum${limitText} Digital Shop${catalogLimit === 1 ? "" : "s"}. Upgrade your plan to create more.`;
+      showUpgradeModal(message, catalogLimit === 0 ? "UPGRADE" : "QUOTA");
+      return;
+    }
+    setDialog({ mode: "create" });
+  };
+
   const shortcutsEnabled = !dialog && !deleteTarget && !deleting.current;
   useCommonHotkeys({
-    onNew: shortcutsEnabled ? () => setDialog({ mode: "create" }) : undefined,
+    onNew: shortcutsEnabled ? handleCreate : undefined,
     onSearch: shortcutsEnabled
       ? () => {
           searchInputRef.current?.focus();
@@ -228,7 +292,9 @@ function CatalogsWorkspace({ stores }) {
           onLoadMore: loadMore,
           onCopyLink: copyLink,
           onRefresh: refresh,
-          onCreate: () => setDialog({ mode: "create" }),
+          onCreate: handleCreate,
+          canCreate: canCreateCatalog,
+          quotaLabel,
           onOpen: open,
           onDelete: confirmDelete,
         }}
