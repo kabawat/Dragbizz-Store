@@ -17,7 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { Badge, Button, Card, Input, Modal, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -66,10 +66,32 @@ const Accounts = () => {
   }, [dispatch, storeReady, storeId]);
 
   // Handle search
-  const handleSearch = (value) => {
+  const handleSearch = (e) => {
+    const value = typeof e === "string" ? e : e?.target?.value ?? "";
     setSearchTerm(value);
-    // Implement search logic here
   };
+
+  const filteredAccounts = useMemo(() => {
+    return (accounts || []).filter((account) => {
+      const supplierName = account.supplier?.name?.toLowerCase() || "";
+      const matchesSearch =
+        !searchTerm || supplierName.includes(searchTerm.toLowerCase().trim());
+      const matchesStatus =
+        statusFilter === "all" ||
+        String(account.status).toLowerCase() === statusFilter.toLowerCase();
+      const matchesRisk =
+        riskFilter === "all" ||
+        String(account.riskLevel).toLowerCase() === riskFilter.toLowerCase();
+      let matchesDebt = true;
+      if (debtFilter !== "all" && account.creditLimit > 0) {
+        const util = (account.creditUsed / account.creditLimit) * 100;
+        if (debtFilter === "low") matchesDebt = util <= 50;
+        else if (debtFilter === "medium") matchesDebt = util > 50 && util <= 80;
+        else if (debtFilter === "high") matchesDebt = util > 80;
+      }
+      return matchesSearch && matchesStatus && matchesRisk && matchesDebt;
+    });
+  }, [accounts, searchTerm, statusFilter, riskFilter, debtFilter]);
 
   // Handle filter changes
   const handleFilterChange = (filterType, value) => {
@@ -99,10 +121,13 @@ const Accounts = () => {
 
   // Handle select all
   const handleSelectAll = () => {
-    if (selectedAccounts.length === accounts.length) {
+    if (
+      selectedAccounts.length === filteredAccounts.length &&
+      filteredAccounts.length > 0
+    ) {
       setSelectedAccounts([]);
     } else {
-      setSelectedAccounts(accounts.map((account) => account.id));
+      setSelectedAccounts(filteredAccounts.map((account) => account.id));
     }
   };
 
@@ -376,174 +401,192 @@ const Accounts = () => {
           </div>
         </Card>
 
-        {/* Accounts Table */}
-        <Card>
-          <div className="overflow-x-auto">
-            <DataTable className="min-w-0" caption="Accounts">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left p-4">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedAccounts.length === accounts.length &&
-                        accounts.length > 0
-                      }
-                      onChange={handleSelectAll}
-                      className="rounded border-gray-300"
-                    />
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Supplier
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Status
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Credit Limit
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Used Credit
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Available Credit
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Risk Level
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {accounts.map((account) => {
-                  const statusBadge = getStatusBadge(account.status);
-                  const riskBadge = getRiskBadge(account.riskLevel);
-                  const _debtBadge = getDebtBadge(
-                    account.creditUsed,
-                    account.creditLimit
-                  );
-                  const StatusIcon = statusBadge.icon;
-                  const creditUtilization = calculateCreditUtilization(
-                    account.creditUsed,
-                    account.creditLimit
-                  );
-                  const availableCredit =
-                    account.creditLimit - account.creditUsed;
-                  return (
-                    <tr
-                      key={account.id}
-                      className="border-b border-gray-100 hover:bg-gray-50"
-                    >
-                      <td className="p-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedAccounts.includes(account.id)}
-                          onChange={() => handleAccountSelect(account.id)}
-                          className="rounded border-gray-300"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center">
-                          <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                          <span className="text-gray-900">
-                            {account.supplier?.name || "N/A"}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge
-                          variant={statusBadge.variant}
-                          className="flex items-center gap-1"
-                        >
-                          <StatusIcon className="w-3 h-3" />
-                          {statusBadge.text}
-                        </Badge>
-                      </td>
-                      <td className="p-4 font-medium text-gray-900">
-                        {formatCurrency(account.creditLimit)}
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center">
-                          <span className="font-medium text-gray-900 mr-2">
-                            {formatCurrency(account.creditUsed)}
-                          </span>
-                          <span className="text-sm text-gray-600">
-                            ({creditUtilization.toFixed(1)}%)
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`font-medium ${availableCredit > 0 ? "text-green-600" : "text-red-600"}`}
-                        >
-                          {formatCurrency(availableCredit)}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant={riskBadge.variant}>
-                          {riskBadge.text}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            leftIcon={Eye}
-                            onClick={() =>
-                              router.push(`/dashboard/accounts/${account.id}`)
-                            }
+        {/* Accounts Table / Empty State / Loading */}
+        <Card className="overflow-hidden">
+          {isLoading ? (
+            <TableSkeleton compact rows={2} />
+          ) : filteredAccounts.length > 0 ? (
+            <div className="overflow-x-auto">
+              <DataTable className="min-w-0" caption="Accounts">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left p-4">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedAccounts.length === filteredAccounts.length &&
+                          filteredAccounts.length > 0
+                        }
+                        onChange={handleSelectAll}
+                        className="rounded border-gray-300"
+                      />
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Supplier
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Status
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Credit Limit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Used Credit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Available Credit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Risk Level
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAccounts.map((account) => {
+                    const statusBadge = getStatusBadge(account.status);
+                    const riskBadge = getRiskBadge(account.riskLevel);
+                    const _debtBadge = getDebtBadge(
+                      account.creditUsed,
+                      account.creditLimit
+                    );
+                    const StatusIcon = statusBadge.icon;
+                    const creditUtilization = calculateCreditUtilization(
+                      account.creditUsed,
+                      account.creditLimit
+                    );
+                    const availableCredit =
+                      account.creditLimit - account.creditUsed;
+                    return (
+                      <tr
+                        key={account.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
+                        <td className="p-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedAccounts.includes(account.id)}
+                            onChange={() => handleAccountSelect(account.id)}
+                            className="rounded border-gray-300"
+                          />
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center">
+                            <Building2 className="w-4 h-4 text-gray-400 mr-2" />
+                            <span className="text-gray-900">
+                              {account.supplier?.name || "N/A"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <Badge
+                            variant={statusBadge.variant}
+                            className="flex items-center gap-1"
                           >
-                            View
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            leftIcon={Edit}
-                            onClick={() =>
-                              router.push(
-                                `/dashboard/accounts/${account.id}/edit`
-                              )
-                            }
+                            <StatusIcon className="w-3 h-3" />
+                            {statusBadge.text}
+                          </Badge>
+                        </td>
+                        <td className="p-4 font-medium text-gray-900">
+                          {formatCurrency(account.creditLimit)}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center">
+                            <span className="font-medium text-gray-900 mr-2">
+                              {formatCurrency(account.creditUsed)}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              ({creditUtilization.toFixed(1)}%)
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={`font-medium ${availableCredit > 0 ? "text-green-600" : "text-red-600"}`}
                           >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            leftIcon={Trash2}
-                            onClick={() => handleDeleteAccount(account)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </DataTable>
-          </div>
-
-          {/* Empty State */}
-          {accounts.length === 0 && !isLoading && (
+                            {formatCurrency(availableCredit)}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <Badge variant={riskBadge.variant}>
+                            {riskBadge.text}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              leftIcon={Eye}
+                              onClick={() =>
+                                router.push(`/dashboard/accounts/${account.id}`)
+                              }
+                            >
+                              View
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              leftIcon={Edit}
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/accounts/${account.id}/edit`
+                                )
+                              }
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              leftIcon={Trash2}
+                              onClick={() => handleDeleteAccount(account)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </DataTable>
+            </div>
+          ) : (
             <EmptyState
               fullHeight
               icon={Building2}
-              title="No accounts found"
-              description="Get started by creating your first supplier account."
-              actionButton={{
-                label: "Create Account",
-                onClick: () => router.push("/dashboard/accounts/create"),
-              }}
+              title={
+                accounts.length === 0
+                  ? "No accounts found"
+                  : "No matching accounts"
+              }
+              description={
+                accounts.length === 0
+                  ? "Get started by creating your first supplier account."
+                  : "No supplier accounts match your filters. Try adjusting your search or filters."
+              }
+              actionButton={
+                accounts.length === 0
+                  ? {
+                      label: "Create Account",
+                      onClick: () => router.push("/dashboard/accounts/create"),
+                    }
+                  : {
+                      label: "Clear Filters",
+                      onClick: () => {
+                        setSearchTerm("");
+                        setStatusFilter("all");
+                        setRiskFilter("all");
+                        setDebtFilter("all");
+                      },
+                    }
+              }
             />
           )}
-
-          {/* Loading State */}
-          {isLoading && <TableSkeleton compact rows={2} />}
         </Card>
 
         {/* Delete Confirmation Modal */}

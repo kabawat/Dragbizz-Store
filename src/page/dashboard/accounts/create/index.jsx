@@ -14,31 +14,64 @@ import { Button, Card, Input, Modal, Select, Textarea } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createAccount } from "@/store/slices/accountsSlice";
 import { getSuppliers } from "@/store/slices/supplier/supplierSlice";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import logger from "@/utils/logger";
 import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
+
+const ACCOUNT_STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "Active" },
+  { value: "INACTIVE", label: "Inactive" },
+  { value: "SUSPENDED", label: "Suspended" },
+  { value: "BLOCKED", label: "Blocked" },
+];
+
+const RISK_LEVEL_OPTIONS = [
+  { value: "LOW", label: "Low Risk" },
+  { value: "MEDIUM", label: "Medium Risk" },
+  { value: "HIGH", label: "High Risk" },
+  { value: "CRITICAL", label: "Critical Risk" },
+];
+
+const PAYMENT_TERMS_OPTIONS = [
+  { value: "7_DAYS", label: "7 Days (Net 7)" },
+  { value: "15_DAYS", label: "15 Days (Net 15)" },
+  { value: "30_DAYS", label: "30 Days (Net 30)" },
+  { value: "45_DAYS", label: "45 Days (Net 45)" },
+  { value: "60_DAYS", label: "60 Days (Net 60)" },
+  { value: "90_DAYS", label: "90 Days (Net 90)" },
+  { value: "COD", label: "Cash on Delivery (COD)" },
+];
+
+const extractValue = (valOrEvent) => {
+  if (valOrEvent && typeof valOrEvent === "object" && "target" in valOrEvent) {
+    return valOrEvent.target.value;
+  }
+  return valOrEvent;
+};
 
 const CreateAccount = () => {
   useDashboardHeader("Create Supplier Account", "Create a new supplier account with credit limits");
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { suppliers } = useAppSelector((state) => state.suppliers);
-  const { isCreating, error } = useAppSelector((state) => state.accounts);
+  const { isCreating } = useAppSelector((state) => state.accounts);
   const { storeId, ready: storeReady } = useSelectedStoreId();
+  const { showSuccess, showError } = useGlobalToast();
 
   const [formData, setFormData] = useState({
     supplierId: "",
-    accountStatus: "active",
-    riskLevel: "low",
-    creditLimit: 0,
-    paymentTerms: "30",
+    accountStatus: "ACTIVE",
+    riskLevel: "LOW",
+    creditLimit: "",
+    paymentTerms: "30_DAYS",
     gracePeriod: "7",
     notes: "",
     // Additional account settings
     autoApproval: false,
     requireApproval: false,
-    maxTransactionAmount: 0,
-    dailyTransactionLimit: 0,
-    monthlyTransactionLimit: 0,
+    maxTransactionAmount: "",
+    dailyTransactionLimit: "",
+    monthlyTransactionLimit: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -51,8 +84,9 @@ const CreateAccount = () => {
     }
   }, [dispatch, storeReady, storeId]);
 
-  // Handle input changes
-  const handleInputChange = (field, value) => {
+  // Handle input changes (supports direct value from UI kit or native event)
+  const handleInputChange = (field, valOrEvent) => {
+    const value = extractValue(valOrEvent);
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -83,31 +117,48 @@ const CreateAccount = () => {
       newErrors.supplierId = "Supplier is required";
     }
 
-    if (!formData.creditLimit || formData.creditLimit <= 0) {
-      newErrors.creditLimit = "Valid credit limit is required";
+    if (
+      formData.creditLimit === "" ||
+      isNaN(Number(formData.creditLimit)) ||
+      Number(formData.creditLimit) < 0
+    ) {
+      newErrors.creditLimit = "Valid credit limit (0 or more) is required";
     }
 
-    if (!formData.paymentTerms || formData.paymentTerms <= 0) {
+    if (!formData.paymentTerms) {
       newErrors.paymentTerms = "Valid payment terms are required";
     }
 
-    if (!formData.gracePeriod || formData.gracePeriod < 0) {
-      newErrors.gracePeriod = "Valid grace period is required";
+    if (
+      formData.gracePeriod === "" ||
+      isNaN(Number(formData.gracePeriod)) ||
+      Number(formData.gracePeriod) < 0
+    ) {
+      newErrors.gracePeriod = "Valid grace period (0 or more) is required";
     }
 
-    if (formData.maxTransactionAmount && formData.maxTransactionAmount <= 0) {
+    if (
+      formData.maxTransactionAmount !== "" &&
+      (isNaN(Number(formData.maxTransactionAmount)) ||
+        Number(formData.maxTransactionAmount) < 0)
+    ) {
       newErrors.maxTransactionAmount =
         "Valid max transaction amount is required";
     }
 
-    if (formData.dailyTransactionLimit && formData.dailyTransactionLimit <= 0) {
+    if (
+      formData.dailyTransactionLimit !== "" &&
+      (isNaN(Number(formData.dailyTransactionLimit)) ||
+        Number(formData.dailyTransactionLimit) < 0)
+    ) {
       newErrors.dailyTransactionLimit =
         "Valid daily transaction limit is required";
     }
 
     if (
-      formData.monthlyTransactionLimit &&
-      formData.monthlyTransactionLimit <= 0
+      formData.monthlyTransactionLimit !== "" &&
+      (isNaN(Number(formData.monthlyTransactionLimit)) ||
+        Number(formData.monthlyTransactionLimit) < 0)
     ) {
       newErrors.monthlyTransactionLimit =
         "Valid monthly transaction limit is required";
@@ -120,23 +171,43 @@ const CreateAccount = () => {
   // Handle form submission
   const handleSubmit = async (isDraft = false) => {
     if (!validateForm() && !isDraft) {
+      showError("Please fix form errors before submitting");
       return;
     }
 
     try {
       const accountData = {
-        ...formData,
+        supplier: formData.supplierId,
+        creditLimit: Number(formData.creditLimit) || 0,
+        paymentTerms: formData.paymentTerms || "30_DAYS",
+        gracePeriod: Number(formData.gracePeriod) || 0,
+        accountStatus: formData.accountStatus || "ACTIVE",
+        riskLevel: formData.riskLevel || "LOW",
+        notes: formData.notes?.trim() || undefined,
+        autoApproval: Boolean(formData.autoApproval),
+        requireApproval: Boolean(formData.requireApproval),
+        maxTransactionAmount: Number(formData.maxTransactionAmount) || 0,
+        dailyTransactionLimit: Number(formData.dailyTransactionLimit) || 0,
+        monthlyTransactionLimit: Number(formData.monthlyTransactionLimit) || 0,
         status: isDraft ? "draft" : formData.accountStatus,
-        storeId: storeId,
+        storeId,
       };
 
       const result = await dispatch(createAccount(accountData));
 
       if (result.type === "accounts/createAccount/fulfilled") {
+        showSuccess(
+          isDraft
+            ? "Account draft saved successfully"
+            : "Supplier account created successfully"
+        );
         router.push("/dashboard/accounts");
+      } else {
+        showError(result.payload || "Failed to create supplier account");
       }
-    } catch (error) {
-      logger.error("Failed to create account:", error);
+    } catch (err) {
+      logger.error("Failed to create account:", err);
+      showError(err?.message || "An unexpected error occurred");
     }
   };
 
@@ -156,8 +227,16 @@ const CreateAccount = () => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
-    }).format(amount);
+    }).format(Number(amount) || 0);
   };
+
+  const supplierOptions = [
+    { value: "", label: "Select Supplier" },
+    ...(suppliers || []).map((supplier) => ({
+      value: supplier.id || supplier._id,
+      label: supplier.name,
+    })),
+  ];
 
   return (
     <div className="p-6">
@@ -186,14 +265,11 @@ const CreateAccount = () => {
                     onChange={(value) =>
                       handleInputChange("supplierId", value)
                     }
-                    options={[
-                      { value: "", label: "Select Supplier" },
-                      ...suppliers.map((supplier) => ({
-                        value: supplier.id,
-                        label: supplier.name,
-                      })),
-                    ]}
-                    error={errors.supplierId}
+                    searchable
+                    placeholder="Select Supplier"
+                    options={supplierOptions}
+                    error={Boolean(errors.supplierId)}
+                    errorMessage={errors.supplierId}
                   />
                 </div>
 
@@ -206,12 +282,9 @@ const CreateAccount = () => {
                     onChange={(value) =>
                       handleInputChange("accountStatus", value)
                     }
-                    options={[
-                      { value: "active", label: "Active" },
-                      { value: "pending", label: "Pending" },
-                      { value: "suspended", label: "Suspended" },
-                      { value: "inactive", label: "Inactive" },
-                    ]}
+                    options={ACCOUNT_STATUS_OPTIONS}
+                    error={Boolean(errors.accountStatus)}
+                    errorMessage={errors.accountStatus}
                   />
                 </div>
 
@@ -224,11 +297,9 @@ const CreateAccount = () => {
                     onChange={(value) =>
                       handleInputChange("riskLevel", value)
                     }
-                    options={[
-                      { value: "low", label: "Low Risk" },
-                      { value: "medium", label: "Medium Risk" },
-                      { value: "high", label: "High Risk" },
-                    ]}
+                    options={RISK_LEVEL_OPTIONS}
+                    error={Boolean(errors.riskLevel)}
+                    errorMessage={errors.riskLevel}
                   />
                 </div>
 
@@ -239,16 +310,12 @@ const CreateAccount = () => {
                   <Input
                     type="number"
                     value={formData.creditLimit}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "creditLimit",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
+                    onChange={(val) => handleInputChange("creditLimit", val)}
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    error={errors.creditLimit}
+                    error={Boolean(errors.creditLimit)}
+                    errorMessage={errors.creditLimit}
                   />
                 </div>
               </div>
@@ -259,11 +326,11 @@ const CreateAccount = () => {
                 </label>
                 <Textarea
                   value={formData.notes}
-                  onChange={(e) =>
-                    handleInputChange("notes", e.target.value)
-                  }
+                  onChange={(val) => handleInputChange("notes", val)}
                   placeholder="Additional notes about this account..."
                   rows={3}
+                  error={Boolean(errors.notes)}
+                  errorMessage={errors.notes}
                 />
               </div>
             </div>
@@ -280,20 +347,16 @@ const CreateAccount = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Terms (Days) *
+                    Payment Terms *
                   </label>
-                  <Input
-                    type="number"
+                  <Select
                     value={formData.paymentTerms}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "paymentTerms",
-                        parseInt(e.target.value, 10) || 0
-                      )
+                    onChange={(value) =>
+                      handleInputChange("paymentTerms", value)
                     }
-                    placeholder="30"
-                    min="0"
-                    error={errors.paymentTerms}
+                    options={PAYMENT_TERMS_OPTIONS}
+                    error={Boolean(errors.paymentTerms)}
+                    errorMessage={errors.paymentTerms}
                   />
                 </div>
 
@@ -304,15 +367,11 @@ const CreateAccount = () => {
                   <Input
                     type="number"
                     value={formData.gracePeriod}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "gracePeriod",
-                        parseInt(e.target.value, 10) || 0
-                      )
-                    }
+                    onChange={(val) => handleInputChange("gracePeriod", val)}
                     placeholder="7"
                     min="0"
-                    error={errors.gracePeriod}
+                    error={Boolean(errors.gracePeriod)}
+                    errorMessage={errors.gracePeriod}
                   />
                 </div>
               </div>
@@ -335,16 +394,14 @@ const CreateAccount = () => {
                   <Input
                     type="number"
                     value={formData.maxTransactionAmount}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "maxTransactionAmount",
-                        parseFloat(e.target.value) || 0
-                      )
+                    onChange={(val) =>
+                      handleInputChange("maxTransactionAmount", val)
                     }
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    error={errors.maxTransactionAmount}
+                    error={Boolean(errors.maxTransactionAmount)}
+                    errorMessage={errors.maxTransactionAmount}
                   />
                 </div>
 
@@ -355,16 +412,14 @@ const CreateAccount = () => {
                   <Input
                     type="number"
                     value={formData.dailyTransactionLimit}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "dailyTransactionLimit",
-                        parseFloat(e.target.value) || 0
-                      )
+                    onChange={(val) =>
+                      handleInputChange("dailyTransactionLimit", val)
                     }
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    error={errors.dailyTransactionLimit}
+                    error={Boolean(errors.dailyTransactionLimit)}
+                    errorMessage={errors.dailyTransactionLimit}
                   />
                 </div>
 
@@ -375,16 +430,14 @@ const CreateAccount = () => {
                   <Input
                     type="number"
                     value={formData.monthlyTransactionLimit}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "monthlyTransactionLimit",
-                        parseFloat(e.target.value) || 0
-                      )
+                    onChange={(val) =>
+                      handleInputChange("monthlyTransactionLimit", val)
                     }
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    error={errors.monthlyTransactionLimit}
+                    error={Boolean(errors.monthlyTransactionLimit)}
+                    errorMessage={errors.monthlyTransactionLimit}
                   />
                 </div>
               </div>
@@ -462,14 +515,16 @@ const CreateAccount = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment Terms:</span>
                     <span className="font-medium">
-                      {formData.paymentTerms} days
+                      {PAYMENT_TERMS_OPTIONS.find(
+                        (p) => p.value === formData.paymentTerms
+                      )?.label || formData.paymentTerms || "30 Days"}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Grace Period:</span>
                     <span className="font-medium">
-                      {formData.gracePeriod} days
+                      {formData.gracePeriod || 0} days
                     </span>
                   </div>
                 </div>
@@ -478,14 +533,14 @@ const CreateAccount = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Risk Level:</span>
                     <span className="font-medium capitalize">
-                      {formData.riskLevel}
+                      {formData.riskLevel?.toLowerCase()}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Account Status:</span>
                     <span className="font-medium capitalize">
-                      {formData.accountStatus}
+                      {formData.accountStatus?.toLowerCase()}
                     </span>
                   </div>
 
@@ -528,7 +583,6 @@ const CreateAccount = () => {
           </div>
         </form>
       </div>
-
 
       {/* Save Draft Confirmation Modal */}
       <Modal
