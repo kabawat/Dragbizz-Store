@@ -1,23 +1,23 @@
 "use client";
 import { SupplierListContentView } from "@dragorbit/features/suppliers";
-
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  getSuppliers,
-  removeSupplier,
-} from "@/store/slices/supplier/supplierSlice";
-import { useApiResponse } from "@/hooks/useApiResponse";
-import { supplierService } from "@/service";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DeleteSupplierModal,
   EditSupplierDrawer,
   SupplierCard,
   SupplierTable,
 } from "@/components/supplier";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { supplierService } from "@/service";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  getSuppliers,
+  removeSupplier,
+} from "@/store/slices/supplier/supplierSlice";
+import { pickStoreId } from "@/utils/store.util";
 
 const SupplierListContent = () => {
   const { t } = useTranslation();
@@ -28,8 +28,7 @@ const SupplierListContent = () => {
     useAppSelector((state) => state.suppliers);
 
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+  const storeId = pickStoreId(selectedStore) || "";
 
   const { can } = useModulePermissions("supplier");
   const canEdit = can("edit");
@@ -75,11 +74,11 @@ const SupplierListContent = () => {
               limit: 20,
               nextCursor: paginationRef.current.nextCursor,
               isFreshLoad: false,
-            }),
+            })
           );
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
 
     observer.observe(sentinel);
@@ -93,28 +92,28 @@ const SupplierListContent = () => {
       setEditingSupplierId(supplierId);
       setShowEditSupplierDrawer(true);
     },
-    [canEdit],
+    [canEdit]
   );
 
   const handleViewSupplier = useCallback(
     (supplierId) => {
       router.push(`/dashboard/suppliers/${supplierId}`);
     },
-    [router],
+    [router]
   );
 
   const handlePrintSupplier = useCallback(
     (supplierId) => {
       router.push(`/dashboard/suppliers/${supplierId}?print=true`);
     },
-    [router],
+    [router]
   );
 
   const handleDeleteSupplier = useCallback(
     (supplierId) => {
       if (!canDelete) return;
       const supplier = suppliers.find(
-        (s) => s.id === supplierId || s._id === supplierId,
+        (s) => s.id === supplierId || s._id === supplierId
       );
       setSupplierToDelete({
         id: supplierId,
@@ -122,7 +121,7 @@ const SupplierListContent = () => {
       });
       setShowDeleteModal(true);
     },
-    [suppliers, canDelete],
+    [suppliers, canDelete]
   );
 
   const handleConfirmDelete = useCallback(async () => {
@@ -133,7 +132,7 @@ const SupplierListContent = () => {
       {
         message: `${supplierToDelete.name} deleted successfully`,
         showToast: true,
-      },
+      }
     );
 
     if (result?.success || result?.data?.success) {
@@ -150,7 +149,7 @@ const SupplierListContent = () => {
         limit: 20,
         nextCursor: null,
         isFreshLoad: true,
-      }),
+      })
     );
   }, [dispatch, storeId]);
 

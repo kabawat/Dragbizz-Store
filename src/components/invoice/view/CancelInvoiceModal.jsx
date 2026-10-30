@@ -1,9 +1,9 @@
 "use client";
 import { ViewCancelInvoiceModalPresentation } from "@dragorbit/features/invoices";
-
+import { memo, useCallback, useMemo } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { invoiceService } from "@/service";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { invoiceService } from "@/service";
 
 const CancelInvoiceModal = ({
   isOpen,
@@ -15,9 +15,7 @@ const CancelInvoiceModal = ({
   const { t } = useTranslation();
   const { execute, loading: isCancelling } = useApiResponse();
 
-  if (!isOpen) return null;
-
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     if (!invoiceId) return;
 
     const result = await execute(
@@ -26,20 +24,23 @@ const CancelInvoiceModal = ({
         message: t("success.cancelledSuccessfully", {
           item: t("common.invoice"),
         }),
-      },
+      }
     );
 
     if (result?.success) {
       if (onSuccess) onSuccess();
       onClose();
     }
-  };
+  }, [invoiceId, execute, t, onSuccess, onClose]);
 
-  return (
-    <ViewCancelInvoiceModalPresentation
-      model={{ t, invoiceNumber, onClose, isCancelling, handleConfirm }}
-    />
+  const model = useMemo(
+    () => ({ t, invoiceNumber, onClose, isCancelling, handleConfirm }),
+    [t, invoiceNumber, onClose, isCancelling, handleConfirm]
   );
+
+  if (!isOpen) return null;
+
+  return <ViewCancelInvoiceModalPresentation model={model} />;
 };
 
-export default CancelInvoiceModal;
+export default memo(CancelInvoiceModal);

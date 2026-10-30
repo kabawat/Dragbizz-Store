@@ -10,20 +10,21 @@ import {
   XCircle,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import StatsGrid from "@/components/analytics/StatsGrid";
-import PerformanceCard from "@/components/analytics/cards/PerformanceCard";
-import AnalyticsListCard from "@/components/analytics/cards/AnalyticsListCard";
-import AnalyticsChartCard from "@/components/analytics/cards/AnalyticsChartCard";
-import AnalyticsBreakdownCard from "@/components/analytics/cards/AnalyticsBreakdownCard";
 import BillsChart from "@/components/analytics/bills/BillsChart";
+import AnalyticsBreakdownCard from "@/components/analytics/cards/AnalyticsBreakdownCard";
+import AnalyticsChartCard from "@/components/analytics/cards/AnalyticsChartCard";
+import AnalyticsListCard from "@/components/analytics/cards/AnalyticsListCard";
+import PerformanceCard from "@/components/analytics/cards/PerformanceCard";
+import StatsGrid from "@/components/analytics/StatsGrid";
 import BillsReportTemplate from "@/components/templates/analytics/bills/BillsReportTemplate";
 import { SortableCard } from "@/components/templates/analytics/SortableComponents";
 
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getBillAnalytics } from "@/store/slices/analyticsSlice";
+import { pickStoreId } from "@/utils/store.util";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 const formatCurrency = (amount) =>
@@ -46,19 +47,18 @@ const BillAnalytics = () => {
 
   useDashboardHeader(
     t("dashboard.billAnalytics") || "Bill Analytics",
-    "View detailed bill analytics and insights",
+    "View detailed bill analytics and insights"
   );
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { bill: analytics, isLoadingBill: isLoading } = useAppSelector(
-    (state) => state.analytics,
+    (state) => state.analytics
   );
   const { suppliers } = useAppSelector(
-    (state) => state.suppliers || { suppliers: [] },
+    (state) => state.suppliers || { suppliers: [] }
   );
 
-  const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId = pickStoreId(selectedStore);
 
   const [dateRange, setDateRange] = useState("month");
   const [supplierId, setSupplierId] = useState("all");
@@ -76,7 +76,7 @@ const BillAnalytics = () => {
         store: `${storeId}`,
         dateRange,
         supplier: supplierId !== "all" ? supplierId : undefined,
-      }),
+      })
     );
   };
 
@@ -88,7 +88,7 @@ const BillAnalytics = () => {
     isLoading,
     analytics,
     "bills-report-area",
-    "bills-analytics-report",
+    "bills-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -102,7 +102,7 @@ const BillAnalytics = () => {
         pendingBills: 0,
         overdueBills: 0,
       },
-    [analytics?.counts],
+    [analytics?.counts]
   );
 
   const amounts = useMemo(
@@ -113,7 +113,7 @@ const BillAnalytics = () => {
         totalDue: 0,
         totalGst: 0,
       },
-    [analytics?.amounts],
+    [analytics?.amounts]
   );
 
   const [metrics, setMetrics] = useState([

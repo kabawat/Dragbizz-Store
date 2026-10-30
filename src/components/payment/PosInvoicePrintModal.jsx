@@ -3,7 +3,7 @@
 import { ConfiguredInvoiceTemplate } from "@dragorbit/features/invoices";
 import { DocumentPreview, Modal } from "@dragorbit/ui";
 import { Loader2, Printer, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useInvoicePrint } from "@/hooks/print/invoice/useInvoicePrint";
 import { useMiniInvoicePrint } from "@/hooks/print/invoice/useMiniInvoicePrint";
@@ -23,12 +23,15 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
   const { t } = useTranslation();
   const { showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { agency, signatures } = useAppSelector((state) => ({
-    agency: state.profile.agency,
-    signatures: state.signatures,
-  }));
+  const agency = useAppSelector((state) => state.profile.agency);
+  const signaturesItems = useAppSelector((state) => state.signatures.items);
+  const signaturesLoading = useAppSelector((state) => state.signatures.loading);
+  const signaturesLastFetched = useAppSelector(
+    (state) => state.signatures.lastFetched
+  );
+  const signaturesError = useAppSelector((state) => state.signatures.error);
   const dispatch = useAppDispatch();
-  const storeId = pickStoreId(selectedStore);
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
   const agencyId = agency?.agencyId || agency?._id || selectedStore?.agency;
   const { execute, loading: fetching } = useApiResponse();
 
@@ -47,18 +50,22 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
     : standardPrint;
 
   useEffect(() => {
-    const savedTemplate = localStorage.getItem("invoice-template");
-    if (savedTemplate) setSelectedTemplate(savedTemplate);
+    try {
+      const savedTemplate = localStorage.getItem("invoice-template");
+      if (savedTemplate) setSelectedTemplate(savedTemplate);
+    } catch {
+      // Storage unavailable
+    }
   }, []);
 
   useEffect(() => {
     if (
       open &&
       agencyId &&
-      !signatures.items.length &&
-      !signatures.loading &&
-      !signatures.lastFetched &&
-      !signatures.error
+      !signaturesItems.length &&
+      !signaturesLoading &&
+      !signaturesLastFetched &&
+      !signaturesError
     ) {
       dispatch(fetchSignatures({ agencyId, lightweight: true }));
     }
@@ -66,10 +73,10 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
     open,
     agencyId,
     dispatch,
-    signatures.items.length,
-    signatures.loading,
-    signatures.lastFetched,
-    signatures.error,
+    signaturesItems.length,
+    signaturesLoading,
+    signaturesLastFetched,
+    signaturesError,
   ]);
 
   useEffect(() => {
@@ -102,15 +109,26 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
     };
   }, [open, invoiceId, storeId]);
 
-  const calculatedGstAmount = invoiceData ? calculateGstAmount(invoiceData) : 0;
-  const itemsWithGst = invoiceData ? getItemsWithGst(invoiceData) : [];
-  const calculatedSubtotal = invoiceData
-    ? calculateSubtotal(invoiceData, calculatedGstAmount, itemsWithGst)
-    : 0;
+  const templateInvoiceData = useMemo(() => {
+    if (!invoiceData) return null;
+    const gst = calculateGstAmount(invoiceData);
+    const items = getItemsWithGst(invoiceData);
+    const subtotal = calculateSubtotal(invoiceData, gst, items);
+    return {
+      ...invoiceData,
+      items: items.length > 0 ? items : invoiceData.items,
+      subtotal: subtotal > 0 ? subtotal : invoiceData.subtotal,
+      gstAmount: gst > 0 ? gst : invoiceData.gstAmount,
+    };
+  }, [invoiceData]);
 
   const handleDone = useCallback(() => {
     onClose?.();
   }, [onClose]);
+
+  const handleDownload = useCallback(() => {
+    handleDownloadPDF(invoiceData, invoiceId);
+  }, [handleDownloadPDF, invoiceData, invoiceId]);
 
   if (!open || !invoiceId) return null;
 
@@ -171,28 +189,14 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
             </div>
           )}
 
-          {showPreview && (
+          {showPreview && templateInvoiceData && (
             <DocumentPreview>
               <div id="invoice-area" className="bg-white">
                 <ConfiguredInvoiceTemplate
                   templateKey={selectedTemplate}
-                  invoiceData={{
-                    ...invoiceData,
-                    items:
-                      itemsWithGst.length > 0
-                        ? itemsWithGst
-                        : invoiceData.items,
-                    subtotal:
-                      calculatedSubtotal > 0
-                        ? calculatedSubtotal
-                        : invoiceData.subtotal,
-                    gstAmount:
-                      calculatedGstAmount > 0
-                        ? calculatedGstAmount
-                        : invoiceData.gstAmount,
-                  }}
+                  invoiceData={templateInvoiceData}
                   selectedStore={selectedStore}
-                  signatures={signatures.items}
+                  signatures={signaturesItems}
                   signatureSettingsUrl="/dashboard/utilities/signatures"
                   fitPreview
                 />
@@ -205,7 +209,7 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
           <div className="no-print flex flex-wrap items-center justify-end gap-2 px-5 py-4 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
             <button
               type="button"
-              onClick={() => handleDownloadPDF(invoiceData, invoiceId)}
+              onClick={handleDownload}
               className="px-4 py-2.5 rounded-xl text-sm font-medium border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
             >
               {t("invoice.downloadPDF") || "Download PDF"}
@@ -232,4 +236,4 @@ const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {
   );
 };
 
-export default PosInvoicePrintModal;
+export default memo(PosInvoicePrintModal);

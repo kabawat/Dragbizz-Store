@@ -62,8 +62,8 @@ export function buildTallyFormState(store) {
 export function buildTallyIntegrationPayload(form) {
   const expenseCategoryLedgers = Object.fromEntries(
     Object.entries(form.expenseCategoryLedgers || {}).filter(
-      ([key, value]) => key?.trim() && value?.trim(),
-    ),
+      ([key, value]) => key?.trim() && value?.trim()
+    )
   );
 
   return {
@@ -89,6 +89,4 @@ export function downloadTallyXml(xml, filename) {
   URL.revokeObjectURL(url);
 }
 
-export function pickStoreId(store) {
-  return store?._id || store?.id || store?.storeId || null;
-}
+export { pickStoreId } from "./store.util";

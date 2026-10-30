@@ -1,20 +1,17 @@
 "use client";
 import { ViewDeleteInvoiceModalPresentation } from "@dragorbit/features/invoices";
-
 import { useRouter } from "next/navigation";
-
+import { memo, useCallback, useMemo } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { invoiceService } from "@/service";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { invoiceService } from "@/service";
 
 const DeleteInvoiceModal = ({ isOpen, onClose, invoiceId, invoiceNumber }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { execute, loading: isDeleting } = useApiResponse();
 
-  if (!isOpen) return null;
-
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     if (!invoiceId) return;
 
     const result = await execute(invoiceService.deleteInvoice(invoiceId), {
@@ -26,13 +23,16 @@ const DeleteInvoiceModal = ({ isOpen, onClose, invoiceId, invoiceNumber }) => {
         router.push("/dashboard/invoices");
       }, 1000);
     }
-  };
+  }, [invoiceId, execute, t, router]);
 
-  return (
-    <ViewDeleteInvoiceModalPresentation
-      model={{ t, invoiceNumber, onClose, isDeleting, handleConfirm }}
-    />
+  const model = useMemo(
+    () => ({ t, invoiceNumber, onClose, isDeleting, handleConfirm }),
+    [t, invoiceNumber, onClose, isDeleting, handleConfirm]
   );
+
+  if (!isOpen) return null;
+
+  return <ViewDeleteInvoiceModalPresentation model={model} />;
 };
 
-export default DeleteInvoiceModal;
+export default memo(DeleteInvoiceModal);

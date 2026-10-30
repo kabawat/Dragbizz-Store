@@ -3,17 +3,16 @@ import { PageSkeleton } from "@dragorbit/ui/app";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { billService } from "@/service/retailer";
-import { useAppSelector } from "@/store/hooks";
-import { useApiResponse } from "@/hooks/useApiResponse";
-
+import { memo, useCallback, useMemo, useState } from "react";
 import BillItemsSection from "@/components/bills/create/BillItemsSection";
 import BillSidebar from "@/components/bills/create/BillSidebar";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { billService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
+import { pickStoreId } from "@/utils/store.util";
 
 const formInit = {
   supplier: "",
@@ -30,10 +29,14 @@ const CreateBill = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
 
-  useDashboardHeader(t("bills.createBill"), searchParams.get("poNumber")
-    ? t("bills.billForPO", { poNumber: searchParams.get("poNumber") })
-    : t("bills.createBillDescription"));
+  useDashboardHeader(
+    t("bills.createBill"),
+    searchParams.get("poNumber")
+      ? t("bills.billForPO", { poNumber: searchParams.get("poNumber") })
+      : t("bills.createBillDescription")
+  );
 
   const [formData, setFormData] = useState(formInit);
   const [errors, setErrors] = useState({});
@@ -42,30 +45,34 @@ const CreateBill = () => {
   const { execute, loading: isSubmitting } = useApiResponse();
 
   // Handle input changes
-  const handleInputChange = (field, value) => {
-    if (value === "add-new-supplier") {
-      router.push("/dashboard/suppliers/add");
-      return;
-    }
+  const handleInputChange = useCallback(
+    (field, value) => {
+      if (value === "add-new-supplier") {
+        router.push("/dashboard/suppliers/add");
+        return;
+      }
 
-    if (value === "add-new-purchase-order") {
-      router.push("/dashboard/purchase-orders/create");
-      return;
-    }
+      if (value === "add-new-purchase-order") {
+        router.push("/dashboard/purchase-orders/create");
+        return;
+      }
 
-    setFormData((prev) => {
-      const newData = { ...prev, [field]: value };
-      if (field === "supplier") newData.purchaseOrder = "";
-      return newData;
-    });
+      setFormData((prev) => {
+        const newData = { ...prev, [field]: value };
+        if (field === "supplier") newData.purchaseOrder = "";
+        return newData;
+      });
 
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
+      setErrors((prev) => {
+        if (!prev[field]) return prev;
+        return { ...prev, [field]: "" };
+      });
+    },
+    [router]
+  );
 
   // Validate form
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const newErrors = {};
     if (!formData.supplier) newErrors.supplier = "Supplier is required";
 
@@ -86,57 +93,77 @@ const CreateBill = () => {
     }
 
     formData.items.forEach((item, index) => {
-      if (!item.product) newErrors[`item_${index}_product`] = "Product is required";
-      if (!item.quantity || item.quantity <= 0 || !Number.isInteger(Number(item.quantity))) {
-        newErrors[`item_${index}_quantity`] = "Valid quantity (integer > 0) is required";
+      if (!item.product)
+        newErrors[`item_${index}_product`] = "Product is required";
+      if (
+        !item.quantity ||
+        item.quantity <= 0 ||
+        !Number.isInteger(Number(item.quantity))
+      ) {
+        newErrors[`item_${index}_quantity`] =
+          "Valid quantity (integer > 0) is required";
       }
-      if (item.purchasePrice === undefined || item.purchasePrice === null || item.purchasePrice < 0) {
-        newErrors[`item_${index}_purchasePrice`] = "Valid purchase price (number >= 0) is required";
+      if (
+        item.purchasePrice === undefined ||
+        item.purchasePrice === null ||
+        item.purchasePrice < 0
+      ) {
+        newErrors[`item_${index}_purchasePrice`] =
+          "Valid purchase price (number >= 0) is required";
       }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData, t]);
 
   // Handle form submission
-  const handleSubmit = async (isDraft = false) => {
-    if (!validateForm() && !isDraft) return;
+  const handleSubmit = useCallback(
+    async (isDraft = false) => {
+      if (!validateForm() && !isDraft) return;
+      if (!storeId) return;
 
-    const billData = {
-      store: selectedStore.storeId,
-      supplier: formData.supplier,
-      purchaseOrder: formData.purchaseOrder || undefined,
-      goodsReceived: !!formData.goodsReceived,
-      items: formData.items.map((item) => ({
-        product: item.product,
-        quantity: parseInt(item.quantity, 10),
-        purchasePrice: parseFloat(item.purchasePrice),
-      })),
-      dueDate: formData.dueDate || undefined,
-      notes: formData.notes || undefined,
-    };
+      const billData = {
+        store: storeId,
+        supplier: formData.supplier,
+        purchaseOrder: formData.purchaseOrder || undefined,
+        goodsReceived: !!formData.goodsReceived,
+        items: formData.items.map((item) => ({
+          product: item.product,
+          quantity: parseInt(item.quantity, 10),
+          purchasePrice: parseFloat(item.purchasePrice),
+        })),
+        dueDate: formData.dueDate || undefined,
+        notes: formData.notes || undefined,
+      };
 
-    const result = await execute(
-      billService.createBill(billData),
-      { message: t("success.createdSuccessfully", { item: t("common.bill") }) }
-    );
+      const result = await execute(billService.createBill(billData), {
+        message: t("success.createdSuccessfully", { item: t("common.bill") }),
+      });
 
-    if (result?.success) {
-      setTimeout(() => {
-        const billId = result.data?.id || result.data?._id;
-        if (billId) router.push(`/dashboard/bills/${billId}`);
-        else router.push("/dashboard/bills");
-      }, 1500);
-    } else if (result?.fieldErrors) {
-      setErrors(result.fieldErrors);
-    }
-  };
+      if (result?.success) {
+        setTimeout(() => {
+          const billId = result.data?.id || result.data?._id;
+          if (billId) router.push(`/dashboard/bills/${billId}`);
+          else router.push("/dashboard/bills");
+        }, 1500);
+      } else if (result?.fieldErrors) {
+        setErrors(result.fieldErrors);
+      }
+    },
+    [validateForm, storeId, formData, execute, t, router]
+  );
 
-  if (!selectedStore?.storeId) {
-    return (
-      <PageSkeleton />
-    );
+  const onFormSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      handleSubmit();
+    },
+    [handleSubmit]
+  );
+
+  if (!storeId) {
+    return <PageSkeleton />;
   }
 
   return (
@@ -144,18 +171,23 @@ const CreateBill = () => {
       <div className="max-w-8xl mx-auto w-full">
         {/* Back Button with Quota Progress Bar */}
         <div className="mb-4 flex-shrink-0 flex items-center justify-between">
-          <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+          <Link
+            href="/dashboard/bills"
+            className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">{t("common.backTo", { item: t("common.bills") })}</span>
+            <span className="text-sm font-medium">
+              {t("common.backTo", { item: t("common.bills") })}
+            </span>
           </Link>
         </div>
 
-        <div className="">
+        <div>
           <div className="h-[calc(100vh-150px)] overflow-y-auto">
-            <div className="flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-3 gap-6" >
+            <div className="flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col min-h-0">
                 <div className="flex-1 min-h-0">
-                  <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="h-full">
+                  <form onSubmit={onFormSubmit} className="h-full">
                     <BillItemsSection
                       formData={formData}
                       setFormData={setFormData}
@@ -185,4 +217,4 @@ const CreateBill = () => {
   );
 };
 
-export default CreateBill;
+export default memo(CreateBill);

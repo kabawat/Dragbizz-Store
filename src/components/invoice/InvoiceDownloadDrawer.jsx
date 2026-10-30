@@ -1,19 +1,19 @@
 "use client";
 import { InvoiceDownloadDrawerPresentation } from "@dragorbit/features/invoices";
-
-import { useState } from "react";
-
+import { memo, useCallback, useMemo, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { exportData } from "@/utils/exportUtils";
+import { pickStoreId } from "@/utils/store.util";
 
 const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
   const { execute, loading: isDownloading } = useApiResponse();
 
   const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState("");
@@ -22,94 +22,103 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   const [downloadFormat, setDownloadFormat] = useState("xlsx");
   const [sortOrder, setSortOrder] = useState("dateDesc");
 
-  const availableFields = [
-    { key: "storeName", label: t("invoices.fieldStoreName"), default: true },
-    {
-      key: "invoiceNumber",
-      label: t("invoices.fieldInvoiceNumber"),
-      default: true,
-    },
-    {
-      key: "customerName",
-      label: t("invoices.fieldCustomerName"),
-      default: true,
-    },
-    {
-      key: "customerPhone",
-      label: t("invoices.fieldCustomerPhone"),
-      default: true,
-    },
-    { key: "date", label: t("invoices.fieldDate"), default: true },
-    { key: "items", label: t("invoices.fieldItems"), default: false },
-    { key: "subtotal", label: t("invoices.fieldSubtotal"), default: true },
-    { key: "gstAmount", label: t("invoices.fieldGstAmount"), default: false },
-    {
-      key: "totalDiscount",
-      label: t("invoices.fieldTotalDiscount"),
-      default: false,
-    },
-    {
-      key: "totalAmount",
-      label: t("invoices.fieldTotalAmount"),
-      default: true,
-    },
-    {
-      key: "totalProfit",
-      label: t("invoices.fieldTotalProfit"),
-      default: false,
-    },
-    {
-      key: "paymentStatus",
-      label: t("invoices.fieldPaymentStatus"),
-      default: true,
-    },
-    {
-      key: "invoiceStatus",
-      label: t("invoices.fieldInvoiceStatus"),
-      default: true,
-    },
-    {
-      key: "paymentMode",
-      label: t("invoices.fieldPaymentMode"),
-      default: false,
-    },
-    { key: "releasedAt", label: t("invoices.fieldReleasedAt"), default: false },
-  ];
-
-  const [selectedFields, setSelectedFields] = useState(
-    availableFields.filter((field) => field.default).map((field) => field.key),
+  const availableFields = useMemo(
+    () => [
+      { key: "storeName", label: t("invoices.fieldStoreName"), default: true },
+      {
+        key: "invoiceNumber",
+        label: t("invoices.fieldInvoiceNumber"),
+        default: true,
+      },
+      {
+        key: "customerName",
+        label: t("invoices.fieldCustomerName"),
+        default: true,
+      },
+      {
+        key: "customerPhone",
+        label: t("invoices.fieldCustomerPhone"),
+        default: true,
+      },
+      { key: "date", label: t("invoices.fieldDate"), default: true },
+      { key: "items", label: t("invoices.fieldItems"), default: false },
+      { key: "subtotal", label: t("invoices.fieldSubtotal"), default: true },
+      { key: "gstAmount", label: t("invoices.fieldGstAmount"), default: false },
+      {
+        key: "totalDiscount",
+        label: t("invoices.fieldTotalDiscount"),
+        default: false,
+      },
+      {
+        key: "totalAmount",
+        label: t("invoices.fieldTotalAmount"),
+        default: true,
+      },
+      {
+        key: "totalProfit",
+        label: t("invoices.fieldTotalProfit"),
+        default: false,
+      },
+      {
+        key: "paymentStatus",
+        label: t("invoices.fieldPaymentStatus"),
+        default: true,
+      },
+      {
+        key: "invoiceStatus",
+        label: t("invoices.fieldInvoiceStatus"),
+        default: true,
+      },
+      {
+        key: "paymentMode",
+        label: t("invoices.fieldPaymentMode"),
+        default: false,
+      },
+      {
+        key: "releasedAt",
+        label: t("invoices.fieldReleasedAt"),
+        default: false,
+      },
+    ],
+    [t]
   );
 
-  const handleFieldToggle = (fieldKey) => {
-    setSelectedFields((prev) => {
-      if (prev.includes(fieldKey)) {
-        if (prev.length === 1) {
-          showError(t("invoices.atLeastOneFieldRequired"));
-          return prev;
+  const [selectedFields, setSelectedFields] = useState(() =>
+    availableFields.filter((field) => field.default).map((field) => field.key)
+  );
+
+  const handleFieldToggle = useCallback(
+    (fieldKey) => {
+      setSelectedFields((prev) => {
+        if (prev.includes(fieldKey)) {
+          if (prev.length === 1) {
+            showError(t("invoices.atLeastOneFieldRequired"));
+            return prev;
+          }
+          return prev.filter((key) => key !== fieldKey);
         }
-        return prev.filter((key) => key !== fieldKey);
-      } else {
         return [...prev, fieldKey];
-      }
-    });
-  };
+      });
+    },
+    [showError, t]
+  );
 
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback(() => {
     setSelectedFields(availableFields.map((field) => field.key));
-  };
+  }, [availableFields]);
 
-  const handleDeselectAll = () => {
+  const handleDeselectAll = useCallback(() => {
     setSelectedFields([availableFields[0].key]);
-  };
+  }, [availableFields]);
 
-  const handleDownloadPeriodChange = (value) => {
+  const handleDownloadPeriodChange = useCallback((value) => {
     setSelectedDownloadPeriod(value);
 
     if (value !== "custom") {
       setCustomStartDate("");
       setCustomEndDate("");
     }
-  };
+  }, []);
 
   const getCustomDateRangePreview = () => {
     if (!customStartDate || !customEndDate) return null;
@@ -220,7 +229,6 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    const storeId = selectedStore?.storeId;
     if (!storeId) {
       showError(t("invoices.storeIdMissing"));
       return;
@@ -229,7 +237,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     const params = buildDownloadParams(
       storeId,
       dateRange.startDate,
-      dateRange.endDate,
+      dateRange.endDate
     );
 
     const result = await execute(invoiceService.getInvoices(params), {
@@ -270,7 +278,6 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    const storeId = selectedStore?.storeId;
     if (!storeId) {
       showError(t("invoices.storeIdMissing"));
       return;
@@ -279,7 +286,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     const params = buildDownloadParams(
       storeId,
       dateRange.startDate,
-      dateRange.endDate,
+      dateRange.endDate
     );
 
     const result = await execute(invoiceService.getInvoices(params), {
@@ -378,7 +385,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         const itemsList = items
           .map(
             (item) =>
-              `${item.product?.name || "N/A"} (Qty: ${item.quantity}, Price: ₹${item.price})`,
+              `${item.product?.name || "N/A"} (Qty: ${item.quantity}, Price: ₹${item.price})`
           )
           .join("; ");
         return { Items: itemsList || t("common.na") };
@@ -469,18 +476,16 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     });
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setSelectedDownloadPeriod("");
     setCustomStartDate("");
     setCustomEndDate("");
     setSortOrder("dateDesc");
     setSelectedFields(
-      availableFields
-        .filter((field) => field.default)
-        .map((field) => field.key),
+      availableFields.filter((field) => field.default).map((field) => field.key)
     );
     onClose();
-  };
+  }, [availableFields, onClose]);
 
   return (
     <InvoiceDownloadDrawerPresentation
@@ -513,4 +518,4 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   );
 };
 
-export default InvoiceDownloadDrawer;
+export default memo(InvoiceDownloadDrawer);

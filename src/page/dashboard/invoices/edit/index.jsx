@@ -1,51 +1,50 @@
 "use client";
 import { PageSkeleton } from "@dragorbit/ui/app";
-import { getInStockProductIds } from "@dragorbit/features/invoices";
 import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
-import { findProductByScanCode, getProductId } from "@/utils/product/findProductByScanCode";
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
+import { Button } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import {
-  customerService,
-  inventoryService,
-  invoiceService,
-  productService,
-} from "@/service";
-import { useAppSelector } from "@/store/hooks";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import useApiResponse from "@/hooks/useApiResponse";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
+import { customerService, invoiceService, productService } from "@/service";
+import { variantService } from "@/service/retailer/variant.service";
+import { useAppSelector } from "@/store/hooks";
+import {
+  findProductByScanCode,
+  getProductId,
+} from "@/utils/product/findProductByScanCode";
+
+const barcodeCache = new Map();
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("invoice.editInvoice"), t("invoice.editInvoiceDescription"));
+  useDashboardHeader(
+    t("invoice.editInvoice"),
+    t("invoice.editInvoiceDescription")
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = selectedStore?.storeId;
   const { showError } = useGlobalToast();
   const { execute } = useApiResponse();
 
-  // Local loading state for invoice update
+  // Local state
   const [invoiceLoading, setInvoiceLoading] = useState(false);
-
-  // Local state for products and customers
   const [products, setProducts] = useState([]);
-  const [availableProductIds, setAvailableProductIds] = useState(new Set());
   const [customers, setCustomers] = useState([]);
-  const [, setProductsLoading] = useState(false);
   const [customersLoading, setCustomersLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Refs to prevent duplicate API calls
-  const hasFetchedProducts = useRef(false);
-  const hasFetchedCustomers = useRef(false);
-  const hasFetchedInvoice = useRef(false);
+  const hasFetchedRef = useRef({ invoiceId: null, storeId: null });
 
   // Permission Management
   const { can, loading: permissionLoading } = useModulePermissions("invoice");
@@ -57,9 +56,6 @@ const EditInvoicePage = ({ invoiceId }) => {
     }
   }, [canEdit, permissionLoading, router]);
 
-  const [fetching, setFetching] = useState(true);
-  const [error, setError] = useState(null);
-
   const [formData, setFormData] = useState({
     customer: "",
     totalDiscount: 0,
@@ -68,173 +64,223 @@ const EditInvoicePage = ({ invoiceId }) => {
     orderSource: "POS",
   });
 
-  // Fetch products from API
-  const fetchProducts = useCallback(async () => {
-    if (!selectedStore?.storeId || hasFetchedProducts.current) return;
-    hasFetchedProducts.current = true;
+  // Parallel fetch for invoice and customer data
+  const loadInitialData = useCallback(async () => {
+    if (!invoiceId || !storeId) return;
 
-    setProductsLoading(true);
-    const stockIdsPromise = getInStockProductIds({
-      execute,
-      inventoryService,
-      storeId: selectedStore.storeId,
-    });
-    const result = await execute(
-      productService.getProducts({
-        limit: 100,
-        lightweight: true,
-        store: selectedStore.storeId,
-      }),
-      { showToast: false }
-    );
-    if (result?.success) {
-      setProducts(result?.data || []);
-    } else {
-      hasFetchedProducts.current = false;
-    }
-    setAvailableProductIds(await stockIdsPromise);
-    setProductsLoading(false);
-  }, [selectedStore?.storeId, execute]);
-
-  // Fetch customers from API
-  const fetchCustomers = useCallback(async () => {
-    if (hasFetchedCustomers.current) return;
-
-    hasFetchedCustomers.current = true;
-    setCustomersLoading(true);
-
-    const params = {
-      limit: 100,
-      lightweight: true,
-    };
-    if (selectedStore?.storeId) {
-      params.store = selectedStore.storeId;
-    }
-
-    const result = await execute(
-      customerService.getCustomers(params),
-      { showToast: false }
-    );
-
-    if (result?.success) {
-      const serializedOptions = [
-        { value: "", label: t("dashboard.walkInCustomer") },
-        ...(result.data || []).map((customer) => ({
-          value: customer.id || customer._id,
-          label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
-        })),
-      ];
-      setCustomers(serializedOptions);
-    } else {
-      hasFetchedCustomers.current = false;
-    }
-    setCustomersLoading(false);
-  }, [selectedStore?.storeId, t, execute]);
-
-  // Fetch invoice data
-  const fetchInvoiceData = useCallback(async () => {
-    if (!invoiceId || !selectedStore?.storeId || hasFetchedInvoice.current)
+    if (
+      hasFetchedRef.current.invoiceId === invoiceId &&
+      hasFetchedRef.current.storeId === storeId
+    ) {
       return;
-    hasFetchedInvoice.current = true;
+    }
 
-    setFetching(true);
+    hasFetchedRef.current = { invoiceId, storeId };
+    setInitialLoading(true);
+    setCustomersLoading(true);
     setError(null);
 
-    const result = await execute(
-      invoiceService.getInvoices({
-        id: invoiceId,
-        store: selectedStore.storeId,
-      }),
-      { showToast: false }
-    );
+    try {
+      const [invResult, custResult] = await Promise.all([
+        execute(invoiceService.getInvoices({ id: invoiceId, store: storeId }), {
+          showToast: false,
+        }),
+        execute(
+          customerService.getCustomers({
+            limit: 100,
+            lightweight: true,
+            store: storeId,
+          }),
+          { showToast: false }
+        ),
+      ]);
 
-    if (result?.success && result.data) {
-      const inv = result.data;
-
-      if (inv.invoiceStatus !== "DRAFT") {
-        setError(t("invoice.cannotEditNonDraft") || "Only draft invoices can be edited. This invoice is already " + (inv.invoiceStatus || "processed") + " and cannot be modified.");
-        setFetching(false);
-        return;
+      // 1. Process Customers
+      if (custResult?.success) {
+        const serializedOptions = [
+          { value: "", label: t("dashboard.walkInCustomer") },
+          ...(custResult.data || []).map((customer) => ({
+            value: customer.id || customer._id,
+            label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
+          })),
+        ];
+        setCustomers(serializedOptions);
       }
+      setCustomersLoading(false);
 
-      const transformedItems = inv.items?.map((item) => {
-        const productObj = typeof item.product === "object" ? item.product : {};
-        const productId = productObj.id || productObj._id || item.product;
-        const variantObj = typeof item.variant === "object" ? item.variant : null;
-        const variantId =
-          variantObj?.id ||
-          variantObj?._id ||
-          (typeof item.variant === "string" ? item.variant : null) ||
-          null;
+      // 2. Process Invoice
+      if (invResult?.success && invResult.data) {
+        const inv = invResult.data;
 
-        return {
-          product: productId,
-          variant: variantId,
-          productName: item.productName || productObj.name || "",
-          sku: item.sku || variantObj?.sku || "",
-          quantity: item.quantity || 1,
-          price: item.price ?? productObj.sellingPrice ?? productObj.price ?? 0,
-          total: item.total || 0,
-          gstRate:
-            item.gstRate ??
-            item.gst?.rate ??
-            productObj.gstInfo?.gstRate ??
-            0,
-          isInclusive:
-            item.isInclusive !== undefined
-              ? item.isInclusive
-              : item.gst?.isInclusive !== undefined
-                ? item.gst.isInclusive
-                : productObj.gstInfo?.isGstIncluded ?? false,
-          uom: item.uom || productObj.uom || "Unit",
-        };
-      }) || [];
+        if (inv.invoiceStatus !== "DRAFT") {
+          setError(
+            t("invoice.cannotEditNonDraft") ||
+              `Only draft invoices can be edited. This invoice is already ${inv.invoiceStatus || "processed"} and cannot be modified.`
+          );
+          setInitialLoading(false);
+          return;
+        }
 
-      setFormData({
-        customer: inv.customer?.id || inv.customer?._id || "",
-        totalDiscount: inv.totalDiscount || 0,
-        discountMode: inv.discountMode || "POST_TOTAL",
-        items: transformedItems,
-        orderSource: inv.orderSource || "POS",
-      });
-    } else {
-      setError(
-        result?.message ||
-        t("errors.failedToFetchData", { item: t("common.invoice") })
-      );
+        const seedProducts = [];
+        const seenProductIds = new Set();
+
+        const transformedItems =
+          inv.items?.map((item) => {
+            const productObj =
+              typeof item.product === "object" ? item.product : {};
+            const productId = productObj.id || productObj._id || item.product;
+
+            if (productId && !seenProductIds.has(String(productId))) {
+              seenProductIds.add(String(productId));
+              if (productObj.id || productObj._id) {
+                seedProducts.push(productObj);
+              }
+            }
+
+            const variantObj =
+              typeof item.variant === "object" ? item.variant : null;
+            const variantId =
+              variantObj?.id ||
+              variantObj?._id ||
+              (typeof item.variant === "string" ? item.variant : null) ||
+              null;
+
+            return {
+              product: productId,
+              variant: variantId,
+              productName: item.productName || productObj.name || "",
+              sku: item.sku || variantObj?.sku || "",
+              quantity: item.quantity || 1,
+              price:
+                item.price ?? productObj.sellingPrice ?? productObj.price ?? 0,
+              total: item.total || 0,
+              gstRate:
+                item.gstRate ??
+                item.gst?.rate ??
+                productObj.gstInfo?.gstRate ??
+                0,
+              isInclusive:
+                item.isInclusive !== undefined
+                  ? item.isInclusive
+                  : item.gst?.isInclusive !== undefined
+                    ? item.gst.isInclusive
+                    : (productObj.gstInfo?.isGstIncluded ?? false),
+              uom: item.uom || productObj.uom || "Unit",
+            };
+          }) || [];
+
+        if (seedProducts.length > 0) {
+          setProducts(seedProducts);
+        }
+
+        setFormData({
+          customer: inv.customer?.id || inv.customer?._id || "",
+          totalDiscount: inv.totalDiscount || 0,
+          discountMode: inv.discountMode || "POST_TOTAL",
+          items: transformedItems,
+          orderSource: inv.orderSource || "POS",
+        });
+      } else {
+        setError(
+          invResult?.message ||
+            t("errors.failedToFetchData", { item: t("common.invoice") })
+        );
+      }
+    } catch (err) {
+      setError(err?.message || "Failed to load invoice details");
+    } finally {
+      setInitialLoading(false);
     }
-    setFetching(false);
-  }, [invoiceId, selectedStore?.storeId, t, execute]);
+  }, [invoiceId, storeId, execute, t]);
 
-  // Load products, customers, and invoice data on component mount
   useEffect(() => {
-    if (selectedStore?.storeId) {
-      fetchProducts();
-      fetchCustomers();
-      fetchInvoiceData();
+    if (storeId) {
+      barcodeCache.clear();
+      loadInitialData();
     }
-  }, [selectedStore?.storeId, fetchProducts, fetchCustomers, fetchInvoiceData]);
+  }, [storeId, loadInitialData]);
 
-  const handleCustomerChange = (value) => {
-    setFormData({ ...formData, customer: value });
-  };
+  const handleCustomerChange = useCallback((value) => {
+    setFormData((prev) => ({ ...prev, customer: value }));
+  }, []);
 
   const lookupProductByCode = useCallback(
     async (code) => {
-      if (!selectedStore?.storeId) return null;
+      if (!storeId) return null;
+      const normalizedCode = String(code || "")
+        .trim()
+        .toLowerCase();
+      if (!normalizedCode) return null;
+
+      const cacheKey = `${storeId}:${normalizedCode}`;
+      if (barcodeCache.has(cacheKey)) {
+        return barcodeCache.get(cacheKey);
+      }
+
+      const variantResult = await execute(
+        variantService.getVariants({
+          store: storeId,
+          search: normalizedCode,
+          limit: 30,
+        }),
+        { showToast: false }
+      );
+      const matchingVariant = (variantResult?.data || []).find((variant) =>
+        [variant?.barcode, variant?.sku].some(
+          (value) =>
+            String(value || "")
+              .trim()
+              .toLowerCase() === normalizedCode
+        )
+      );
+      if (matchingVariant) {
+        const relatedProduct = matchingVariant.product;
+        const productId =
+          typeof relatedProduct === "object"
+            ? relatedProduct?.id || relatedProduct?._id
+            : relatedProduct || matchingVariant.productId;
+        if (productId) {
+          const resolved = {
+            id: String(productId),
+            _id: String(productId),
+            name:
+              typeof relatedProduct === "object"
+                ? relatedProduct?.name || "Item"
+                : "Item",
+            sellingPrice: matchingVariant.sellingPrice,
+            mrp: matchingVariant.mrp,
+            sku: matchingVariant.sku,
+            barcode: matchingVariant.barcode,
+            gstInfo: matchingVariant.gstInfo || {},
+            uom: matchingVariant.uom,
+            variants: [matchingVariant],
+            matchedVariantId: matchingVariant.id || matchingVariant._id,
+          };
+          barcodeCache.set(cacheKey, resolved);
+          return resolved;
+        }
+      }
+
       const result = await execute(
         productService.getProducts({
-          search: code,
-          store: selectedStore.storeId,
+          search: normalizedCode,
+          store: storeId,
           lightweight: true,
           limit: 20,
         }),
         { showToast: false }
       );
       if (!result?.success) return null;
-      return findProductByScanCode(result?.data || [], code);
+      const resolved = findProductByScanCode(
+        result?.data || [],
+        normalizedCode
+      );
+      if (resolved) {
+        barcodeCache.set(cacheKey, resolved);
+      }
+      return resolved;
     },
-    [selectedStore?.storeId, execute]
+    [storeId, execute]
   );
 
   const handleProductResolved = useCallback((product) => {
@@ -246,77 +292,67 @@ const EditInvoicePage = ({ invoiceId }) => {
     });
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e) => {
+      e?.preventDefault?.();
 
-    // Filter out empty items
-    const validItems = formData.items.filter(
-      (item) => item.product && item.quantity > 0
-    );
+      const validItems = formData.items.filter(
+        (item) => item.product && item.quantity > 0
+      );
 
-    if (validItems.length === 0) {
-      showError("Please add at least one item to the invoice");
-      return;
-    }
+      if (validItems.length === 0) {
+        showError("Please add at least one item to the invoice");
+        return;
+      }
 
-    const invoiceData = {
-      customer: formData.customer || null,
-      isWalkin: true,
-      items: validItems.map((item) => ({
-        product: item.product,
-        ...(item.variant ? { variant: item.variant } : {}),
-        quantity: item.quantity,
-        ...(item.price != null ? { price: item.price } : {}),
-        ...(item.uom ? { uom: item.uom } : {}),
-      })),
-      store: selectedStore?.storeId,
-      totalDiscount: formData.totalDiscount || 0,
-      discountMode: formData.discountMode || "POST_TOTAL",
-      orderSource: formData.orderSource || "POS",
-    };
+      const invoiceData = {
+        customer: formData.customer || null,
+        isWalkin: true,
+        items: validItems.map((item) => ({
+          product: item.product,
+          ...(item.variant ? { variant: item.variant } : {}),
+          quantity: item.quantity,
+          ...(item.price != null ? { price: item.price } : {}),
+          ...(item.uom ? { uom: item.uom } : {}),
+        })),
+        store: storeId,
+        totalDiscount: formData.totalDiscount || 0,
+        discountMode: formData.discountMode || "POST_TOTAL",
+        orderSource: formData.orderSource || "POS",
+      };
 
-    setInvoiceLoading(true);
-    const result = await execute(
-      invoiceService.updateDraftInvoice(invoiceId, invoiceData),
-      { message: t("invoice.updateSuccess") }
-    );
+      setInvoiceLoading(true);
+      const result = await execute(
+        invoiceService.updateDraftInvoice(invoiceId, invoiceData),
+        { message: t("invoice.updateSuccess") }
+      );
 
-    if (result?.success) {
-      // Redirect to the updated invoice view page
-      router.push(`/dashboard/invoices/${invoiceId}`);
-    } else {
-      showError(result?.message || t("invoice.updateError"));
-    }
-    setInvoiceLoading(false);
-  };
+      if (result?.success) {
+        router.push(`/dashboard/invoices/${invoiceId}`);
+      } else {
+        showError(result?.message || t("invoice.updateError"));
+      }
+      setInvoiceLoading(false);
+    },
+    [formData, storeId, execute, invoiceId, router, showError, t]
+  );
 
   useCommonHotkeys({
     onSave: handleSubmit,
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  // Show loading if store or permissions are not available yet
-  if (!selectedStore?.storeId || permissionLoading) {
-    return (
-      <PageSkeleton />
-    );
+  if (!storeId || permissionLoading || initialLoading) {
+    return <PageSkeleton />;
   }
 
-  // Pre-render guard for non-staff/restricted users
   if (!canEdit) {
     return null;
-  }
-
-  if (fetching) {
-    return (
-      <PageSkeleton />
-    );
   }
 
   if (error) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-
         <div className="min-h-screen w-full flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -353,7 +389,10 @@ const EditInvoicePage = ({ invoiceId }) => {
       <div className="max-w-8xl mx-auto w-full">
         {/* Back Button */}
         <div className="mb-4 flex-shrink-0 flex items-center justify-between">
-          <Link href="/dashboard/invoices" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+          <Link
+            href="/dashboard/invoices"
+            className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">
               {t("common.backTo", { item: t("common.invoices") })}
@@ -364,19 +403,19 @@ const EditInvoicePage = ({ invoiceId }) => {
         {/* Form Container - Two Column Layout */}
         <div className="overflow-hidden">
           <div className="min-h-[calc(100vh-150px)] lg:h-[calc(100vh-150px)] overflow-y-auto">
-            <div className="min-h-full lg:h-full grid grid-cols-1 lg:grid-cols-3 gap-6" >
+            <div className="min-h-full lg:h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col min-h-0">
                 <div className="flex-1 min-h-0">
                   <form onSubmit={handleSubmit} className="h-full">
                     <InvoiceItemsSection
                       t={t}
                       products={products}
-                      availableProductIds={availableProductIds}
                       formData={formData}
                       setFormData={setFormData}
                       showError={showError}
                       lookupProductByCode={lookupProductByCode}
                       onProductResolved={handleProductResolved}
+                      storeId={storeId}
                     />
                   </form>
                 </div>

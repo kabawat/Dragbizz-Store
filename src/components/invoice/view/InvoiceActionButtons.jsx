@@ -1,24 +1,19 @@
 "use client";
-import {
-  CheckCircle,
-  Edit,
-  Printer,
-  Settings,
-} from "lucide-react";
+import { CheckCircle, Edit, Printer, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { memo, useCallback } from "react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-const InvoiceActionButtons = ({
-  invoiceData,
-  onEdit,
-  onRelease,
-  onPrint,
-}) => {
+const InvoiceActionButtons = ({ invoiceData, onEdit, onRelease, onPrint }) => {
   const { t } = useTranslation();
   const router = useRouter();
 
   const isDraft = invoiceData?.invoiceStatus === "DRAFT";
+
+  const handleTemplateSettings = useCallback(() => {
+    router.push("/dashboard/invoices/print-preview");
+  }, [router]);
 
   return (
     <div className="mt-auto space-y-3 no-print action-buttons">
@@ -65,7 +60,7 @@ const InvoiceActionButtons = ({
           <div className="flex gap-2">
             {/* Template Settings */}
             <Button
-              onClick={() => router.push("/dashboard/invoices/print-preview")}
+              onClick={handleTemplateSettings}
               variant="outline"
               className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium border-dashed"
             >
@@ -76,7 +71,7 @@ const InvoiceActionButtons = ({
             {/* Print Action */}
             {onPrint && (
               <Button
-                onClick={() => onPrint()}
+                onClick={onPrint}
                 variant="primary"
                 className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium text-white"
               >
@@ -91,4 +86,4 @@ const InvoiceActionButtons = ({
   );
 };
 
-export default InvoiceActionButtons;
+export default memo(InvoiceActionButtons);

@@ -3,16 +3,16 @@ import { DailySalesAnalyticsScreen } from "@dragorbit/features/analytics";
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
-
+import DailySalesReportTemplate from "@/components/templates/analytics/daily-sales/DailySalesReportTemplate";
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getInvoiceAnalytics,
   getRevenueAnalytics,
 } from "@/store/slices/analyticsSlice";
-import DailySalesReportTemplate from "@/components/templates/analytics/daily-sales/DailySalesReportTemplate";
+import { pickStoreId } from "@/utils/store.util";
 
 const formatCurrency = (amount) =>
   `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -26,15 +26,14 @@ const DailySalesAnalytics = () => {
   useDashboardHeader(
     t("dashboard.dailySales") || "Daily Sales",
     t("analytics.dailySalesDescription") ||
-      "Simple today sales view for kirana shops",
+      "Simple today sales view for kirana shops"
   );
 
   const dispatch = useAppDispatch();
   const { revenue, invoice, isLoadingRevenue, isLoadingInvoice } =
     useAppSelector((state) => state.analytics);
 
-  const storeId =
-    selectedStore?.storeId || selectedStore?.id || selectedStore?._id;
+  const storeId = pickStoreId(selectedStore);
   const fetchedStoreId = useRef(null);
 
   useEffect(() => {
@@ -53,7 +52,7 @@ const DailySalesAnalytics = () => {
       lastSyncedAt: revenue?.lastSyncedAt ?? invoice?.lastSyncedAt,
       hideGst,
     }),
-    [revenue, invoice, hideGst],
+    [revenue, invoice, hideGst]
   );
 
   const isLoading = isLoadingRevenue || isLoadingInvoice;
@@ -61,7 +60,7 @@ const DailySalesAnalytics = () => {
     isLoading,
     reportData,
     "daily-sales-report-area",
-    "daily-sales-report",
+    "daily-sales-report"
   );
 
   const todayRevenue = reportData.todayRevenue;

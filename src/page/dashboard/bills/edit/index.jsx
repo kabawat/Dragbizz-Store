@@ -3,7 +3,7 @@ import { PageSkeleton } from "@dragorbit/ui/app";
 import { ArrowLeft, Receipt } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BillItemsSection from "@/components/bills/create/BillItemsSection";
 import BillSidebar from "@/components/bills/create/BillSidebar";
 import { Button } from "@/components/ui";
@@ -13,6 +13,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { billService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { pickStoreId } from "@/utils/store.util";
 
 const EditBill = ({ billId }) => {
   const { t } = useTranslation();
@@ -23,6 +24,7 @@ const EditBill = ({ billId }) => {
   );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
 
   const fetchedBillRef = useRef(null);
 
@@ -69,14 +71,13 @@ const EditBill = ({ billId }) => {
 
   // Fetch API seamlessly
   useEffect(() => {
-    if (billId && selectedStore?.storeId && fetchedBillRef.current !== billId) {
+    if (billId && storeId && fetchedBillRef.current !== billId) {
       fetchedBillRef.current = billId;
-      executeFetch(
-        billService.getBills({ store: selectedStore.storeId, id: billId }),
-        { showToast: false }
-      );
+      executeFetch(billService.getBills({ store: storeId, id: billId }), {
+        showToast: false,
+      });
     }
-  }, [billId, selectedStore?.storeId, executeFetch]);
+  }, [billId, storeId, executeFetch]);
 
   // Handle input changes
   const handleInputChange = useCallback(
@@ -142,9 +143,10 @@ const EditBill = ({ billId }) => {
   // Handle update submission
   const handleSubmit = useCallback(async () => {
     if (!validateForm()) return;
+    if (!storeId) return;
 
     const billData = {
-      store: selectedStore.storeId,
+      store: storeId,
       supplier: formData.supplier,
       purchaseOrder: formData.purchaseOrder || undefined,
       goodsReceived: !!formData.goodsReceived,
@@ -158,7 +160,7 @@ const EditBill = ({ billId }) => {
     };
 
     const result = await executeUpdate(
-      billService.updateBill(billId, billData, selectedStore.storeId),
+      billService.updateBill(billId, billData, storeId),
       { message: t("success.updatedSuccessfully", { item: t("common.bill") }) }
     );
 
@@ -169,15 +171,15 @@ const EditBill = ({ billId }) => {
     } else if (result?.fieldErrors) {
       setErrors(result.fieldErrors);
     }
-  }, [
-    billId,
-    formData,
-    selectedStore?.storeId,
-    validateForm,
-    t,
-    executeUpdate,
-    router,
-  ]);
+  }, [billId, formData, storeId, validateForm, t, executeUpdate, router]);
+
+  const onFormSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      handleSubmit();
+    },
+    [handleSubmit]
+  );
 
   const memoizedBillItemsSection = useMemo(
     () => (
@@ -190,7 +192,7 @@ const EditBill = ({ billId }) => {
         setErrors={setErrors}
       />
     ),
-    [errors, formData, setErrors, setFormData, showError, t]
+    [errors, formData, showError, t]
   );
 
   const memoizedBillSidebar = useMemo(
@@ -206,15 +208,7 @@ const EditBill = ({ billId }) => {
         isEditing={true}
       />
     ),
-    [
-      errors,
-      formData,
-      handleInputChange,
-      handleSubmit,
-      isUpdating,
-      setFormData,
-      t,
-    ]
+    [errors, formData, handleInputChange, handleSubmit, isUpdating, t]
   );
 
   if (fetching || (!fetchedBill && !fetchError)) {
@@ -258,14 +252,7 @@ const EditBill = ({ billId }) => {
         <div className="h-[calc(100vh-150px)] overflow-y-auto px-5 pb-5">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSubmit();
-                }}
-              >
-                {memoizedBillItemsSection}
-              </form>
+              <form onSubmit={onFormSubmit}>{memoizedBillItemsSection}</form>
             </div>
 
             {memoizedBillSidebar}
@@ -276,4 +263,4 @@ const EditBill = ({ billId }) => {
   );
 };
 
-export default EditBill;
+export default memo(EditBill);

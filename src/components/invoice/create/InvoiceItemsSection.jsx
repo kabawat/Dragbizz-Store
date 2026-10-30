@@ -1,21 +1,21 @@
 "use client";
-import { Calculator, Package, Plus } from "lucide-react";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Card, EmptyState, Input, Select } from "@/components/ui";
 import { AddedItemsList } from "@dragorbit/features/invoices";
+import { Calculator, Package, Plus } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button, Card, EmptyState, Input, Select } from "@/components/ui";
 import { useBarcodeScanner } from "@/hooks/barcode/useBarcodeScanner";
-import { addProductToInvoiceItems } from "@/utils/invoice/addProductToInvoiceItems";
-import { findProductByScanCode, getProductId } from "@/utils/product/findProductByScanCode";
 import { variantService } from "@/service/retailer/variant.service";
+import { addProductToInvoiceItems } from "@/utils/invoice/addProductToInvoiceItems";
 import {
-  pickDefaultVariant,
-  variantOptionLabel,
-} from "@/utils/productUtils";
+  findProductByScanCode,
+  getProductId,
+} from "@/utils/product/findProductByScanCode";
+import { pickDefaultVariant, variantOptionLabel } from "@/utils/productUtils";
 
 function getInvoiceVariants(product) {
   const variants = Array.isArray(product?.variants) ? product.variants : [];
   return variants.filter(
-    (variant) => String(variant?.status || "ACTIVE").toUpperCase() !== "DELETED",
+    (variant) => String(variant?.status || "ACTIVE").toUpperCase() !== "DELETED"
   );
 }
 
@@ -38,7 +38,9 @@ function unwrapVariants(response) {
 
 function getVariantPagination(response) {
   const body = response?.data ?? response;
-  return body?.meta?.pagination ?? body?.pagination ?? response?.pagination ?? null;
+  return (
+    body?.meta?.pagination ?? body?.pagination ?? response?.pagination ?? null
+  );
 }
 
 function getVariantProductId(variant) {
@@ -74,49 +76,59 @@ const InvoiceItemsSection = ({
   const variantRequestIdRef = useRef(0);
   const variantSearchRef = useRef("");
 
-  const loadVariantPage = useCallback(async ({ search = "", cursor = null, append = false, requestId }) => {
-    if (!storeId || (append && variantLoadingRef.current)) return;
-    variantLoadingRef.current = true;
-    append ? setVariantsLoadingMore(true) : setVariantsLoading(true);
-    try {
-      const response = await variantService.getVariants({
-        store: storeId,
-        limit: 30,
-        ...(search ? { search } : {}),
-        ...(cursor != null ? { nextCursor: cursor } : {}),
-      });
-      if (requestId !== variantRequestIdRef.current) return;
-      const rows = unwrapVariants(response).filter(
-        (variant) => String(variant?.status || "ACTIVE").toUpperCase() !== "DELETED",
-      );
-      const pagination = getVariantPagination(response);
-      const nextCursor = pagination?.hasNextPage ? pagination.nextCursor ?? null : null;
-      variantCursorRef.current = nextCursor;
-      variantHasMoreRef.current = Boolean(nextCursor);
-      setVariantsHasMore(Boolean(nextCursor));
-      setVariantRows((current) => {
-        const combined = append ? [...current, ...rows] : rows;
-        const seen = new Set();
-        return combined.filter((variant) => {
-          const id = String(variant?.id ?? variant?._id ?? "");
-          if (!id || seen.has(id)) return false;
-          seen.add(id);
-          return true;
+  const loadVariantPage = useCallback(
+    async ({ search = "", cursor = null, append = false, requestId }) => {
+      if (!storeId || (append && variantLoadingRef.current)) return;
+      variantLoadingRef.current = true;
+      if (append) {
+        setVariantsLoadingMore(true);
+      } else {
+        setVariantsLoading(true);
+      }
+      try {
+        const response = await variantService.getVariants({
+          store: storeId,
+          limit: 30,
+          ...(search ? { search } : {}),
+          ...(cursor != null ? { nextCursor: cursor } : {}),
         });
-      });
-    } catch {
-      if (requestId === variantRequestIdRef.current) {
-        setVariantsHasMore(false);
-        variantHasMoreRef.current = false;
+        if (requestId !== variantRequestIdRef.current) return;
+        const rows = unwrapVariants(response).filter(
+          (variant) =>
+            String(variant?.status || "ACTIVE").toUpperCase() !== "DELETED"
+        );
+        const pagination = getVariantPagination(response);
+        const nextCursor = pagination?.hasNextPage
+          ? (pagination.nextCursor ?? null)
+          : null;
+        variantCursorRef.current = nextCursor;
+        variantHasMoreRef.current = Boolean(nextCursor);
+        setVariantsHasMore(Boolean(nextCursor));
+        setVariantRows((current) => {
+          const combined = append ? [...current, ...rows] : rows;
+          const seen = new Set();
+          return combined.filter((variant) => {
+            const id = String(variant?.id ?? variant?._id ?? "");
+            if (!id || seen.has(id)) return false;
+            seen.add(id);
+            return true;
+          });
+        });
+      } catch {
+        if (requestId === variantRequestIdRef.current) {
+          setVariantsHasMore(false);
+          variantHasMoreRef.current = false;
+        }
+      } finally {
+        if (requestId === variantRequestIdRef.current) {
+          variantLoadingRef.current = false;
+          setVariantsLoading(false);
+          setVariantsLoadingMore(false);
+        }
       }
-    } finally {
-      if (requestId === variantRequestIdRef.current) {
-        variantLoadingRef.current = false;
-        setVariantsLoading(false);
-        setVariantsLoadingMore(false);
-      }
-    }
-  }, [storeId]);
+    },
+    [storeId]
+  );
 
   useEffect(() => {
     if (!storeId) return;
@@ -127,15 +139,23 @@ const InvoiceItemsSection = ({
     setVariantRows([]);
     setVariantsLoading(true);
     setVariantsHasMore(false);
-    const timeout = setTimeout(() => {
-      loadVariantPage({ search: variantSearchRef.current, requestId });
-    }, variantSearch ? 300 : 0);
+    const timeout = setTimeout(
+      () => {
+        loadVariantPage({ search: variantSearchRef.current, requestId });
+      },
+      variantSearch ? 300 : 0
+    );
     return () => clearTimeout(timeout);
   }, [variantSearch, storeId, loadVariantPage]);
 
   const loadMoreVariants = useCallback(() => {
     const cursor = variantCursorRef.current;
-    if (!variantHasMoreRef.current || cursor == null || variantLoadingRef.current) return;
+    if (
+      !variantHasMoreRef.current ||
+      cursor == null ||
+      variantLoadingRef.current
+    )
+      return;
     loadVariantPage({
       search: variantSearchRef.current,
       cursor,
@@ -144,14 +164,27 @@ const InvoiceItemsSection = ({
     });
   }, [loadVariantPage]);
 
+  // Constant-time Map lookups for products
   const productsById = useMemo(() => {
     const map = new Map();
-    products.forEach((product) => {
-      const id = getProductId(product);
-      if (id) map.set(String(id), product);
-    });
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+      const id = getProductId(p);
+      if (id) map.set(String(id), p);
+    }
     return map;
   }, [products]);
+
+  // Constant-time Map lookups for variants
+  const variantsById = useMemo(() => {
+    const map = new Map();
+    for (let i = 0; i < variantRows.length; i++) {
+      const v = variantRows[i];
+      const id = String(v?.id ?? v?._id ?? "");
+      if (id) map.set(id, v);
+    }
+    return map;
+  }, [variantRows]);
 
   const itemOptions = useMemo(() => {
     const options = variantRows.flatMap((variant) => {
@@ -160,10 +193,12 @@ const InvoiceItemsSection = ({
       const variantId = String(variant?.id ?? variant?._id ?? "");
       if (!productId || !variantId) return [];
       const productName = product?.name || variant?.product?.name || "Item";
-      return [{
-        value: `${productId}::${variantId}`,
-        label: `${productName} — ${formatVariantOption(variant) || "Default"}`,
-      }];
+      return [
+        {
+          value: `${productId}::${variantId}`,
+          label: `${productName} — ${formatVariantOption(variant) || "Default"}`,
+        },
+      ];
     });
     if (selectedVariantData && selectedProduct) {
       const selectedValue = `${selectedProduct}::${selectedVariant}`;
@@ -176,36 +211,48 @@ const InvoiceItemsSection = ({
       }
     }
     const serviceOptions = products
-      .filter((product) => String(product.productType || product.type || "").toUpperCase() === "SERVICE")
+      .filter(
+        (product) =>
+          String(product.productType || product.type || "").toUpperCase() ===
+          "SERVICE"
+      )
       .map((product) => ({
         value: `${getProductId(product)}::`,
         label: `${product.name} — ${formatVariantOption(product) || "Service"}`,
       }));
     return [{ value: "", label: "Select Item" }, ...options, ...serviceOptions];
-  }, [variantRows, productsById, products, selectedVariantData, selectedProduct, selectedVariant]);
-
-  const selectedProductObj = useMemo(
-    () => {
-      const product = productsById.get(String(selectedProduct));
-      if (product) return product;
-      if (!selectedProduct || !selectedVariantData) return null;
-      const relatedProduct = selectedVariantData.product;
-      return {
-        id: selectedProduct,
-        _id: selectedProduct,
-        name: typeof relatedProduct === "object" ? relatedProduct?.name || "Item" : "Item",
-        gstInfo: selectedVariantData.gstInfo || {},
-        sellingPrice: selectedVariantData.sellingPrice,
-        mrp: selectedVariantData.mrp,
-      };
-    },
-    [productsById, selectedProduct, selectedVariantData]
-  );
-
-  const selectedVariantObj = useMemo(() =>
-    variantRows.find((variant) => String(variant?.id ?? variant?._id) === String(selectedVariant)) ||
+  }, [
+    variantRows,
+    productsById,
+    products,
     selectedVariantData,
-  [variantRows, selectedVariant, selectedVariantData]);
+    selectedProduct,
+    selectedVariant,
+  ]);
+
+  const selectedProductObj = useMemo(() => {
+    const product = productsById.get(String(selectedProduct));
+    if (product) return product;
+    if (!selectedProduct || !selectedVariantData) return null;
+    const relatedProduct = selectedVariantData.product;
+    return {
+      id: selectedProduct,
+      _id: selectedProduct,
+      name:
+        typeof relatedProduct === "object"
+          ? relatedProduct?.name || "Item"
+          : "Item",
+      gstInfo: selectedVariantData.gstInfo || {},
+      sellingPrice: selectedVariantData.sellingPrice,
+      mrp: selectedVariantData.mrp,
+    };
+  }, [productsById, selectedProduct, selectedVariantData]);
+
+  // O(1) variant lookup
+  const selectedVariantObj = useMemo(
+    () => variantsById.get(String(selectedVariant)) || selectedVariantData,
+    [variantsById, selectedVariant, selectedVariantData]
+  );
 
   const appendProduct = useCallback(
     (product, quantity = 1, variantId = null) => {
@@ -220,14 +267,16 @@ const InvoiceItemsSection = ({
         product.matchedVariantId ||
         product.variantId ||
         (variants.length === 1
-          ? variants[0].id ?? variants[0]._id
-          : pickDefaultVariant(variants)?.id ??
-            pickDefaultVariant(variants)?._id) ||
+          ? (variants[0].id ?? variants[0]._id)
+          : (pickDefaultVariant(variants)?.id ??
+            pickDefaultVariant(variants)?._id)) ||
         product.defaultVariantId ||
         null;
 
       if (variants.length > 1 && !resolvedVariantId) {
-        showError(t("invoice.pleaseSelectVariant") || "Please select a variant");
+        showError(
+          t("invoice.pleaseSelectVariant") || "Please select a variant"
+        );
         return false;
       }
 
@@ -297,30 +346,32 @@ const InvoiceItemsSection = ({
     enabled: !scanning,
   });
 
-  const handleProductChange = (value) => {
-    const [productId, variantId = ""] = String(value || "").split("::");
-    setSelectedProduct(productId);
-    setSelectedVariant(variantId);
-    setSelectedVariantData(
-      variantRows.find((variant) => String(variant?.id ?? variant?._id) === variantId) || null,
-    );
-  };
+  const handleProductChange = useCallback(
+    (value) => {
+      const [productId, variantId = ""] = String(value || "").split("::");
+      setSelectedProduct(productId);
+      setSelectedVariant(variantId);
+      setSelectedVariantData(variantsById.get(variantId) || null);
+    },
+    [variantsById]
+  );
 
-  const handleAddItem = () => {
+  const handleAddItem = useCallback(() => {
     if (!selectedProduct) {
       showError(t("invoice.pleaseSelectProduct"));
       return;
     }
 
-    // The invoice picker is driven by variants; their populated `product` ID/name
-    // is sufficient even when that product is not present in the local cache.
     const product = selectedProductObj;
     if (!product) {
       showError(t("invoice.productNotFound"));
       return;
     }
 
-    const isService = String(selectedProductObj.productType || selectedProductObj.type || "").toUpperCase() === "SERVICE";
+    const isService =
+      String(
+        selectedProductObj.productType || selectedProductObj.type || ""
+      ).toUpperCase() === "SERVICE";
     if (!selectedVariant && !isService) {
       showError(t("invoice.pleaseSelectVariant") || "Please select a variant");
       return;
@@ -328,20 +379,49 @@ const InvoiceItemsSection = ({
 
     const quantityToAdd = parseInt(selectedQuantity, 10) || 1;
     const productWithVariant = selectedVariantObj
-      ? { ...product, variants: [...getInvoiceVariants(product), selectedVariantObj] }
+      ? {
+          ...product,
+          variants: [...getInvoiceVariants(product), selectedVariantObj],
+        }
       : product;
-    if (appendProduct(productWithVariant, quantityToAdd, selectedVariant || null)) {
+    if (
+      appendProduct(productWithVariant, quantityToAdd, selectedVariant || null)
+    ) {
       setSelectedProduct("");
       setSelectedVariant("");
       setSelectedVariantData(null);
       setSelectedQuantity(1);
     }
-  };
+  }, [
+    selectedProduct,
+    selectedProductObj,
+    selectedVariant,
+    selectedVariantObj,
+    selectedQuantity,
+    appendProduct,
+    showError,
+    t,
+  ]);
 
-  const handleRemoveItem = (index) => {
-    const updatedItems = formData.items.filter((_, i) => i !== index);
-    setFormData({ ...formData, items: updatedItems });
-  };
+  const handleRemoveItem = useCallback(
+    (index) => {
+      setFormData((prev) => ({
+        ...prev,
+        items: prev.items.filter((_, i) => i !== index),
+      }));
+    },
+    [setFormData]
+  );
+
+  const handleDiscountChange = useCallback(
+    (value) => {
+      setFormData((prev) => ({
+        ...prev,
+        totalDiscount: value,
+      }));
+    },
+    [setFormData]
+  );
 
   return (
     <Card
@@ -352,9 +432,9 @@ const InvoiceItemsSection = ({
         <div className="mb-4 flex-shrink-0">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
             <div className="md:col-span-7">
-              <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+              <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                 Items *
-              </label>
+              </span>
               <Select
                 size="sm"
                 searchable={true}
@@ -364,7 +444,11 @@ const InvoiceItemsSection = ({
                 loading={variantsLoading}
                 loadingMore={variantsLoadingMore}
                 hasMore={variantsHasMore}
-                value={selectedProduct ? `${selectedProduct}::${selectedVariant}` : ""}
+                value={
+                  selectedProduct
+                    ? `${selectedProduct}::${selectedVariant}`
+                    : ""
+                }
                 onChange={handleProductChange}
                 options={itemOptions}
                 leftIcon={Package}
@@ -372,9 +456,9 @@ const InvoiceItemsSection = ({
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+              <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                 {t("invoice.quantity")} *
-              </label>
+              </span>
               <Input
                 type="number"
                 data-ignore-barcode-scanner="true"
@@ -395,7 +479,12 @@ const InvoiceItemsSection = ({
                 leftIcon={Plus}
                 disabled={
                   !selectedProduct ||
-                  (!selectedVariant && String(selectedProductObj?.productType || selectedProductObj?.type || "").toUpperCase() !== "SERVICE")
+                  (!selectedVariant &&
+                    String(
+                      selectedProductObj?.productType ||
+                        selectedProductObj?.type ||
+                        ""
+                    ).toUpperCase() !== "SERVICE")
                 }
               >
                 {t("invoice.addItem")}
@@ -406,25 +495,25 @@ const InvoiceItemsSection = ({
 
         {formData.items.length > 0 ? (
           <div className="mt-4 flex-1 flex flex-col min-h-[18rem] lg:min-h-0">
-            <AddedItemsList items={formData.items} products={products} t={t} onRemove={handleRemoveItem} />
+            <AddedItemsList
+              items={formData.items}
+              products={products}
+              t={t}
+              onRemove={handleRemoveItem}
+            />
 
             <div className="flex-shrink-0 mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]/30 flex justify-end">
               <div className="md:w-72">
-                <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
+                <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
                   {t("invoice.totalDiscount")} (₹)
                   <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
                     ({t("common.optional")})
                   </span>
-                </label>
+                </span>
                 <Input
                   type="number"
                   value={formData.totalDiscount}
-                  onChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      totalDiscount: value,
-                    })
-                  }
+                  onChange={handleDiscountChange}
                   min="0"
                   step="0.01"
                   leftIcon={Calculator}
@@ -448,4 +537,4 @@ const InvoiceItemsSection = ({
   );
 };
 
-export default InvoiceItemsSection;
+export default memo(InvoiceItemsSection);

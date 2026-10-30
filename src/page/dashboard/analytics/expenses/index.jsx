@@ -1,5 +1,4 @@
 "use client";
-import { ExpenseAnalyticsScreen } from "@dragorbit/features/analytics";
 
 import {
   KeyboardSensor,
@@ -8,19 +7,20 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { ExpenseAnalyticsScreen } from "@dragorbit/features/analytics";
 import { AlertTriangle, Calendar, CheckCircle, DollarSign } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import ExpensesReportTemplate from "@/components/templates/analytics/expenses/ExpensesReportTemplate";
 import {
   SortableCard,
   SortableMetricCard,
 } from "@/components/templates/analytics/SortableComponents";
-
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getExpenseAnalytics } from "@/store/slices/analyticsSlice";
-import ExpensesReportTemplate from "@/components/templates/analytics/expenses/ExpensesReportTemplate";
+import { pickStoreId } from "@/utils/store.util";
 
 const formatCurrency = (amount) =>
   `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -30,17 +30,16 @@ const ExpenseAnalytics = () => {
   const { t } = useTranslation();
   useDashboardHeader(
     t("dashboard.expenseAnalytics") || "Expense Analytics",
-    t("expenses.reports.description"),
+    t("expenses.reports.description")
   );
 
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { expense: analytics, isLoadingExpense: isLoading } = useAppSelector(
-    (state) => state.analytics,
+    (state) => state.analytics
   );
 
-  const storeId =
-    selectedStore?.storeId || selectedStore?.id || selectedStore?._id;
+  const storeId = pickStoreId(selectedStore);
   const fetchedStoreId = useRef(null);
 
   useEffect(() => {
@@ -71,7 +70,7 @@ const ExpenseAnalytics = () => {
     isLoading,
     analytics,
     "expenses-report-area",
-    "expenses-analytics-report",
+    "expenses-analytics-report"
   );
 
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -169,7 +168,7 @@ const ExpenseAnalytics = () => {
               change: formatCurrency(amounts.pendingAmount),
             };
           return m;
-        }),
+        })
       );
 
       setAmountCards((prev) =>
@@ -181,7 +180,7 @@ const ExpenseAnalytics = () => {
           if (c.id === "amount3")
             return { ...c, value: formatCurrency(amounts.totalGstAmount) };
           return c;
-        }),
+        })
       );
     }
   }, [analytics, counts, amounts, t]);
@@ -204,7 +203,7 @@ const ExpenseAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {

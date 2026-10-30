@@ -1,13 +1,12 @@
 "use client";
 import { CreateBillSidebarPresentation } from "@dragorbit/features/bills";
-
-import React from "react";
-
-import { supplierService, purchaseOrderService } from "@/service/retailer";
-import { useAppSelector } from "@/store/hooks";
 import { useSearchParams } from "next/navigation";
-import { useApiResponse } from "@/hooks/useApiResponse";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AddSupplierDrawer from "@/components/supplier/AddSupplierDrawer";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { purchaseOrderService, supplierService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
+import { pickStoreId } from "@/utils/store.util";
 
 const BillSidebar = ({
   t,
@@ -21,17 +20,16 @@ const BillSidebar = ({
 }) => {
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId;
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
 
   // Local state
-  const [suppliers, setSuppliers] = React.useState([]);
-  const [purchaseOrders, setPurchaseOrders] = React.useState([]);
-  const [showAddSupplierDrawer, setShowAddSupplierDrawer] =
-    React.useState(false);
+  const [suppliers, setSuppliers] = useState([]);
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
 
   // Refs to prevent duplicate API calls
-  const suppliersFetchedRef = React.useRef(null);
-  const posFetchedRef = React.useRef(null);
+  const suppliersFetchedRef = useRef(null);
+  const posFetchedRef = useRef(null);
 
   const {
     execute: executeFetchSuppliers,
@@ -44,19 +42,19 @@ const BillSidebar = ({
     loading: purchaseOrdersLoading,
   } = useApiResponse();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (suppliersData) {
       setSuppliers(suppliersData?.data || suppliersData || []);
     }
   }, [suppliersData]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (posData) {
       setPurchaseOrders(posData?.data || posData || []);
     }
   }, [posData]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (storeId && suppliersFetchedRef.current !== storeId) {
       suppliersFetchedRef.current = storeId;
       executeFetchSuppliers(
@@ -65,12 +63,12 @@ const BillSidebar = ({
           lightweight: true,
           store: storeId,
         }),
-        { showToast: false },
+        { showToast: false }
       );
     }
   }, [storeId, executeFetchSuppliers]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!formData.supplier) {
       setPurchaseOrders([]);
       return;
@@ -85,18 +83,18 @@ const BillSidebar = ({
           store: storeId,
           supplier: formData.supplier,
         }),
-        { showToast: false },
+        { showToast: false }
       );
     }
   }, [formData.supplier, storeId, executeFetchPOs]);
 
   // Handle PO from URL
-  React.useEffect(() => {
+  useEffect(() => {
     const poNumber = searchParams.get("poNumber");
     if (poNumber && purchaseOrders.length > 0) {
       const foundPO = purchaseOrders.find(
         (po) =>
-          (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber,
+          (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber
       );
       if (foundPO) {
         setFormData((prev) => ({
@@ -105,10 +103,10 @@ const BillSidebar = ({
         }));
       }
     }
-  }, [searchParams, purchaseOrders]);
+  }, [searchParams, purchaseOrders, setFormData]);
 
   // Handle new supplier added from drawer
-  const handleAddSupplierSuccess = React.useCallback(
+  const handleAddSupplierSuccess = useCallback(
     (newSupplier) => {
       setShowAddSupplierDrawer(false);
       if (!newSupplier) return;
@@ -119,30 +117,45 @@ const BillSidebar = ({
       // Reset ref so a fresh fetch runs on next mount
       suppliersFetchedRef.current = null;
     },
-    [handleInputChange],
+    [handleInputChange]
   );
 
-  return (
-    <CreateBillSidebarPresentation
-      model={{
-        t,
-        formData,
-        setShowAddSupplierDrawer,
-        handleInputChange,
-        suppliersLoading,
-        suppliers,
-        errors,
-        purchaseOrdersLoading,
-        purchaseOrders,
-        handleSubmit,
-        isCreating,
-        isEditing,
-        AddSupplierDrawer,
-        showAddSupplierDrawer,
-        handleAddSupplierSuccess,
-      }}
-    />
+  const model = useMemo(
+    () => ({
+      t,
+      formData,
+      setShowAddSupplierDrawer,
+      handleInputChange,
+      suppliersLoading,
+      suppliers,
+      errors,
+      purchaseOrdersLoading,
+      purchaseOrders,
+      handleSubmit,
+      isCreating,
+      isEditing,
+      AddSupplierDrawer,
+      showAddSupplierDrawer,
+      handleAddSupplierSuccess,
+    }),
+    [
+      t,
+      formData,
+      handleInputChange,
+      suppliersLoading,
+      suppliers,
+      errors,
+      purchaseOrdersLoading,
+      purchaseOrders,
+      handleSubmit,
+      isCreating,
+      isEditing,
+      showAddSupplierDrawer,
+      handleAddSupplierSuccess,
+    ]
   );
+
+  return <CreateBillSidebarPresentation model={model} />;
 };
 
-export default BillSidebar;
+export default memo(BillSidebar);

@@ -1,27 +1,28 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CreateCustomer } from "@/components/customer";
+import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
+import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { SideDrawer } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { customerService, invoiceService, productService } from "@/service";
 import { variantService } from "@/service/retailer/variant.service";
 import { useAppSelector } from "@/store/hooks";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import useApiResponse from "@/hooks/useApiResponse";
-import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 import {
   findProductByScanCode,
   getProductId,
 } from "@/utils/product/findProductByScanCode";
 
-import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
-import { PageSkeleton } from "@dragorbit/ui/app";
+const barcodeCache = new Map();
 
 const INITIAL_FORM_DATA = {
   customer: "",
@@ -109,6 +110,7 @@ const CreateInvoicePage = () => {
   useEffect(() => {
     if (storeId && customersFetchedRef.current.storeId !== storeId) {
       customersFetchedRef.current = { storeId: null, fetched: false };
+      barcodeCache.clear();
     }
   }, [storeId]);
 
@@ -118,36 +120,57 @@ const CreateInvoicePage = () => {
   }, [storeId, fetchCustomers]);
 
   // 8. Event Handlers
-  const handleCustomerChange = (value) => {
+  const handleCustomerChange = useCallback((value) => {
     if (value === "add-new-customer") {
       setShowCustomerDrawer(true);
     } else {
-      setFormData({ ...formData, customer: value });
+      setFormData((prev) => ({ ...prev, customer: value }));
     }
-  };
+  }, []);
 
   const lookupProductByCode = useCallback(
     async (code) => {
       if (!storeId) return null;
+      const normalizedCode = String(code || "")
+        .trim()
+        .toLowerCase();
+      if (!normalizedCode) return null;
+
+      const cacheKey = `${storeId}:${normalizedCode}`;
+      if (barcodeCache.has(cacheKey)) {
+        return barcodeCache.get(cacheKey);
+      }
+
       const variantResult = await execute(
-        variantService.getVariants({ store: storeId, search: code, limit: 30 }),
-        { showToast: false },
+        variantService.getVariants({
+          store: storeId,
+          search: normalizedCode,
+          limit: 30,
+        }),
+        { showToast: false }
       );
       const matchingVariant = (variantResult?.data || []).find((variant) =>
         [variant?.barcode, variant?.sku].some(
-          (value) => String(value || "").trim().toLowerCase() === String(code).trim().toLowerCase(),
-        ),
+          (value) =>
+            String(value || "")
+              .trim()
+              .toLowerCase() === normalizedCode
+        )
       );
       if (matchingVariant) {
         const relatedProduct = matchingVariant.product;
-        const productId = typeof relatedProduct === "object"
-          ? relatedProduct?.id || relatedProduct?._id
-          : relatedProduct || matchingVariant.productId;
+        const productId =
+          typeof relatedProduct === "object"
+            ? relatedProduct?.id || relatedProduct?._id
+            : relatedProduct || matchingVariant.productId;
         if (productId) {
-          return {
+          const resolved = {
             id: String(productId),
             _id: String(productId),
-            name: typeof relatedProduct === "object" ? relatedProduct?.name || "Item" : "Item",
+            name:
+              typeof relatedProduct === "object"
+                ? relatedProduct?.name || "Item"
+                : "Item",
             sellingPrice: matchingVariant.sellingPrice,
             mrp: matchingVariant.mrp,
             sku: matchingVariant.sku,
@@ -157,13 +180,15 @@ const CreateInvoicePage = () => {
             variants: [matchingVariant],
             matchedVariantId: matchingVariant.id || matchingVariant._id,
           };
+          barcodeCache.set(cacheKey, resolved);
+          return resolved;
         }
       }
 
       // Keep support for product-level barcodes that are not attached to a variant.
       const result = await execute(
         productService.getProducts({
-          search: code,
+          search: normalizedCode,
           store: storeId,
           lightweight: true,
           limit: 20,
@@ -171,7 +196,14 @@ const CreateInvoicePage = () => {
         { showToast: false }
       );
       if (!result?.success) return null;
-      return findProductByScanCode(result?.data || [], code);
+      const resolved = findProductByScanCode(
+        result?.data || [],
+        normalizedCode
+      );
+      if (resolved) {
+        barcodeCache.set(cacheKey, resolved);
+      }
+      return resolved;
     },
     [storeId, execute]
   );
@@ -185,68 +217,75 @@ const CreateInvoicePage = () => {
     });
   }, []);
 
-  const handleCustomerSuccess = async (customerData) => {
-    customersFetchedRef.current = { storeId: null, fetched: false };
-    await fetchCustomers();
+  const handleCustomerSuccess = useCallback(
+    async (customerData) => {
+      customersFetchedRef.current = { storeId: null, fetched: false };
+      await fetchCustomers();
 
-    const newCustomerId = customerData?.id || customerData?._id;
-    if (newCustomerId) {
-      setFormData({ ...formData, customer: newCustomerId });
-    }
-    setShowCustomerDrawer(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e?.preventDefault?.();
-
-    const validItems = formData.items.filter(
-      (item) => item.product && item.quantity > 0
-    );
-
-    if (validItems.length === 0) {
-      showError(t("invoice.addAtLeastOneItem"));
-      return;
-    }
-
-    const invoiceData = {
-      customer: formData.customer || null,
-      isWalkin: true,
-      items: validItems.map((item) => ({
-        product: item.product,
-        ...(item.variant ? { variant: item.variant } : {}),
-        quantity: item.quantity,
-        ...(item.price != null ? { price: item.price } : {}),
-        ...(item.uom ? { uom: item.uom } : {}),
-      })),
-      store: selectedStore?.storeId,
-      totalDiscount: formData.totalDiscount || 0,
-      discountMode: "POST_TOTAL", // Hardcoded for now, UI element hidden for future use.
-      orderSource: formData.orderSource || "POS",
-    };
-
-    setInvoiceLoading(true);
-    const result = await execute(
-      invoiceService.createDraftInvoice(invoiceData),
-      {
-        message:
-          t("invoice.invoiceCreatedSuccess") || "Invoice created successfully",
+      const newCustomerId = customerData?.id || customerData?._id;
+      if (newCustomerId) {
+        setFormData((prev) => ({ ...prev, customer: newCustomerId }));
       }
-    );
+      setShowCustomerDrawer(false);
+    },
+    [fetchCustomers]
+  );
 
-    if (result?.success) {
-      const createdId = result?.data?.id;
-      if (createdId) {
-        setPaymentInvoiceId(createdId);
-      } else {
-        router.push("/dashboard/invoices");
-      }
-    } else {
-      showError(
-        result?.message || t("errors.unknown") || "Failed to create invoice"
+  const handleSubmit = useCallback(
+    async (e) => {
+      e?.preventDefault?.();
+
+      const validItems = formData.items.filter(
+        (item) => item.product && item.quantity > 0
       );
-    }
-    setInvoiceLoading(false);
-  };
+
+      if (validItems.length === 0) {
+        showError(t("invoice.addAtLeastOneItem"));
+        return;
+      }
+
+      const invoiceData = {
+        customer: formData.customer || null,
+        isWalkin: true,
+        items: validItems.map((item) => ({
+          product: item.product,
+          ...(item.variant ? { variant: item.variant } : {}),
+          quantity: item.quantity,
+          ...(item.price != null ? { price: item.price } : {}),
+          ...(item.uom ? { uom: item.uom } : {}),
+        })),
+        store: selectedStore?.storeId,
+        totalDiscount: formData.totalDiscount || 0,
+        discountMode: "POST_TOTAL", // Hardcoded for now, UI element hidden for future use.
+        orderSource: formData.orderSource || "POS",
+      };
+
+      setInvoiceLoading(true);
+      const result = await execute(
+        invoiceService.createDraftInvoice(invoiceData),
+        {
+          message:
+            t("invoice.invoiceCreatedSuccess") ||
+            "Invoice created successfully",
+        }
+      );
+
+      if (result?.success) {
+        const createdId = result?.data?.id;
+        if (createdId) {
+          setPaymentInvoiceId(createdId);
+        } else {
+          router.push("/dashboard/invoices");
+        }
+      } else {
+        showError(
+          result?.message || t("errors.unknown") || "Failed to create invoice"
+        );
+      }
+      setInvoiceLoading(false);
+    },
+    [formData, selectedStore?.storeId, execute, router, showError, t]
+  );
 
   // 9. Shortcuts
   useCommonHotkeys({
@@ -334,12 +373,7 @@ const CreateInvoicePage = () => {
       >
         <div className="p-6 h-full">
           <CreateCustomer
-            storeId={
-              selectedStore?.storeId ||
-              selectedStore?._id ||
-              selectedStore?.id ||
-              ""
-            }
+            storeId={storeId || ""}
             onSuccess={handleCustomerSuccess}
             onCancel={() => setShowCustomerDrawer(false)}
             showCancelButton={true}

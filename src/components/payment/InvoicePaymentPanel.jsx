@@ -10,7 +10,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { UpiPaymentQr } from "@/components/common";
 import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -48,8 +48,11 @@ const InvoicePaymentPanel = ({
   const [mode, setMode] = useState("cash");
 
   const visibleMethods = useMemo(
-    () => PAYMENT_METHODS.filter((method) => method.id !== "online" || onlineGatewayAvailable),
-    [onlineGatewayAvailable],
+    () =>
+      PAYMENT_METHODS.filter(
+        (method) => method.id !== "online" || onlineGatewayAvailable
+      ),
+    [onlineGatewayAvailable]
   );
 
   useEffect(() => {
@@ -62,22 +65,25 @@ const InvoicePaymentPanel = ({
   }, [mode, paidAmount, onPaymentStateChange]);
 
   const changeDue = mode === "cash" ? Math.max(0, paidAmount - grandTotal) : 0;
-  const canConfirm = mode === "online" || paidAmount >= grandTotal || mode !== "cash";
-  const upiBlocked = mode === "upi" && (upiLoading || missingDefault || noUpiConfigured);
-  const showUpiQr = mode === "upi" && defaultUpi?.upiId && paidAmount > 0 && !upiBlocked;
+  const canConfirm =
+    mode === "online" || paidAmount >= grandTotal || mode !== "cash";
+  const upiBlocked =
+    mode === "upi" && (upiLoading || missingDefault || noUpiConfigured);
+  const showUpiQr =
+    mode === "upi" && defaultUpi?.upiId && paidAmount > 0 && !upiBlocked;
   const confirmLabel =
     mode === "online"
       ? t("invoice.collectPayment.sendToCustomerDisplay")
       : t("invoice.collectPayment.releaseInvoice");
   const onlineConfirmDisabled = mode === "online" && waitingForCustomer;
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (mode === "online") {
       onOnlinePay?.();
       return;
     }
     onConfirm({ paidAmount, paymentMode: mode });
-  };
+  }, [mode, onOnlinePay, onConfirm, paidAmount]);
 
   return (
     <div className="max-w-lg mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -101,7 +107,9 @@ const InvoicePaymentPanel = ({
             <span className="text-[rgb(var(--color-text-secondary))]">
               {t("invoice.collectPayment.invoice")}
             </span>
-            <span className="font-medium text-[rgb(var(--color-text-primary))]">{invoiceNumber}</span>
+            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              {invoiceNumber}
+            </span>
           </div>
         )}
 
@@ -110,7 +118,9 @@ const InvoicePaymentPanel = ({
             <span className="text-[rgb(var(--color-text-secondary))]">
               {t("invoice.collectPayment.customer")}
             </span>
-            <span className="font-medium text-[rgb(var(--color-text-primary))]">{customerName}</span>
+            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              {customerName}
+            </span>
           </div>
         )}
 
@@ -127,7 +137,10 @@ const InvoicePaymentPanel = ({
                 const itemName =
                   item.product?.name || item.productName || "Unknown Product";
                 const productId =
-                  item.product?.id || item.product?._id || item.product || "item";
+                  item.product?.id ||
+                  item.product?._id ||
+                  item.product ||
+                  "item";
                 const variantId =
                   item.variantId ||
                   (typeof item.variant === "object"
@@ -189,7 +202,9 @@ const InvoicePaymentPanel = ({
                     }`}
                   >
                     <Icon size={14} className="flex-shrink-0" />
-                    <span className="whitespace-nowrap leading-none">{t(m.labelKey)}</span>
+                    <span className="whitespace-nowrap leading-none">
+                      {t(m.labelKey)}
+                    </span>
                   </button>
                 );
               })}
@@ -224,8 +239,12 @@ const InvoicePaymentPanel = ({
 
           {mode === "cash" && paidAmount > grandTotal && (
             <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-green-500/5 border border-green-500/15 text-sm">
-              <span className="text-green-700 font-medium">{t("invoice.collectPayment.changeDue")}</span>
-              <span className="font-bold text-green-700 tabular-nums">{formatAmount(changeDue)}</span>
+              <span className="text-green-700 font-medium">
+                {t("invoice.collectPayment.changeDue")}
+              </span>
+              <span className="font-bold text-green-700 tabular-nums">
+                {formatAmount(changeDue)}
+              </span>
             </div>
           )}
 
@@ -236,21 +255,23 @@ const InvoicePaymentPanel = ({
             </div>
           )}
 
-          {mode === "upi" && !upiLoading && (missingDefault || noUpiConfigured) && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800 dark:text-amber-200">
-              <p className="font-medium mb-1">
-                {noUpiConfigured
-                  ? t("invoice.collectPayment.noUpiConfigured")
-                  : t("invoice.collectPayment.noDefaultUpi")}
-              </p>
-              <Link
-                href="/dashboard/integrations/payment"
-                className="text-[rgb(var(--color-primary))] underline text-xs font-medium"
-              >
-                {t("invoice.collectPayment.configureSettings")}
-              </Link>
-            </div>
-          )}
+          {mode === "upi" &&
+            !upiLoading &&
+            (missingDefault || noUpiConfigured) && (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800 dark:text-amber-200">
+                <p className="font-medium mb-1">
+                  {noUpiConfigured
+                    ? t("invoice.collectPayment.noUpiConfigured")
+                    : t("invoice.collectPayment.noDefaultUpi")}
+                </p>
+                <Link
+                  href="/dashboard/integrations/payment"
+                  className="text-[rgb(var(--color-primary))] underline text-xs font-medium"
+                >
+                  {t("invoice.collectPayment.configureSettings")}
+                </Link>
+              </div>
+            )}
 
           {showUpiQr && (
             <UpiPaymentQr
@@ -264,7 +285,13 @@ const InvoicePaymentPanel = ({
 
       <div className="flex gap-3 mt-6">
         {onBack && (
-          <Button variant="outline" size="md" onClick={onBack} disabled={loading} className="flex-1">
+          <Button
+            variant="outline"
+            size="md"
+            onClick={onBack}
+            disabled={loading}
+            className="flex-1"
+          >
             {t("common.back")}
           </Button>
         )}
@@ -284,4 +311,4 @@ const InvoicePaymentPanel = ({
   );
 };
 
-export default InvoicePaymentPanel;
+export default memo(InvoicePaymentPanel);

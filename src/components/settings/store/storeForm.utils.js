@@ -1,9 +1,7 @@
+import { pickStoreId } from "@/utils/store.util";
+
 export const resolveStoreId = (storeOrId) => {
-  if (!storeOrId) return "";
-  if (typeof storeOrId === "string" || typeof storeOrId === "number") {
-    return String(storeOrId);
-  }
-  return String(storeOrId.storeId || storeOrId._id || storeOrId.id || "");
+  return pickStoreId(storeOrId) || "";
 };
 
 export const mapStoreToForm = (storeData = {}) => {

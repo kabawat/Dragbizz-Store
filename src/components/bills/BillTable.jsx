@@ -1,8 +1,7 @@
 "use client";
 import { BillTableView } from "@dragorbit/features/bills";
-
 import { CreditCard, Edit, Eye, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import RowContextMenuLayer from "@/components/common/RowContextMenuLayer";
 import { useRowActionMenu } from "@/hooks/ui/useRowActionMenu";
@@ -35,9 +34,9 @@ const BillTable = ({
   const sendMenuRefs = useRef({});
 
   useEffect(() => {
+    if (!openSendMenuId) return undefined;
     const handleClickOutside = (event) => {
       if (
-        openSendMenuId &&
         sendMenuRefs.current[openSendMenuId] &&
         !sendMenuRefs.current[openSendMenuId].contains(event.target) &&
         !event.target.closest(".table-share-menu")
@@ -49,25 +48,37 @@ const BillTable = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openSendMenuId]);
 
-  const buildShareUrl = (bill) => {
-    if (typeof window === "undefined") return "";
-    const base = window.location.origin;
-    const path = getShareUrl
-      ? getShareUrl(bill)
-      : `/dashboard/bills/${bill._id || bill.id}`;
-    return `${base}${path}`;
-  };
+  const buildShareUrl = useCallback(
+    (bill) => {
+      if (typeof window === "undefined") return "";
+      const base = window.location.origin;
+      const path = getShareUrl
+        ? getShareUrl(bill)
+        : `/dashboard/bills/${bill._id || bill.id}`;
+      return `${base}${path}`;
+    },
+    [getShareUrl]
+  );
 
-  const handleCopy = async (text) => {
+  const handleCopy = useCallback(async (text) => {
     try {
-      if (navigator?.clipboard?.writeText)
+      if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
+      }
     } catch {}
-  };
+  }, []);
+
+  const billsMap = useMemo(() => {
+    const map = new Map();
+    for (const b of bills) {
+      map.set(b._id || b.id, b);
+    }
+    return map;
+  }, [bills]);
 
   const buildMenuItems = useCallback(
     (rowId) => {
-      const bill = bills.find((b) => (b._id || b.id) === rowId);
+      const bill = billsMap.get(rowId);
       if (!bill) return [];
 
       const run = (action) => () => {
@@ -111,7 +122,7 @@ const BillTable = ({
       }
       return items;
     },
-    [bills, onEdit, onDelete, closeMenu, onMenuAction, t],
+    [billsMap, onEdit, onDelete, closeMenu, onMenuAction, t]
   );
 
   return (
@@ -142,4 +153,4 @@ const BillTable = ({
   );
 };
 
-export default BillTable;
+export default memo(BillTable);

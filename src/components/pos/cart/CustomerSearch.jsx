@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Search, User, X } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/ui/useTranslation";
+import { pickStoreId } from "@/utils/store.util";
 
 const getCustomerList = (response) => {
   const body = response?.data?.data ?? response?.data ?? response;
@@ -17,7 +18,7 @@ const getCustomerList = (response) => {
 const CustomerSearch = ({ customer, onSelect }) => {
   const { t } = useTranslation();
   const selectedStore = useAppSelector((state) => state.profile.selectedStore);
-  const storeId = selectedStore?.storeId || selectedStore?._id;
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
   const [query, setQuery] = useState(customer?.name || "");
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,11 +43,11 @@ const CustomerSearch = ({ customer, onSelect }) => {
     return customers.filter((item) =>
       [item.name, item.phone, item.email]
         .filter(Boolean)
-        .some((value) => String(value).toLocaleLowerCase().includes(term)),
+        .some((value) => String(value).toLocaleLowerCase().includes(term))
     );
   }, [customers, query]);
 
-  const loadCustomers = async () => {
+  const loadCustomers = useCallback(async () => {
     if (!storeId || loadedStoreId.current === storeId || loading) return;
     const currentRequest = ++requestId.current;
     setLoading(true);
@@ -64,26 +65,29 @@ const CustomerSearch = ({ customer, onSelect }) => {
     } finally {
       if (currentRequest === requestId.current) setLoading(false);
     }
-  };
+  }, [storeId, loading]);
 
-  const showCustomers = () => {
+  const showCustomers = useCallback(() => {
     setOpen(true);
     loadCustomers();
-  };
+  }, [loadCustomers]);
 
-  const selectCustomer = (item) => {
-    const normalized = { ...item, id: item.id || item._id };
-    onSelect(normalized);
-    setQuery(normalized.name || "");
-    setOpen(false);
-  };
+  const selectCustomer = useCallback(
+    (item) => {
+      const normalized = { ...item, id: item.id || item._id };
+      onSelect(normalized);
+      setQuery(normalized.name || "");
+      setOpen(false);
+    },
+    [onSelect]
+  );
 
-  const clearSelection = () => {
+  const clearSelection = useCallback(() => {
     onSelect(null);
     setQuery("");
     setOpen(true);
     loadCustomers();
-  };
+  }, [onSelect, loadCustomers]);
 
   return (
     <div className="px-4 py-2 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
@@ -153,7 +157,9 @@ const CustomerSearch = ({ customer, onSelect }) => {
               </>
             ) : (
               <div className="px-3 py-2 text-xs text-[rgb(var(--color-text-secondary))]">
-                {query.trim() ? t("pos.noCustomersFound") : t("customers.noCustomers")}
+                {query.trim()
+                  ? t("pos.noCustomersFound")
+                  : t("customers.noCustomers")}
               </div>
             )}
           </div>
@@ -163,4 +169,4 @@ const CustomerSearch = ({ customer, onSelect }) => {
   );
 };
 
-export default CustomerSearch;
+export default memo(CustomerSearch);

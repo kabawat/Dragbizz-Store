@@ -1,5 +1,4 @@
 "use client";
-import { RevenueAnalyticsScreen } from "@dragorbit/features/analytics";
 
 import {
   KeyboardSensor,
@@ -8,6 +7,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { RevenueAnalyticsScreen } from "@dragorbit/features/analytics";
 import { Calendar, DollarSign, IndianRupee, TrendingUp } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import RevenueChart from "@/components/analytics/revenue/RevenueChart";
@@ -16,11 +16,11 @@ import {
   SortableCard,
   SortableMetricCard,
 } from "@/components/templates/analytics/SortableComponents";
-
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRevenueAnalytics } from "@/store/slices/analyticsSlice";
+import { pickStoreId } from "@/utils/store.util";
 import { useRevenueReportPrint } from "./hooks/useRevenueReportPrint";
 
 const formatCurrency = (amount) =>
@@ -33,17 +33,16 @@ const RevenueAnalytics = () => {
   useDashboardHeader(
     t("dashboard.revenueAnalytics") || "Revenue Analytics",
     t("analytics.revenueDescription") ||
-      "View detailed revenue analytics and insights",
+      "View detailed revenue analytics and insights"
   );
 
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { revenue: analytics, isLoading } = useAppSelector(
-    (state) => state.analytics,
+    (state) => state.analytics
   );
 
-  const storeId =
-    selectedStore?.storeId || selectedStore?.id || selectedStore?._id;
+  const storeId = pickStoreId(selectedStore);
   const fetchedStoreId = useRef(null);
 
   useEffect(() => {
@@ -62,7 +61,7 @@ const RevenueAnalytics = () => {
         totalGst: 0,
         profitMargin: 0,
       },
-    [analytics?.summary],
+    [analytics?.summary]
   );
 
   const today = useMemo(
@@ -72,7 +71,7 @@ const RevenueAnalytics = () => {
         profit: 0,
         sales: 0,
       },
-    [analytics?.today],
+    [analytics?.today]
   );
 
   const change = useMemo(
@@ -83,12 +82,12 @@ const RevenueAnalytics = () => {
         sales: 0,
         changeType: { revenue: "up", profit: "up", sales: "up" },
       },
-    [analytics?.change],
+    [analytics?.change]
   );
 
   const { handleDownloadPDF, handleDownloadXLSX } = useRevenueReportPrint(
     isLoading,
-    analytics,
+    analytics
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -157,7 +156,7 @@ const RevenueAnalytics = () => {
               change: `${formatNumber(today.sales)} sales`,
             };
           return m;
-        }),
+        })
       );
     }
   }, [analytics, summary, change, today]);
@@ -172,7 +171,7 @@ const RevenueAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {

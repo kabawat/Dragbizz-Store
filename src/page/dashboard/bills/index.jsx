@@ -1,18 +1,15 @@
 "use client";
 import { BillsScreen } from "@dragorbit/features/bills";
-
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setViewMode } from "@/store/slices/billsSlice";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import BillListContent from "@/components/bills/list/BillListContent";
+import BillListHeader from "@/components/bills/list/BillListHeader";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-
-import BillListHeader from "@/components/bills/list/BillListHeader";
-import BillListContent from "@/components/bills/list/BillListContent";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setViewMode } from "@/store/slices/billsSlice";
 
 const Bills = () => {
   const { t } = useTranslation();
@@ -23,47 +20,74 @@ const Bills = () => {
   const [searchValue, setSearchValue] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const { bills, isLoading: requestLoading, hasLoaded, error } = useAppSelector((state) => state.bills);
+  const {
+    bills,
+    isLoading: requestLoading,
+    hasLoaded,
+    error,
+  } = useAppSelector((state) => state.bills);
   const isLoading = requestLoading || (!hasLoaded && !error);
 
-  const {
-    can,
-    create: canCreate,
-    loading: permissionsLoading,
-  } = useModulePermissions("billing");
+  const { create: canCreate, loading: permissionsLoading } =
+    useModulePermissions("billing");
+
   useEffect(() => {
-    const savedViewMode = localStorage.getItem("bills-view-mode");
-    if (savedViewMode === "table" || savedViewMode === "card") {
-      dispatch(setViewMode(savedViewMode));
+    try {
+      const savedViewMode = localStorage.getItem("bills-view-mode");
+      if (savedViewMode === "table" || savedViewMode === "card") {
+        dispatch(setViewMode(savedViewMode));
+      }
+    } catch {
+      // Storage unavailable
     }
   }, [dispatch]);
 
+  const handleBack = useCallback(() => {
+    router.push("/dashboard");
+  }, [router]);
+
+  const handleCreate = useCallback(() => {
+    router.push("/dashboard/bills/create");
+  }, [router]);
+
   useCommonHotkeys({
-    onBack: () => router.push("/dashboard"),
-    onNew: canCreate ? () => router.push("/dashboard/bills/create") : undefined,
+    onBack: handleBack,
+    onNew: canCreate ? handleCreate : undefined,
   });
 
-  return (
-    <BillsScreen
-      model={{
-        BillListHeader,
-        searchValue,
-        setSearchValue,
-        startDate,
-        setStartDate,
-        endDate,
-        setEndDate,
-        isLoading,
-        permissionsLoading,
-        bills,
-        error,
-        t,
-        canCreate,
-        BillListContent,
-        onCreate: () => router.push("/dashboard/bills/create"),
-      }}
-    />
+  const model = useMemo(
+    () => ({
+      BillListHeader,
+      searchValue,
+      setSearchValue,
+      startDate,
+      setStartDate,
+      endDate,
+      setEndDate,
+      isLoading,
+      permissionsLoading,
+      bills,
+      error,
+      t,
+      canCreate,
+      BillListContent,
+      onCreate: handleCreate,
+    }),
+    [
+      searchValue,
+      startDate,
+      endDate,
+      isLoading,
+      permissionsLoading,
+      bills,
+      error,
+      t,
+      canCreate,
+      handleCreate,
+    ]
   );
+
+  return <BillsScreen model={model} />;
 };
 
-export default Bills;
+export default memo(Bills);

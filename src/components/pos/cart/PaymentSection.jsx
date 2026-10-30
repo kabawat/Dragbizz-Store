@@ -1,14 +1,13 @@
 "use client";
 import { CartPaymentSectionPresentation } from "@dragorbit/features/pos";
 
-import { useState } from "react";
-
-import { useAppSelector } from "@/store/hooks";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
-import { pickStoreId } from "@/utils/store.util";
+import { useAppSelector } from "@/store/hooks";
 import { resolveProductUnitPrice } from "@/utils/productUtils";
+import { pickStoreId } from "@/utils/store.util";
 
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 
@@ -26,7 +25,7 @@ const PaymentSection = ({
   const { showError } = useGlobalToast();
   const { execute } = useApiResponse();
 
-  const handleCheckout = async () => {
+  const handleCheckout = useCallback(async () => {
     if (cart.length === 0) return;
     const storeId = pickStoreId(selectedStore);
     if (!storeId) return showError("Store not found. Please select a store.");
@@ -50,7 +49,7 @@ const PaymentSection = ({
     setInvoiceLoading(true);
     const result = await execute(
       invoiceService.createDraftInvoice(invoiceData),
-      { showToast: false },
+      { showToast: false }
     );
     setInvoiceLoading(false);
 
@@ -65,13 +64,23 @@ const PaymentSection = ({
     } else {
       showError(result?.message || "Failed to create draft invoice.");
     }
-  };
+  }, [
+    cart,
+    customer,
+    selectedStore,
+    globalDiscount,
+    execute,
+    showError,
+    onCheckoutComplete,
+    onDraftCreated,
+  ]);
 
-  return (
-    <CartPaymentSectionPresentation
-      model={{ checkoutRef, handleCheckout, invoiceLoading, fmt, grandTotal }}
-    />
+  const model = useMemo(
+    () => ({ checkoutRef, handleCheckout, invoiceLoading, fmt, grandTotal }),
+    [checkoutRef, handleCheckout, invoiceLoading, grandTotal]
   );
+
+  return <CartPaymentSectionPresentation model={model} />;
 };
 
-export default PaymentSection;
+export default memo(PaymentSection);

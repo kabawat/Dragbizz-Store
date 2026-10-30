@@ -1,5 +1,4 @@
 "use client";
-import { StockAnalyticsScreen } from "@dragorbit/features/analytics";
 
 import {
   KeyboardSensor,
@@ -8,6 +7,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { StockAnalyticsScreen } from "@dragorbit/features/analytics";
 import { AlertTriangle, Package, Warehouse, XCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import StockChart from "@/components/analytics/stock/StockChart";
@@ -18,10 +18,11 @@ import {
 import StockReportTemplate from "@/components/templates/analytics/stock/StockReportTemplate";
 
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getStockAnalytics } from "@/store/slices/products/analyticsSlice";
+import { pickStoreId } from "@/utils/store.util";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 const formatCurrency = (amount) =>
@@ -35,17 +36,16 @@ const StockAnalytics = () => {
   useDashboardHeader(
     t("dashboard.stockAnalytics") || "Stock Analytics",
     t("analytics.stockDescription") ||
-      "View detailed stock analytics and insights",
+      "View detailed stock analytics and insights"
   );
 
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector(
-    (state) => state.productAnalytics,
+    (state) => state.productAnalytics
   );
 
-  const storeId =
-    selectedStore?.storeId || selectedStore?.id || selectedStore?._id;
+  const storeId = pickStoreId(selectedStore);
   const fetchedStoreId = useRef(null);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const StockAnalytics = () => {
         lowStockItems: 0,
         outOfStockItems: 0,
       },
-    [analytics?.totals],
+    [analytics?.totals]
   );
 
   const valueSummary = useMemo(
@@ -75,14 +75,14 @@ const StockAnalytics = () => {
         averageCost: 0,
         totalStockValue: 0,
       },
-    [analytics?.valueSummary],
+    [analytics?.valueSummary]
   );
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
     analytics,
     "stock-report-area",
-    "stock-analytics-report",
+    "stock-analytics-report"
   );
 
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -178,7 +178,7 @@ const StockAnalytics = () => {
           if (m.id === "outOfStock")
             return { ...m, value: formatNumber(totals.outOfStockItems) };
           return m;
-        }),
+        })
       );
 
       setStatusCards((prev) =>
@@ -190,7 +190,7 @@ const StockAnalytics = () => {
           if (c.id === "sold")
             return { ...c, value: formatNumber(totals.soldQuantity) };
           return c;
-        }),
+        })
       );
     }
   }, [analytics, totals, valueSummary]);
@@ -199,7 +199,7 @@ const StockAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {

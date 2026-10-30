@@ -1,17 +1,16 @@
 "use client";
 import { BillListHeaderView } from "@dragorbit/features/bills";
-
-import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-
-import { useTranslation } from "@/hooks/ui/useTranslation";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getBills,
   setViewMode as setViewModeAction,
 } from "@/store/slices/billsSlice";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { pickStoreId } from "@/utils/store.util";
 
 const BillListHeader = ({
   searchValue,
@@ -28,8 +27,8 @@ const BillListHeader = ({
   const { viewMode } = useAppSelector((state) => state.bills);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = useMemo(
-    () => selectedStore?.storeId || "",
-    [selectedStore?.storeId],
+    () => pickStoreId(selectedStore) || "",
+    [selectedStore]
   );
   const { can, loading } = useModulePermissions("billing");
   const canCreate = can("create");
@@ -47,6 +46,7 @@ const BillListHeader = ({
 
   // Reset fetch refs when store changes
   useEffect(() => {
+    if (!storeId) return;
     lastFetchRef.current = null;
     hasFetchedRef.current = {
       fetched: false,
@@ -85,7 +85,7 @@ const BillListHeader = ({
         isFreshLoad: true,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
-      }),
+      })
     );
     hasFetchedRef.current = {
       fetched: true,
@@ -113,51 +113,70 @@ const BillListHeader = ({
     return () => clearTimeout(timer);
   }, [storeId, searchValue, startDate, endDate, fetchBills]);
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setStartDate("");
     setEndDate("");
-  };
+  }, [setStartDate, setEndDate]);
 
   const handleViewModeChange = useCallback(
     (mode) => {
       dispatch(setViewModeAction(mode));
       localStorage.setItem("bills-view-mode", mode);
     },
-    [dispatch],
+    [dispatch]
   );
 
+  const handleCreate = useCallback(() => {
+    router.push("/dashboard/bills/create");
+  }, [router]);
+
   useCommonHotkeys({
-    onNew: canCreate ? () => router.push("/dashboard/bills/create") : undefined,
+    onNew: canCreate ? handleCreate : undefined,
     onSearch: () => searchInputRef.current?.focus(),
     onViewTable: () => handleViewModeChange("table"),
     onViewGrid: () => handleViewModeChange("card"),
   });
+
+  const model = useMemo(
+    () => ({
+      searchInputRef,
+      t,
+      searchValue,
+      setSearchValue,
+      startDate,
+      endDate,
+      setStartDate,
+      setEndDate,
+      hasActiveFilters,
+      handleClearFilters,
+      handleViewModeChange,
+      viewMode,
+      canCreate,
+      onCreate: handleCreate,
+    }),
+    [
+      t,
+      searchValue,
+      setSearchValue,
+      startDate,
+      endDate,
+      setStartDate,
+      setEndDate,
+      hasActiveFilters,
+      handleClearFilters,
+      handleViewModeChange,
+      viewMode,
+      canCreate,
+      handleCreate,
+    ]
+  );
 
   if (loading)
     return (
       <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />
     );
 
-  return (
-    <BillListHeaderView
-      model={{
-        searchInputRef,
-        t,
-        searchValue,
-        setSearchValue,
-        startDate,
-        endDate,
-        setStartDate,
-        setEndDate,
-        hasActiveFilters,
-        handleClearFilters,
-        handleViewModeChange,
-        viewMode,
-        canCreate,
-        onCreate: () => router.push("/dashboard/bills/create"),
-      }}
-    />
-  );
+  return <BillListHeaderView model={model} />;
 };
 
-export default BillListHeader;
+export default memo(BillListHeader);

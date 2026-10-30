@@ -1,11 +1,11 @@
 "use client";
 import { InviteStaffDrawerView } from "@dragorbit/features/management";
 
-import { useState } from "react";
-
-import staffService from "@/service/retailer/staff.service";
+import { useMemo, useState } from "react";
 import useApiResponse from "@/hooks/useApiResponse";
+import staffService from "@/service/retailer/staff.service";
 import { useAppSelector } from "@/store/hooks";
+import { pickStoreId } from "@/utils/store.util";
 
 const MODULES = [
   { key: "billing", label: "Billing", description: "Create & manage bills" },
@@ -175,7 +175,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
   const [roleName, setRoleName] = useState("");
   const [permissions, setPermissions] = useState([]);
   const [managedStoreIds, setManagedStoreIds] = useState(
-    storeId ? [storeId] : [],
+    storeId ? [storeId] : []
   );
   const [expandedModules, setExpandedModules] = useState({});
   const [error, setError] = useState(null);
@@ -184,13 +184,14 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
 
   const { stores: allStores } = useAppSelector((state) => state.profile);
 
-  const storeOptions =
-    allStores
-      ?.filter((s) => s)
-      .map((s) => ({
+  const storeOptions = useMemo(
+    () =>
+      allStores?.filter(Boolean).map((s) => ({
         label: s.storeName || s.name || s.storeId || "Unnamed Store",
-        value: s.storeId || s._id || s.id,
-      })) || [];
+        value: pickStoreId(s),
+      })) || [],
+    [allStores]
+  );
 
   const toggleModule = (moduleKey) => {
     const existing = permissions.find((p) => p.module === moduleKey);
@@ -208,8 +209,8 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
   const toggleAction = (moduleKey, actionKey) => {
     setPermissions((prev) =>
       prev.map((p) =>
-        p.module === moduleKey ? { ...p, [actionKey]: !p[actionKey] } : p,
-      ),
+        p.module === moduleKey ? { ...p, [actionKey]: !p[actionKey] } : p
+      )
     );
   };
 
@@ -239,7 +240,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
 
     if (!name || !email || !roleName || permissions.length === 0) {
       setError(
-        "Please fill all fields and select at least one permission module.",
+        "Please fill all fields and select at least one permission module."
       );
       return;
     }
@@ -262,7 +263,7 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
       onSuccess?.();
     } else {
       setError(
-        result?.message || "Failed to send invitation. Please try again.",
+        result?.message || "Failed to send invitation. Please try again."
       );
     }
   };

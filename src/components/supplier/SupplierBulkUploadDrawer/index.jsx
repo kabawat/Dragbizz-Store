@@ -1,13 +1,28 @@
 "use client";
 import { Tooltip as SharedTooltip } from "@dragorbit/ui";
-import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileJson, FileSpreadsheet, FileText, Upload, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  FileJson,
+  FileSpreadsheet,
+  FileText,
+  Upload,
+  X,
+} from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import { BulkTemplateDownloadButton, Button, SideDrawer } from "@/components/ui";
+import {
+  BulkTemplateDownloadButton,
+  Button,
+  SideDrawer,
+} from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { supplierService } from "@/service/retailer/supplier.service";
 import { useAppSelector } from "@/store/hooks";
+import { pickStoreId } from "@/utils/store.util";
 
 const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
@@ -30,15 +45,22 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     if (!file) return false;
 
     // Check extension
-    const extension = file.name.split('.').pop().toLowerCase();
+    const extension = file.name.split(".").pop().toLowerCase();
     if (!validExtensions.includes(extension)) {
-      showError(t("suppliers.invalidFileType", "Please upload a valid CSV, XLSX, or JSON file."));
+      showError(
+        t(
+          "suppliers.invalidFileType",
+          "Please upload a valid CSV, XLSX, or JSON file."
+        )
+      );
       return false;
     }
 
     // Check size (e.g. max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      showError(t("suppliers.fileTooLarge", "File size should be less than 5MB."));
+      showError(
+        t("suppliers.fileTooLarge", "File size should be less than 5MB.")
+      );
       return false;
     }
 
@@ -98,22 +120,31 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      showError(t("suppliers.pleaseSelectFile", "Please select a file to upload."));
+      showError(
+        t("suppliers.pleaseSelectFile", "Please select a file to upload.")
+      );
       return;
     }
 
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = pickStoreId(selectedStore);
 
     // Using execute with showToast: false because we want to run custom toast and success logic based on 'summary'
-    const result = await execute(supplierService.bulkUploadSuppliers(selectedFile, storeId), { showToast: false });
+    const result = await execute(
+      supplierService.bulkUploadSuppliers(selectedFile, storeId),
+      { showToast: false }
+    );
 
     if (result?.success && result?.data && result.data.summary) {
       setUploadResult({ data: result.data });
 
       if (result.data.summary.failed === 0) {
-        showSuccess(t("suppliers.bulkUploadSuccess", "Bulk upload completed successfully"));
+        showSuccess(
+          t("suppliers.bulkUploadSuccess", "Bulk upload completed successfully")
+        );
       } else {
-        showSuccess(t("suppliers.partialSuccess", "Bulk upload partially successful"));
+        showSuccess(
+          t("suppliers.partialSuccess", "Bulk upload partially successful")
+        );
       }
       onSuccess?.();
     } else {
@@ -121,12 +152,13 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-
-
   const getFileIcon = (fileName) => {
-    if (fileName.endsWith(".csv")) return <FileText className="w-8 h-8 text-blue-500" />;
-    if (fileName.endsWith(".xlsx")) return <FileSpreadsheet className="w-8 h-8 text-green-500" />;
-    if (fileName.endsWith(".json")) return <FileJson className="w-8 h-8 text-yellow-500" />;
+    if (fileName.endsWith(".csv"))
+      return <FileText className="w-8 h-8 text-blue-500" />;
+    if (fileName.endsWith(".xlsx"))
+      return <FileSpreadsheet className="w-8 h-8 text-green-500" />;
+    if (fileName.endsWith(".json"))
+      return <FileJson className="w-8 h-8 text-yellow-500" />;
     return <FileText className="w-8 h-8 text-gray-500" />;
   };
 
@@ -158,16 +190,16 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
 
     return (
       <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-
         {/* Summary Card */}
         <div className="rounded-xl overflow-hidden border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
-
           {/* Header */}
           <div className="p-4 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] flex items-center justify-between">
             <h4 className="font-semibold text-[rgb(var(--color-text-primary))] flex items-center gap-2">
-              {allSuccess
-                ? <CheckCircle2 className="w-5 h-5 text-green-500" />
-                : <AlertCircle className="w-5 h-5 text-amber-500" />}
+              {allSuccess ? (
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-amber-500" />
+              )}
               {t("suppliers.uploadResults", "Upload Results")}
             </h4>
             <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] px-2.5 py-1 rounded-full bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
@@ -178,19 +210,25 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
           {/* Stats Grid */}
           <div className="grid grid-cols-3 divide-x divide-[rgb(var(--color-border-primary))]">
             <div className="flex flex-col items-center justify-center py-5 gap-1">
-              <span className="text-2xl font-bold text-green-500">{summary.created}</span>
+              <span className="text-2xl font-bold text-green-500">
+                {summary.created}
+              </span>
               <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("suppliers.createdCount", "Created")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
-              <span className="text-2xl font-bold text-amber-500">{summary.skipped}</span>
+              <span className="text-2xl font-bold text-amber-500">
+                {summary.skipped}
+              </span>
               <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("suppliers.skippedCount", "Skipped")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
-              <span className="text-2xl font-bold text-red-500">{summary.failed}</span>
+              <span className="text-2xl font-bold text-red-500">
+                {summary.failed}
+              </span>
               <span className="text-[0.6875rem] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                 {t("suppliers.failedCount", "Failed")}
               </span>
@@ -201,7 +239,6 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
         {/* Errors Section */}
         {errors && errors.length > 0 && (
           <div className="rounded-xl overflow-hidden border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
-
             {/* Errors toggle header */}
             <button
               onClick={() => setShowErrors(!showErrors)}
@@ -214,21 +251,29 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                   {errors.length}
                 </span>
               </span>
-              {showErrors
-                ? <ChevronUp className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                : <ChevronDown className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />}
+              {showErrors ? (
+                <ChevronUp className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+              )}
             </button>
 
             {showErrors && (
               <div className="max-h-[280px] overflow-y-auto divide-y divide-[rgb(var(--color-border-primary))] custom-scrollbar">
                 {errors.map((error, idx) => (
-                  <div key={idx} className="p-4 space-y-2.5 bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors">
-
+                  <div
+                    key={idx}
+                    className="p-4 space-y-2.5 bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                  >
                     {/* Row label + reason */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <span className="inline-block text-[0.625rem] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 border border-red-500/20 rounded px-1.5 py-0.5 mb-1.5">
-                          {t("suppliers.rowNumber", { row: error.row }, `Row ${error.row}`)}
+                          {t(
+                            "suppliers.rowNumber",
+                            { row: error.row },
+                            `Row ${error.row}`
+                          )}
                         </span>
                         <p className="text-sm text-[rgb(var(--color-text-primary))] leading-snug">
                           {error.reason}
@@ -244,9 +289,16 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                         </p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                           {Object.entries(error.data).map(([key, val]) => (
-                            <div key={key} className="flex gap-1.5 text-[0.6875rem] font-mono">
-                              <span className="text-[rgb(var(--color-text-tertiary))] shrink-0">{key}:</span>
-                              <span className="text-[rgb(var(--color-text-secondary))] truncate">{val || "—"}</span>
+                            <div
+                              key={key}
+                              className="flex gap-1.5 text-[0.6875rem] font-mono"
+                            >
+                              <span className="text-[rgb(var(--color-text-tertiary))] shrink-0">
+                                {key}:
+                              </span>
+                              <span className="text-[rgb(var(--color-text-secondary))] truncate">
+                                {val || "—"}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -268,7 +320,10 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
       onClose={handleClose}
       title={t("suppliers.bulkUploadTitle", "Bulk Upload Suppliers")}
       icon={Upload}
-      description={t("suppliers.bulkUploadDesc", "Upload a CSV, XLSX, or JSON file to add multiple suppliers at once.")}
+      description={t(
+        "suppliers.bulkUploadDesc",
+        "Upload a CSV, XLSX, or JSON file to add multiple suppliers at once."
+      )}
       width="w-full md:w-[600px] lg:w-[600px]"
     >
       <div className="p-4 sm:p-6 h-full flex flex-col">
@@ -281,9 +336,24 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                   {t("suppliers.instructions", "Instructions")}
                 </h4>
                 <ul className="list-disc pl-5 text-sm text-[rgb(var(--color-text-secondary))] space-y-1 mb-4">
-                  <li>{t("suppliers.instruction1", "Ensure file format is either .csv, .xlsx, or .json")}</li>
-                  <li>{t("suppliers.instruction2", "Maximum allowed file size is 5MB. ")}</li>
-                  <li>{t("suppliers.instruction3", "Make sure required fields (e.g., name) are present.")}</li>
+                  <li>
+                    {t(
+                      "suppliers.instruction1",
+                      "Ensure file format is either .csv, .xlsx, or .json"
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      "suppliers.instruction2",
+                      "Maximum allowed file size is 5MB. "
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      "suppliers.instruction3",
+                      "Make sure required fields (e.g., name) are present."
+                    )}
+                  </li>
                 </ul>
                 <BulkTemplateDownloadButton
                   module="supplier"
@@ -297,9 +367,10 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                 <div
                   className={`
                     relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
-                    ${isDragOver
-                      ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
-                      : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+                    ${
+                      isDragOver
+                        ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
+                        : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
                     }
                   `}
                   onDrop={handleDrop}
@@ -309,14 +380,23 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                 >
                   <div className="p-8 text-center">
                     <Upload
-                      className={`w-10 h-10 mx-auto mb-3 ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"
-                        }`}
+                      className={`w-10 h-10 mx-auto mb-3 ${
+                        isDragOver
+                          ? "text-[rgb(var(--color-primary))]"
+                          : "text-[rgb(var(--color-text-tertiary))]"
+                      }`}
                     />
                     <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                      {t("suppliers.dropZoneLabel", "Click to upload or drag and drop")}
+                      {t(
+                        "suppliers.dropZoneLabel",
+                        "Click to upload or drag and drop"
+                      )}
                     </p>
                     <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                      {t("suppliers.supportedFormats", "Supported formats: CSV, XLSX, JSON")}
+                      {t(
+                        "suppliers.supportedFormats",
+                        "Supported formats: CSV, XLSX, JSON"
+                      )}
                     </p>
                   </div>
 
@@ -347,14 +427,16 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                       </div>
                     </div>
 
-                    <SharedTooltip content={"Remove file"}><button aria-label={"Remove file"}
-                      type="button"
-                      onClick={removeFile}
-                      className="p-2 cursor-pointer text-gray-500 hover:text-red-500 rounded-lg transition-colors duration-200 hover:bg-red-500/10"
-
-                    >
-                      <X className="w-5 h-5" />
-                    </button></SharedTooltip>
+                    <SharedTooltip content={"Remove file"}>
+                      <button
+                        aria-label={"Remove file"}
+                        type="button"
+                        onClick={removeFile}
+                        className="p-2 cursor-pointer text-gray-500 hover:text-red-500 rounded-lg transition-colors duration-200 hover:bg-red-500/10"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </SharedTooltip>
                   </div>
                 </div>
               )}
@@ -374,9 +456,15 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                 disabled={!selectedFile || isUploading}
                 loading={isUploading}
               >
-                {isUploading ? t("suppliers.uploading", "Uploading...") : t("suppliers.upload", "Upload File")}
+                {isUploading
+                  ? t("suppliers.uploading", "Uploading...")
+                  : t("suppliers.upload", "Upload File")}
               </Button>
-              <Button variant="secondary" onClick={handleClose} disabled={isUploading}>
+              <Button
+                variant="secondary"
+                onClick={handleClose}
+                disabled={isUploading}
+              >
                 {t("common.cancel", "Cancel")}
               </Button>
             </>

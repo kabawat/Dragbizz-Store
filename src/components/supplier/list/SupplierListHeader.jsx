@@ -2,19 +2,19 @@
 import { SupplierListHeaderView } from "@dragorbit/features/suppliers";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-import { useTranslation } from "@/hooks/ui/useTranslation";
+import { AddSupplierDrawer } from "@/components/supplier";
+import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
+import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getSuppliers,
   setViewMode,
 } from "@/store/slices/supplier/supplierSlice";
-import { AddSupplierDrawer } from "@/components/supplier";
-import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
-import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
+import { pickStoreId } from "@/utils/store.util";
 
 const SupplierListHeader = ({
   searchValue,
@@ -34,9 +34,8 @@ const SupplierListHeader = ({
   const { viewMode, suppliers } = useAppSelector((state) => state.suppliers);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = useMemo(
-    () =>
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "",
-    [selectedStore],
+    () => pickStoreId(selectedStore) || "",
+    [selectedStore]
   );
 
   // Internal Drawers
@@ -56,7 +55,7 @@ const SupplierListHeader = ({
     "supplier",
     () => setShowDownloadDrawer(true),
     false,
-    true,
+    true
   );
 
   useEffect(() => {
@@ -163,7 +162,7 @@ const SupplierListHeader = ({
       dispatch(setViewMode(mode));
       localStorage.setItem("suppliers-view-mode", mode);
     },
-    [dispatch],
+    [dispatch]
   );
 
   useCommonHotkeys({

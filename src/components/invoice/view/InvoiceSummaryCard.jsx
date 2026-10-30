@@ -1,6 +1,6 @@
 "use client";
 import { ViewInvoiceSummaryCardPresentation } from "@dragorbit/features/invoices";
-
+import { memo, useMemo } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
   getPaymentStatusColor,
@@ -14,18 +14,19 @@ const InvoiceSummaryCard = ({
 }) => {
   const { t } = useTranslation();
 
-  return (
-    <ViewInvoiceSummaryCardPresentation
-      model={{
-        invoiceData,
-        getStatusColor,
-        getPaymentStatusColor,
-        t,
-        calculatedSubtotal,
-        calculatedGstAmount,
-      }}
-    />
+  const model = useMemo(
+    () => ({
+      invoiceData,
+      getStatusColor,
+      getPaymentStatusColor,
+      t,
+      calculatedSubtotal,
+      calculatedGstAmount,
+    }),
+    [invoiceData, t, calculatedSubtotal, calculatedGstAmount]
   );
+
+  return <ViewInvoiceSummaryCardPresentation model={model} />;
 };
 
-export default InvoiceSummaryCard;
+export default memo(InvoiceSummaryCard);

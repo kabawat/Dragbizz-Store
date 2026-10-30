@@ -1,23 +1,21 @@
 "use client";
-import { TableSkeleton } from "@dragorbit/ui";
 import { InvoiceNumberSettingsView } from "@dragorbit/features/settings";
+import { TableSkeleton } from "@dragorbit/ui";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { settingService } from "@/service/retailer/setting.service";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  setSelectedStore,
-} from "@/store/slices/profileSlice";
-import { pickStoreId } from "@/utils/tallyIntegration.util";
-import { useCallback, useEffect, useState } from "react";
+import { setSelectedStore } from "@/store/slices/profileSlice";
+import { pickStoreId } from "@/utils/store.util";
 
 function buildFormState(storeOrConfig, templates = []) {
   const config = storeOrConfig?.invoiceNumberConfig || storeOrConfig || {};
   const defaultTemplate = templates.find((t) => t.isDefault) || templates[0];
   const configuredTemplate = templates.find(
-    (item) => String(item.id) === String(config.templateId),
+    (item) => String(item.id) === String(config.templateId)
   );
   return {
     templateId: configuredTemplate?.id || defaultTemplate?.id || "",
@@ -49,7 +47,7 @@ const InvoiceNumberSettings = () => {
   const [templates, setTemplates] = useState([]);
   const [form, setForm] = useState(() => buildFormState(selectedStore));
   const [savedTemplateId, setSavedTemplateId] = useState(
-    selectedStore?.invoiceNumberConfig?.templateId || "",
+    selectedStore?.invoiceNumberConfig?.templateId || ""
   );
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,7 +69,7 @@ const InvoiceNumberSettings = () => {
         setPreviewing(false);
       }
     },
-    [storeId],
+    [storeId]
   );
 
   const loadData = useCallback(async () => {
@@ -107,43 +105,113 @@ const InvoiceNumberSettings = () => {
     return () => clearTimeout(timer);
   }, [storeId, loading, form, loadPreview]);
 
-  const updateField = (key, value) => {
+  const updateField = useCallback((key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-  };
+  }, []);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setForm((prev) => ({ ...prev, templateId: savedTemplateId }));
-  };
+  }, [savedTemplateId]);
 
-  const handleSave = async (event) => {
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
-    if (!storeId) return;
-    setSaving(true);
-    try {
-      const response = await settingService.updateInvoiceSetting(storeId, {
-        templateId: form.templateId || null,
-      });
-      const updated = response?.data?.data;
-      const savedId = updated?.templateId;
-      const normalizedSavedId = String(savedId?._id || savedId?.id || savedId || "");
-      if (normalizedSavedId !== String(form.templateId || "")) {
-        throw new Error(t("invoiceNumber.saveFailed"));
+  const handleSave = useCallback(
+    async (event) => {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      if (!storeId) return;
+      setSaving(true);
+      try {
+        const response = await settingService.updateInvoiceSetting(storeId, {
+          templateId: form.templateId || null,
+        });
+        const updated = response?.data?.data;
+        const savedId = updated?.templateId;
+        const normalizedSavedId = String(
+          savedId?._id || savedId?.id || savedId || ""
+        );
+        if (normalizedSavedId !== String(form.templateId || "")) {
+          throw new Error(t("invoiceNumber.saveFailed"));
+        }
+        if (selectedStore) {
+          dispatch(
+            setSelectedStore({
+              ...selectedStore,
+              invoiceNumberConfig: updated,
+            })
+          );
+        }
+        setSavedTemplateId(normalizedSavedId);
+        showSuccess(t("invoiceNumber.saveSuccess"));
+      } catch (err) {
+        showError(err?.message || t("invoiceNumber.saveFailed"));
+      } finally {
+        setSaving(false);
       }
-      if (selectedStore) {
-        dispatch(setSelectedStore({
-          ...selectedStore,
-          invoiceNumberConfig: updated,
-        }));
-      }
-      setSavedTemplateId(normalizedSavedId);
-      showSuccess(t("invoiceNumber.saveSuccess"));
-    } catch (err) {
-      showError(err?.message || t("invoiceNumber.saveFailed"));
-    } finally {
-      setSaving(false);
-    }
-  };
+    },
+    [
+      storeId,
+      form.templateId,
+      selectedStore,
+      dispatch,
+      showError,
+      showSuccess,
+      t,
+    ]
+  );
+
+  const selectedTemplate = useMemo(
+    () => templates.find((item) => String(item.id) === String(form.templateId)),
+    [templates, form.templateId]
+  );
+
+  const templateTokens = useMemo(() => {
+    if (!selectedTemplate?.template) return [];
+    return [
+      ...new Set(
+        Array.from(
+          selectedTemplate.template.matchAll(/\{([A-Z_]+)(?::\d+)?\}/g) || []
+        ).map((match) => match[1])
+      ),
+    ];
+  }, [selectedTemplate?.template]);
+
+  const hasUnsavedChanges = useMemo(
+    () => String(form.templateId) !== String(savedTemplateId),
+    [form.templateId, savedTemplateId]
+  );
+
+  const model = useMemo(
+    () => ({
+      t,
+      templates,
+      form,
+      savedTemplateId,
+      updateField,
+      selectedTemplate,
+      previewing,
+      preview,
+      templateTokens,
+      TOKEN_STYLES,
+      hasUnsavedChanges,
+      handleCancel,
+      saving,
+      handleSave,
+    }),
+    [
+      t,
+      templates,
+      form,
+      savedTemplateId,
+      updateField,
+      selectedTemplate,
+      previewing,
+      preview,
+      templateTokens,
+      hasUnsavedChanges,
+      handleCancel,
+      saving,
+      handleSave,
+    ]
+  );
 
   if (!storeId) {
     return (
@@ -154,43 +222,10 @@ const InvoiceNumberSettings = () => {
   }
 
   if (loading) {
-    return (
-      <TableSkeleton />
-    );
+    return <TableSkeleton />;
   }
 
-  const selectedTemplate = templates.find(
-    (item) => String(item.id) === String(form.templateId),
-  );
-  const templateTokens = [
-    ...new Set(
-      Array.from(
-        selectedTemplate?.template?.matchAll(/\{([A-Z_]+)(?::\d+)?\}/g) || [],
-      ).map((match) => match[1]),
-    ),
-  ];
-  const hasUnsavedChanges = String(form.templateId) !== String(savedTemplateId);
-
-  return (
-    <InvoiceNumberSettingsView
-      model={{
-        t,
-        templates,
-        form,
-        savedTemplateId,
-        updateField,
-        selectedTemplate,
-        previewing,
-        preview,
-        templateTokens,
-        TOKEN_STYLES,
-        hasUnsavedChanges,
-        handleCancel,
-        saving,
-        handleSave,
-      }}
-    />
-  );
+  return <InvoiceNumberSettingsView model={model} />;
 };
 
-export default InvoiceNumberSettings;
+export default memo(InvoiceNumberSettings);

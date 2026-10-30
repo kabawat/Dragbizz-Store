@@ -2,7 +2,7 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BillDetailsTemplate from "@/components/templates/bill/BillDetailsTemplate";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
@@ -12,6 +12,7 @@ import { billService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDate, formatDateTime } from "@/utils/dateFormatter";
+import { pickStoreId } from "@/utils/store.util";
 import BillActions from "./components/BillActions";
 import BillBatches from "./components/BillBatches";
 import BillHeader from "./components/BillHeader";
@@ -30,7 +31,7 @@ const ViewBillPage = ({ billId }) => {
   useDashboardHeader(t("bills.viewBill"), t("bills.viewBillDescription"));
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId;
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
 
   const { can } = useModulePermissions("billing");
   const canEdit = can("edit");
@@ -61,15 +62,15 @@ const ViewBillPage = ({ billId }) => {
     }
   }, [billId, storeId, executeFetch]);
 
-  const handleEditBill = () => {
+  const handleEditBill = useCallback(() => {
     router.push(`/dashboard/bills/${billId}/edit`);
-  };
+  }, [router, billId]);
 
-  const handleDeleteBill = () => {
+  const handleDeleteBill = useCallback(() => {
     setShowDeleteModal(true);
-  };
+  }, []);
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!billId || !storeId) return;
 
     const result = await executeDelete(
@@ -88,16 +89,26 @@ const ViewBillPage = ({ billId }) => {
     } else {
       setShowDeleteModal(false);
     }
-  };
+  }, [billId, storeId, executeDelete, billData?.billNumber]);
 
-  const handleCancelDelete = () => {
+  const handleCancelDelete = useCallback(() => {
     setShowDeleteModal(false);
-  };
+  }, []);
 
-  const handleDeleteSuccess = () => {
+  const handleDeleteSuccess = useCallback(() => {
     setShowDeleteSuccessModal(false);
     router.push("/dashboard/bills");
-  };
+  }, [router]);
+
+  const itemsSummary = useMemo(() => {
+    if (!billData) return null;
+    return {
+      ...billData.itemsSummary,
+      subtotal: billData.subtotal,
+      gstAmount: billData.gstAmount,
+      totalValue: billData.totalAmount,
+    };
+  }, [billData]);
 
   if (fetching || (!billData && !activeError)) {
     return <LoadingState />;
@@ -152,12 +163,7 @@ const ViewBillPage = ({ billId }) => {
                     <div className="w-full">
                       <BillItemsTable
                         items={billData.items}
-                        itemsSummary={{
-                          ...billData.itemsSummary,
-                          subtotal: billData.subtotal,
-                          gstAmount: billData.gstAmount,
-                          totalValue: billData.totalAmount,
-                        }}
+                        itemsSummary={itemsSummary}
                         gstBreakdown={billData.gstBreakdown}
                         formatCurrency={formatCurrency}
                       />
@@ -206,4 +212,4 @@ const ViewBillPage = ({ billId }) => {
   );
 };
 
-export default ViewBillPage;
+export default memo(ViewBillPage);

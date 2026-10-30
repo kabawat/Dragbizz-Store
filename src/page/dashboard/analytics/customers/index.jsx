@@ -1,5 +1,4 @@
 "use client";
-import { CustomerAnalyticsScreen } from "@dragorbit/features/analytics";
 
 import {
   KeyboardSensor,
@@ -8,6 +7,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { CustomerAnalyticsScreen } from "@dragorbit/features/analytics";
 import { Calendar, UserPlus, Users } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CustomersChart from "@/components/analytics/customers/CustomersChart";
@@ -18,10 +18,11 @@ import {
 } from "@/components/templates/analytics/SortableComponents";
 
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomerAnalytics } from "@/store/slices/customers/analyticsSlice";
+import { pickStoreId } from "@/utils/store.util";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
@@ -29,17 +30,16 @@ const CustomerAnalytics = () => {
   const { t } = useTranslation();
   useDashboardHeader(
     t("dashboard.customerAnalytics") || "Customer Analytics",
-    "View detailed customer analytics and insights",
+    "View detailed customer analytics and insights"
   );
 
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector(
-    (state) => state.customerAnalytics,
+    (state) => state.customerAnalytics
   );
 
-  const storeId =
-    selectedStore?.storeId || selectedStore?.id || selectedStore?._id;
+  const storeId = pickStoreId(selectedStore);
   const fetchedStoreId = useRef(null);
 
   useEffect(() => {
@@ -60,14 +60,14 @@ const CustomerAnalytics = () => {
         last6Months: 0,
         last12Months: 0,
       },
-    [analytics?.newCustomers],
+    [analytics?.newCustomers]
   );
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
     analytics,
     "customers-report-area",
-    "customers-analytics-report",
+    "customers-analytics-report"
   );
 
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -129,7 +129,7 @@ const CustomerAnalytics = () => {
           if (m.id === "last30Days")
             return { ...m, value: formatNumber(newCustomers.last30Days) };
           return m;
-        }),
+        })
       );
     }
   }, [analytics, newCustomers]);
@@ -189,7 +189,7 @@ const CustomerAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {

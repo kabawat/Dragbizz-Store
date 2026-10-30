@@ -1,11 +1,11 @@
 "use client";
 import { UpdateStaffDrawerView } from "@dragorbit/features/management";
 
-import { useState, useEffect } from "react";
-
-import staffService from "@/service/retailer/staff.service";
+import { useEffect, useMemo, useState } from "react";
 import useApiResponse from "@/hooks/useApiResponse";
+import staffService from "@/service/retailer/staff.service";
 import { useAppSelector } from "@/store/hooks";
+import { pickStoreId } from "@/utils/store.util";
 
 const MODULES = [
   { key: "billing", label: "Billing", description: "Create & manage bills" },
@@ -135,13 +135,14 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
 
   const { stores: allStores } = useAppSelector((state) => state.profile);
 
-  const storeOptions =
-    allStores
-      ?.filter((s) => s)
-      .map((s) => ({
+  const storeOptions = useMemo(
+    () =>
+      allStores?.filter(Boolean).map((s) => ({
         label: s.storeName || s.name || s.storeId || "Unnamed Store",
-        value: s.storeId || s._id || s.id,
-      })) || [];
+        value: pickStoreId(s),
+      })) || [],
+    [allStores]
+  );
 
   useEffect(() => {
     if (staff) {
@@ -149,10 +150,7 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
       setPermissions(staff.permissions || []);
 
       // Extract store IDs from staff.stores (could be array of objects or strings)
-      const storeIds =
-        staff.stores?.map((s) =>
-          typeof s === "object" ? s._id || s.id || s.storeId : s,
-        ) || [];
+      const storeIds = staff.stores?.map((s) => pickStoreId(s) || s) || [];
       setManagedStoreIds(storeIds);
 
       // Auto expand modules that have permissions enabled
@@ -182,8 +180,8 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
   const toggleAction = (moduleKey, actionKey) => {
     setPermissions((prev) =>
       prev.map((p) =>
-        p.module === moduleKey ? { ...p, [actionKey]: !p[actionKey] } : p,
-      ),
+        p.module === moduleKey ? { ...p, [actionKey]: !p[actionKey] } : p
+      )
     );
   };
 
@@ -208,7 +206,7 @@ const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
 
     if (!roleName || permissions.length === 0) {
       setError(
-        "Please provide a role and select at least one permission module.",
+        "Please provide a role and select at least one permission module."
       );
       return;
     }

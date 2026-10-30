@@ -1,23 +1,22 @@
 "use client";
 import { BillListContentView } from "@dragorbit/features/bills";
-
-import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BillDeleteConfirmModal,
   BillGrid,
   BillPaymentDrawer,
   BillTable,
 } from "@/components/bills";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { billService } from "@/service/retailer";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getBills, removeBill } from "@/store/slices/billsSlice";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateShort as formatDate } from "@/utils/dateFormatter";
-import { useApiResponse } from "@/hooks/useApiResponse";
-import { useState } from "react";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { pickStoreId } from "@/utils/store.util";
 
 const BillListContent = ({
   searchValue = "",
@@ -31,7 +30,10 @@ const BillListContent = ({
   const { bills, pagination, isLoading, isFetchingMore, viewMode } =
     useAppSelector((state) => state.bills);
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || "";
+  const storeId = useMemo(
+    () => pickStoreId(selectedStore) || "",
+    [selectedStore]
+  );
 
   const { can } = useModulePermissions("billing");
   const canEdit = can("edit");
@@ -83,22 +85,30 @@ const BillListContent = ({
               startDate: startDateRef.current || undefined,
               endDate: endDateRef.current || undefined,
               isFreshLoad: false,
-            }),
+            })
           );
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
 
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, [dispatch, pagination.hasNextPage]);
 
+  const billsMap = useMemo(() => {
+    const map = new Map();
+    for (const b of bills) {
+      map.set(b._id || b.id, b);
+    }
+    return map;
+  }, [bills]);
+
   // Close contextual menu on outside click
   useEffect(() => {
+    if (!openMenuId) return undefined;
     const handleClickOutside = (event) => {
       if (
-        openMenuId &&
         menuRefs.current[openMenuId] &&
         !menuRefs.current[openMenuId].contains(event.target)
       ) {
@@ -120,7 +130,7 @@ const BillListContent = ({
 
   const handleMenuAction = useCallback(
     (id, action) => {
-      const bill = bills.find((b) => (b._id || b.id) === id);
+      const bill = billsMap.get(id);
       if (!bill) return;
 
       switch (action) {
@@ -147,7 +157,7 @@ const BillListContent = ({
       }
       setOpenMenuId(null);
     },
-    [bills, router, canEdit, canDelete, canView, handleDelete],
+    [billsMap, router, canEdit, canDelete, canView, handleDelete]
   );
 
   const confirmDelete = useCallback(async () => {
@@ -157,7 +167,7 @@ const BillListContent = ({
 
     const result = await executeDelete(
       billService.deleteBill(billId, storeId),
-      { message: t("bills.billDeletedSuccessfully") },
+      { message: t("bills.billDeletedSuccessfully") }
     );
 
     if (result?.success) {
@@ -167,52 +177,91 @@ const BillListContent = ({
     }
   }, [billToDelete, storeId, executeDelete, dispatch, t]);
 
-  return (
-    <BillListContentView
-      model={{
-        viewMode,
-        BillTable,
-        bills,
-        canEdit,
-        canDelete,
-        handleDelete,
-        isLoading,
-        t,
-        handleMenuAction,
-        formatCurrency,
-        formatDate,
-        BillGrid,
-        openMenuId,
-        handleMenuToggle,
-        menuRefs,
-        pagination,
-        sentinelRef,
-        isFetchingMore,
-        BillDeleteConfirmModal,
-        showDeleteModal,
-        setShowDeleteModal,
-        confirmDelete,
-        billToDelete,
-        isDeleting,
-        BillPaymentDrawer,
-        showPaymentDrawer,
-        setShowPaymentDrawer,
-        setSelectedBillForPayment,
-        selectedBillForPayment,
-        storeId,
-        dispatch,
-        getBills,
-        onRoute0: (value0) =>
-          router.push("/dashboard/bills/" + String(value0) + "/edit"),
-        onRoute1: (value0) =>
-          router.push("/dashboard/bills/" + String(value0) + ""),
-        onRoute2: (value0) =>
-          router.push("/dashboard/bills/" + String(value0) + "/edit"),
-        onRoute3: (value0) =>
-          router.push("/dashboard/bills/" + String(value0) + ""),
-      }}
-    />
+  const onRoute0 = useCallback(
+    (value0) => router.push(`/dashboard/bills/${String(value0)}/edit`),
+    [router]
   );
+  const onRoute1 = useCallback(
+    (value0) => router.push(`/dashboard/bills/${String(value0)}`),
+    [router]
+  );
+  const onRoute2 = useCallback(
+    (value0) => router.push(`/dashboard/bills/${String(value0)}/edit`),
+    [router]
+  );
+  const onRoute3 = useCallback(
+    (value0) => router.push(`/dashboard/bills/${String(value0)}`),
+    [router]
+  );
+
+  const model = useMemo(
+    () => ({
+      viewMode,
+      BillTable,
+      bills,
+      canEdit,
+      canDelete,
+      handleDelete,
+      isLoading,
+      t,
+      handleMenuAction,
+      formatCurrency,
+      formatDate,
+      BillGrid,
+      openMenuId,
+      handleMenuToggle,
+      menuRefs,
+      pagination,
+      sentinelRef,
+      isFetchingMore,
+      BillDeleteConfirmModal,
+      showDeleteModal,
+      setShowDeleteModal,
+      confirmDelete,
+      billToDelete,
+      isDeleting,
+      BillPaymentDrawer,
+      showPaymentDrawer,
+      setShowPaymentDrawer,
+      setSelectedBillForPayment,
+      selectedBillForPayment,
+      storeId,
+      dispatch,
+      getBills,
+      onRoute0,
+      onRoute1,
+      onRoute2,
+      onRoute3,
+    }),
+    [
+      viewMode,
+      bills,
+      canEdit,
+      canDelete,
+      handleDelete,
+      isLoading,
+      t,
+      handleMenuAction,
+      openMenuId,
+      handleMenuToggle,
+      pagination,
+      isFetchingMore,
+      showDeleteModal,
+      confirmDelete,
+      billToDelete,
+      isDeleting,
+      showPaymentDrawer,
+      selectedBillForPayment,
+      storeId,
+      dispatch,
+      onRoute0,
+      onRoute1,
+      onRoute2,
+      onRoute3,
+    ]
+  );
+
+  return <BillListContentView model={model} />;
 };
 
-export default BillListContent;
+export default memo(BillListContent);

@@ -1,4 +1,5 @@
 "use client";
+import { memo } from "react";
 import { InvoiceNumberSettings } from "@/components/settings";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -8,7 +9,7 @@ const InvoiceNumberUtilityPage = () => {
   useDashboardHeader(
     t("invoiceNumber.title") || "Invoice Number Format",
     t("invoiceNumber.description") ||
-      "Configure invoice numbering sequence, prefix, and date format",
+      "Configure invoice numbering sequence, prefix, and date format"
   );
 
   return (
@@ -20,5 +21,4 @@ const InvoiceNumberUtilityPage = () => {
   );
 };
 
-export default InvoiceNumberUtilityPage;
-
+export default memo(InvoiceNumberUtilityPage);

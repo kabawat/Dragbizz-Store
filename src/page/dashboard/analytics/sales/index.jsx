@@ -1,5 +1,4 @@
 "use client";
-import { SalesAnalyticsScreen } from "@dragorbit/features/analytics";
 
 import {
   KeyboardSensor,
@@ -8,6 +7,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { SalesAnalyticsScreen } from "@dragorbit/features/analytics";
 import { CheckCircle, FileText, XCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import SalesChart from "@/components/analytics/sales/SalesChart";
@@ -18,10 +18,11 @@ import {
 import SalesReportTemplate from "@/components/templates/analytics/sales/SalesReportTemplate";
 
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoiceAnalytics } from "@/store/slices/analyticsSlice";
+import { pickStoreId } from "@/utils/store.util";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 const formatCurrency = (amount) =>
@@ -34,17 +35,16 @@ const SalesAnalytics = () => {
   const { t } = useTranslation();
   useDashboardHeader(
     t("dashboard.salesAnalytics") || "Sales Analytics",
-    "View detailed sales analytics and insights",
+    "View detailed sales analytics and insights"
   );
 
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { invoice: analytics, isLoadingInvoice: isLoading } = useAppSelector(
-    (state) => state.analytics,
+    (state) => state.analytics
   );
 
-  const storeId =
-    selectedStore?.storeId || selectedStore?.id || selectedStore?._id;
+  const storeId = pickStoreId(selectedStore);
   const fetchedStoreId = useRef(null);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const SalesAnalytics = () => {
         draftInvoices: 0,
         cancelledInvoices: 0,
       },
-    [analytics?.counts],
+    [analytics?.counts]
   );
 
   const amounts = useMemo(
@@ -71,7 +71,7 @@ const SalesAnalytics = () => {
         totalAmount: 0,
         averageOrderValue: 0,
       },
-    [analytics?.amounts],
+    [analytics?.amounts]
   );
 
   const today = useMemo(
@@ -80,14 +80,14 @@ const SalesAnalytics = () => {
         totalInvoices: 0,
         releasedInvoices: 0,
       },
-    [analytics?.today],
+    [analytics?.today]
   );
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
     analytics,
     "sales-report-area",
-    "sales-analytics-report",
+    "sales-analytics-report"
   );
 
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -153,7 +153,7 @@ const SalesAnalytics = () => {
           if (m.id === "cancelledInvoices")
             return { ...m, value: formatNumber(counts.cancelledInvoices) };
           return m;
-        }),
+        })
       );
     }
   }, [analytics, counts, amounts]);
@@ -168,7 +168,7 @@ const SalesAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {

@@ -1,24 +1,31 @@
 "use client";
 import { CheckCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
-import { useApiResponse } from "@/hooks/useApiResponse";
 import { pickStoreId } from "@/utils/store.util";
 
-const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) => {
+const ReleaseInvoiceModal = ({
+  onClose,
+  invoice,
+  onSuccess,
+  onCollectPayment,
+}) => {
   const { t } = useTranslation();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
   const { execute, loading } = useApiResponse();
   const [paymentStatus, setPaymentStatus] = useState("UNPAID");
 
-  const storeId = pickStoreId(selectedStore);
+  const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
   const totalAmount = invoice?.totalAmount || 0;
   const invoiceNumber =
     invoice?.invoiceNumber ||
@@ -31,15 +38,13 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) 
     }
   }, [invoice]);
 
-  if (!invoice) return null;
-
-  const handleCollectPayment = () => {
+  const handleCollectPayment = useCallback(() => {
     if (!invoice?.id) return;
     onClose();
     onCollectPayment?.(invoice.id);
-  };
+  }, [invoice?.id, onClose, onCollectPayment]);
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     if (paymentStatus === "PAID" || paymentStatus === "PARTIAL") {
       handleCollectPayment();
       return;
@@ -52,18 +57,46 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) 
 
     const result = await execute(
       invoiceService.releaseInvoice(invoice.id, paymentStatus, storeId),
-      { message: "Invoice released successfully" },
+      { message: "Invoice released successfully" }
     );
 
     if (result?.success) {
       await dispatch(
-        getInvoices({ store: storeId, limit: 20, cursor: null, isFreshLoad: true }),
+        getInvoices({
+          store: storeId,
+          limit: 20,
+          cursor: null,
+          isFreshLoad: true,
+        })
       );
       onSuccess?.(result.data || invoice.id);
       onClose();
       router.push(`/dashboard/invoices/${invoice.id}`);
     }
-  };
+  }, [
+    paymentStatus,
+    handleCollectPayment,
+    invoice?.id,
+    storeId,
+    showError,
+    execute,
+    dispatch,
+    onSuccess,
+    onClose,
+    router,
+  ]);
+
+  const paymentStatusOptions = useMemo(
+    () => [
+      { value: "PAID", label: t("invoice.paid") },
+      { value: "UNPAID", label: t("invoice.unpaid") },
+      { value: "PARTIAL", label: t("invoice.partialPayment") },
+      { value: "CANCELLED", label: t("invoice.cancelled") },
+    ],
+    [t]
+  );
+
+  if (!invoice) return null;
 
   return (
     <div className="fixed inset-0 backdrop-blur-[1px] bg-black/10 flex items-center justify-center z-[9999]">
@@ -82,23 +115,18 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) 
           </div>
         </div>
         <p className="text-[rgb(var(--color-text-primary))] mb-4">
-          Are you sure you want to release invoice
+          Are you sure you want to release invoice{" "}
           <strong>{invoiceNumber}</strong>? This will finalize the invoice and
           it cannot be edited afterwards.
         </p>
         <div className="mb-4">
-          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
+          <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
             Payment Status
-          </label>
+          </span>
           <Select
             value={paymentStatus}
             onChange={setPaymentStatus}
-            options={[
-              { value: "PAID", label: t("invoice.paid") },
-              { value: "UNPAID", label: t("invoice.unpaid") },
-              { value: "PARTIAL", label: t("invoice.partialPayment") },
-              { value: "CANCELLED", label: t("invoice.cancelled") },
-            ]}
+            options={paymentStatusOptions}
             placeholder={t("invoice.selectPaymentStatus")}
           />
         </div>
@@ -108,7 +136,11 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) 
             <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-3">
               {t("invoice.collectPayment.releasePaidHint")}
             </p>
-            <Button variant="outline" className="w-full" onClick={handleCollectPayment}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleCollectPayment}
+            >
               {t("invoice.collectPayment.collectPayment")}
             </Button>
           </div>
@@ -116,16 +148,27 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) 
 
         {paymentStatus === "UNPAID" && (
           <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-6">
-            {t("invoice.totalInvoiceAmount")}: ₹{totalAmount?.toLocaleString() || 0}
+            {t("invoice.totalInvoiceAmount")}: ₹
+            {totalAmount?.toLocaleString() || 0}
           </p>
         )}
 
         <div className="flex space-x-3">
-          <Button onClick={onClose} variant="outline" className="flex-1" disabled={loading}>
+          <Button
+            onClick={onClose}
+            variant="outline"
+            className="flex-1"
+            disabled={loading}
+          >
             {t("common.cancel")}
           </Button>
           {(paymentStatus === "UNPAID" || paymentStatus === "CANCELLED") && (
-            <Button onClick={handleConfirm} className="flex-1" disabled={loading} loading={loading}>
+            <Button
+              onClick={handleConfirm}
+              className="flex-1"
+              disabled={loading}
+              loading={loading}
+            >
               {loading ? t("invoice.releasing") : t("invoice.releaseInvoice")}
             </Button>
           )}
@@ -135,4 +178,4 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess, onCollectPayment }) 
   );
 };
 
-export default ReleaseInvoiceModal;
+export default memo(ReleaseInvoiceModal);
