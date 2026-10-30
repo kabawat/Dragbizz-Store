@@ -1,6 +1,6 @@
 "use client";
 import { AddedItemsList } from "@dragorbit/features/invoices";
-import { Calculator, Package, Plus } from "lucide-react";
+import { IndianRupee, Package, Plus } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, EmptyState, Input, Select } from "@/components/ui";
 import { useBarcodeScanner } from "@/hooks/barcode/useBarcodeScanner";
@@ -62,6 +62,7 @@ const InvoiceItemsSection = ({
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedVariant, setSelectedVariant] = useState("");
   const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [selectedPrice, setSelectedPrice] = useState("");
   const [scanning, setScanning] = useState(false);
   const [variantRows, setVariantRows] = useState([]);
   const [variantSearch, setVariantSearch] = useState("");
@@ -220,7 +221,7 @@ const InvoiceItemsSection = ({
         value: `${getProductId(product)}::`,
         label: `${product.name} — ${formatVariantOption(product) || "Service"}`,
       }));
-    return [{ value: "", label: "Select Item" }, ...options, ...serviceOptions];
+    return [{ value: "", label: t("invoice.selectItem") || "Select Item" }, ...options, ...serviceOptions];
   }, [
     variantRows,
     productsById,
@@ -228,6 +229,7 @@ const InvoiceItemsSection = ({
     selectedVariantData,
     selectedProduct,
     selectedVariant,
+    t,
   ]);
 
   const selectedProductObj = useMemo(() => {
@@ -255,7 +257,7 @@ const InvoiceItemsSection = ({
   );
 
   const appendProduct = useCallback(
-    (product, quantity = 1, variantId = null) => {
+    (product, quantity = 1, variantId = null, customPrice = null) => {
       if (!getProductId(product)) {
         showError(t("invoice.productNotFound"));
         return false;
@@ -283,6 +285,10 @@ const InvoiceItemsSection = ({
       setFormData((prev) => {
         const result = addProductToInvoiceItems(prev.items, product, quantity, {
           variantId: resolvedVariantId,
+          price:
+            customPrice !== null && customPrice !== "" && !isNaN(customPrice)
+              ? Number(customPrice)
+              : undefined,
         });
         return result.added ? { ...prev, items: result.items } : prev;
       });
@@ -324,6 +330,8 @@ const InvoiceItemsSection = ({
         ) {
           setSelectedProduct("");
           setSelectedVariant("");
+          setSelectedVariantData(null);
+          setSelectedPrice("");
         }
       } finally {
         scanInFlightRef.current = false;
@@ -351,20 +359,34 @@ const InvoiceItemsSection = ({
       const [productId, variantId = ""] = String(value || "").split("::");
       setSelectedProduct(productId);
       setSelectedVariant(variantId);
-      setSelectedVariantData(variantsById.get(variantId) || null);
+      const variantData = variantsById.get(variantId) || null;
+      setSelectedVariantData(variantData);
+
+      if (variantData) {
+        const p = variantData.sellingPrice ?? variantData.mrp;
+        setSelectedPrice(p !== undefined && p !== null ? String(p) : "");
+      } else {
+        const prod = productsById.get(String(productId));
+        if (prod) {
+          const p = prod.sellingPrice ?? prod.mrp;
+          setSelectedPrice(p !== undefined && p !== null ? String(p) : "");
+        } else {
+          setSelectedPrice("");
+        }
+      }
     },
-    [variantsById]
+    [variantsById, productsById]
   );
 
   const handleAddItem = useCallback(() => {
     if (!selectedProduct) {
-      showError(t("invoice.pleaseSelectProduct"));
+      showError(t("invoice.pleaseSelectProduct") || "Please select a product");
       return;
     }
 
     const product = selectedProductObj;
     if (!product) {
-      showError(t("invoice.productNotFound"));
+      showError(t("invoice.productNotFound") || "Product not found");
       return;
     }
 
@@ -378,19 +400,31 @@ const InvoiceItemsSection = ({
     }
 
     const quantityToAdd = parseInt(selectedQuantity, 10) || 1;
+    const priceToAdd =
+      selectedPrice !== "" && !isNaN(selectedPrice)
+        ? Number(selectedPrice)
+        : null;
+
     const productWithVariant = selectedVariantObj
       ? {
           ...product,
           variants: [...getInvoiceVariants(product), selectedVariantObj],
         }
       : product;
+
     if (
-      appendProduct(productWithVariant, quantityToAdd, selectedVariant || null)
+      appendProduct(
+        productWithVariant,
+        quantityToAdd,
+        selectedVariant || null,
+        priceToAdd
+      )
     ) {
       setSelectedProduct("");
       setSelectedVariant("");
       setSelectedVariantData(null);
       setSelectedQuantity(1);
+      setSelectedPrice("");
     }
   }, [
     selectedProduct,
@@ -398,6 +432,7 @@ const InvoiceItemsSection = ({
     selectedVariant,
     selectedVariantObj,
     selectedQuantity,
+    selectedPrice,
     appendProduct,
     showError,
     t,
@@ -413,12 +448,42 @@ const InvoiceItemsSection = ({
     [setFormData]
   );
 
-  const handleDiscountChange = useCallback(
-    (value) => {
-      setFormData((prev) => ({
-        ...prev,
-        totalDiscount: value,
-      }));
+  const handleUpdateQuantity = useCallback(
+    (index, newQty) => {
+      setFormData((prev) => {
+        const items = [...prev.items];
+        const item = items[index];
+        if (!item) return prev;
+        const qty =
+          newQty === "" ? "" : Math.max(1, parseInt(newQty, 10) || 1);
+        const price = Number(item.price) || 0;
+        items[index] = {
+          ...item,
+          quantity: qty,
+          total: (typeof qty === "number" ? qty : 0) * price,
+        };
+        return { ...prev, items };
+      });
+    },
+    [setFormData]
+  );
+
+  const handleUpdatePrice = useCallback(
+    (index, newPrice) => {
+      setFormData((prev) => {
+        const items = [...prev.items];
+        const item = items[index];
+        if (!item) return prev;
+        const price =
+          newPrice === "" ? "" : Math.max(0, parseFloat(newPrice) || 0);
+        const qty = Number(item.quantity) || 1;
+        items[index] = {
+          ...item,
+          price: price,
+          total: (typeof price === "number" ? price : 0) * qty,
+        };
+        return { ...prev, items };
+      });
     },
     [setFormData]
   );
@@ -426,14 +491,16 @@ const InvoiceItemsSection = ({
   return (
     <Card
       padding="none"
-      className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden"
+      className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden w-full max-w-full"
     >
-      <div className="p-4 flex flex-col h-full overflow-hidden">
-        <div className="mb-4 flex-shrink-0">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            <div className="md:col-span-7">
+      <div className="p-3 sm:p-4 flex flex-col h-full overflow-hidden w-full max-w-full">
+        {/* Item Selection Row */}
+        <div className="mb-4 flex-shrink-0 w-full">
+          <div className="grid grid-cols-12 gap-3 items-end w-full">
+            {/* Product & Variant Select */}
+            <div className="col-span-12 lg:col-span-5 min-w-0">
               <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                Items *
+                {t("invoice.items") || "Items"} *
               </span>
               <Select
                 size="sm"
@@ -455,9 +522,10 @@ const InvoiceItemsSection = ({
               />
             </div>
 
-            <div className="md:col-span-2">
+            {/* Quantity Input */}
+            <div className="col-span-6 sm:col-span-3 lg:col-span-2 min-w-0">
               <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                {t("invoice.quantity")} *
+                {t("invoice.quantity") || "Quantity"} *
               </span>
               <Input
                 type="number"
@@ -471,12 +539,33 @@ const InvoiceItemsSection = ({
               />
             </div>
 
-            <div className="md:col-span-3">
+            {/* Price Input (Editable) */}
+            <div className="col-span-6 sm:col-span-3 lg:col-span-2 min-w-0">
+              <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                {t("invoice.price") || "Price"} (₹) *
+              </span>
+              <Input
+                type="number"
+                data-ignore-barcode-scanner="true"
+                value={selectedPrice}
+                onChange={(value) => setSelectedPrice(value)}
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                leftIcon={IndianRupee}
+                size="sm"
+              />
+            </div>
+
+            {/* Add Item Button (Full width in column, no gap) */}
+            <div className="col-span-12 sm:col-span-6 lg:col-span-3 min-w-0">
               <Button
                 type="button"
                 variant="primary"
                 onClick={handleAddItem}
                 leftIcon={Plus}
+                size="sm"
+                className="w-full justify-center h-9 font-medium"
                 disabled={
                   !selectedProduct ||
                   (!selectedVariant &&
@@ -493,35 +582,17 @@ const InvoiceItemsSection = ({
           </div>
         </div>
 
+        {/* Added Items List */}
         {formData.items.length > 0 ? (
-          <div className="mt-4 flex-1 flex flex-col min-h-[18rem] lg:min-h-0">
+          <div className="mt-2 flex-1 flex flex-col min-h-[16rem] lg:min-h-0 w-full max-w-full overflow-hidden">
             <AddedItemsList
               items={formData.items}
               products={products}
               t={t}
               onRemove={handleRemoveItem}
+              onUpdateQuantity={handleUpdateQuantity}
+              onUpdatePrice={handleUpdatePrice}
             />
-
-            <div className="flex-shrink-0 mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]/30 flex justify-end">
-              <div className="md:w-72">
-                <span className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
-                  {t("invoice.totalDiscount")} (₹)
-                  <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
-                    ({t("common.optional")})
-                  </span>
-                </span>
-                <Input
-                  type="number"
-                  value={formData.totalDiscount}
-                  onChange={handleDiscountChange}
-                  min="0"
-                  step="0.01"
-                  leftIcon={Calculator}
-                  size="sm"
-                  placeholder="Enter discount amount"
-                />
-              </div>
-            </div>
           </div>
         ) : (
           <EmptyState

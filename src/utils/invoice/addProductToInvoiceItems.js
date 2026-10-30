@@ -33,7 +33,7 @@ function findVariantOnProduct(product, variantId) {
   );
 }
 
-function buildLineFromProduct(product, quantity, variantId) {
+function buildLineFromProduct(product, quantity, variantId, customPrice = null) {
   const variant = findVariantOnProduct(product, variantId);
   const priceSource = variant
     ? {
@@ -54,7 +54,12 @@ function buildLineFromProduct(product, quantity, variantId) {
       }
     : product;
 
-  const productPrice = resolveProductUnitPrice(priceSource);
+  const defaultPrice = resolveProductUnitPrice(priceSource);
+  const productPrice =
+    customPrice !== null && !isNaN(customPrice)
+      ? Number(customPrice)
+      : defaultPrice;
+
   const gstRate =
     priceSource.gstInfo?.gstRate ?? product.gstInfo?.gstRate ?? 0;
   const isInclusive =
@@ -93,6 +98,13 @@ export function addProductToInvoiceItems(
 
   const quantity = parseInt(quantityToAdd, 10) || 1;
   const variantId = resolveVariantId(product, options.variantId ?? null);
+  const customPrice =
+    options.price !== undefined &&
+    options.price !== null &&
+    options.price !== "" &&
+    !isNaN(options.price)
+      ? Number(options.price)
+      : null;
 
   const existingItemIndex = items.findIndex((item) => {
     const itemVariant = item.variant ? String(item.variant) : "";
@@ -106,18 +118,22 @@ export function addProductToInvoiceItems(
     const updatedItems = [...items];
     const existingItem = updatedItems[existingItemIndex];
     const newQuantity = existingItem.quantity + quantity;
-    const unitPrice = existingItem.price ?? resolveProductUnitPrice(product);
+    const unitPrice =
+      customPrice !== null
+        ? customPrice
+        : (existingItem.price ?? resolveProductUnitPrice(product));
 
     updatedItems[existingItemIndex] = {
       ...existingItem,
       quantity: newQuantity,
+      price: unitPrice,
       total: unitPrice * newQuantity,
       variant: existingItem.variant ?? variantId ?? null,
     };
     return { items: updatedItems, added: true };
   }
 
-  const newItem = buildLineFromProduct(product, quantity, variantId);
+  const newItem = buildLineFromProduct(product, quantity, variantId, customPrice);
   return { items: [...items, newItem], added: true };
 }
 

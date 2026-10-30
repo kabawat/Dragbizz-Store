@@ -22,6 +22,11 @@ class InvoiceService extends BaseService {
     return this.get(this.endpoint, params);
   }
 
+  // Get Single Invoice By ID
+  getInvoiceById(invoiceId, params = {}) {
+    return this.get(this.endpoint, { id: invoiceId, ...params });
+  }
+
   // Update Draft Invoice (Only for DRAFT invoices)
   updateDraftInvoice(invoiceId, updateData) {
     // Remove paymentStatus from updateData as it's now UNPAID by default for drafts

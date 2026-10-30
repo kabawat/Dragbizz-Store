@@ -20,7 +20,7 @@
   "item": "આઇટમ",
   "items": "આઇટમ્સ",
   "createInvoiceButton": "ઇન્વૉઇસ બનાવો",
-  "createNewInvoice": "નવું ઇન્વૉઇસ બનાવો",
+  "createNewInvoice": "નવું ઇનવૉઇસ બનાવો",
   "noItemsTile": "કોઈ આઇટમ્સ ઉમેરાઈ નથી.",
   "noItemsdisc": "ઉપરથી કોઈ પ્રોડક્ટ અને ક્વોન્ટિટી પસંદ કરો.",
   "loadingCustomers": "ગ્રાહકો લોડ થઈ રહ્યા છે...",
@@ -286,5 +286,13 @@
     "offlineOnlineRequired": "ઓનલાઇન ચુકવણી માટે ઇન્ટરનેટ જરૂરી છે",
     "thankYou": "આભાર!"
   },
-  "invoiceTemplates": "ઇન્વૉઇસ ટેમ્પલેટ્સ"
+  "invoiceTemplates": "ઇન્વૉઇસ ટેમ્પલેટ્સ",
+  "discardInvoiceTitle": "શું તમે ઉમેરેલી વસ્તુઓ છોડવા માંગો છો?",
+  "discardInvoiceDescription": "તમે આ ઇનવૉઇસમાં વસ્તુઓ ઉમેરી છે. શું તમે તેને છોડવા માંગો છો કે ડ્રાફ્ટ તરીકે સાચવવા માંગો છો?",
+  "saveAsDraft": "ડ્રાફ્ટ તરીકે સાચવો",
+  "yesDiscard": "હા, કાઢી નાખો",
+  "savedAsDraftSuccess": "ઇનવૉઇસ ડ્રાફ્ટ તરીકે સફળતાપૂર્વક સાચવવામાં આવ્યું છે",
+  "discardChangesTitle": "શું તમે ફેરફારો કાઢી નાખવા માંગો છો?",
+  "discardChangesDescription": "તમે આ ઇનવૉઇસમાં ફેરફારો કર્યા છે. શું તમે તેને છોડવા માંગો છો કે ઇનવૉઇસ અપડેટ કરવા માંગો છો?",
+  "update": "અપડેટ કરો"
 }

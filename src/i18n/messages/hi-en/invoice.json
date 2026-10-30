@@ -19,7 +19,7 @@
   "item": "Item",
   "items": "Items",
   "createInvoiceButton": "Invoice create karo",
-  "createNewInvoice": "Naya Invoice create karo",
+  "createNewInvoice": "Create New Invoice",
   "noItemsTile": "Abhi tak koi items add nahi kiye",
   "noItemsdisc": "Items add karne ke liye upar se product aur quantity select karo.",
   "loadingCustomers": "Customers load ho rahe hain...",
@@ -286,5 +286,13 @@
     "offlineOnlineRequired": "Online payment ke liye internet chahiye",
     "thankYou": "Dhanyavaad!"
   },
-  "invoiceTemplates": "Invoice Templates"
+  "invoiceTemplates": "Invoice Templates",
+  "discardInvoiceTitle": "Kya aap added items discard karna chahte hain?",
+  "discardInvoiceDescription": "Aapne is invoice me items add kiye hain. Kya aap discard karna chahte hain ya draft me save karna chahte hain?",
+  "saveAsDraft": "Draft me save karein",
+  "yesDiscard": "Haan, Discard karein",
+  "savedAsDraftSuccess": "Invoice draft ke roop me successfully save ho gaya",
+  "discardChangesTitle": "Kya aap changes discard karna chahte hain?",
+  "discardChangesDescription": "Aapne is invoice me changes kiye hain. Kya aap discard karna chahte hain ya invoice update karna chahte hain?",
+  "update": "Update karein"
 }

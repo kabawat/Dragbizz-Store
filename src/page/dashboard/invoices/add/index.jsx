@@ -1,14 +1,15 @@
 "use client";
 import { PageSkeleton } from "@dragorbit/ui/app";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CreateCustomer } from "@/components/customer";
+import DiscardInvoiceModal from "@/components/invoice/create/DiscardInvoiceModal";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
-import { SideDrawer } from "@/components/ui";
+import { Button, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
@@ -17,6 +18,7 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { customerService, invoiceService, productService } from "@/service";
 import { variantService } from "@/service/retailer/variant.service";
 import { useAppSelector } from "@/store/hooks";
+import { calculateInvoiceGST } from "@/utils/gstCalculator";
 import {
   findProductByScanCode,
   getProductId,
@@ -27,7 +29,7 @@ const barcodeCache = new Map();
 const INITIAL_FORM_DATA = {
   customer: "",
   totalDiscount: 0,
-  discountMode: "POST_TOTAL", // POST_TOTAL = discount on taxable value; POST_TOTAL = discount on inclusive MRP
+  discountMode: "POST_TOTAL",
   items: [],
   orderSource: "POS",
 };
@@ -36,7 +38,6 @@ const CreateInvoicePage = () => {
   // 1. Core Hooks & Selectors
   const router = useRouter();
   const { t } = useTranslation();
-  // Combine selectors for profile
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   // 2. Local State
@@ -47,8 +48,12 @@ const CreateInvoicePage = () => {
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
+  const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
 
-  // Permission Guard: Ensure user can create invoices
+  // Permission Guard
   const { can, loading: permissionLoading } = useModulePermissions("invoice");
   const canCreate = can("create");
 
@@ -62,11 +67,34 @@ const CreateInvoicePage = () => {
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // 4. Custom Hooks
-  const { showError } = useGlobalToast();
+  const { showError, showSuccess } = useGlobalToast();
   const { execute } = useApiResponse();
 
   // 5. Derived Values
   const storeId = selectedStore?.storeId;
+
+  // Calculate grand total for live bottom bar display
+  const grandTotal = useMemo(() => {
+    if (!formData.items || formData.items.length === 0) return 0;
+    const mappedItems = formData.items.map((item) => ({
+      price: Number(item.price) || 0,
+      quantity: Number(item.quantity) || 1,
+      gstRate: Number(item.gstRate || item.gst?.rate) || 0,
+      isInclusive:
+        item.isInclusive !== undefined
+          ? item.isInclusive
+          : item.gst && item.gst.isInclusive !== undefined
+            ? item.gst.isInclusive
+            : false,
+    }));
+    const gstSummary = calculateInvoiceGST({
+      items: mappedItems,
+      totalDiscount: Number(formData.totalDiscount) || 0,
+      discountMode: formData.discountMode || "POST_TOTAL",
+      supplierHasGst: true,
+    });
+    return gstSummary.totalAmount || 0;
+  }, [formData.items, formData.totalDiscount, formData.discountMode]);
 
   // 6. Data Fetching Callbacks
   const fetchCustomers = useCallback(async () => {
@@ -88,14 +116,14 @@ const CreateInvoicePage = () => {
 
     if (result?.success) {
       const serializedOptions = [
-        { value: "", label: t("invoice.walkInCustomer") },
+        { value: "", label: t("invoice.walkInCustomer") || "Walk-in Customer" },
         ...(result.data || []).map((customer) => ({
           value: customer._id || customer.id,
           label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
         })),
         {
           value: "add-new-customer",
-          label: t("invoice.addNewCustomer"),
+          label: t("invoice.addNewCustomer") || "Add New Customer",
           isAddOption: true,
         },
       ];
@@ -126,6 +154,10 @@ const CreateInvoicePage = () => {
     } else {
       setFormData((prev) => ({ ...prev, customer: value }));
     }
+  }, []);
+
+  const handleDiscountChange = useCallback((value) => {
+    setFormData((prev) => ({ ...prev, totalDiscount: value }));
   }, []);
 
   const lookupProductByCode = useCallback(
@@ -185,7 +217,6 @@ const CreateInvoicePage = () => {
         }
       }
 
-      // Keep support for product-level barcodes that are not attached to a variant.
       const result = await execute(
         productService.getProducts({
           search: normalizedCode,
@@ -236,11 +267,11 @@ const CreateInvoicePage = () => {
       e?.preventDefault?.();
 
       const validItems = formData.items.filter(
-        (item) => item.product && item.quantity > 0
+        (item) => item.product && Number(item.quantity) > 0
       );
 
       if (validItems.length === 0) {
-        showError(t("invoice.addAtLeastOneItem"));
+        showError(t("invoice.addAtLeastOneItem") || "Please add at least one item");
         return;
       }
 
@@ -250,47 +281,148 @@ const CreateInvoicePage = () => {
         items: validItems.map((item) => ({
           product: item.product,
           ...(item.variant ? { variant: item.variant } : {}),
-          quantity: item.quantity,
-          ...(item.price != null ? { price: item.price } : {}),
+          quantity: Number(item.quantity) || 1,
+          ...(item.price != null && item.price !== "" ? { price: Number(item.price) } : {}),
           ...(item.uom ? { uom: item.uom } : {}),
         })),
         store: selectedStore?.storeId,
-        totalDiscount: formData.totalDiscount || 0,
-        discountMode: "POST_TOTAL", // Hardcoded for now, UI element hidden for future use.
+        totalDiscount: Number(formData.totalDiscount) || 0,
+        discountMode: "POST_TOTAL",
         orderSource: formData.orderSource || "POS",
       };
 
       setInvoiceLoading(true);
+      const isUpdate = Boolean(createdInvoiceId);
       const result = await execute(
-        invoiceService.createDraftInvoice(invoiceData),
+        isUpdate
+          ? invoiceService.updateDraftInvoice(createdInvoiceId, invoiceData)
+          : invoiceService.createDraftInvoice(invoiceData),
         {
-          message:
-            t("invoice.invoiceCreatedSuccess") ||
-            "Invoice created successfully",
+          message: isUpdate
+            ? (t("invoice.updateSuccess") || "Invoice updated successfully")
+            : (t("invoice.invoiceCreatedSuccess") || "Invoice created successfully"),
         }
       );
 
       if (result?.success) {
-        const createdId = result?.data?.id;
-        if (createdId) {
-          setPaymentInvoiceId(createdId);
+        const targetId = isUpdate ? createdInvoiceId : (result?.data?.id || result?.data?._id);
+        if (targetId) {
+          if (!createdInvoiceId) setCreatedInvoiceId(targetId);
+          setPaymentInvoiceId(targetId);
         } else {
           router.push("/dashboard/invoices");
         }
       } else {
         showError(
-          result?.message || t("errors.unknown") || "Failed to create invoice"
+          result?.message || t("errors.unknown") || (isUpdate ? "Failed to update invoice" : "Failed to create invoice")
         );
       }
       setInvoiceLoading(false);
     },
-    [formData, selectedStore?.storeId, execute, router, showError, t]
+    [formData, selectedStore?.storeId, createdInvoiceId, execute, router, showError, t]
   );
+
+  // Back / Cancel with Discard Confirmation
+  const handleBack = useCallback(() => {
+    if (formData.items && formData.items.length > 0) {
+      setPendingNavigation("/dashboard/invoices");
+      setShowDiscardModal(true);
+    } else {
+      router.push("/dashboard/invoices");
+    }
+  }, [formData.items, router]);
+
+  const handleCreateNew = useCallback(() => {
+    if (formData.items && formData.items.length > 0) {
+      setPendingNavigation("/dashboard/invoices/add");
+      setShowDiscardModal(true);
+    } else {
+      setCreatedInvoiceId(null);
+      setFormData(INITIAL_FORM_DATA);
+    }
+  }, [formData.items]);
+
+  const handleConfirmDiscard = useCallback(() => {
+    setShowDiscardModal(false);
+    if (pendingNavigation === "/dashboard/invoices/add") {
+      setCreatedInvoiceId(null);
+      setFormData(INITIAL_FORM_DATA);
+      setPendingNavigation(null);
+    } else {
+      router.push(pendingNavigation || "/dashboard/invoices");
+    }
+  }, [pendingNavigation, router]);
+
+  const handleSaveDraftAndLeave = useCallback(async () => {
+    const validItems = formData.items.filter(
+      (item) => item.product && Number(item.quantity) > 0
+    );
+
+    if (validItems.length === 0) {
+      setShowDiscardModal(false);
+      router.push(pendingNavigation || "/dashboard/invoices");
+      return;
+    }
+
+    const invoiceData = {
+      customer: formData.customer || null,
+      isWalkin: true,
+      items: validItems.map((item) => ({
+        product: item.product,
+        ...(item.variant ? { variant: item.variant } : {}),
+        quantity: Number(item.quantity) || 1,
+        ...(item.price != null && item.price !== "" ? { price: Number(item.price) } : {}),
+        ...(item.uom ? { uom: item.uom } : {}),
+      })),
+      store: selectedStore?.storeId,
+      totalDiscount: Number(formData.totalDiscount) || 0,
+      discountMode: "POST_TOTAL",
+      orderSource: formData.orderSource || "POS",
+    };
+
+    setIsSavingDraft(true);
+    let result;
+    if (createdInvoiceId) {
+      result = await execute(
+        invoiceService.updateDraftInvoice(createdInvoiceId, invoiceData),
+        {
+          message:
+            t("invoice.savedAsDraftSuccess") ||
+            "Invoice saved as draft successfully",
+        }
+      );
+    } else {
+      result = await execute(
+        invoiceService.createDraftInvoice(invoiceData),
+        {
+          message:
+            t("invoice.savedAsDraftSuccess") ||
+            "Invoice saved as draft successfully",
+        }
+      );
+    }
+    setIsSavingDraft(false);
+
+    if (result?.success) {
+      setShowDiscardModal(false);
+      if (pendingNavigation === "/dashboard/invoices/add") {
+        setCreatedInvoiceId(null);
+        setFormData(INITIAL_FORM_DATA);
+        setPendingNavigation(null);
+      } else {
+        router.push(pendingNavigation || "/dashboard/invoices");
+      }
+    } else {
+      showError(
+        result?.message || t("errors.unknown") || "Failed to save draft"
+      );
+    }
+  }, [formData, selectedStore?.storeId, createdInvoiceId, execute, pendingNavigation, router, showError, t]);
 
   // 9. Shortcuts
   useCommonHotkeys({
     onSave: handleSubmit,
-    onBack: () => router.push("/dashboard/invoices"),
+    onBack: handleBack,
   });
 
   // Show loading if store or permissions are not available yet
@@ -312,63 +444,124 @@ const CreateInvoicePage = () => {
   }
 
   return (
-    <div className="p-5">
-      <div className="max-w-8xl mx-auto w-full">
-        {/* Back Button with Quota Progress Bar */}
-        <div className="mb-4 flex-shrink-0 flex items-center justify-between">
-          <Link
-            href="/dashboard/invoices"
+    <div className="p-3 sm:p-5 w-full max-w-full overflow-x-hidden min-h-[calc(100vh-65px)] flex flex-col">
+      <div className="max-w-8xl mx-auto w-full flex-1 flex flex-col min-w-0">
+        {/* Back Button & Create New in Header Row */}
+        <div className="mb-3 sm:mb-4 flex-shrink-0 flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={handleBack}
             className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">
-              {t("invoice.backToInvoices")}
+              {t("invoice.backToInvoices") || "Back to Invoices"}
             </span>
-          </Link>
+          </button>
+
+          {createdInvoiceId && (
+            <button
+              type="button"
+              onClick={handleCreateNew}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/10 hover:bg-[rgb(var(--color-primary))]/20 rounded-lg transition-colors border border-[rgb(var(--color-primary))]/30"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t("invoice.createNewInvoice") || "Create New"}</span>
+            </button>
+          )}
         </div>
 
         {/* Form Container - Two Column Layout */}
-        <div className="overflow-hidden">
-          <div className="min-h-[calc(100vh-150px)] lg:h-[calc(100vh-150px)] overflow-y-auto">
-            <div className="min-h-full lg:h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 flex flex-col min-h-0">
-                <div className="flex-1 min-h-0">
-                  <form onSubmit={handleSubmit} className="h-full">
-                    <InvoiceItemsSection
-                      t={t}
-                      products={products}
-                      formData={formData}
-                      setFormData={setFormData}
-                      showError={showError}
-                      lookupProductByCode={lookupProductByCode}
-                      onProductResolved={handleProductResolved}
-                      storeId={storeId}
-                    />
-                  </form>
-                </div>
+        <div className="flex-1 w-full max-w-full min-w-0">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full min-w-0">
+            <div className="lg:col-span-2 flex flex-col min-h-0 w-full max-w-full min-w-0">
+              <div className="flex-1 min-h-0 w-full max-w-full">
+                <form onSubmit={handleSubmit} className="h-full">
+                  <InvoiceItemsSection
+                    t={t}
+                    products={products}
+                    formData={formData}
+                    setFormData={setFormData}
+                    showError={showError}
+                    lookupProductByCode={lookupProductByCode}
+                    onProductResolved={handleProductResolved}
+                    storeId={storeId}
+                  />
+                </form>
               </div>
+            </div>
 
-              {/* Summary Sidebar */}
+            {/* Summary Sidebar */}
+            <div className="lg:col-span-1 w-full max-w-full min-w-0">
               <InvoiceSidebar
                 t={t}
                 router={router}
                 formData={formData}
                 handleCustomerChange={handleCustomerChange}
+                handleDiscountChange={handleDiscountChange}
                 customers={customers}
                 customersLoading={customersLoading}
                 invoiceLoading={invoiceLoading}
                 handleSubmit={handleSubmit}
+                isEditMode={Boolean(createdInvoiceId)}
               />
             </div>
           </div>
         </div>
+
+        {/* Sticky Bottom Actions Bar */}
+        <div className="sticky bottom-0 z-20 mt-4 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]/40 rounded-xl px-4 sm:px-6 py-3 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 w-full backdrop-blur-sm">
+          <div className="flex items-center gap-2 sm:gap-4 text-sm text-[rgb(var(--color-text-secondary))] w-full sm:w-auto justify-between sm:justify-start">
+            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              {formData.items.length}{" "}
+              {formData.items.length === 1
+                ? t("invoice.item") || "item"
+                : t("invoice.items") || "items"}{" "}
+              {t("invoice.added") || "added"}
+            </span>
+            <span className="text-[rgb(var(--color-border-primary))]/60 hidden sm:inline">
+              •
+            </span>
+            <span className="font-bold text-[rgb(var(--color-text-primary))] text-base sm:text-lg">
+              {t("invoice.total") || "Total"}: ₹{Number(grandTotal).toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-initial min-w-[100px] justify-center"
+              onClick={handleBack}
+              disabled={invoiceLoading}
+            >
+              {t("common.cancel") || "Cancel"}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              className="flex-1 sm:flex-initial min-w-[140px] justify-center"
+              onClick={handleSubmit}
+              loading={invoiceLoading}
+              leftIcon={createdInvoiceId ? Save : Plus}
+              disabled={formData.items.length === 0}
+            >
+              {createdInvoiceId
+                ? t("invoice.updateInvoice") || "Update Invoice"
+                : t("invoice.createInvoiceButton") || "Create Invoice"}
+            </Button>
+          </div>
+        </div>
       </div>
+
       <SideDrawer
         isOpen={showCustomerDrawer}
         onClose={() => {
           setShowCustomerDrawer(false);
         }}
-        title={t("invoice.addNewCustomer")}
+        title={t("invoice.addNewCustomer") || "Add New Customer"}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="p-6 h-full">
@@ -388,7 +581,22 @@ const CreateInvoicePage = () => {
         invoiceId={paymentInvoiceId}
         source="create"
         dismissOnBackdrop={false}
-        onClose={() => setPaymentInvoiceId(null)}
+        onClose={() => {
+          setPaymentInvoiceId(null);
+          // Transition to edit URL so that user is on the edit page for this draft
+          if (createdInvoiceId) {
+            router.replace(`/dashboard/invoices/edit/${createdInvoiceId}`);
+          }
+        }}
+      />
+
+      <DiscardInvoiceModal
+        isOpen={showDiscardModal}
+        onClose={() => setShowDiscardModal(false)}
+        onDiscard={handleConfirmDiscard}
+        onSaveDraft={handleSaveDraftAndLeave}
+        isSaving={isSavingDraft}
+        t={t}
       />
     </div>
   );

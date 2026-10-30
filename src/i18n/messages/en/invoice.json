@@ -293,5 +293,13 @@
   "updateSuccess": "Invoice updated successfully.",
   "paymentStatusUpdated": "Payment status updated successfully.",
   "invoice": "Invoice",
-  "invoiceTemplates": "Invoice Templates"
+  "invoiceTemplates": "Invoice Templates",
+  "discardInvoiceTitle": "Discard Added Items?",
+  "discardInvoiceDescription": "You have added items in this invoice. Are you sure you want to discard them, or would you like to save them as a draft?",
+  "saveAsDraft": "Save as Draft",
+  "yesDiscard": "Yes, Discard",
+  "savedAsDraftSuccess": "Invoice saved as draft successfully",
+  "discardChangesTitle": "Discard Changes?",
+  "discardChangesDescription": "You have unsaved changes in this invoice. Are you sure you want to discard them, or would you like to update the invoice?",
+  "update": "Update"
 }
