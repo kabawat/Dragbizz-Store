@@ -24,7 +24,8 @@ select {
 
 input:focus,
 textarea:focus,
-select:focus {
+select:focus,
+.tag-input-container:focus-within {
   outline: none;
   border-color: rgb(var(--color-primary));
   box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.1);
