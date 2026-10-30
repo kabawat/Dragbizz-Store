@@ -2,10 +2,10 @@
 
 import { InvoiceTemplateSettingsView } from "@dragorbit/features/invoices";
 import { useEffect, useState } from "react";
-import { fetchSignatures } from "@/store/slices/signaturesSlice";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchSignatures } from "@/store/slices/signaturesSlice";
 
 export default function InvoiceTemplateUtilityPage() {
   const { t } = useTranslation();
@@ -14,11 +14,11 @@ export default function InvoiceTemplateUtilityPage() {
   const signaturesState = useAppSelector((state) => state.signatures);
   const dispatch = useAppDispatch();
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
-  const agencyId = agency?.agencyId || agency?._id || selectedStore?.agencyId || selectedStore?.agency?.agencyId || selectedStore?.agency?._id || selectedStore?.agency;
+  const agencyId = agency?.agencyId || agency?._id || selectedStore?.agency;
 
   useDashboardHeader(
     t("invoice.invoiceTemplates"),
-    t("invoice.selectTemplateDescription"),
+    t("invoice.selectTemplateDescription")
   );
 
   useEffect(() => {
@@ -27,10 +27,23 @@ export default function InvoiceTemplateUtilityPage() {
   }, []);
 
   useEffect(() => {
-    if (agencyId && !signaturesState.items.length && !signaturesState.loading && !signaturesState.lastFetched && !signaturesState.error) {
+    if (
+      agencyId &&
+      !signaturesState.items.length &&
+      !signaturesState.loading &&
+      !signaturesState.lastFetched &&
+      !signaturesState.error
+    ) {
       dispatch(fetchSignatures({ agencyId, lightweight: true }));
     }
-  }, [agencyId, dispatch, signaturesState.items.length, signaturesState.loading, signaturesState.lastFetched, signaturesState.error]);
+  }, [
+    agencyId,
+    dispatch,
+    signaturesState.items.length,
+    signaturesState.loading,
+    signaturesState.lastFetched,
+    signaturesState.error,
+  ]);
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);

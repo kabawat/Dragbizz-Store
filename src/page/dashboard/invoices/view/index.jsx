@@ -1,23 +1,23 @@
 "use client";
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import { ArrowLeft, FileQuestion } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { UpdatePaymentStatusModal } from "@/components/invoice";
-import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import InvoiceLoadingState from "@/components/invoice/view/InvoiceLoadingState";
 import InvoicePageLayout from "@/components/invoice/view/InvoicePageLayout";
 import InvoiceViewHeader from "@/components/invoice/view/InvoiceViewHeader";
+import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { EmptyState } from "@/components/ui";
-import { FileQuestion, ArrowLeft } from "lucide-react";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import useApiResponse from "@/hooks/useApiResponse";
-import { invoiceService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useInvoicePrint } from "@/hooks/print/invoice/useInvoicePrint";
 import { useMiniInvoicePrint } from "@/hooks/print/invoice/useMiniInvoicePrint";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
+import { invoiceService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
 import {
   calculateGstAmount,
   calculateSubtotal,
@@ -27,10 +27,12 @@ import {
 const ViewInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("invoice.viewInvoice"), t("invoice.viewInvoiceDescription"));
+  useDashboardHeader(
+    t("invoice.viewInvoice"),
+    t("invoice.viewInvoiceDescription")
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
-  const autoPrint = searchParams.get("autoPrint") === "true";
   const { showSuccess, showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -59,33 +61,63 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const standardPrint = useInvoicePrint(fetching, invoiceData, isMiniTemplate);
   const miniPrint = useMiniInvoicePrint(fetching, invoiceData, !isMiniTemplate);
 
-  const { handlePrint, handleDownloadPDF } = isMiniTemplate ? miniPrint : standardPrint;
+  const { handlePrint, handleDownloadPDF } = isMiniTemplate
+    ? miniPrint
+    : standardPrint;
 
-  const calculatedGstAmount = invoiceData ? calculateGstAmount(invoiceData) : 0;
-  const itemsWithGst = invoiceData ? getItemsWithGst(invoiceData) : [];
-  const calculatedSubtotal = invoiceData ? calculateSubtotal(invoiceData, calculatedGstAmount, itemsWithGst) : 0;
+  // Memoized expensive GST and Subtotal calculations
+  const { calculatedGstAmount, itemsWithGst, calculatedSubtotal } =
+    useMemo(() => {
+      if (!invoiceData) {
+        return {
+          calculatedGstAmount: 0,
+          itemsWithGst: [],
+          calculatedSubtotal: 0,
+        };
+      }
+      const gstAmount = calculateGstAmount(invoiceData);
+      const items = getItemsWithGst(invoiceData);
+      const subtotal = calculateSubtotal(invoiceData, gstAmount, items);
+      return {
+        calculatedGstAmount: gstAmount,
+        itemsWithGst: items,
+        calculatedSubtotal: subtotal,
+      };
+    }, [invoiceData]);
 
   // Fetch invoice data
-  const fetchInvoiceData = useCallback(async (forceRefetch = false) => {
-    if (!invoiceId || !storeId) return;
-    if (!forceRefetch && hasFetched.current) return;
-    hasFetched.current = true;
+  const fetchInvoiceData = useCallback(
+    async (forceRefetch = false) => {
+      if (!invoiceId || !storeId) return;
+      if (!forceRefetch && hasFetched.current) return;
+      hasFetched.current = true;
 
-    const result = await execute(
-      invoiceService.getInvoices({ id: invoiceId, store: storeId }),
-      { showToast: false }
-    );
+      const result = await execute(
+        invoiceService.getInvoices({ id: invoiceId, store: storeId }),
+        { showToast: false }
+      );
 
-    if (!result?.success) {
-      showError(result?.message || t("errors.failedToFetchData", { item: t("common.invoice") }));
-    }
-  }, [invoiceId, storeId, execute, showError, t]);
+      if (!result?.success) {
+        showError(
+          result?.message ||
+            t("errors.failedToFetchData", { item: t("common.invoice") })
+        );
+      }
+    },
+    [invoiceId, storeId, execute, showError, t]
+  );
 
-  useEffect(() => { fetchInvoiceData(); }, [fetchInvoiceData]);
+  useEffect(() => {
+    fetchInvoiceData();
+  }, [fetchInvoiceData]);
+
   // ── Redirect & Print Orchestration ─────────────────
   const setupRedirectAfterPrint = useCallback(() => {
-    const redirectPath = searchParams.get("redirect") === "pos" ? "/dashboard/pos" : null;
-    window.location.replace(redirectPath);
+    const redirectPath =
+      searchParams.get("redirect") === "pos" ? "/dashboard/pos" : null;
+    if (redirectPath) {
+      window.location.replace(redirectPath);
+    }
   }, [searchParams]);
 
   const handlePrintWithRedirect = useCallback(() => {
@@ -106,7 +138,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
   useEffect(() => {
     const shouldAutoPrint = searchParams.get("autoPrint") === "true";
 
-    if (shouldAutoPrint && invoiceData && !fetching && !hasAutoPrinted.current) {
+    if (
+      shouldAutoPrint &&
+      invoiceData &&
+      !fetching &&
+      !hasAutoPrinted.current
+    ) {
       hasAutoPrinted.current = true;
       setTimeout(handlePrintWithRedirect, 1200);
     }
@@ -117,14 +154,55 @@ const ViewInvoicePage = ({ invoiceId }) => {
     if (savedTemplate) setSelectedTemplate(savedTemplate);
   }, []);
 
+  const handleOpenPaymentStatusModal = useCallback(() => {
+    setShowPaymentStatusModal(true);
+  }, []);
+
+  const handleClosePaymentStatusModal = useCallback(() => {
+    setShowPaymentStatusModal(false);
+  }, []);
+
+  const handlePaymentStatusSuccess = useCallback(() => {
+    showSuccess(t("invoice.paymentStatusUpdated"));
+    fetchInvoiceData(true);
+    setShowPaymentStatusModal(false);
+  }, [fetchInvoiceData, showSuccess, t]);
+
+  const handleClosePaymentConfirmModal = useCallback(() => {
+    setPaymentInvoiceId(null);
+  }, []);
+
+  const handleEdit = useCallback(() => {
+    router.push(`/dashboard/invoices/${invoiceId}/edit`);
+  }, [router, invoiceId]);
+
+  const handleRelease = useCallback(() => {
+    if (invoiceData?.id) {
+      setPaymentInvoiceId(invoiceData.id);
+    }
+  }, [invoiceData?.id]);
+
+  const handleNavigateToPosOrInvoices = useCallback(() => {
+    const isPos = searchParams.get("redirect") === "pos";
+    router.push(isPos ? "/dashboard/pos" : "/dashboard/invoices");
+  }, [router, searchParams]);
+
+  const handleCreateNewInvoice = useCallback(() => {
+    router.push("/dashboard/invoices/create");
+  }, [router]);
+
+  const handleDownloadPDFAction = useCallback(() => {
+    handleDownloadPDF(invoiceData, invoiceId);
+  }, [handleDownloadPDF, invoiceData, invoiceId]);
+
   // Global actions for this page
   useCommonHotkeys({
     onPrint: canRead ? handlePrintWithRedirect : undefined,
-    onDownload: canRead ? () => handleDownloadPDF(invoiceData, invoiceId) : undefined,
-    onEdit: canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined,
-    onNew: canCreate ? () => router.push("/dashboard/invoices/create") : undefined,
-    onClose: () => { if (showPaymentStatusModal) setShowPaymentStatusModal(false); },
-    onBack: () => router.push(searchParams.get("redirect") === "pos" ? "/dashboard/pos" : "/dashboard/invoices"),
+    onDownload: canRead ? handleDownloadPDFAction : undefined,
+    onEdit: canEdit ? handleEdit : undefined,
+    onNew: canCreate ? handleCreateNewInvoice : undefined,
+    onClose: showPaymentStatusModal ? handleClosePaymentStatusModal : undefined,
+    onBack: handleNavigateToPosOrInvoices,
   });
 
   if (fetching || permissionLoading) return <InvoiceLoadingState t={t} />;
@@ -137,14 +215,17 @@ const ViewInvoicePage = ({ invoiceId }) => {
         {!invoiceData ? (
           <EmptyState
             title={t("invoice.notFoundTitle") || "Invoice Not Found"}
-            description={t("invoice.notFoundDescription") || "The invoice you are looking for might have been deleted or does not exist."}
+            description={
+              t("invoice.notFoundDescription") ||
+              "The invoice you are looking for might have been deleted or does not exist."
+            }
             icon={FileQuestion}
             type="error"
             fullHeight={true}
             actionButton={{
               label: t("invoice.backToInvoices") || "Go Back to Invoices",
               icon: ArrowLeft,
-              onClick: () => router.push(searchParams.get("redirect") === "pos" ? "/dashboard/pos" : "/dashboard/invoices"),
+              onClick: handleNavigateToPosOrInvoices,
             }}
           />
         ) : (
@@ -153,17 +234,18 @@ const ViewInvoicePage = ({ invoiceId }) => {
               invoiceData={invoiceData}
               invoiceId={invoiceId}
               storeId={storeId}
-              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+              onUpdatePaymentStatus={
+                canEdit ? handleOpenPaymentStatusModal : undefined
+              }
               onDownloadPDF={canRead ? handleDownloadPDF : undefined}
-              onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
-              onRelease={canEdit && invoiceData?.id ? () => setPaymentInvoiceId(invoiceData.id) : undefined}
+              onEdit={canEdit ? handleEdit : undefined}
+              onRelease={canEdit && invoiceData?.id ? handleRelease : undefined}
               onPrint={canRead ? handlePrintWithRedirect : undefined}
               canCreate={canCreate}
               t={t}
             />
             <InvoicePageLayout
               invoiceData={invoiceData}
-              fetchInvoiceData={fetchInvoiceData}
               selectedTemplate={selectedTemplate}
               selectedStore={selectedStore}
               itemsWithGst={itemsWithGst}
@@ -176,12 +258,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
       {showPaymentStatusModal && (
         <UpdatePaymentStatusModal
-          onClose={() => setShowPaymentStatusModal(false)}
-          onSuccess={() => {
-            showSuccess(t("invoice.paymentStatusUpdated"));
-            fetchInvoiceData(true);
-            setShowPaymentStatusModal(false);
-          }}
+          onClose={handleClosePaymentStatusModal}
+          onSuccess={handlePaymentStatusSuccess}
           invoice={invoiceData}
         />
       )}
@@ -190,7 +268,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
         open={Boolean(paymentInvoiceId)}
         invoiceId={paymentInvoiceId}
         source="release"
-        onClose={() => setPaymentInvoiceId(null)}
+        onClose={handleClosePaymentConfirmModal}
       />
     </div>
   );

@@ -36,10 +36,7 @@ const SignatureSettings = () => {
 
   // Derive agencyId
   const agencyId =
-    profileAgency?.agencyId ||
-    profileAgency?._id ||
-    selectedStore?.agency ||
-    selectedStore?.agencyId;
+    profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency;
 
   const loadSignatures = useCallback(() => {
     if (agencyId) {

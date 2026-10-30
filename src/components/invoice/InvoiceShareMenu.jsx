@@ -1,8 +1,6 @@
 "use client";
 import { InvoiceShareMenuPresentation } from "@dragorbit/features/invoices";
-
-import { useEffect, useRef, useState } from "react";
-
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import {
   buildInvoiceShareUrl,
@@ -11,7 +9,7 @@ import {
   openWhatsAppShare,
 } from "@/utils/invoice/invoiceShare.utils";
 
-export function InvoiceShareMenu({
+function InvoiceShareMenu({
   invoice,
   onDownloadPDF,
   disabled = false,
@@ -25,6 +23,7 @@ export function InvoiceShareMenu({
   const menuRef = useRef(null);
 
   useEffect(() => {
+    if (!isOpen) return;
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -32,34 +31,34 @@ export function InvoiceShareMenu({
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
-  const requireShareUrl = () => {
+  const requireShareUrl = useCallback(() => {
     const shareUrl = buildInvoiceShareUrl(invoice);
     if (!shareUrl) {
       showError(
         t("invoice.copyLinkNotAvailable") ||
-          "Invoice link not available. Sync invoice first.",
+          "Invoice link not available. Sync invoice first."
       );
       return null;
     }
     return shareUrl;
-  };
+  }, [invoice, showError, t]);
 
-  const handleWhatsApp = () => {
+  const handleWhatsApp = useCallback(() => {
     const shareUrl = requireShareUrl();
     if (!shareUrl) return;
     openWhatsAppShare(invoice, shareUrl, t);
     setIsOpen(false);
-  };
+  }, [invoice, requireShareUrl, t]);
 
-  const handleEmail = () => {
+  const handleEmail = useCallback(() => {
     const shareUrl = buildInvoiceShareUrl(invoice);
     openInvoiceEmailShare(invoice, shareUrl);
     setIsOpen(false);
-  };
+  }, [invoice]);
 
-  const handleCopyLink = async () => {
+  const handleCopyLink = useCallback(async () => {
     const shareUrl = requireShareUrl();
     if (!shareUrl) return;
     const ok = await copyInvoiceShareLink(shareUrl);
@@ -69,12 +68,12 @@ export function InvoiceShareMenu({
     } else {
       showError(t("invoice.copyFailed") || "Failed to copy");
     }
-  };
+  }, [requireShareUrl, showError, showSuccess, t]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     onDownloadPDF?.(invoice);
     setIsOpen(false);
-  };
+  }, [onDownloadPDF, invoice]);
 
   if (disabled) return null;
 
@@ -98,4 +97,5 @@ export function InvoiceShareMenu({
   );
 }
 
-export default InvoiceShareMenu;
+export default memo(InvoiceShareMenu);
+export { InvoiceShareMenu };
