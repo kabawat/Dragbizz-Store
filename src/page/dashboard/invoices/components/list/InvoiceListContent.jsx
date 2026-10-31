@@ -9,6 +9,8 @@ import {
   ReleaseInvoiceModal,
   UpdatePaymentStatusModal,
 } from "../";
+import { InvoicePrintModal } from "@dragorbit/features/invoices";
+import { invoiceService } from "@/service";
 import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -46,6 +48,8 @@ const InvoiceListContent = () => {
   const [invoiceToRelease, setInvoiceToRelease] = useState(null);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
+  const [printInvoiceId, setPrintInvoiceId] = useState(null);
+  const signatures = useAppSelector((state) => state.signatures?.items || []);
 
   // ─── Infinite scroll via IntersectionObserver ─────────────────────────────
   useEffect(() => {
@@ -88,12 +92,9 @@ const InvoiceListContent = () => {
     [router]
   );
 
-  const handlePrintInvoice = useCallback(
-    (invoiceId) => {
-      router.push(`/dashboard/invoices/${invoiceId}`);
-    },
-    [router]
-  );
+  const handlePrintInvoice = useCallback((invoiceId) => {
+    setPrintInvoiceId(invoiceId);
+  }, []);
 
   const handleReleaseInvoice = useCallback((invoice) => {
     if (invoice?.invoiceStatus === "DRAFT" && invoice?.id) {
@@ -241,6 +242,21 @@ const InvoiceListContent = () => {
           invoice={invoiceToUpdatePayment}
         />
       )}
+      {/* Invoice Print & Preview Modal */}
+      <InvoicePrintModal
+        open={Boolean(printInvoiceId)}
+        invoiceId={printInvoiceId}
+        selectedStore={selectedStore}
+        signatures={signatures}
+        fetchInvoice={async (id) => {
+          const res = await invoiceService.getInvoices({ id, store: storeId });
+          const raw = res?.data ?? res;
+          return raw?.data ?? raw;
+        }}
+        onClose={() => setPrintInvoiceId(null)}
+        onCreateNew={() => router.push("/dashboard/invoices/add")}
+        t={t}
+      />
     </>
   );
 };
