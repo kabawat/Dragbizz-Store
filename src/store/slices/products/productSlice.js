@@ -16,7 +16,7 @@ const initialState = {
     isLoading: false,
     isFetchingMore: false,
     error: null,
-    viewMode: "table", // 'table' | 'card'
+    viewMode: "split", // 'split' | 'table' | 'card'
 };
 
 export const getProducts = createAsyncThunk(

@@ -53,18 +53,18 @@ class ProductService extends BaseService {
   }
 
   async getProducts(params = {}) {
-    const { includeVariants, ...requestParams } = params;
+    const { includeVariants = false, ...requestParams } = params;
     const response = await this.get(this.endpoint, requestParams);
 
-    // Single product fetch — caller merges variants separately when needed
-    if (params?.id || includeVariants === false) return response;
+    // Only load store-wide variants if explicitly requested via includeVariants: true
+    if (params?.id || !includeVariants) return response;
 
     try {
       const store = params.store;
       if (!store) return response;
 
-      // Variants hold invoice-selectable price/SKU; load every page so the selector can show all variants.
-      const variantLimit = 200;
+      // Variants hold invoice-selectable price/SKU; load page by page when requested
+      const variantLimit = 50;
       const products = unwrapList(response?.data?.data ?? response?.data);
       const variants = [];
       let nextCursor = null;
@@ -74,9 +74,13 @@ class ProductService extends BaseService {
           limit: variantLimit,
           ...(nextCursor ? { nextCursor } : {}),
         });
-        variants.push(...unwrapList(variantsResponse?.data?.data ?? variantsResponse?.data));
+        variants.push(
+          ...unwrapList(variantsResponse?.data?.data ?? variantsResponse?.data)
+        );
         const pagination = getPagination(variantsResponse);
-        nextCursor = pagination?.hasNextPage ? pagination.nextCursor || null : null;
+        nextCursor = pagination?.hasNextPage
+          ? pagination.nextCursor || null
+          : null;
       } while (nextCursor);
       const enriched = mergeVariantsIntoProducts(products, variants);
       return applyEnrichedList(response, enriched);
@@ -110,7 +114,11 @@ class ProductService extends BaseService {
   }
 
   deleteProductImage(imageId, storeId = null) {
-    const url = this.buildResourceUrl(`${this.endpoint}/image`, imageId, storeId);
+    const url = this.buildResourceUrl(
+      `${this.endpoint}/image`,
+      imageId,
+      storeId
+    );
     return this.delete(url);
   }
 }
