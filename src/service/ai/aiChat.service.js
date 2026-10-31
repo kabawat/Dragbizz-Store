@@ -42,7 +42,8 @@ class AiChatService extends BaseService {
 
   /**
    * POST /brain/api/v1/chat/stream — SSE with AbortController.
-   * Falls back to non-stream chat() when stream endpoint is unavailable.
+   * Does not replay a chat POST through another endpoint after a stream error:
+   * the server may already have executed a tool before the connection failed.
    * @param {{
    *   text: string,
    *   sessionId: string,
@@ -61,7 +62,11 @@ class AiChatService extends BaseService {
     onEvent,
   }) {
     if (!this.streamEndpoint) {
-      return this.chat({ text, sessionId, storeId, language });
+      return {
+        success: false,
+        code: "AI_STREAM_UNAVAILABLE",
+        retryable: false,
+      };
     }
 
     const controller = new AbortController();
@@ -86,9 +91,15 @@ class AiChatService extends BaseService {
         body: JSON.stringify({ text, sessionId, storeId, language }),
         signal: controller.signal,
       });
+      const responseRequestId = response.headers.get("x-request-id");
 
       if (!response.ok || !response.body) {
-        return this.chat({ text, sessionId, storeId, language });
+        return {
+          success: false,
+          code: response.status === 429 ? "AI_RATE_LIMITED" : "AI_CHAT_FAILED",
+          requestId: responseRequestId,
+          retryable: false,
+        };
       }
 
       const reader = response.body.getReader();
@@ -96,6 +107,8 @@ class AiChatService extends BaseService {
       let buffer = "";
       let assistantText = "";
       let completed = null;
+      let requestId = responseRequestId;
+      const observedTools = new Set();
 
       while (true) {
         const { done, value } = await reader.read();
@@ -124,6 +137,10 @@ class AiChatService extends BaseService {
           if (typeof onEvent === "function") {
             onEvent(eventName, data);
           }
+          if (typeof data.requestId === "string") requestId = data.requestId;
+          if (eventName === "tool.started" && typeof data.tool === "string") {
+            observedTools.add(data.tool);
+          }
           if (
             eventName === "assistant.delta" &&
             typeof data.text === "string"
@@ -136,11 +153,23 @@ class AiChatService extends BaseService {
           if (eventName === "request.aborted") {
             return {
               success: false,
-              message: "Request aborted",
               code: "AI_REQUEST_ABORTED",
+              requestId: data.requestId || requestId,
+              partialMessage: assistantText,
+              retryable: observedTools.size === 0,
             };
           }
         }
+      }
+
+      if (!completed) {
+        return {
+          success: false,
+          code: "AI_STREAM_INTERRUPTED",
+          requestId,
+          partialMessage: assistantText,
+          retryable: observedTools.size === 0,
+        };
       }
 
       return {
@@ -156,17 +185,30 @@ class AiChatService extends BaseService {
             ? completed.toolResults
             : [],
           pendingConfirmation: completed?.pendingConfirmation || null,
+          executionStatus: completed?.executionStatus || "completed",
+          errorCode: completed?.errorCode || null,
+          toolOutcomes: Array.isArray(completed?.toolOutcomes)
+            ? completed.toolOutcomes
+            : [],
         },
       };
     } catch (error) {
       if (error?.name === "AbortError") {
         return {
           success: false,
-          message: "Request aborted",
           code: "AI_REQUEST_ABORTED",
+          requestId: null,
+          partialMessage: "",
+          retryable: false,
         };
       }
-      return this.chat({ text, sessionId, storeId, language });
+      return {
+        success: false,
+        code: "AI_STREAM_INTERRUPTED",
+        requestId: null,
+        partialMessage: "",
+        retryable: false,
+      };
     } finally {
       if (external) {
         external.removeEventListener("abort", onAbort);

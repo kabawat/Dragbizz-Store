@@ -50,6 +50,7 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   const sessionIdRef = useRef(sessionId);
   const inflightRef = useRef(false);
   const abortRef = useRef(null);
+  const turnRef = useRef(null);
 
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
@@ -59,14 +60,17 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
   const [chatError, setChatError] = useState(null);
 
   const resetChat = useCallback(() => {
-    if (abortRef.current) {
-      abortRef.current.abort();
-      abortRef.current = null;
-    }
+    const activeController = abortRef.current;
+    inflightRef.current = false;
+    turnRef.current = null;
+    abortRef.current = null;
+    activeController?.abort();
     const nextId = generateUUID();
     sessionIdRef.current = nextId;
     setSessionId(nextId);
     setMessages([]);
+    setIsSending(false);
+    setIsConfirming(false);
     setActiveTool(null);
     setProgress(null);
     setChatError(null);
@@ -74,11 +78,13 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
 
   const loadChat = useCallback(
     ({ sessionId: nextSessionId, messages: nextMessages }) => {
-      if (abortRef.current) {
-        abortRef.current.abort();
-        abortRef.current = null;
-      }
+      const activeController = abortRef.current;
       inflightRef.current = false;
+      turnRef.current = null;
+      abortRef.current = null;
+      if (activeController) {
+        activeController.abort();
+      }
       setIsSending(false);
       setIsConfirming(false);
       setActiveTool(null);
@@ -105,13 +111,21 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     const assistantMessage = createMessage("assistant", message, {
       toolResults: tools,
       pendingConfirmation,
+      executionStatus:
+        payload.executionStatus || payload.execution_status || "completed",
+      errorCode: payload.errorCode || payload.error_code || null,
+      toolOutcomes: Array.isArray(payload.toolOutcomes)
+        ? payload.toolOutcomes
+        : Array.isArray(payload.tool_outcomes)
+          ? payload.tool_outcomes
+          : [],
     });
     setMessages((current) => [...current, assistantMessage]);
     return { message, toolResults: tools, pendingConfirmation };
   }, []);
 
   const sendChat = useCallback(
-    async (text) => {
+    async (text, { isRetry = false } = {}) => {
       const trimmed = typeof text === "string" ? text.trim() : "";
       if (!trimmed || inflightRef.current) return null;
 
@@ -126,33 +140,43 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
       setProgress({ stage: "thinking", label: "Thinking…" });
       setChatError(null);
 
-      const userMessage = createMessage("user", trimmed);
-      setMessages((current) => [
-        ...current.map((item) =>
-          item.pendingConfirmation && !item.pendingConfirmation.status
-            ? {
-                ...item,
-                pendingConfirmation: {
-                  ...item.pendingConfirmation,
-                  status: "CANCELLED",
-                },
-              }
-            : item
-        ),
-        userMessage,
-      ]);
+      let turn = turnRef.current;
+      if (!isRetry || !turn || turn.text !== trimmed) {
+        const userMessage = createMessage("user", trimmed);
+        turn = { text: trimmed, userMessageId: userMessage.id };
+        turnRef.current = turn;
+        setMessages((current) => [
+          ...current.map((item) =>
+            item.pendingConfirmation && !item.pendingConfirmation.status
+              ? {
+                  ...item,
+                  pendingConfirmation: {
+                    ...item.pendingConfirmation,
+                    status: "CANCELLED",
+                  },
+                }
+              : item
+          ),
+          userMessage,
+        ]);
+      }
 
       const controller = new AbortController();
       abortRef.current = controller;
+      const requestSessionId = sessionIdRef.current;
+      const isCurrentRequest = () =>
+        abortRef.current === controller &&
+        sessionIdRef.current === requestSessionId;
 
       try {
         const result = await aiChatService.chatStream({
           text: trimmed,
-          sessionId: sessionIdRef.current,
+          sessionId: requestSessionId,
           storeId,
           language,
           signal: controller.signal,
           onEvent: (event, data) => {
+            if (!isCurrentRequest()) return;
             if (event === "agent.progress") {
               setProgress({
                 stage: data?.stage || "progress",
@@ -202,6 +226,8 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           },
         });
 
+        if (!isCurrentRequest()) return null;
+
         if (!result.success) {
           const code =
             result?.error?.error?.code ||
@@ -210,8 +236,44 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
             "AI_CHAT_FAILED";
           setChatError({
             code: typeof code === "string" ? code : "AI_CHAT_FAILED",
-            message: result.message,
+            requestId: result.requestId || null,
+            retryable: Boolean(result.retryable),
+            partialMessage:
+              typeof result.partialMessage === "string"
+                ? result.partialMessage
+                : "",
           });
+          if (result.partialMessage) {
+            setMessages((current) => [
+              ...current.filter((item) => !item.streaming),
+              createMessage("assistant", result.partialMessage, {
+                partial: true,
+              }),
+            ]);
+          } else {
+            setMessages((current) => current.filter((item) => !item.streaming));
+          }
+          return null;
+        }
+
+        if (result.data?.executionStatus === "error") {
+          setChatError({
+            code: result.data.errorCode || "AI_CHAT_FAILED",
+            requestId: result.data.requestId || null,
+            retryable: false,
+            partialMessage: result.data.message || "",
+          });
+          setMessages((current) => [
+            ...current.filter((item) => !item.streaming),
+            ...(result.data.message
+              ? [
+                  createMessage("assistant", result.data.message, {
+                    partial: true,
+                    executionStatus: "error",
+                  }),
+                ]
+              : []),
+          ]);
           return null;
         }
 
@@ -222,20 +284,23 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
           return current;
         });
         return appendAssistantFromPayload(result.data || {});
-      } catch (err) {
+      } catch {
+        if (!isCurrentRequest()) return null;
         setChatError({
-          code: "AI_CHAT_FAILED",
-          message: err?.message || null,
+          code: "AI_STREAM_INTERRUPTED",
+          requestId: null,
+          retryable: false,
+          partialMessage: "",
         });
         return null;
       } finally {
-        if (abortRef.current === controller) {
+        if (isCurrentRequest()) {
           abortRef.current = null;
+          inflightRef.current = false;
+          setActiveTool(null);
+          setProgress(null);
+          setIsSending(false);
         }
-        inflightRef.current = false;
-        setActiveTool(null);
-        setProgress(null);
-        setIsSending(false);
       }
     },
     [storeId, language, appendAssistantFromPayload]
@@ -321,6 +386,45 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     [resolvePending]
   );
 
+  const retryLastTurn = useCallback(() => {
+    if (!chatError?.retryable || !turnRef.current || inflightRef.current) {
+      return null;
+    }
+    const { text, userMessageId } = turnRef.current;
+    setChatError(null);
+    setMessages((current) => {
+      const userIndex = current.findIndex((item) => item.id === userMessageId);
+      return current.filter(
+        (item, index) =>
+          item.id !== userMessageId &&
+          !(
+            index > userIndex &&
+            item.role === "assistant" &&
+            (item.partial || item.streaming)
+          )
+      );
+    });
+    return sendChat(text, { isRetry: true });
+  }, [chatError, sendChat]);
+
+  const cancelChat = useCallback(() => {
+    const controller = abortRef.current;
+    if (!controller || !inflightRef.current) return;
+    controller.abort();
+    abortRef.current = null;
+    inflightRef.current = false;
+    setIsSending(false);
+    setActiveTool(null);
+    setProgress(null);
+    setChatError({
+      code: "AI_REQUEST_ABORTED",
+      requestId: null,
+      retryable: false,
+      partialMessage: "",
+    });
+    setMessages((current) => current.filter((item) => !item.streaming));
+  }, []);
+
   const reply =
     [...messages].reverse().find((item) => item.role === "assistant")
       ?.content ?? null;
@@ -339,6 +443,8 @@ export function useAiVoiceChat({ language = "hi-IN" } = {}) {
     activeTool,
     progress,
     chatError,
+    retryLastTurn,
+    cancelChat,
     sendChat,
     confirmPending,
     rejectPending,
