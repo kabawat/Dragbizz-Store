@@ -39,7 +39,7 @@ import {
   copyInvoiceShareLink,
   openInvoiceEmailShare,
   openWhatsAppShare,
-} from "@/utils/invoice/invoiceShare.utils";
+} from "@/page/dashboard/invoices/utils/invoiceShare.utils";
 import { renderStatusBadge } from "@/utils/statusBadge";
 
 const InvoicesListTable = ({

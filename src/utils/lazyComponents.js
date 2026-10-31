@@ -46,7 +46,7 @@ export const LazyAdvancePaymentDrawer = createLazyComponent(
 );
 
 export const LazyInvoiceDownloadDrawer = createLazyComponent(
-  () => import("@/components/invoice/InvoiceDownloadDrawer"),
+  () => import("@/page/dashboard/invoices/components/InvoiceDownloadDrawer"),
   { ssr: false }
 );
 

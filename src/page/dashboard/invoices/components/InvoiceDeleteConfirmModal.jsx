@@ -7,7 +7,7 @@ import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { removeInvoice } from "@/store/slices/invoicesSlice";
 import { pickStoreId } from "@/utils/store.util";
-import { Button } from "../ui";
+import { Button } from "@/components/ui";
 
 const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
   const dispatch = useAppDispatch();

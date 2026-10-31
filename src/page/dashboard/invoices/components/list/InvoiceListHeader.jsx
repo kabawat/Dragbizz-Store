@@ -2,7 +2,7 @@
 import { Download, Grid3X3, List, Plus, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useMemo, useState } from "react";
-import { InvoiceDownloadDrawer } from "@/components/invoice";
+import { InvoiceDownloadDrawer } from "../";
 import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
 import { Button, DateRangeFilter, Select } from "@/components/ui";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { memo, useCallback } from "react";
-import InvoiceShareMenu from "@/components/invoice/InvoiceShareMenu";
+import InvoiceShareMenu from "../InvoiceShareMenu";
 import OpenCustomerPaymentButton from "@/components/payment/OpenCustomerPaymentButton";
 import SendInvoicePaymentLinkButton from "@/components/payment/SendInvoicePaymentLinkButton";
 import { Button } from "@/components/ui";

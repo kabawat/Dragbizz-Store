@@ -8,7 +8,7 @@ import {
   InvoiceTable,
   ReleaseInvoiceModal,
   UpdatePaymentStatusModal,
-} from "@/components/invoice";
+} from "../";
 import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useTranslation } from "@/hooks/ui/useTranslation";

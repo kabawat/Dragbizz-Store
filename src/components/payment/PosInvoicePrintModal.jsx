@@ -16,7 +16,7 @@ import {
   calculateGstAmount,
   calculateSubtotal,
   getItemsWithGst,
-} from "@/utils/invoice/invoiceCalculations.utils";
+} from "@/page/dashboard/invoices/utils/invoiceCalculations.utils";
 import { pickStoreId } from "@/utils/store.util";
 
 const PosInvoicePrintModal = ({ open, invoiceId, onClose }) => {

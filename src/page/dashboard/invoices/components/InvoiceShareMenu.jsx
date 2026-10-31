@@ -7,7 +7,7 @@ import {
   copyInvoiceShareLink,
   openInvoiceEmailShare,
   openWhatsAppShare,
-} from "@/utils/invoice/invoiceShare.utils";
+} from "@/page/dashboard/invoices/utils/invoiceShare.utils";
 
 function InvoiceShareMenu({
   invoice,
