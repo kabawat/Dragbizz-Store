@@ -1,5 +1,9 @@
 "use client";
-import { CreateBillItemsSectionPresentation } from "@dragorbit/features/bills";
+import {
+  CreateBillItemsSectionPresentation,
+  resolveProductPurchasePrice,
+  unwrapProductList,
+} from "@dragorbit/features/bills";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
@@ -7,7 +11,13 @@ import { productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { pickStoreId } from "@/utils/store.util";
 
-const BillItemsSection = ({ formData, setFormData, showError }) => {
+const BillItemsSection = ({
+  formData,
+  setFormData,
+  showError,
+  errors,
+  setErrors,
+}) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
@@ -31,7 +41,12 @@ const BillItemsSection = ({ formData, setFormData, showError }) => {
       { showToast: false }
     ).then((result) => {
       if (result?.success) {
-        setProducts(result.data || []);
+        const raw = unwrapProductList(result.data);
+        const normalized = raw.map((p) => ({
+          ...p,
+          purchasePrice: resolveProductPurchasePrice(p),
+        }));
+        setProducts(normalized);
       } else {
         productsFetchedRef.current = { storeId: null, fetched: false };
       }
@@ -53,30 +68,48 @@ const BillItemsSection = ({ formData, setFormData, showError }) => {
 
   const handleAddItem = useCallback(() => {
     if (!selectedProduct) {
-      showError(t("errors.selectProduct"));
+      showError?.(t("errors.selectProduct") || "Please select a product");
       return;
     }
 
     const product = productsMap.get(selectedProduct);
     if (!product) {
-      showError(t("errors.productNotFound"));
+      showError?.(t("errors.productNotFound") || "Product not found");
       return;
     }
 
     const quantityToAdd = parseInt(selectedQuantity, 10) || 1;
-    const priceToAdd = parseFloat(selectedPrice) || 0;
+    const priceToAdd =
+      selectedPrice !== undefined && selectedPrice !== ""
+        ? parseFloat(selectedPrice)
+        : resolveProductPurchasePrice(product);
 
     const newItem = {
       product: selectedProduct,
-      productName: product.name || product.productName || "",
+      productName: product.name || product.productName || "Product",
       quantity: quantityToAdd,
       purchasePrice: priceToAdd,
+      uom: product.uom || product.pricing?.uom || "PCS",
     };
 
-    setFormData((prev) => ({
-      ...prev,
-      items: [...prev.items, newItem],
-    }));
+    setFormData((prev) => {
+      const existingIdx = prev.items.findIndex(
+        (it) => it.product === selectedProduct
+      );
+      if (existingIdx > -1) {
+        const updated = [...prev.items];
+        updated[existingIdx] = {
+          ...updated[existingIdx],
+          quantity: updated[existingIdx].quantity + quantityToAdd,
+          purchasePrice: priceToAdd || updated[existingIdx].purchasePrice,
+        };
+        return { ...prev, items: updated };
+      }
+      return {
+        ...prev,
+        items: [...prev.items, newItem],
+      };
+    });
 
     // Reset selection
     setSelectedProduct("");
@@ -102,6 +135,18 @@ const BillItemsSection = ({ formData, setFormData, showError }) => {
     [setFormData]
   );
 
+  const handleUpdateItem = useCallback(
+    (index, updates) => {
+      setFormData((prev) => {
+        if (!prev.items[index]) return prev;
+        const updated = [...prev.items];
+        updated[index] = { ...updated[index], ...updates };
+        return { ...prev, items: updated };
+      });
+    },
+    [setFormData]
+  );
+
   const model = useMemo(
     () => ({
       t,
@@ -116,6 +161,9 @@ const BillItemsSection = ({ formData, setFormData, showError }) => {
       handleAddItem,
       formData,
       handleRemoveItem,
+      handleUpdateItem,
+      errors,
+      setErrors,
     }),
     [
       t,
@@ -127,6 +175,9 @@ const BillItemsSection = ({ formData, setFormData, showError }) => {
       handleAddItem,
       formData,
       handleRemoveItem,
+      handleUpdateItem,
+      errors,
+      setErrors,
     ]
   );
 

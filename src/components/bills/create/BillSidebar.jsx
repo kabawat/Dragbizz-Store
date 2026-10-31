@@ -17,6 +17,7 @@ const BillSidebar = ({
   handleSubmit,
   setFormData,
   isEditing = false,
+  showSubmitButton = true,
 }) => {
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -137,6 +138,7 @@ const BillSidebar = ({
       AddSupplierDrawer,
       showAddSupplierDrawer,
       handleAddSupplierSuccess,
+      showSubmitButton,
     }),
     [
       t,
@@ -152,6 +154,7 @@ const BillSidebar = ({
       isEditing,
       showAddSupplierDrawer,
       handleAddSupplierSuccess,
+      showSubmitButton,
     ]
   );
 

@@ -1,45 +1,71 @@
 "use client";
 import { PageSkeleton } from "@dragorbit/ui/app";
-import { ArrowLeft, Receipt } from "lucide-react";
-import Link from "next/link";
+import {
+  BillFormView,
+  useBillForm,
+  unwrapProductList,
+  resolveProductPurchasePrice,
+} from "@dragorbit/features/bills";
+import { Receipt } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import BillItemsSection from "@/components/bills/create/BillItemsSection";
-import BillSidebar from "@/components/bills/create/BillSidebar";
+import AddSupplierDrawer from "@/components/supplier/AddSupplierDrawer";
 import { Button } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
-import { billService } from "@/service/retailer";
+import {
+  billService,
+  productService,
+  purchaseOrderService,
+  supplierService,
+} from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { pickStoreId } from "@/utils/store.util";
 
-const EditBill = ({ billId }) => {
+const EditBillPage = ({ billId }) => {
   const { t } = useTranslation();
+  const router = useRouter();
 
   useDashboardHeader(
     t("bills.editBill"),
     t("bills.updateBillInformationAndDetails")
   );
-  const router = useRouter();
+
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = useMemo(() => pickStoreId(selectedStore), [selectedStore]);
+  const { showError } = useGlobalToast();
 
   const fetchedBillRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    supplier: "",
-    purchaseOrder: "",
-    dueDate: "",
-    notes: "",
-    goodsReceived: true,
-    items: [],
-  });
+  // Centralized bill form state & handlers
+  const {
+    formData,
+    setFormData,
+    errors,
+    setErrors,
+    selectedProduct,
+    setSelectedProduct,
+    selectedQuantity,
+    setSelectedQuantity,
+    selectedPrice,
+    setSelectedPrice,
+    handleInputChange,
+    handleAddItem,
+    handleRemoveItem,
+    handleUpdateItem,
+    validateForm,
+    buildBillPayload,
+  } = useBillForm();
 
-  const [errors, setErrors] = useState({});
+  // Data states
+  const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
 
-  const { showError } = useGlobalToast();
+  // API executors
   const {
     execute: executeFetch,
     data: fetchedBill,
@@ -47,29 +73,104 @@ const EditBill = ({ billId }) => {
     error: fetchError,
   } = useApiResponse();
   const { execute: executeUpdate, loading: isUpdating } = useApiResponse();
+  const { execute: fetchProductsApi, loading: productsLoading } =
+    useApiResponse();
+  const { execute: fetchSuppliersApi, loading: suppliersLoading } =
+    useApiResponse();
+  const { execute: fetchPOsApi, loading: purchaseOrdersLoading } =
+    useApiResponse();
 
-  // Populate form when data arrives natively
+  // Fetch trackers
+  const productsFetchedRef = useRef(null);
+  const suppliersFetchedRef = useRef(null);
+  const posFetchedRef = useRef(null);
+
+  // 1. Fetch products
   useEffect(() => {
-    if (fetchedBill) {
-      setFormData({
-        supplier: fetchedBill.supplier?._id || "",
-        purchaseOrder: fetchedBill.purchaseOrder?._id || "",
-        dueDate: fetchedBill.dueDate
-          ? new Date(fetchedBill.dueDate).toISOString().split("T")[0]
-          : "",
-        notes: fetchedBill.notes || "",
-        goodsReceived: fetchedBill.goodsReceived ?? true,
-        items: (fetchedBill.items || []).map((item) => ({
-          product: item.product,
-          productName: item.productName || "",
-          quantity: item.quantity || 1,
-          purchasePrice: item.unitPrice || 0,
-        })),
-      });
-    }
-  }, [fetchedBill]);
+    if (!storeId || productsFetchedRef.current === storeId) return;
+    productsFetchedRef.current = storeId;
 
-  // Fetch API seamlessly
+    fetchProductsApi(
+      productService.getProducts({
+        limit: 100,
+        lightweight: true,
+        store: storeId,
+      }),
+      { showToast: false }
+    ).then((result) => {
+      if (result?.success) {
+        const list = unwrapProductList(result.data);
+        const normalized = list.map((p) => ({
+          ...p,
+          purchasePrice: resolveProductPurchasePrice(p),
+        }));
+        setProducts(normalized);
+      } else {
+        productsFetchedRef.current = null;
+      }
+    });
+  }, [storeId, fetchProductsApi]);
+
+  // 2. Fetch suppliers
+  useEffect(() => {
+    if (!storeId || suppliersFetchedRef.current === storeId) return;
+    suppliersFetchedRef.current = storeId;
+
+    fetchSuppliersApi(
+      supplierService.getSuppliers({
+        limit: 100,
+        lightweight: true,
+        store: storeId,
+      }),
+      { showToast: false }
+    ).then((result) => {
+      if (result?.success) {
+        const list = Array.isArray(result.data)
+          ? result.data
+          : Array.isArray(result.data?.data)
+            ? result.data.data
+            : [];
+        setSuppliers(list);
+      } else {
+        suppliersFetchedRef.current = null;
+      }
+    });
+  }, [storeId, fetchSuppliersApi]);
+
+  // 3. Fetch purchase orders when supplier is chosen
+  useEffect(() => {
+    if (!formData.supplier || !storeId) {
+      setPurchaseOrders([]);
+      return;
+    }
+
+    const key = `${storeId}_${formData.supplier}`;
+    if (posFetchedRef.current === key) return;
+    posFetchedRef.current = key;
+
+    fetchPOsApi(
+      purchaseOrderService.getPurchaseOrders({
+        limit: 100,
+        lightweight: true,
+        store: storeId,
+        supplier: formData.supplier,
+      }),
+      { showToast: false }
+    ).then((result) => {
+      if (result?.success) {
+        const list = Array.isArray(result.data)
+          ? result.data
+          : Array.isArray(result.data?.data)
+            ? result.data.data
+            : [];
+        setPurchaseOrders(list);
+      } else {
+        posFetchedRef.current = null;
+      }
+    });
+  }, [formData.supplier, storeId, fetchPOsApi]);
+
+  // 4. Fetch the existing bill for editing
   useEffect(() => {
     if (billId && storeId && fetchedBillRef.current !== billId) {
       fetchedBillRef.current = billId;
@@ -79,137 +180,104 @@ const EditBill = ({ billId }) => {
     }
   }, [billId, storeId, executeFetch]);
 
-  // Handle input changes
-  const handleInputChange = useCallback(
+  // 5. Populate form when bill data arrives
+  useEffect(() => {
+    if (fetchedBill) {
+      const data = fetchedBill.data || fetchedBill;
+      setFormData({
+        supplier: data.supplier?._id || data.supplier?.id || data.supplier || "",
+        purchaseOrder:
+          data.purchaseOrder?._id ||
+          data.purchaseOrder?.id ||
+          data.purchaseOrder ||
+          "",
+        dueDate: data.dueDate
+          ? new Date(data.dueDate).toISOString().split("T")[0]
+          : "",
+        notes: data.notes || "",
+        goodsReceived: data.goodsReceived ?? true,
+        items: (data.items || []).map((item) => ({
+          product: item.product?._id || item.product?.id || item.product,
+          productName: item.productName || item.product?.name || "Product",
+          quantity: item.quantity || 1,
+          purchasePrice:
+            item.purchasePrice !== undefined
+              ? item.purchasePrice
+              : item.unitPrice || 0,
+          uom: item.uom || item.product?.uom || "PCS",
+        })),
+      });
+    }
+  }, [fetchedBill, setFormData]);
+
+  // Handle supplier drawer / PO creation routing
+  const onFieldChange = useCallback(
     (field, value) => {
       if (value === "add-new-supplier") {
-        router.push("/dashboard/suppliers/add");
+        setShowAddSupplierDrawer(true);
         return;
       }
-
       if (value === "add-new-purchase-order") {
         router.push("/dashboard/purchase-orders/create");
         return;
       }
-
-      setFormData((prev) => {
-        const newData = { ...prev, [field]: value };
-        if (field === "supplier") newData.purchaseOrder = "";
-        return newData;
-      });
-
-      if (errors[field]) {
-        setErrors((prev) => ({ ...prev, [field]: "" }));
-      }
+      handleInputChange(field, value);
     },
-    [errors, router]
+    [handleInputChange, router]
   );
 
-  // Validate form
-  const validateForm = useCallback(() => {
-    const newErrors = {};
-    if (!formData.supplier) newErrors.supplier = "Supplier is required";
+  const handleAddSupplierSuccess = useCallback(
+    (newSupplier) => {
+      setShowAddSupplierDrawer(false);
+      if (!newSupplier) return;
+      const sId = newSupplier.id || newSupplier._id;
+      setSuppliers((prev) => [...prev, newSupplier]);
+      handleInputChange("supplier", sId);
+      suppliersFetchedRef.current = null;
+    },
+    [handleInputChange]
+  );
 
-    if (formData.dueDate) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (new Date(formData.dueDate) < today) {
-        newErrors.dueDate = "Due date cannot be in the past";
-      }
-    }
+  const onAddItem = useCallback(() => {
+    handleAddItem(products, showError);
+  }, [handleAddItem, products, showError]);
 
-    if (formData.notes && formData.notes.length > 500) {
-      newErrors.notes = t("errors.notesCannotExceed500Chars");
-    }
-
-    if (!formData.items || formData.items.length === 0) {
-      newErrors.items = "At least one item is required";
-    }
-
-    formData.items.forEach((item, index) => {
-      if (!item.product)
-        newErrors[`item_${index}_product`] = "Product is required";
-      if (!item.quantity || item.quantity <= 0)
-        newErrors[`item_${index}_quantity`] = "Valid quantity is required";
-      if (item.purchasePrice === undefined || item.purchasePrice < 0) {
-        newErrors[`item_${index}_purchasePrice`] = "Valid price is required";
-      }
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, [formData, t]);
-
-  // Handle update submission
   const handleSubmit = useCallback(async () => {
-    if (!validateForm()) return;
-    if (!storeId) return;
+    if (!validateForm(t)) return;
+    if (!storeId || !billId) return;
 
-    const billData = {
-      store: storeId,
-      supplier: formData.supplier,
-      purchaseOrder: formData.purchaseOrder || undefined,
-      goodsReceived: !!formData.goodsReceived,
-      items: formData.items.map((item) => ({
-        product: item.product,
-        quantity: parseInt(item.quantity, 10),
-        purchasePrice: parseFloat(item.purchasePrice),
-      })),
-      dueDate: formData.dueDate || undefined,
-      notes: formData.notes || undefined,
-    };
+    const payload = buildBillPayload(storeId);
 
     const result = await executeUpdate(
-      billService.updateBill(billId, billData, storeId),
+      billService.updateBill(billId, payload, storeId),
       { message: t("success.updatedSuccessfully", { item: t("common.bill") }) }
     );
 
     if (result?.success) {
       setTimeout(() => {
         router.push(`/dashboard/bills/${billId}`);
-      }, 1500);
+      }, 1200);
     } else if (result?.fieldErrors) {
       setErrors(result.fieldErrors);
     }
-  }, [billId, formData, storeId, validateForm, t, executeUpdate, router]);
+  }, [
+    validateForm,
+    t,
+    storeId,
+    billId,
+    buildBillPayload,
+    executeUpdate,
+    router,
+    setErrors,
+  ]);
 
-  const onFormSubmit = useCallback(
-    (e) => {
-      e.preventDefault();
-      handleSubmit();
-    },
-    [handleSubmit]
-  );
+  const handleBack = useCallback(() => {
+    router.push(billId ? `/dashboard/bills/${billId}` : "/dashboard/bills");
+  }, [billId, router]);
 
-  const memoizedBillItemsSection = useMemo(
-    () => (
-      <BillItemsSection
-        t={t}
-        formData={formData}
-        setFormData={setFormData}
-        showError={showError}
-        errors={errors}
-        setErrors={setErrors}
-      />
-    ),
-    [errors, formData, showError, t]
-  );
-
-  const memoizedBillSidebar = useMemo(
-    () => (
-      <BillSidebar
-        t={t}
-        formData={formData}
-        handleInputChange={handleInputChange}
-        setFormData={setFormData}
-        errors={errors}
-        isCreating={isUpdating}
-        handleSubmit={handleSubmit}
-        isEditing={true}
-      />
-    ),
-    [errors, formData, handleInputChange, handleSubmit, isUpdating, t]
-  );
+  const handleCreateNew = useCallback(() => {
+    router.push("/dashboard/bills/create");
+  }, [router]);
 
   if (fetching || (!fetchedBill && !fetchError)) {
     return <PageSkeleton />;
@@ -236,31 +304,48 @@ const EditBill = ({ billId }) => {
   }
 
   return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto w-full">
-        <div className="p-5">
-          <Link
-            href="/dashboard/bills"
-            className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              {t("common.backTo", { item: t("common.bills") })}
-            </span>
-          </Link>
-        </div>
-        <div className="h-[calc(100vh-150px)] overflow-y-auto px-5 pb-5">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <form onSubmit={onFormSubmit}>{memoizedBillItemsSection}</form>
-            </div>
-
-            {memoizedBillSidebar}
-          </div>
-        </div>
-      </div>
-    </div>
+    <BillFormView
+      t={t}
+      formData={formData}
+      setFormData={setFormData}
+      errors={errors}
+      setErrors={setErrors}
+      // Products
+      products={products}
+      productsLoading={productsLoading}
+      selectedProduct={selectedProduct}
+      setSelectedProduct={setSelectedProduct}
+      selectedQuantity={selectedQuantity}
+      setSelectedQuantity={setSelectedQuantity}
+      selectedPrice={selectedPrice}
+      setSelectedPrice={setSelectedPrice}
+      handleAddItem={onAddItem}
+      handleRemoveItem={handleRemoveItem}
+      handleUpdateItem={handleUpdateItem}
+      // Suppliers & POs
+      suppliers={suppliers}
+      suppliersLoading={suppliersLoading}
+      purchaseOrders={purchaseOrders}
+      purchaseOrdersLoading={purchaseOrdersLoading}
+      handleInputChange={onFieldChange}
+      // State
+      isSubmitting={isUpdating}
+      isEditMode={true}
+      // Navigation
+      onBack={handleBack}
+      onCreateNew={handleCreateNew}
+      onSubmit={handleSubmit}
+      onCancel={handleBack}
+      // Slots
+      supplierDrawer={
+        <AddSupplierDrawer
+          isOpen={showAddSupplierDrawer}
+          onClose={() => setShowAddSupplierDrawer(false)}
+          onSuccess={handleAddSupplierSuccess}
+        />
+      }
+    />
   );
 };
 
-export default memo(EditBill);
+export default memo(EditBillPage);
