@@ -52,25 +52,21 @@ const InvoicePageLayout = ({
     };
   }, [invoiceData, itemsWithGst, calculatedSubtotal, calculatedGstAmount]);
 
-  if (!invoiceData || !templateInvoiceData) return null;
-
   return (
-    <div className="min-w-0 lg:h-[calc(100vh-150px)]">
-      <div className="min-w-0 lg:h-full lg:overflow-hidden">
-        <div
-          id="invoice-area"
-          className="min-w-0 overflow-x-hidden rounded-lg bg-white lg:h-full"
-        >
-          <ConfiguredInvoiceTemplate
-            templateKey={selectedTemplate}
-            invoiceData={templateInvoiceData}
-            selectedStore={selectedStore}
-            signatures={signatures.items}
-            signatureSettingsUrl="/dashboard/utilities/signatures"
-            fitPreview
-          />
-        </div>
-      </div>
+    <div
+      id="invoice-area"
+      className="fixed -left-[99999px] top-0 pointer-events-none -z-50 opacity-0 print:static print:opacity-100 print:pointer-events-auto print:z-auto print:block w-[794px] max-w-[210mm]"
+      data-variant="light"
+      data-theme="default"
+    >
+      <ConfiguredInvoiceTemplate
+        templateKey={selectedTemplate}
+        invoiceData={templateInvoiceData}
+        selectedStore={selectedStore}
+        signatures={signatures.items}
+        signatureSettingsUrl="/dashboard/utilities/signatures"
+        fitPreview={false}
+      />
     </div>
   );
 };

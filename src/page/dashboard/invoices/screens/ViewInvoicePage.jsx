@@ -1,23 +1,31 @@
 "use client";
+
 import { ArrowLeft, FileQuestion } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { UpdatePaymentStatusModal } from "../components";
-import InvoiceLoadingState from "../components/view/InvoiceLoadingState";
-import InvoicePageLayout from "../components/view/InvoicePageLayout";
-import InvoiceViewHeader from "../components/view/InvoiceViewHeader";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PaymentConfirmModal from "@/components/payment/PaymentConfirmModal";
 import { EmptyState } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { useInvoicePrint } from "../hooks/useInvoicePrint";
-import { useMiniInvoicePrint } from "../hooks/useMiniInvoicePrint";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { formatCurrency } from "@/utils/currencyFormatter";
+import { formatDate, formatDateTime } from "@/utils/dateFormatter";
+import { UpdatePaymentStatusModal } from "../components";
+import InvoiceActions from "../components/view/InvoiceActions";
+import InvoiceCustomerInfo from "../components/view/InvoiceCustomerInfo";
+import InvoiceHeader from "../components/view/InvoiceHeader";
+import InvoiceItemsTable from "../components/view/InvoiceItemsTable";
+import InvoiceLoadingState from "../components/view/InvoiceLoadingState";
+import InvoiceNotes from "../components/view/InvoiceNotes";
+import InvoicePageLayout from "../components/view/InvoicePageLayout";
+import { useInvoicePrint } from "../hooks/useInvoicePrint";
+import { useMiniInvoicePrint } from "../hooks/useMiniInvoicePrint";
 import {
   calculateGstAmount,
   calculateSubtotal,
@@ -35,6 +43,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const searchParams = useSearchParams();
   const { showSuccess, showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const signatures = useAppSelector((state) => state.signatures);
   const storeId = selectedStore?.storeId;
 
   // Permission Management
@@ -58,7 +67,11 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   const isMiniTemplate = selectedTemplate?.startsWith("thermal");
 
-  const standardPrint = useInvoicePrint(fetching, invoiceData, isMiniTemplate);
+  const standardPrint = useInvoicePrint(fetching, invoiceData, isMiniTemplate, {
+    selectedTemplate,
+    selectedStore,
+    signatures: signatures?.items || [],
+  });
   const miniPrint = useMiniInvoicePrint(fetching, invoiceData, !isMiniTemplate);
 
   const { handlePrint, handleDownloadPDF } = isMiniTemplate
@@ -126,7 +139,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
     const isAutoPrint = searchParams.get("autoPrint") === "true";
     const isPosRedirect = searchParams.get("redirect") === "pos";
 
-    // Redirect only if it's an auto-print from POS
     if (isAutoPrint && isPosRedirect) {
       setTimeout(() => {
         setupRedirectAfterPrint();
@@ -191,9 +203,23 @@ const ViewInvoicePage = ({ invoiceId }) => {
     router.push("/dashboard/invoices/create");
   }, [router]);
 
-  const handleDownloadPDFAction = useCallback(() => {
-    handleDownloadPDF(invoiceData, invoiceId);
-  }, [handleDownloadPDF, invoiceData, invoiceId]);
+  const handleDownloadPDFAction = useCallback(
+    (inv) => {
+      handleDownloadPDF(inv || invoiceData, invoiceId, {
+        selectedTemplate,
+        selectedStore,
+        signatures: signatures?.items || [],
+      });
+    },
+    [
+      handleDownloadPDF,
+      invoiceData,
+      invoiceId,
+      selectedTemplate,
+      selectedStore,
+      signatures?.items,
+    ]
+  );
 
   // Global actions for this page
   useCommonHotkeys({
@@ -205,55 +231,162 @@ const ViewInvoicePage = ({ invoiceId }) => {
     onBack: handleNavigateToPosOrInvoices,
   });
 
+  const isDraft =
+    invoiceData?.invoiceStatus === "DRAFT" || invoiceData?.status === "DRAFT";
+  const isReleased =
+    invoiceData?.invoiceStatus === "RELEASED" ||
+    invoiceData?.status === "RELEASED";
+  const isPaid = invoiceData?.paymentStatus === "PAID";
+  const isPos = searchParams.get("redirect") === "pos";
+
+  const itemsSummary = useMemo(() => {
+    if (!invoiceData) return null;
+    return {
+      subtotal:
+        calculatedSubtotal > 0 ? calculatedSubtotal : invoiceData.subtotal,
+      taxableAmount:
+        calculatedSubtotal > 0 ? calculatedSubtotal : invoiceData.subtotal,
+      totalDiscount: invoiceData.totalDiscount || 0,
+      gstAmount:
+        calculatedGstAmount > 0
+          ? calculatedGstAmount
+          : invoiceData.gst?.amount || invoiceData.gstAmount || 0,
+      totalValue: invoiceData.totalAmount,
+      totalAmount: invoiceData.totalAmount,
+      paidAmount: invoiceData.paidAmount,
+      dueAmount: invoiceData.dueAmount,
+    };
+  }, [invoiceData, calculatedSubtotal, calculatedGstAmount]);
+
   if (fetching || permissionLoading) return <InvoiceLoadingState t={t} />;
 
   if (!canRead) return null;
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden">
-      <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto p-3 sm:p-4 lg:p-6">
-        {!invoiceData ? (
-          <EmptyState
-            title={t("invoice.notFoundTitle") || "Invoice Not Found"}
-            description={
-              t("invoice.notFoundDescription") ||
-              "The invoice you are looking for might have been deleted or does not exist."
-            }
-            icon={FileQuestion}
-            type="error"
-            fullHeight={true}
-            actionButton={{
-              label: t("invoice.backToInvoices") || "Go Back to Invoices",
-              icon: ArrowLeft,
-              onClick: handleNavigateToPosOrInvoices,
-            }}
-          />
-        ) : (
-          <div className="mx-auto w-full min-w-0 max-w-8xl">
-            <InvoiceViewHeader
-              invoiceData={invoiceData}
-              invoiceId={invoiceId}
-              storeId={storeId}
-              onUpdatePaymentStatus={
-                canEdit ? handleOpenPaymentStatusModal : undefined
+    <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-primary))]">
+      <div className="h-screen w-full flex flex-col overflow-hidden">
+        <div className="flex-1 p-4 sm:p-6 overflow-hidden">
+          {!invoiceData ? (
+            <EmptyState
+              title={t("invoice.notFoundTitle") || "Invoice Not Found"}
+              description={
+                t("invoice.notFoundDescription") ||
+                "The invoice you are looking for might have been deleted or does not exist."
               }
-              onDownloadPDF={canRead ? handleDownloadPDF : undefined}
-              onEdit={canEdit ? handleEdit : undefined}
-              onRelease={canEdit && invoiceData?.id ? handleRelease : undefined}
-              onPrint={canRead ? handlePrintWithRedirect : undefined}
-              canCreate={canCreate}
-              t={t}
+              icon={FileQuestion}
+              type="error"
+              fullHeight={true}
+              actionButton={{
+                label: t("invoice.backToInvoices") || "Go Back to Invoices",
+                icon: ArrowLeft,
+                onClick: handleNavigateToPosOrInvoices,
+              }}
             />
-            <InvoicePageLayout
-              invoiceData={invoiceData}
-              selectedTemplate={selectedTemplate}
-              selectedStore={selectedStore}
-              itemsWithGst={itemsWithGst}
-              calculatedSubtotal={calculatedSubtotal}
-              calculatedGstAmount={calculatedGstAmount}
-            />
-          </div>
-        )}
+          ) : (
+            <div className="h-full flex flex-col">
+              {/* Back Link */}
+              <div className="mb-4 sm:mb-6 shrink-0 no-print">
+                <Link
+                  href={isPos ? "/dashboard/pos" : "/dashboard/invoices"}
+                  className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {isPos
+                      ? t("invoice.backToPos", { defaultValue: "Back to POS" })
+                      : t("invoice.backToInvoices", {
+                          defaultValue: "Back to Invoices",
+                        })}
+                  </span>
+                </Link>
+              </div>
+
+              {/* Offscreen Printable Template (used by html2canvas for PDF and window.print) */}
+              <InvoicePageLayout
+                invoiceData={invoiceData}
+                selectedTemplate={selectedTemplate}
+                selectedStore={selectedStore}
+                itemsWithGst={itemsWithGst}
+                calculatedSubtotal={calculatedSubtotal}
+                calculatedGstAmount={calculatedGstAmount}
+              />
+
+              {/* Main 2-Column Responsive Layout matching Bill View */}
+              <div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 flex-1 min-h-0 no-print"
+                style={{ maxHeight: "calc(100vh - 170px)" }}
+              >
+                {/* Left: Document details (2 cols) */}
+                <div className="lg:col-span-2 flex flex-col overflow-y-auto pe-0 lg:pe-4 space-y-5 custom-scrollbar">
+                  {/* Main Invoice Sheet (Document Style Header + Customer Info) */}
+                  <div className="bg-white dark:bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]/60 overflow-hidden">
+                    <InvoiceHeader
+                      invoiceData={invoiceData}
+                      formatDate={formatDate}
+                    />
+                    <div className="w-full">
+                      <InvoiceCustomerInfo
+                        customer={invoiceData.customer}
+                        invoiceData={invoiceData}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Line Items List with GST Breakdown & Totals */}
+                  <div className="w-full">
+                    <InvoiceItemsTable
+                      items={
+                        itemsWithGst?.length > 0
+                          ? itemsWithGst
+                          : invoiceData.items
+                      }
+                      itemsSummary={itemsSummary}
+                      gstBreakdown={
+                        invoiceData.gst?.breakdown || invoiceData.gstBreakdown
+                      }
+                      formatCurrency={formatCurrency}
+                    />
+                  </div>
+
+                  {/* Notes & Terms */}
+                  <InvoiceNotes
+                    notes={invoiceData.notes}
+                    terms={invoiceData.termsAndConditions}
+                    cancellationReason={invoiceData.cancellationReason}
+                  />
+                </div>
+
+                {/* Right: Actions & Financial Summary Sidebar (1 col) */}
+                <div className="lg:col-span-1 h-full overflow-y-auto px-1 custom-scrollbar">
+                  <InvoiceActions
+                    invoiceData={invoiceData}
+                    storeId={storeId}
+                    onEditInvoice={canEdit && isDraft ? handleEdit : undefined}
+                    onReleaseInvoice={
+                      canEdit && isDraft && invoiceData?.id
+                        ? handleRelease
+                        : undefined
+                    }
+                    onPrintInvoice={
+                      canRead ? handlePrintWithRedirect : undefined
+                    }
+                    onDownloadPDF={
+                      canRead ? handleDownloadPDFAction : undefined
+                    }
+                    onUpdatePaymentStatus={
+                      canEdit && isReleased && !isPaid
+                        ? handleOpenPaymentStatusModal
+                        : undefined
+                    }
+                    formatCurrency={formatCurrency}
+                    formatDate={formatDate}
+                    formatDateTime={formatDateTime}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {showPaymentStatusModal && (
@@ -274,4 +407,4 @@ const ViewInvoicePage = ({ invoiceId }) => {
   );
 };
 
-export default ViewInvoicePage;
+export default memo(ViewInvoicePage);

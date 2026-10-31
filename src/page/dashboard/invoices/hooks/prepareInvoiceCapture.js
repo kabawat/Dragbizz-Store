@@ -14,6 +14,14 @@ export function prepareInvoiceCapture(document) {
       element.style.height = "auto";
       element.style.width = "auto";
     });
+  const invoiceArea = document.getElementById("invoice-area");
+  if (invoiceArea) {
+    invoiceArea.style.position = "static";
+    invoiceArea.style.opacity = "1";
+    invoiceArea.style.left = "0";
+    invoiceArea.style.display = "block";
+    invoiceArea.style.visibility = "visible";
+  }
   document.querySelectorAll(".invoice-responsive-page").forEach((element) => {
     element.style.width = "794px";
     element.style.transform = "none";
