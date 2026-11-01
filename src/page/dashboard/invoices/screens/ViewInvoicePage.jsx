@@ -1,5 +1,6 @@
 "use client";
 
+import { InvoicePrintModal } from "@dragorbit/features/invoices";
 import { ArrowLeft, FileQuestion } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -61,6 +62,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const { execute, data: invoiceData, loading: fetching } = useApiResponse();
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
+  const [showPrintModal, setShowPrintModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const hasFetched = useRef(false);
   const hasAutoPrinted = useRef(false);
@@ -113,7 +115,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
       if (!result?.success) {
         showError(
           result?.message ||
-            t("errors.failedToFetchData", { item: t("common.invoice") })
+          t("errors.failedToFetchData", { item: t("common.invoice") })
         );
       }
     },
@@ -199,9 +201,14 @@ const ViewInvoicePage = ({ invoiceId }) => {
     router.push(isPos ? "/dashboard/pos" : "/dashboard/invoices");
   }, [router, searchParams]);
 
+  const handlePrintAndSave = useCallback(() => {
+    setShowPrintModal(true);
+  }, []);
+
   const handleCreateNewInvoice = useCallback(() => {
-    router.push("/dashboard/invoices/create");
-  }, [router]);
+    const isPos = searchParams.get("redirect") === "pos";
+    router.push(isPos ? "/dashboard/pos" : "/dashboard/invoices/add");
+  }, [router, searchParams]);
 
   const handleDownloadPDFAction = useCallback(
     (inv) => {
@@ -295,8 +302,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
                     {isPos
                       ? t("invoice.backToPos", { defaultValue: "Back to POS" })
                       : t("invoice.backToInvoices", {
-                          defaultValue: "Back to Invoices",
-                        })}
+                        defaultValue: "Back to Invoices",
+                      })}
                   </span>
                 </Link>
               </div>
@@ -314,7 +321,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
               {/* Main 2-Column Responsive Layout matching Bill View */}
               <div
                 className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 flex-1 min-h-0 no-print"
-                style={{ maxHeight: "calc(100vh - 170px)" }}
               >
                 {/* Left: Document details (2 cols) */}
                 <div className="lg:col-span-2 flex flex-col overflow-y-auto pe-0 lg:pe-4 space-y-5 custom-scrollbar">
@@ -367,9 +373,11 @@ const ViewInvoicePage = ({ invoiceId }) => {
                         ? handleRelease
                         : undefined
                     }
-                    onPrintInvoice={
-                      canRead ? handlePrintWithRedirect : undefined
+                    onPrintAndSave={canRead ? handlePrintAndSave : undefined}
+                    onCreateNewInvoice={
+                      canCreate ? handleCreateNewInvoice : undefined
                     }
+                    onPrintInvoice={canRead ? handlePrintAndSave : undefined}
                     onDownloadPDF={
                       canRead ? handleDownloadPDFAction : undefined
                     }
@@ -403,6 +411,27 @@ const ViewInvoicePage = ({ invoiceId }) => {
         source="release"
         onClose={handleClosePaymentConfirmModal}
       />
+
+      {showPrintModal && (
+        <InvoicePrintModal
+          open={showPrintModal}
+          invoiceId={invoiceId}
+          invoice={invoiceData}
+          selectedStore={selectedStore}
+          signatures={signatures?.items || signatures || []}
+          fetchInvoice={async (id) => {
+            const res = await invoiceService.getInvoices({
+              id,
+              store: storeId,
+            });
+            const raw = res?.data ?? res;
+            return raw?.data ?? raw;
+          }}
+          onClose={() => setShowPrintModal(false)}
+          onCreateNew={handleCreateNewInvoice}
+          t={t}
+        />
+      )}
     </div>
   );
 };
