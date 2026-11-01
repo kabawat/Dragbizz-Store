@@ -91,6 +91,7 @@ const ProductListContent = ({
               nextCursor: paginationRef.current.nextCursor,
               isFreshLoad: false,
               includeVariants: false,
+              lightweight: "true",
             })
           );
         }
@@ -135,10 +136,19 @@ const ProductListContent = ({
 
   // Delete handlers
   const handleDeleteProduct = useCallback(
-    (productId) => {
-      const product = transformedProducts.find((p) => p.id === productId);
+    (productOrId) => {
+      const targetId =
+        typeof productOrId === "object" && productOrId !== null
+          ? (productOrId.id ?? productOrId._id ?? productOrId.localId)
+          : productOrId;
+
+      const product =
+        typeof productOrId === "object" && productOrId !== null
+          ? productOrId
+          : transformedProducts.find((p) => (p.id ?? p._id) === targetId);
+
       setProductToDelete({
-        id: productId,
+        id: targetId,
         name: product?.name || t("products.product"),
       });
     },

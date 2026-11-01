@@ -1,26 +1,26 @@
-import {
-  toProductListItem,
-  mergeVariantsIntoProducts,
-} from "@/utils/productCanonical";
+import { toProductListItem } from "./productCanonical.js";
 
 const transformProductsArray = (apiProducts) => {
   if (!Array.isArray(apiProducts)) return [];
-  return apiProducts.map((product) => toProductListItem(product)).filter(Boolean);
+  return apiProducts
+    .map((product) => toProductListItem(product))
+    .filter(Boolean);
 };
 
 export {
-  normalizeProductRecord,
-  toProductForm,
+  buildUnifiedProductPayload,
+  expandProductsForPos,
+  extractProductIdFromCreateResponse,
   fromProductForm,
-  splitProductAndVariantPayload,
   mergeVariantIntoProduct,
   mergeVariantsIntoProducts,
+  normalizeProductRecord,
   pickDefaultVariant,
-  variantOptionLabel,
-  expandProductsForPos,
-  toProductListItem,
   resolveProductUnitPrice,
-  extractProductIdFromCreateResponse,
-} from "@/utils/productCanonical";
+  splitProductAndVariantPayload,
+  toProductForm,
+  toProductListItem,
+  variantOptionLabel,
+} from "./productCanonical.js";
 
 export { toProductListItem as transformProductData, transformProductsArray };

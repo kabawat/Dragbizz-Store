@@ -1,25 +1,29 @@
 "use client";
-import { ArrowLeft, Save } from "lucide-react";
+
+import { ArrowLeft, Layers, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ProductForm } from "@/components/product";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useApiResponse } from "@/hooks/useApiResponse";
-import { productService, variantService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import {
-  extractProductIdFromCreateResponse,
-  splitProductAndVariantPayload,
-} from "@/utils/productUtils";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { productService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import { buildUnifiedProductPayload } from "@/utils/productUtils";
 
 const AddProductPage = () => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("products.addNewProduct"), t("products.addNewProductDescription"));
+  useDashboardHeader(
+    t("products.addNewProduct", "Add New Product"),
+    t(
+      "products.addNewProductDescription",
+      "Create a new product for your store inventory"
+    )
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
@@ -68,6 +72,8 @@ const AddProductPage = () => {
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
+  const [hasVariants, setHasVariants] = useState(false);
+  const [variants, setVariants] = useState([]);
 
   useEffect(() => {
     if (storeId) {
@@ -93,7 +99,8 @@ const AddProductPage = () => {
 
     setFormData((prevData) => {
       const newData = { ...prevData };
-      const getNewValue = (current) => (typeof value === "function" ? value(current) : value);
+      const getNewValue = (current) =>
+        typeof value === "function" ? value(current) : value;
 
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
@@ -112,36 +119,83 @@ const AddProductPage = () => {
     });
   };
 
+  const handleHasVariantsChange = (enabled) => {
+    setHasVariants(enabled);
+    if (!enabled) {
+      setVariants([]);
+    }
+  };
+
   const handleSaveAndPublish = async () => {
     clearFieldErrors();
 
-    const { productPayload, variantPayload } = splitProductAndVariantPayload({
-      ...formData,
-      store: storeId,
+    // Basic Validation
+    const errors = {};
+    if (!formData.name?.trim()) {
+      errors.name = t("products.nameRequired", "Product name is required");
+    }
+    if (!formData.category) {
+      errors.category = t("products.categoryRequired", "Category is required");
+    }
+    if (!formData.mrp) {
+      errors.mrp = t("products.mrpRequired", "MRP is required");
+    }
+    if (!formData.sellingPrice) {
+      errors.sellingPrice = t(
+        "products.sellingPriceRequired",
+        "Selling price is required"
+      );
+    } else if (parseFloat(formData.sellingPrice) > parseFloat(formData.mrp)) {
+      errors.sellingPrice = t(
+        "products.sellingPriceExceedsMrp",
+        "Selling price cannot exceed MRP"
+      );
+    }
+
+    // Validate Variants if enabled
+    if (hasVariants && variants.length > 0) {
+      for (let i = 0; i < variants.length; i++) {
+        const v = variants[i];
+        const vMrp = parseFloat(v.mrp) || parseFloat(formData.mrp) || 0;
+        const vSp =
+          parseFloat(v.sellingPrice) || parseFloat(formData.sellingPrice) || 0;
+        if (vSp > vMrp && vMrp > 0) {
+          errors.variants = t(
+            "products.variantPriceError",
+            `Variant #${i + 2} selling price cannot exceed MRP`
+          );
+          break;
+        }
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    const payload = buildUnifiedProductPayload({
+      formData: {
+        ...formData,
+        store: storeId,
+      },
+      variants,
+      hasVariants,
     });
 
-    const result = await execute(productService.createProduct(productPayload), {
-      message: t("products.createSuccess"),
+    const result = await execute(productService.createProduct(payload), {
+      message: t("products.createSuccess", "Product created successfully!"),
     });
 
     if (!result?.success) return;
 
-    const productId = extractProductIdFromCreateResponse(result.data);
-    if (productId) {
-      await execute(
-        variantService.createVariant({
-          ...variantPayload,
-          product: productId,
-        }),
-        { showToast: false },
-      );
-    }
-
     setTimeout(() => {
       setFormData(getInitialFormData());
+      setVariants([]);
+      setHasVariants(false);
       clearFieldErrors();
       router.push("/dashboard/products");
-    }, 1500);
+    }, 1200);
   };
 
   const handleCancel = () => {
@@ -149,46 +203,94 @@ const AddProductPage = () => {
   };
 
   return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto w-full">
-        <div className="p-5 w-full mx-auto">
-          <Link
-            href="/dashboard/products"
-            className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">{t("products.backToProducts")}</span>
-          </Link>
+    <div className="min-h-screen bg-[rgb(var(--color-bg-secondary)/0.3)] pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        {/* Top Header / Breadcrumb Card */}
+        <div className="flex items-center justify-between gap-4 pb-4 mb-5 border-b border-[rgb(var(--color-border-primary))]">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/products"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))] shadow-2xs transition-all"
+              title={t("products.backToProducts", "Back to Products")}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-xl font-bold text-[rgb(var(--color-text-primary))]">
+                  {t("products.addNewProduct", "Add New Product")}
+                </h1>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                  {t("products.newProductBadge", "Draft")}
+                </span>
+              </div>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5">
+                {t(
+                  "products.addNewProductSubtitle",
+                  "Configure product details, pricing, media, and add variants one by one"
+                )}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="overflow-hidden">
-          <div className="h-[calc(100vh-210px)] overflow-y-auto px-5">
-            <ProductForm
-              formData={formData}
-              onChange={handleFormDataChange}
-              fieldErrors={fieldErrors}
-              storeId={storeId}
-              productId={null}
-            />
+        {/* Main Product Form */}
+        <div>
+          <ProductForm
+            formData={formData}
+            onChange={handleFormDataChange}
+            fieldErrors={fieldErrors}
+            storeId={storeId}
+            productId={null}
+            variants={variants}
+            onVariantsChange={setVariants}
+            hasVariants={hasVariants}
+            onHasVariantsChange={handleHasVariantsChange}
+            showVariants={true}
+          />
+        </div>
+      </div>
+
+      {/* Sticky Bottom Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[rgb(var(--color-bg-primary)/0.95)] backdrop-blur-md border-t border-[rgb(var(--color-border-primary))] px-4 sm:px-8 py-3.5 shadow-lg">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-[rgb(var(--color-primary)/0.1)] text-[rgb(var(--color-primary))] flex items-center justify-center shrink-0">
+              <Package className="w-4 h-4" />
+            </div>
+            <div className="min-w-0 truncate">
+              <span className="block text-xs font-medium text-[rgb(var(--color-text-secondary))]">
+                {t("products.creatingProduct", "Creating Product:")}
+              </span>
+              <span className="block text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">
+                {formData.name?.trim() ||
+                  t("products.untitledProduct", "Untitled Product")}
+              </span>
+            </div>
+
+            {hasVariants && variants.length > 0 && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[rgb(var(--color-primary)/0.1)] text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary)/0.2)] shrink-0 ml-2">
+                <Layers className="w-3.5 h-3.5" />
+                {variants.length}{" "}
+                {variants.length === 1 ? "Variant" : "Variants"}
+              </span>
+            )}
           </div>
 
-          <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 ml-auto">
-                <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                  {t("common.cancel")}
-                </Button>
-                <Button
-                  variant="success"
-                  onClick={handleSaveAndPublish}
-                  disabled={loading}
-                  loading={loading}
-                  leftIcon={Save}
-                >
-                  {t("products.saveAndPublish")}
-                </Button>
-              </div>
-            </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <Button variant="outline" onClick={handleCancel} disabled={loading}>
+              {t("common.cancel", "Cancel")}
+            </Button>
+            <Button
+              variant="success"
+              onClick={handleSaveAndPublish}
+              disabled={loading}
+              loading={loading}
+              leftIcon={Save}
+              className="shadow-sm"
+            >
+              {t("products.saveAndPublish", "Save & Publish")}
+            </Button>
           </div>
         </div>
       </div>

@@ -452,5 +452,8 @@
   "variantMedia": "Images",
   "variantMediaSubtitle": "Up to 10 images for this variant",
   "viewProduct": "View product",
-  "viewProductDescription": "Product information and details."
+  "viewProductDescription": "Product information and details.",
+  "viewVariants": "View Variants",
+  "viewAllVariants": "View & Manage Variants",
+  "viewVariant": "View & manage this variant"
 }

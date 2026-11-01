@@ -90,7 +90,20 @@ class ProductService extends BaseService {
   }
 
   deleteProduct(productId, storeId = null) {
-    const url = this.buildResourceUrl(this.endpoint, productId, storeId);
+    const resolvedId =
+      typeof productId === "object" && productId !== null
+        ? (productId.id ?? productId._id ?? productId.productId)
+        : productId;
+    const resolvedStoreId =
+      storeId ??
+      (typeof productId === "object" && productId !== null
+        ? (productId.store ?? productId.storeId)
+        : null);
+    const url = this.buildResourceUrl(
+      this.endpoint,
+      resolvedId,
+      resolvedStoreId
+    );
     return this.delete(url);
   }
 

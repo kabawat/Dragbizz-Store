@@ -413,5 +413,8 @@
   "default": "Default",
   "deleteVariant": "Variant hatayein",
   "displayName": "Display name",
-  "variantDeleteConfirm": "Kya aap is variant ko delete karna chahte hain?"
+  "variantDeleteConfirm": "Kya aap is variant ko delete karna chahte hain?",
+  "viewVariants": "Variants Dekhein",
+  "viewAllVariants": "Variants Dekhein aur Manage Karein",
+  "viewVariant": "Variant Dekhein"
 }

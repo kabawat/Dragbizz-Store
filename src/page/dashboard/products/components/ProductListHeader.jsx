@@ -141,6 +141,7 @@ const ProductListHeader = ({
       cursor: null,
       isFreshLoad: true,
       includeVariants: false,
+      lightweight: "true",
     };
     if (sortBy) params.sortBy = sortBy;
     if (showInCatalog) params.showInCatalog = showInCatalog;
@@ -188,6 +189,7 @@ const ProductListHeader = ({
         limit: 20,
         isFreshLoad: true,
         includeVariants: false,
+        lightweight: "true",
       })
     );
   }, [dispatch, storeId]);

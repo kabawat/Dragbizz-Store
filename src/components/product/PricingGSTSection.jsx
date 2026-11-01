@@ -1,77 +1,219 @@
 "use client";
-import { PricingGSTSectionPresentation } from "@dragorbit/features/products";
 
-import { CURRENCY_OPTIONS, UOM_OPTIONS } from "@/data";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { Input, Select } from "../ui";
-import { useAppSelector } from "@/store/hooks";
+import { Barcode, Hash, IndianRupee, Info, Package, Sparkles } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { Input } from "../ui";
 
-const PricingGSTSection = ({ formData, onChange, errors = {} }) => {
+const PricingGSTSection = ({
+  formData,
+  onChange,
+  errors = {},
+  hasVariants = false,
+}) => {
   const { t } = useTranslation();
-  const { selectedStore } = useAppSelector((state) => state.profile);
-  const hasStoreGst = !!selectedStore?.gst;
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
   };
 
-  const gstAmount = useMemo(() => {
-    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const gstRate = parseFloat(formData.gstInfo?.gstRate) || 0;
-    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
-
-    if (isGstIncluded) {
-      return (sellingPrice * gstRate) / (100 + gstRate);
-    }
-    return (sellingPrice * gstRate) / 100;
-  }, [
-    formData.sellingPrice,
-    formData.gstInfo?.gstRate,
-    formData.gstInfo?.isGstIncluded,
-  ]);
-
-  const totalPrice = useMemo(() => {
-    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
-    return isGstIncluded ? sellingPrice : sellingPrice + gstAmount;
-  }, [formData.sellingPrice, formData.gstInfo?.isGstIncluded, gstAmount]);
+  const handleAutoGenerateSku = () => {
+    const namePart = (formData.name || "PRD")
+      .trim()
+      .substring(0, 4)
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const sku = `${namePart || "PRD"}-${randomSuffix}`;
+    handleFieldChange("sku", sku);
+  };
 
   const savings = useMemo(() => {
     const mrp = parseFloat(formData.mrp) || 0;
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    if (mrp > sellingPrice) {
+    if (mrp > sellingPrice && sellingPrice > 0) {
       return {
-        amount: mrp - sellingPrice,
+        amount: (mrp - sellingPrice).toFixed(2),
         percentage: Math.round(((mrp - sellingPrice) / mrp) * 100),
       };
     }
     return { amount: 0, percentage: 0 };
   }, [formData.mrp, formData.sellingPrice]);
 
-  const gstRateLabel =
-    formData.gstInfo?.gstRate !== "" && formData.gstInfo?.gstRate != null
-      ? `${(parseFloat(formData.gstInfo.gstRate) || 0).toFixed(0)}%`
-      : t("products.gstRateAuto");
-
   return (
-    <PricingGSTSectionPresentation
-      model={{
-        Input,
-        t,
-        formData,
-        handleFieldChange,
-        errors,
-        Select,
-        CURRENCY_OPTIONS,
-        UOM_OPTIONS,
-        hasStoreGst,
-        savings,
-        gstRateLabel,
-        gstAmount,
-        totalPrice,
-      }}
-    />
+    <div className="space-y-3.5">
+      {hasVariants && (
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 dark:text-blue-300">
+            <Info className="w-4 h-4 shrink-0" />
+            <span>
+              {t(
+                "products.variantsPricingNotice",
+                "Variants mode active: Product title is common. Enter specific variant details (Variant Name, MRP, Price, Stock, SKU) below."
+              )}
+            </span>
+          </div>
+
+          <div>
+            <Input
+              label={t(
+                "products.variantDisplayName",
+                "Variant Name (वेरिएंट का नाम)"
+              )}
+              placeholder={
+                formData.name
+                  ? `${formData.name} - Variant 1`
+                  : t(
+                      "products.enterVariantDisplayName",
+                      "Enter variant name (e.g. Red, 64GB, Size M)"
+                    )
+              }
+              value={formData.displayName || ""}
+              onChange={(val) => handleFieldChange("displayName", val)}
+              error={errors.displayName}
+              errorMessage={errors.displayName}
+              leftIcon={Package}
+              helperText={t(
+                "products.variantDisplayNameHelp",
+                "Specific name for this variant. Product title remains common across all variants."
+              )}
+              className="text-sm font-medium"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Row 1: MRP & Selling Price */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <div>
+          <Input
+            type="number"
+            label={t("products.mrp", "MRP (Maximum Retail Price)")}
+            placeholder={t("products.enterAmount", "0.00")}
+            value={formData.mrp || ""}
+            onChange={(val) => handleFieldChange("mrp", val)}
+            error={errors.mrp}
+            errorMessage={errors.mrp}
+            required
+            leftIcon={IndianRupee}
+            min={0}
+            step={0.01}
+          />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">
+              {t("products.sellingPrice", "Selling Price")}{" "}
+              <span className="text-rose-500">*</span>
+            </span>
+            {savings.percentage > 0 && (
+              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                {savings.percentage}% OFF (Save ₹{savings.amount})
+              </span>
+            )}
+          </div>
+          <Input
+            type="number"
+            placeholder={t("products.enterAmount", "0.00")}
+            value={formData.sellingPrice || ""}
+            onChange={(val) => handleFieldChange("sellingPrice", val)}
+            error={errors.sellingPrice}
+            errorMessage={errors.sellingPrice}
+            required
+            leftIcon={IndianRupee}
+            min={0}
+            step={0.01}
+          />
+        </div>
+      </div>
+
+      {/* Row 2: SKU & Barcode */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">
+              {t("products.sku", "SKU (Item Code)")}
+            </span>
+            <button
+              type="button"
+              onClick={handleAutoGenerateSku}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-[rgb(var(--color-primary))] hover:underline cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>{t("products.autoSku", "Auto SKU")}</span>
+            </button>
+          </div>
+          <Input
+            placeholder={t("products.enterSku", "e.g. PRD-1001")}
+            value={formData.sku || ""}
+            onChange={(val) =>
+              handleFieldChange("sku", (val || "").toUpperCase())
+            }
+            error={errors.sku}
+            errorMessage={errors.sku}
+            leftIcon={Hash}
+          />
+        </div>
+
+        <div>
+          <span className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+            {t("products.barcode", "Barcode / UPC / EAN")}
+          </span>
+          <Input
+            placeholder={t("products.enterBarcode", "Scan or enter barcode")}
+            value={formData.barcode || ""}
+            onChange={(val) => handleFieldChange("barcode", val)}
+            error={errors.barcode}
+            errorMessage={errors.barcode}
+            leftIcon={Barcode}
+          />
+        </div>
+      </div>
+
+      {/* Row 3: Initial Stock & Conditional Purchase Price (Only when stock is added) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <div>
+          <Input
+            type="number"
+            label={t("products.openingStock", "Initial Stock (Quantity)")}
+            placeholder="0"
+            value={
+              formData.stock !== undefined && formData.stock !== null
+                ? formData.stock
+                : ""
+            }
+            onChange={(val) => handleFieldChange("stock", val)}
+            error={errors.stock}
+            errorMessage={errors.stock}
+            leftIcon={Package}
+            min={0}
+          />
+        </div>
+
+        {formData.stock !== undefined &&
+          formData.stock !== "" &&
+          Number(formData.stock) > 0 && (
+            <div>
+              <Input
+                type="number"
+                label={t("products.purchasePrice", "Purchase / Cost Price")}
+                placeholder={t("products.enterAmount", "0.00")}
+                value={formData.basePrice || formData.purchasePrice || ""}
+                onChange={(val) => {
+                  handleFieldChange("basePrice", val);
+                  handleFieldChange("purchasePrice", val);
+                }}
+                error={errors.purchasePrice || errors.basePrice}
+                errorMessage={errors.purchasePrice || errors.basePrice}
+                leftIcon={IndianRupee}
+                min={0}
+                step={0.01}
+              />
+            </div>
+          )}
+      </div>
+    </div>
   );
 };
 

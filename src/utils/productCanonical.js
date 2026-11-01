@@ -204,9 +204,13 @@ export function mergeVariantsIntoProducts(products = [], variants = []) {
       ...(byProduct.get(id) ?? []),
     ].filter((variant, index, list) => {
       const variantId = String(variant?.id ?? variant?._id ?? "");
-      return !variantId || list.findIndex((candidate) =>
-        String(candidate?.id ?? candidate?._id ?? "") === variantId
-      ) === index;
+      return (
+        !variantId ||
+        list.findIndex(
+          (candidate) =>
+            String(candidate?.id ?? candidate?._id ?? "") === variantId
+        ) === index
+      );
     });
     const merged = mergeVariantIntoProduct(
       product,
@@ -284,6 +288,9 @@ export function normalizeProductRecord(input) {
     images: normalizeImages(input.images, input.image),
     stock: pickNumber(input.stock, input.stockQuantity) ?? 0,
     defaultVariantId: input.defaultVariantId ?? null,
+    variantsCount:
+      pickNumber(input.variantsCount, input.variants_count) ??
+      (Array.isArray(input.variants) ? input.variants.length : 0),
     variants: Array.isArray(input.variants) ? input.variants : [],
   };
 
@@ -363,10 +370,278 @@ function buildGstPayload(gstInfo = {}, isGstIncluded) {
 }
 
 /**
- * Build API payloads after product↔variant split.
- * Product keeps catalog fields; variant keeps sellable fields.
- * Product create still includes pricing temporarily so older BE validation passes.
+ * Build unified product and variant payload matching data.json.
  */
+export function buildUnifiedProductPayload({
+  formData = {},
+  variants = [],
+  hasVariants = false,
+} = {}) {
+  const normalized = normalizeProductRecord(formData) ?? {};
+  const discount = computeDiscount(
+    formData.mrp ?? normalized.mrp,
+    formData.sellingPrice ?? normalized.sellingPrice,
+    formData.discount ?? normalized.discount
+  );
+  const store = formData.store ?? formData.storeId ?? normalized.store;
+  const categoryId =
+    resolveCategoryId(formData.category) ||
+    resolveCategoryId(normalized.category) ||
+    formData.category ||
+    "";
+
+  const images = (formData.images ?? [])
+    .map((img) => {
+      if (typeof img === "string") return img;
+      if (img && typeof img === "object" && img.url) return img.url;
+      if (img instanceof File && img.uploadedUrl) return img.uploadedUrl;
+      return null;
+    })
+    .filter(Boolean);
+
+  const gstInfo = buildGstPayload(
+    formData.gstInfo ?? normalized.gstInfo,
+    formData.gstInfo?.isGstIncluded ?? normalized.gstInfo?.isGstIncluded
+  );
+
+  const specifications = Array.isArray(formData.specifications)
+    ? formData.specifications
+    : Array.isArray(formData.content?.specifications)
+      ? formData.content.specifications
+      : Array.isArray(normalized.content?.specifications)
+        ? normalized.content.specifications
+        : [];
+
+  const basePrice = toNumber(
+    formData.basePrice ??
+      formData.purchasePrice ??
+      formData.openingStock?.purchasePrice ??
+      normalized.basePrice
+  );
+
+  const mrp = toNumber(formData.mrp ?? normalized.mrp);
+  const sellingPrice = toNumber(
+    formData.sellingPrice ?? normalized.sellingPrice
+  );
+  const uom = formData.uom ?? normalized.uom ?? "PCS";
+  const rawSku = String(formData.sku ?? normalized.sku ?? "").trim();
+  const sku = rawSku ? rawSku.toUpperCase() : undefined;
+  const rawBarcode = String(
+    formData.barcode ?? normalized.barcode ?? ""
+  ).trim();
+  const barcode = rawBarcode || undefined;
+
+  let mappedVariants = [];
+
+  if (hasVariants) {
+    // 1. Primary Variant (from Section 1 Basic Info & Section 2 Pricing & Inventory)
+    // As per user requirement: displayName MUST NOT be product name, but the value from toggled variant name input box (formData.displayName)
+    const primaryDisplayName =
+      String(formData.displayName || "").trim() ||
+      (formData.name ? `${formData.name} - Variant 1` : "Variant 1");
+
+    const defaultImages = images.length > 0 ? images : (normalized.images ?? []);
+    const defaultStockQty =
+      toNumber(
+        formData.stockQuantity ??
+          formData.stock ??
+          formData.openingStock?.quantity
+      ) ?? 0;
+    const defaultPurchasePrice =
+      toNumber(
+        basePrice ??
+          formData.purchasePrice ??
+          formData.openingStock?.purchasePrice
+      ) ?? 0;
+    const defaultSupplier =
+      formData.supplierId ?? formData.openingStock?.supplier ?? null;
+
+    const primaryVariant = {
+      displayName: primaryDisplayName,
+      images: defaultImages,
+      sellingPrice: sellingPrice ?? 0,
+      mrp: mrp ?? 0,
+      discount: discount ?? 0,
+      showInCatalog: formData.showInCatalog !== false,
+      sortOrder: 0,
+      status: formData.status || "ACTIVE",
+      stock: {
+        stock: defaultStockQty,
+        purchasePrice: defaultPurchasePrice,
+        supplier: defaultSupplier || null,
+      },
+    };
+
+    if (sku) primaryVariant.sku = sku;
+    if (barcode) primaryVariant.barcode = barcode;
+    // NOTE: When hasVariants is checked, isDefault is NEVER passed on any variant!
+
+    // 2. Additional Variants (created from bottom section when user clicks "+ Add Another Variant")
+    const additionalVariants = (Array.isArray(variants) ? variants : []).map(
+      (v, idx) => {
+        const variantImages = (v.images ?? [])
+          .map((img) => {
+            if (typeof img === "string") return img;
+            if (img && typeof img === "object" && img.url) return img.url;
+            if (img instanceof File && img.uploadedUrl) return img.uploadedUrl;
+            return null;
+          })
+          .filter(Boolean);
+
+        const finalVariantImages =
+          variantImages.length > 0
+            ? variantImages
+            : images.length > 0
+              ? images
+              : (normalized.images ?? []);
+
+        const cleanOptions = (v.options || [])
+          .filter((o) => o?.name?.trim() && o?.value?.trim())
+          .map((o) => ({ name: o.name.trim(), value: o.value.trim() }));
+
+        const autoOptionLabel = cleanOptions.map((o) => o.value).join(" / ");
+        const fallbackDisplayName = autoOptionLabel
+          ? `${formData.name || normalized.name || "Product"} - ${autoOptionLabel}`
+          : `${formData.name || normalized.name || "Product"} - Variant ${idx + 2}`;
+
+        const vDisplayName =
+          String(v.displayName || "").trim() || fallbackDisplayName;
+
+        const vMrp = toNumber(v.mrp) ?? 0;
+        const vSellingPrice = toNumber(v.sellingPrice) ?? 0;
+        const vDiscount = computeDiscount(vMrp, vSellingPrice, v.discount);
+
+        const rawVSku = String(v.sku || "").trim();
+        const vSku = rawVSku ? rawVSku.toUpperCase() : undefined;
+        const vBarcode = v.barcode ? String(v.barcode).trim() : undefined;
+
+        const vStockQty =
+          toNumber(v.stock?.stock ?? v.stock ?? v.openingStock?.quantity) ?? 0;
+        const vPurchasePrice =
+          toNumber(
+            v.stock?.purchasePrice ??
+              v.purchasePrice ??
+              v.basePrice
+          ) ?? 0;
+        const vSupplier =
+          v.stock?.supplier ??
+          v.supplierId ??
+          v.supplier ??
+          formData.supplierId ??
+          formData.openingStock?.supplier ??
+          null;
+
+        const variantItem = {
+          displayName: vDisplayName,
+          images: finalVariantImages,
+          sellingPrice: vSellingPrice,
+          mrp: vMrp,
+          discount: vDiscount,
+          showInCatalog: v.showInCatalog !== false,
+          sortOrder: idx + 1,
+          status: v.status || "ACTIVE",
+          stock: {
+            stock: vStockQty,
+            purchasePrice: vPurchasePrice,
+            supplier: vSupplier || null,
+          },
+        };
+
+        if (vSku) variantItem.sku = vSku;
+        if (vBarcode) variantItem.barcode = vBarcode;
+        if (cleanOptions.length > 0) variantItem.options = cleanOptions;
+        // NOTE: isDefault is NOT passed on any variant when hasVariants is true!
+
+        return variantItem;
+      }
+    );
+
+    mappedVariants = [primaryVariant, ...additionalVariants];
+  } else {
+    // Default single variant mode: Seamlessly auto-creates 1 default variant
+    const defaultDisplayName =
+      String(formData.name ?? normalized.name ?? "").trim() || "Product";
+    const defaultImages =
+      images.length > 0 ? images : (normalized.images ?? []);
+    const defaultStockQty =
+      toNumber(
+        formData.stockQuantity ??
+          formData.stock ??
+          formData.openingStock?.quantity
+      ) ?? 0;
+    const defaultPurchasePrice =
+      toNumber(
+        basePrice ??
+          formData.purchasePrice ??
+          formData.openingStock?.purchasePrice
+      ) ?? 0;
+    const defaultSupplier =
+      formData.supplierId ?? formData.openingStock?.supplier ?? null;
+
+    const singleVariant = {
+      displayName: defaultDisplayName,
+      images: defaultImages,
+      sellingPrice: sellingPrice ?? 0,
+      mrp: mrp ?? 0,
+      isDefault: true,
+      discount: discount ?? 0,
+      showInCatalog: formData.showInCatalog !== false,
+      sortOrder: 0,
+      status: formData.status || "ACTIVE",
+      stock: {
+        stock: defaultStockQty,
+        purchasePrice: defaultPurchasePrice,
+        supplier: defaultSupplier || null,
+      },
+    };
+
+    if (sku) singleVariant.sku = sku;
+    if (barcode) singleVariant.barcode = barcode;
+
+    mappedVariants = [singleVariant];
+  }
+
+  const payload = {
+    name: formData.name ?? normalized.name ?? "",
+    brandId: formData.brandId || normalized.brandId || null,
+    categoryId,
+    category: categoryId,
+    store,
+    productType: formData.productType ?? normalized.productType ?? "GOODS",
+    bestSeller: Boolean(formData.bestSeller),
+    content: {
+      shortDescription:
+        formData.content?.shortDescription ??
+        normalized.content?.shortDescription ??
+        "",
+      longDescription:
+        formData.content?.longDescription ??
+        normalized.content?.longDescription ??
+        "",
+      tags: formData.content?.tags ?? normalized.content?.tags ?? [],
+      features: formData.content?.features ?? normalized.features ?? [],
+    },
+    currency: formData.currency ?? normalized.currency ?? "INR",
+    featured: Boolean(formData.featured),
+    newArrival: Boolean(formData.newArrival),
+    specifications,
+    status: formData.status ?? normalized.status ?? "ACTIVE",
+    uom,
+    images: images.length > 0 ? images : (normalized.images ?? []),
+    gstInfo,
+    mrp,
+    sellingPrice,
+    discount,
+    variants: mappedVariants,
+  };
+
+  if (basePrice !== undefined) payload.basePrice = basePrice;
+  if (sku) payload.sku = sku;
+  if (barcode) payload.barcode = barcode;
+
+  return payload;
+}
+
 export function splitProductAndVariantPayload(formData = {}) {
   const normalized = normalizeProductRecord(formData) ?? {};
   const discount = computeDiscount(
@@ -375,6 +650,11 @@ export function splitProductAndVariantPayload(formData = {}) {
     normalized.discount
   );
   const store = formData.store ?? formData.storeId ?? normalized.store;
+  const categoryId =
+    resolveCategoryId(formData.category) ||
+    resolveCategoryId(normalized.category) ||
+    formData.category ||
+    "";
 
   const images = (formData.images ?? [])
     .map((img) => {
@@ -396,11 +676,64 @@ export function splitProductAndVariantPayload(formData = {}) {
       ? normalized.content.specifications
       : [];
 
+  const basePrice = toNumber(
+    formData.basePrice ??
+      formData.purchasePrice ??
+      formData.openingStock?.purchasePrice ??
+      normalized.basePrice
+  );
+  const mrp = toNumber(formData.mrp ?? normalized.mrp);
+  const sellingPrice = toNumber(
+    formData.sellingPrice ?? normalized.sellingPrice
+  );
+  const uom = formData.uom ?? normalized.uom ?? "PCS";
+  const sku = String(formData.sku ?? normalized.sku ?? "")
+    .trim()
+    .toUpperCase();
+  const barcode = String(formData.barcode ?? normalized.barcode ?? "").trim();
+
+  const variantPayload = {
+    store,
+    displayName:
+      String(formData.name ?? normalized.name ?? "").trim() || undefined,
+    images: images.length > 0 ? images : normalized.images,
+    mrp,
+    sellingPrice,
+    discount,
+    uom,
+    gstInfo: {
+      ...(gstInfo.hsnCode ? { hsnCode: gstInfo.hsnCode } : {}),
+    },
+    status: formData.status || "ACTIVE",
+    isDefault: true,
+    showInCatalog: formData.showInCatalog !== false,
+    sortOrder: 0,
+    stock: {
+      stock:
+        toNumber(
+          formData.stockQuantity ??
+            formData.stock ??
+            formData.openingStock?.quantity
+        ) ?? 0,
+      purchasePrice:
+        toNumber(
+          basePrice ??
+            formData.purchasePrice ??
+            formData.openingStock?.purchasePrice
+        ) ?? 0,
+      supplier: formData.supplierId ?? formData.openingStock?.supplier ?? null,
+    },
+  };
+
+  if (sku) variantPayload.sku = sku;
+  if (barcode) variantPayload.barcode = barcode;
+
   const productPayload = {
     store,
     name: formData.name ?? normalized.name,
     brandId: formData.brandId || normalized.brandId || null,
-    category: formData.category ?? resolveCategoryId(normalized.category),
+    categoryId,
+    category: categoryId,
     currency: formData.currency ?? normalized.currency ?? "INR",
     productType: formData.productType ?? normalized.productType ?? "GOODS",
     images: images.length > 0 ? images : normalized.images,
@@ -423,48 +756,21 @@ export function splitProductAndVariantPayload(formData = {}) {
       features: formData.content?.features ?? normalized.features ?? [],
     },
     specifications,
-    // Temporary compat: BE product validation still requires these until fully migrated
-    mrp: toNumber(formData.mrp ?? normalized.mrp),
-    sellingPrice: toNumber(formData.sellingPrice ?? normalized.sellingPrice),
+    mrp,
+    sellingPrice,
     discount,
-    uom: formData.uom ?? normalized.uom ?? "PCS",
-    barcode: formData.barcode ?? normalized.barcode ?? "",
+    uom,
+    variants: [variantPayload],
   };
 
-  const basePrice = toNumber(formData.basePrice ?? normalized.basePrice);
   if (basePrice !== undefined) productPayload.basePrice = basePrice;
-
-  const sku = String(formData.sku ?? normalized.sku ?? "")
-    .trim()
-    .toUpperCase();
   if (sku) productPayload.sku = sku;
-  if (!productPayload.barcode) delete productPayload.barcode;
-
-  const variantPayload = {
-    store,
-    displayName:
-      String(formData.name ?? normalized.name ?? "").trim() || undefined,
-    mrp: toNumber(formData.mrp ?? normalized.mrp),
-    sellingPrice: toNumber(formData.sellingPrice ?? normalized.sellingPrice),
-    discount,
-    uom: formData.uom ?? normalized.uom ?? "PCS",
-    gstInfo: {
-      ...(gstInfo.hsnCode ? { hsnCode: gstInfo.hsnCode } : {}),
-    },
-    status: formData.status || "ACTIVE",
-    isDefault: true,
-    showInCatalog: formData.showInCatalog !== false,
-    sortOrder: 0,
-  };
-
-  if (sku) variantPayload.sku = sku;
-  const barcode = String(formData.barcode ?? normalized.barcode ?? "").trim();
-  if (barcode) variantPayload.barcode = barcode;
+  if (barcode) productPayload.barcode = barcode;
 
   return { productPayload, variantPayload };
 }
 
-/** @deprecated Prefer splitProductAndVariantPayload — kept for callers that still send a flat product body. */
+/** @deprecated Prefer buildUnifiedProductPayload — kept for callers that still send a flat product body. */
 export function fromProductForm(formData = {}) {
   const { productPayload } = splitProductAndVariantPayload(formData);
   return productPayload;
@@ -501,20 +807,115 @@ export function toProductListItem(input) {
         ? firstImage
         : "https://placehold.co/600x600?text=No+Image";
 
+  const rawVariants = Array.isArray(input?.variants)
+    ? input.variants
+    : Array.isArray(record.variants)
+      ? record.variants
+      : [];
+
+  const variantsCount =
+    pickNumber(
+      input?.variantsCount,
+      input?.variants_count,
+      record.variantsCount
+    ) ?? rawVariants.length;
+
+  const hasMultipleVariants =
+    input?.hasMultipleVariants ??
+    record.hasMultipleVariants ??
+    (variantsCount > 1 ||
+      (rawVariants.length === 1 && rawVariants[0]?.isDefault !== true));
+
+  let priceRange = null;
+  let mrpRange = null;
+  if (hasMultipleVariants && rawVariants.length > 0) {
+    const variantPrices = rawVariants
+      .map((v) => Number(v.sellingPrice))
+      .filter((p) => !isNaN(p) && p > 0);
+    if (variantPrices.length > 0) {
+      priceRange = {
+        min: Math.min(...variantPrices),
+        max: Math.max(...variantPrices),
+      };
+    }
+    const variantMrps = rawVariants
+      .map((v) => Number(v.mrp))
+      .filter((m) => !isNaN(m) && m > 0);
+    if (variantMrps.length > 0) {
+      mrpRange = {
+        min: Math.min(...variantMrps),
+        max: Math.max(...variantMrps),
+      };
+    }
+  }
+
+  const defaultVariant =
+    rawVariants.find((v) => v?.isDefault === true) || rawVariants[0];
+
+  const singleSellingPrice =
+    (toNumber(record.sellingPrice) !== undefined && toNumber(record.sellingPrice) > 0
+      ? toNumber(record.sellingPrice)
+      : undefined) ??
+    (toNumber(defaultVariant?.sellingPrice) !== undefined && toNumber(defaultVariant?.sellingPrice) > 0
+      ? toNumber(defaultVariant?.sellingPrice)
+      : undefined) ??
+    (toNumber(defaultVariant?.price) !== undefined && toNumber(defaultVariant?.price) > 0
+      ? toNumber(defaultVariant?.price)
+      : undefined) ??
+    0;
+
+  const singleMrp =
+    (toNumber(record.mrp) !== undefined && toNumber(record.mrp) > 0
+      ? toNumber(record.mrp)
+      : undefined) ??
+    (toNumber(defaultVariant?.mrp) !== undefined && toNumber(defaultVariant?.mrp) > 0
+      ? toNumber(defaultVariant?.mrp)
+      : undefined) ??
+    0;
+
+  const singleBasePrice =
+    (toNumber(record.basePrice) !== undefined && toNumber(record.basePrice) > 0
+      ? toNumber(record.basePrice)
+      : undefined) ??
+    (toNumber(defaultVariant?.stock?.purchasePrice) !== undefined && toNumber(defaultVariant?.stock?.purchasePrice) > 0
+      ? toNumber(defaultVariant?.stock?.purchasePrice)
+      : undefined) ??
+    (toNumber(defaultVariant?.purchasePrice) !== undefined && toNumber(defaultVariant?.purchasePrice) > 0
+      ? toNumber(defaultVariant?.purchasePrice)
+      : undefined) ??
+    (toNumber(defaultVariant?.basePrice) !== undefined && toNumber(defaultVariant?.basePrice) > 0
+      ? toNumber(defaultVariant?.basePrice)
+      : undefined) ??
+    0;
+
+  const singleSku = record.sku || defaultVariant?.sku || "";
+  const singleBarcode = record.barcode || defaultVariant?.barcode || "";
+
   return {
     id,
     name: record.name,
     brand: record.brand,
-    sku: record.sku,
-    barcode: record.barcode,
+    brandId: record.brandId,
+    hasMultipleVariants,
+    variantsCount,
+    priceRange,
+    mrpRange,
+    sku: hasMultipleVariants ? "Multiple SKUs" : singleSku,
+    barcode: hasMultipleVariants ? "" : singleBarcode,
     category: record.category,
     subcategories: input?.subcategories ?? [],
-    sellingPrice: toNumber(record.sellingPrice) ?? 0,
-    purchasePrice: toNumber(record.basePrice) ?? 0,
-    mrp: toNumber(record.mrp) ?? 0,
-    discount: toNumber(record.discount) ?? 0,
+    sellingPrice:
+      hasMultipleVariants && priceRange
+        ? priceRange.min
+        : singleSellingPrice,
+    purchasePrice: singleBasePrice,
+    mrp:
+      hasMultipleVariants && mrpRange
+        ? mrpRange.max
+        : singleMrp,
+    discount: hasMultipleVariants ? 0 : (toNumber(record.discount) ?? 0),
     currency: record.currency,
-    uom: record.uom,
+    uom: record.uom || defaultVariant?.uom || "PCS",
     gst: toNumber(record.gstInfo?.gstRate) ?? 0,
     hsnCode: record.gstInfo?.hsnCode ?? "",
     isGstIncluded: record.gstInfo?.isGstIncluded === true,
@@ -534,7 +935,7 @@ export function toProductListItem(input) {
     image: imageUrl,
     stock: record.stock ?? 0,
     defaultVariantId: record.defaultVariantId ?? null,
-    variants: Array.isArray(input?.variants) ? input.variants : Array.isArray(record.variants) ? record.variants : [],
+    variants: hasMultipleVariants ? rawVariants : [],
   };
 }
 
