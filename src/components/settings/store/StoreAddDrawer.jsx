@@ -1,5 +1,6 @@
 "use client";
-import { Plus, Save } from "lucide-react";
+import { StoreAddDrawerView } from "@dragorbit/features/settings";
+
 import { useState } from "react";
 import { FormDrawer } from "@/components/common";
 import storeService from "@/service/retailer/store.service";
@@ -32,7 +33,12 @@ const INITIAL_FORM = {
 const StoreAddDrawer = ({ isOpen, onClose, onSuccess, onError }) => {
   const { agency } = useAppSelector((state) => state.profile);
   const [form, setForm] = useState(INITIAL_FORM);
-  const { execute, loading: isCreating, fieldErrors: errors, setFieldErrors: setErrors } = useApiResponse();
+  const {
+    execute,
+    loading: isCreating,
+    fieldErrors: errors,
+    setFieldErrors: setErrors,
+  } = useApiResponse();
 
   // Hook for GST verification
   const {
@@ -45,7 +51,10 @@ const StoreAddDrawer = ({ isOpen, onClose, onSuccess, onError }) => {
   // Handle GST Verification
   const handleVerifyGst = async () => {
     if (!form.gst || form.gst.length < 15) {
-      setErrors((prev) => ({ ...prev, gst: "Please enter a valid GST number" }));
+      setErrors((prev) => ({
+        ...prev,
+        gst: "Please enter a valid GST number",
+      }));
       return;
     }
     await verifyGstNumber(form.gst);
@@ -170,7 +179,9 @@ const StoreAddDrawer = ({ isOpen, onClose, onSuccess, onError }) => {
       },
     };
 
-    const result = await execute(storeService.createStore(payload), { showToast: false });
+    const result = await execute(storeService.createStore(payload), {
+      showToast: false,
+    });
 
     if (result?.success) {
       onSuccess?.(result.message || "Store created successfully!");
@@ -186,30 +197,22 @@ const StoreAddDrawer = ({ isOpen, onClose, onSuccess, onError }) => {
   };
 
   return (
-    <FormDrawer
-      isOpen={isOpen}
-      onClose={handleCancel}
-      title="Add New Store"
-      icon={Plus}
-      description="Create a new store for your agency"
-      width="w-full md:w-2/3 lg:w-1/2"
-      onSave={handleSave}
-      onCancel={handleCancel}
-      saveLabel={isCreating ? "Creating..." : "Create Store"}
-      cancelLabel="Cancel"
-      isSaving={isCreating}
-      saveIcon={Save}
-      saveVariant="primary"
-    >
-      <StoreEditForm
-        form={form}
-        onChange={handleChange}
-        errors={errors}
-        isVerifyingGst={isVerifyingGst}
-        isGstVerified={isGstVerified}
-        onVerifyGst={handleVerifyGst}
-      />
-    </FormDrawer>
+    <StoreAddDrawerView
+      model={{
+        FormDrawer,
+        isOpen,
+        handleCancel,
+        handleSave,
+        isCreating,
+        StoreEditForm,
+        form,
+        handleChange,
+        errors,
+        isVerifyingGst,
+        isGstVerified,
+        handleVerifyGst,
+      }}
+    />
   );
 };
 

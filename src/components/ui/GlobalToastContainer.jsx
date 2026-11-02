@@ -1,24 +1,18 @@
 "use client";
+import { Toast } from "@dragorbit/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import Toast from "./Toast";
-
-const GlobalToastContainer = () => {
+export default function GlobalToastContainer() {
   const { toasts, removeToast } = useGlobalToast();
-
   return (
     <>
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          duration={toast.duration}
+          {...toast}
           position={toast.position || "top-right"}
           onClose={() => removeToast(toast.id)}
         />
       ))}
     </>
   );
-};
-
-export default GlobalToastContainer;
+}

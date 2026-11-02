@@ -1,18 +1,18 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { Package, Plus } from "lucide-react";
-import { EmptyState, PageLoader } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getProducts, setViewMode } from "@/store/slices/products/productSlice";
-import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import ProductListHeader from "./components/ProductListHeader";
-import ProductListContent from "./components/ProductListContent";
-import { useEffect, useState } from "react";
+import { ProductsScreen } from "@dragorbit/features/products";
 
-const ProductsPage = () => {
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setViewMode } from "@/store/slices/products/productSlice";
+import ProductListContent from "./components/ProductListContent";
+import ProductListHeader from "./components/ProductListHeader";
+
+const ProductsPage = ({ initialProductId = null }) => {
   const { t } = useTranslation();
 
   useDashboardHeader(t("products.title"), t("products.description"));
@@ -24,16 +24,20 @@ const ProductsPage = () => {
   const [showInCatalog, setShowInCatalog] = useState("");
   const [category, setCategory] = useState("");
 
-  const { products, isLoading, error } = useAppSelector((state) => state.products);
-  const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId;
+  const {
+    products,
+    isLoading: requestLoading,
+    hasLoaded,
+    error,
+  } = useAppSelector((state) => state.products);
+  const isLoading = requestLoading || (!hasLoaded && !error);
 
   const {
     can,
     create: canCreate,
     edit: canEdit,
     delete: canDelete,
-    loading: permissionsLoading
+    loading: permissionsLoading,
   } = useModulePermissions("product");
 
   useEffect(() => {
@@ -42,57 +46,46 @@ const ProductsPage = () => {
     }
   }, [can, permissionsLoading, router]);
 
-  // Restore saved view mode on mount
+  // Set default view mode to split
   useEffect(() => {
-    const savedViewMode = localStorage.getItem("products-view-mode");
-    if (savedViewMode === "table" || savedViewMode === "card") {
-      dispatch(setViewMode(savedViewMode));
-    }
+    dispatch(setViewMode("split"));
+    localStorage.setItem("products-view-mode", "split");
   }, [dispatch]);
 
   useCommonHotkeys({
     onBack: () => router.push("/dashboard"),
-    onNew: canCreate ? () => router.push("/dashboard/products/create") : undefined,
+    onNew: canCreate
+      ? () => router.push("/dashboard/products/create")
+      : undefined,
   });
 
   const isFiltered = searchValue || sortBy || showInCatalog || category;
 
   return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto w-full">
-        <ProductListHeader
-          canCreate={canCreate}
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          showInCatalog={showInCatalog}
-          setShowInCatalog={setShowInCatalog}
-          category={category}
-          setCategory={setCategory}
-        />
-
-        <div className="px-5">
-          {isLoading && products.length === 0 && !error && (<PageLoader />)}
-
-          {!isLoading && products.length === 0 && (
-            <EmptyState
-              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-              icon={Package}
-              title={t("products.noProducts")}
-              description={isFiltered ? t("products.noResultsDescription") : t("products.emptyDescription")}
-              actionButton={!isFiltered && canCreate ? {
-                label: t("products.addProduct"),
-                onClick: () => router.push("/dashboard/products/create"),
-                icon: Plus
-              } : null}
-            />
-          )}
-
-          {products.length > 0 && <ProductListContent canEdit={canEdit} canDelete={canDelete} />}
-        </div>
-      </div>
-    </div>
+    <ProductsScreen
+      model={{
+        ProductListHeader,
+        canCreate,
+        searchValue,
+        setSearchValue,
+        sortBy,
+        setSortBy,
+        showInCatalog,
+        setShowInCatalog,
+        category,
+        setCategory,
+        isLoading,
+        products,
+        error,
+        t,
+        isFiltered,
+        ProductListContent,
+        initialProductId,
+        canEdit,
+        canDelete,
+        onCreate: () => router.push("/dashboard/products/create"),
+      }}
+    />
   );
 };
 

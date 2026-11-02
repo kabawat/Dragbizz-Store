@@ -22,6 +22,11 @@ class InvoiceService extends BaseService {
     return this.get(this.endpoint, params);
   }
 
+  // Get Single Invoice By ID
+  getInvoiceById(invoiceId, params = {}) {
+    return this.get(this.endpoint, { id: invoiceId, ...params });
+  }
+
   // Update Draft Invoice (Only for DRAFT invoices)
   updateDraftInvoice(invoiceId, updateData) {
     // Remove paymentStatus from updateData as it's now UNPAID by default for drafts
@@ -77,7 +82,12 @@ class InvoiceService extends BaseService {
       payload.store = storeId;
     }
 
-    return this.post(`${this.endpoint}/release`, payload);
+    // Release also completes stock, ledger, and analytics work on the server.
+    return this.authAxios.post(
+      this.buildUrl(`${this.endpoint}/release`),
+      payload,
+      { timeout: 60_000 },
+    );
   }
 
   // Cancel Invoice

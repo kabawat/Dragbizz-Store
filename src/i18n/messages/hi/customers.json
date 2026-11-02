@@ -14,6 +14,8 @@
   "customerName": "ग्राहक नाम",
   "customerPhone": "फ़ोन नंबर",
   "customerEmail": "ईमेल पता",
+  "note": "नोट",
+  "enterNote": "इस ग्राहक के बारे में कोई नोट जोड़ें (वैकल्पिक)",
   "customerAddress": "पता",
   "customer": "ग्राहक",
   "phone": "फ़ोन",
@@ -48,6 +50,7 @@
   "addCompanyDetails": "कंपनी विवरण जोड़ें",
   "companyInformation": "कंपनी की जानकारी",
   "addresses": "पते",
+  "noAddressDetails": "कोई पता विवरण उपलब्ध नहीं है",
   "addBillingShipping": "बिलिंग और शिपिंग पते जोड़ें",
   "locationDetected": "📍 स्थान का पता चला: {city}, {state} - पते स्वचालित रूप से भर दिए जाएंगे",
   "addBillingAddress": "बिलिंग पता जोड़ें",
@@ -87,7 +90,8 @@
     "IN_STORE": "इन-स्टोर",
     "WHATSAPP": "WhatsApp",
     "PHONE": "फ़ोन",
-    "QR_CATALOG": "QR कैटलॉग"
+    "QR_CATALOG": "QR कैटलॉग",
+    "VOICE_AI": "वॉइस AI"
   },
   "download": "डाउनलोड",
   "export": "ग्राहक निर्यात करें",
@@ -176,5 +180,16 @@
   "partialSuccess": "थोक अपलोड आंशिक रूप से सफल",
   "bulkUploadSuccess": "थोक अपलोड सफलतापूर्वक पूरा हुआ",
   "rowData": "डेटा",
-  "emptyDescription": "आपके पास अभी तक कोई ग्राहक नहीं है। उनके ऑर्डर और प्राथमिकताओं को ट्रैक करना शुरू करने के लिए अपना पहला ग्राहक जोड़ें!"
+  "emptyDescription": "आपके पास अभी तक कोई ग्राहक नहीं है। उनके ऑर्डर और प्राथमिकताओं को ट्रैक करना शुरू करने के लिए अपना पहला ग्राहक जोड़ें!",
+  "importOpeningBalance": "ओपनिंग बैलेंस इम्पोर्ट",
+  "importMenu": "इम्पोर्ट",
+  "openingBalanceImportTitle": "ओपनिंग बैलेंस इम्पोर्ट करें",
+  "openingBalanceImportDesc": "मौजूदा ग्राहकों के लिए उधारी अपलोड करें। फोन नंबर से मिलान होगा।",
+  "openingBalanceInstruction1": "ग्राहक पहले से मौजूद होना चाहिए — फोन से मिलान।",
+  "openingBalanceInstruction2": "आवश्यक कॉलम: phone, openingDue।",
+  "openingBalanceResults": "इम्पोर्ट परिणाम",
+  "importedCount": "इम्पोर्ट किया गया",
+  "openingBalanceImportSuccess": "ओपनिंग बैलेंस इम्पोर्ट पूरा हुआ",
+  "openingBalancePartialSuccess": "इम्पोर्ट आंशिक रूप से सफल",
+  "downloadErrorsCsv": "त्रुटि CSV डाउनलोड करें"
 }

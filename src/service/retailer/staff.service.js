@@ -43,6 +43,22 @@ class StaffService extends BaseService {
         return this.put(`${this.endpoint}/${staffId}`, data);
     }
 
+    async listAttendance(storeId, filters = {}) {
+        return this.get(`${this.endpoint}/attendance`, { store: storeId, ...filters });
+    }
+
+    async createAttendance(storeId, data) {
+        return this.post(`${this.endpoint}/attendance`, data, { store: storeId });
+    }
+
+    async listSalary(storeId, filters = {}) {
+        return this.get(`${this.endpoint}/salary`, { store: storeId, ...filters });
+    }
+
+    async createSalary(storeId, data) {
+        return this.post(`${this.endpoint}/salary`, data, { store: storeId });
+    }
+
 }
 
 const staffService = new StaffService();

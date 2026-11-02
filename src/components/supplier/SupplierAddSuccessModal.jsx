@@ -1,7 +1,8 @@
 "use client";
-import { ArrowRight, CheckCircle, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui";
+import DragAiIcon from "@/components/common/DragAiIcon";
 
 const SupplierAddSuccessModal = ({
   isOpen,
@@ -71,7 +72,7 @@ const SupplierAddSuccessModal = ({
                 <CheckCircle className="w-10 h-10 text-white animate-bounce" />
               </div>
               <div className="absolute -top-2 -right-2">
-                <Sparkles className="w-6 h-6 text-yellow-400 animate-spin" />
+                <DragAiIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />
               </div>
               <div className="absolute -bottom-1 -left-1">
                 <div className="w-4 h-4 bg-blue-300 rounded-full animate-ping"></div>
@@ -85,7 +86,7 @@ const SupplierAddSuccessModal = ({
               {modalTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
-              "{supplierName}" has been {isEditMode ? "updated in" : "added to"}{" "}
+              "{supplierName}" has been {isEditMode ? "updated in" : "added to"}
               your supplier list
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">

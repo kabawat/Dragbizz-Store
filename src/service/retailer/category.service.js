@@ -17,6 +17,18 @@ class CategoryService extends BaseService {
   getCategories(params = {}) {
     return this.get(this.endpoint, params);
   }
+
+  // Update a category
+  updateCategory(categoryId, categoryData, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, categoryId, storeId);
+    return this.put(url, categoryData);
+  }
+
+  // Delete a category
+  deleteCategory(categoryId, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, categoryId, storeId);
+    return this.delete(url);
+  }
 }
 
 const categoryService = new CategoryService();

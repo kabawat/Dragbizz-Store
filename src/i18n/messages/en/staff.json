@@ -1,4 +1,66 @@
 {
   "title": "Staff Management",
-  "description": "Manage your store team and access permissions"
+  "description": "Manage your store team, attendance, and salary",
+  "pendingSync": "Pending sync",
+  "attendance": {
+    "staff": "Staff member",
+    "selectStaff": "Select staff",
+    "date": "Date",
+    "status": "Status",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional note",
+    "mark": "Mark attendance",
+    "markTitle": "Mark attendance",
+    "markDescription": "Record daily attendance for your active team members.",
+    "formHint": "Attendance is saved for the selected date.",
+    "recordsTitle": "Monthly records",
+    "thisMonth": "This month",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "emptyTitle": "No attendance yet",
+    "loading": "Loading attendance...",
+    "empty": "No attendance records for this month.",
+    "saved": "Attendance saved",
+    "noActiveStaff": "No active staff members found. Add or activate team members before marking attendance.",
+    "statuses": {
+      "PRESENT": "Present",
+      "ABSENT": "Absent",
+      "HALF_DAY": "Half day",
+      "LEAVE": "Leave"
+    },
+    "offlineHint": "Offline mode: attendance will be saved locally and synced when you are back online."
+  },
+  "salary": {
+    "staff": "Staff member",
+    "amount": "Amount",
+    "period": "Pay period",
+    "paymentMode": "Payment mode",
+    "record": "Record salary",
+    "recordTitle": "Record salary",
+    "recordDescription": "Record salary payment for an active team member.",
+    "recordsTitle": "Monthly payments",
+    "thisMonth": "This month",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "emptyTitle": "No salary payments yet",
+    "formHint": "Salary is recorded for the selected pay period.",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional note",
+    "totalAmount": "Total paid",
+    "totalPayments": "Payments",
+    "noActiveStaff": "No active staff members found. Add or activate team members before recording salary.",
+    "loading": "Loading salary payments...",
+    "empty": "No salary payments recorded for this month.",
+    "saved": "Salary payment saved",
+    "noAttendanceConfirm": "No attendance found for this pay period. Confirm to record salary anyway.",
+    "confirmPay": "Confirm and pay",
+    "paymentModes": {
+      "CASH": "Cash",
+      "UPI": "UPI",
+      "BANK_TRANSFER": "Bank transfer",
+      "CHEQUE": "Cheque"
+    },
+    "offlineHint": "Offline mode: salary will be saved locally and synced when you are back online."
+  },
+  "offlineReadOnly": "Showing cached team from local storage. Invite and edit require an internet connection."
 }

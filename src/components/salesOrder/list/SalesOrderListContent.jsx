@@ -1,5 +1,6 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { TableSkeleton } from "@dragorbit/ui";
+import { useCallback, useEffect, useRef, } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -7,10 +8,20 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { salesOrderService } from "@/service/retailer";
 import { getSalesOrders } from "@/store/slices/salesOrdersSlice";
+import socketService from "@/service/socket/socket.service";
 import SalesOrderTable from "@/components/salesOrder/SalesOrderTable";
 import SalesOrderCard from "@/components/salesOrder/SalesOrderCard";
 
-const SalesOrderListContent = ({ canCreate = false, canEdit = false, canDelete = false }) => {
+const SalesOrderListContent = ({
+    canCreate = false,
+    canEdit = false,
+    canDelete = false,
+    searchValue = "",
+    statusFilter = "all",
+    orderSourceFilter = "all",
+    startDate = "",
+    endDate = "",
+}) => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -31,9 +42,52 @@ const SalesOrderListContent = ({ canCreate = false, canEdit = false, canDelete =
     const isFetchingMoreRef = useRef(isFetchingMore);
     const storeIdRef = useRef(storeId);
     const paginationRef = useRef(pagination);
+    const searchRef = useRef(searchValue);
+    const statusRef = useRef(statusFilter);
+    const sourceRef = useRef(orderSourceFilter);
+    const startDateRef = useRef(startDate);
+    const endDateRef = useRef(endDate);
     isFetchingMoreRef.current = isFetchingMore;
     storeIdRef.current = storeId;
     paginationRef.current = pagination;
+    searchRef.current = searchValue;
+    statusRef.current = statusFilter;
+    sourceRef.current = orderSourceFilter;
+    startDateRef.current = startDate;
+    endDateRef.current = endDate;
+
+    // ─── Realtime order updates via Socket ────────────────────────────────────
+    useEffect(() => {
+        if (!socketService) return;
+
+        const handleRealtimeOrder = (payload) => {
+            const incomingStoreId = payload?.store || payload?.data?.store;
+            if (incomingStoreId && storeIdRef.current && String(incomingStoreId) !== String(storeIdRef.current)) {
+                return;
+            }
+
+            if (storeIdRef.current) {
+                dispatch(
+                    getSalesOrders({
+                        store: storeIdRef.current,
+                        limit: 20,
+                        search: searchRef.current || undefined,
+                        status: statusRef.current !== "all" ? statusRef.current : undefined,
+                        orderSource: sourceRef.current !== "all" ? sourceRef.current : undefined,
+                        startDate: startDateRef.current || undefined,
+                        endDate: endDateRef.current || undefined,
+                        cursor: null,
+                        isFreshLoad: true,
+                    })
+                );
+            }
+        };
+
+        socketService.on("sales_order_created", handleRealtimeOrder);
+        return () => {
+            socketService.off("sales_order_created", handleRealtimeOrder);
+        };
+    }, [dispatch]);
 
     // ─── Infinite scroll via IntersectionObserver ─────────────────────────────
     useEffect(() => {
@@ -47,6 +101,11 @@ const SalesOrderListContent = ({ canCreate = false, canEdit = false, canDelete =
                         getSalesOrders({
                             store: storeIdRef.current,
                             limit: 20,
+                            search: searchRef.current || undefined,
+                            status: statusRef.current !== "all" ? statusRef.current : undefined,
+                            orderSource: sourceRef.current !== "all" ? sourceRef.current : undefined,
+                            startDate: startDateRef.current || undefined,
+                            endDate: endDateRef.current || undefined,
                             nextCursor: paginationRef.current.nextCursor,
                             isFreshLoad: false
                         })
@@ -84,7 +143,7 @@ const SalesOrderListContent = ({ canCreate = false, canEdit = false, canDelete =
 
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.6)] overflow-hidden">
-            <div className="h-[calc(100vh-210px)] overflow-y-auto" ref={scrollRef}>
+            <div ref={scrollRef}>
                 {viewMode === "table" ? (
                     <div className="h-full">
                         <SalesOrderTable
@@ -121,14 +180,7 @@ const SalesOrderListContent = ({ canCreate = false, canEdit = false, canDelete =
 
                 {/* Infinite scroll loading indicator */}
                 {(isFetchingMore || (isLoading && orders.length > 0)) && (
-                    <div className="col-span-full flex items-center justify-center py-8">
-                        <div className="flex items-center gap-3">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
-                            <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                {t("common.loadingMore")}
-                            </span>
-                        </div>
-                    </div>
+                    <TableSkeleton compact rows={2} />
                 )}
             </div>
 

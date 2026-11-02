@@ -43,6 +43,7 @@ export const getAccountStats = createAsyncThunk(
 );
 
 const initialState = {
+  hasLoaded: false,
   // Accounts data
   accounts: [],
   selectedAccounts: [],
@@ -136,6 +137,7 @@ const accountsSlice = createSlice({
         state.error = null;
       })
       .addCase(getAccounts.fulfilled, (state, action) => {
+        state.hasLoaded = true;
         state.isLoading = false;
         state.error = null;
         state.accounts = action.payload.data || [];
@@ -149,6 +151,7 @@ const accountsSlice = createSlice({
         }
       })
       .addCase(getAccounts.rejected, (state, action) => {
+        state.hasLoaded = true;
         state.isLoading = false;
         state.error = action.payload || "Failed to fetch accounts";
       })

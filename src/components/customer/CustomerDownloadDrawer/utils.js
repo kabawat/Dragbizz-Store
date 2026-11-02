@@ -102,6 +102,19 @@ export const transformCustomerData = (
     phone: (customer) => ({ Phone: customer.phone || t("common.na") }),
     email: (customer) => ({ Email: customer.email || t("common.na") }),
     address: (customer) => ({ Address: customer.address || t("common.na") }),
+    companyName: (customer) => ({
+      "Company Name":
+        customer.companyDetails?.companyName ||
+        customer.companyName ||
+        t("common.na"),
+    }),
+    gstin: (customer) => ({
+      GSTIN:
+        customer.companyDetails?.gstin || customer.gstin || t("common.na"),
+    }),
+    dueAmount: (customer) => ({
+      "Due Amount": customer.account?.totalDue || customer.dueAmount || 0,
+    }),
     createdAt: (customer) => ({
       "Created At": formatDateDash(getRecordCreatedAt(customer)),
     }),
@@ -136,6 +149,9 @@ export const buildDownloadParams = (
     phone: "phone",
     email: "email",
     address: "address",
+    companyName: "companyDetails.companyName",
+    gstin: "companyDetails.gstin",
+    dueAmount: "account.totalDue",
     createdAt: "createdAt",
     updatedAt: "updatedAt",
   };

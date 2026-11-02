@@ -2,8 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { productService } from "@/service/retailer";
 import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
+import { isValidStoreId } from "@/utils/store.util";
 
 const initialState = {
+  hasLoaded: false,
     products: [],
     pagination: {
         hasNextPage: false,
@@ -14,7 +16,7 @@ const initialState = {
     isLoading: false,
     isFetchingMore: false,
     error: null,
-    viewMode: "table", // 'table' | 'card'
+    viewMode: "split", // 'split' | 'table' | 'card'
 };
 
 export const getProducts = createAsyncThunk(
@@ -30,6 +32,9 @@ export const getProducts = createAsyncThunk(
     },
     {
         condition: (params, { getState }) => {
+            if (!isValidStoreId(String(params?.store ?? ""))) {
+                return false;
+            }
             const { isLoading, isFetchingMore } = getState().products;
             if (params?.isFreshLoad && isLoading) return false;
             if (!params?.isFreshLoad && isFetchingMore) return false;
@@ -37,8 +42,6 @@ export const getProducts = createAsyncThunk(
         },
     }
 );
-
-// ─── Slice ───────────────────────────────────────────────────────────────────
 
 const productsSlice = createSlice({
     name: "products",
@@ -48,7 +51,6 @@ const productsSlice = createSlice({
             state.viewMode = action.payload;
         },
 
-        // Remove product from state
         removeProduct: (state, action) => {
             const productId = action.payload;
             state.products = state.products.filter((p) => (p.id || p._id) !== productId);
@@ -63,7 +65,6 @@ const productsSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // ── getProducts ──
             .addCase(getProducts.pending, (state, action) => {
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = true;
@@ -71,13 +72,13 @@ const productsSlice = createSlice({
                 state.error = null;
             })
             .addCase(getProducts.fulfilled, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;
                 state.error = null;
 
                 const { data, pagination } = action.payload;
-                // Normalize product data
                 const raw = Array.isArray(data) ? data : (data?.data ?? data ?? []);
                 const normalize = (p) => ({ ...p, id: p.id || p._id });
 
@@ -89,7 +90,6 @@ const productsSlice = createSlice({
                     state.products = [...state.products, ...incoming];
                 }
 
-                // Update pagination
                 const pg = pagination || data?.meta?.pagination;
                 if (pg) {
                     state.pagination = {
@@ -101,6 +101,7 @@ const productsSlice = createSlice({
                 }
             })
             .addCase(getProducts.rejected, (state, action) => {
+        state.hasLoaded = true;
                 const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
                 if (isFreshLoad) state.isLoading = false;
                 else state.isFetchingMore = false;

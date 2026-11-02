@@ -1,4 +1,5 @@
 "use client";
+import { TableSkeleton } from "@dragorbit/ui";
 import { Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CustomerForm } from "@/components/customer";
@@ -11,6 +12,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import useApiResponse from "@/hooks/useApiResponse";
 import { updateCustomer } from "@/store/slices/customers/customerSlice";
 import INDIAN_STATES from "@/constants/indianStates";
+import { validatePhoneOrEmailContact } from "@/utils/phone.util";
 
 const EditCustomer = ({
     customerId,
@@ -54,6 +56,7 @@ const EditCustomer = ({
         name: "",
         phone: "",
         email: "",
+        note: "",
         address: "",
         companyDetails: { gstin: "", companyName: "", gstDetail: "" },
         addresses: null,
@@ -94,6 +97,7 @@ const EditCustomer = ({
                     name: d.name || "",
                     phone: d.phone || "",
                     email: d.email || "",
+                    note: d.note || "",
                     address: d.address || "",
                     companyDetails: {
                         gstin: d.companyDetails?.gstin || "",
@@ -152,13 +156,11 @@ const EditCustomer = ({
                 field: t("customers.customerName"),
             });
         }
-        if (!formData.phone?.trim() && !formData.email?.trim()) {
-            const errorMsg =
-                t("validation.eitherPhoneOrEmailRequired") ||
-                "Either Phone or Email is required";
-            errors.phone = errorMsg;
-            errors.email = errorMsg;
-        }
+        Object.assign(errors, validatePhoneOrEmailContact({
+            phone: formData.phone,
+            email: formData.email,
+            t,
+        }));
 
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);
@@ -190,14 +192,7 @@ const EditCustomer = ({
     if (fetching) {
         if (mode === "page") {
             return (
-                <div className="flex-1 flex items-center justify-center p-6">
-                    <div className="text-center">
-                        <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                        <p className="text-[rgb(var(--color-text-secondary))]">
-                            {t("common.loading")}
-                        </p>
-                    </div>
-                </div>
+                <TableSkeleton />
             );
         }
         // Drawer loading skeleton

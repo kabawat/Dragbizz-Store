@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { defaultLocale, locales } from "@/i18n/config";
+import englishMessages from "@/i18n/messages/en";
 import logger from "@/utils/logger";
 
 const LanguageContext = createContext();
@@ -23,31 +24,26 @@ export const useLanguage = () => {
 
 export const LanguageProvider = ({ children }) => {
   const [locale, setLocale] = useState(defaultLocale);
-  const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState(englishMessages);
 
   const loadMessages = useCallback(async (lang) => {
+    if (lang === defaultLocale) {
+      setMessages(englishMessages);
+      return;
+    }
     try {
-      let module;
-      // Using specific paths for better tree-shaking and chunking
-      if (lang === "en") {
-        module = await import("@/i18n/messages/en");
-      } else if (lang === "hi") {
-        module = await import("@/i18n/messages/hi");
-      } else if (lang === "gu") {
-        module = await import("@/i18n/messages/gu");
-      } else if (lang === "hi-en") {
-        module = await import("@/i18n/messages/hi-en");
-      } else {
-        module = await import("@/i18n/messages/en");
-      }
-
-      const messages = module.default;
-      setMessages(messages);
+      const module =
+        lang === "hi"
+          ? await import("@/i18n/messages/hi")
+          : lang === "gu"
+            ? await import("@/i18n/messages/gu")
+            : lang === "hi-en"
+              ? await import("@/i18n/messages/hi-en")
+              : { default: englishMessages };
+      setMessages(module.default);
     } catch (error) {
       logger.error(`Failed to load messages for locale: ${lang}`, error);
-      // Fallback
-      const module = await import("@/i18n/messages/en");
-      setMessages(module.default);
+      setMessages(englishMessages);
     }
   }, []);
 
@@ -64,54 +60,75 @@ export const LanguageProvider = ({ children }) => {
     }
   }, [loadMessages]);
 
-  const changeLanguage = async (newLocale) => {
-    if (!locales.includes(newLocale)) {
-      logger.warn(`Locale ${newLocale} is not supported`);
-      return;
-    }
-
-    setLocale(newLocale);
-    Cookies.set("locale", newLocale, { expires: 365, path: "/" });
-    await loadMessages(newLocale);
-
-    if (typeof document !== "undefined") {
-      document.documentElement.lang = newLocale;
-    }
-  };
-
-  const t = useCallback((key, params = {}) => {
-    if (!messages) return key;
-
-    const keys = key.split(".");
-    let value = messages;
-
-    for (const k of keys) {
-      if (value && typeof value === "object" && k in value) {
-        value = value[k];
-      } else {
-        return key;
+  const changeLanguage = useCallback(
+    async (newLocale) => {
+      if (!locales.includes(newLocale)) {
+        logger.warn(`Locale ${newLocale} is not supported`);
+        return;
       }
-    }
 
-    if (typeof value !== "string") {
-      return key;
-    }
+      setLocale(newLocale);
+      Cookies.set("locale", newLocale, { expires: 365, path: "/" });
+      await loadMessages(newLocale);
 
-    if (Object.keys(params).length === 0) {
-      return value;
-    }
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = newLocale;
+      }
+    },
+    [loadMessages]
+  );
 
-    return value.replace(/\{(\w+)\}/g, (match, paramKey) => {
-      return params[paramKey] !== undefined ? params[paramKey] : match;
-    });
-  }, [messages]);
+  const t = useCallback(
+    (key, params = {}) => {
+      const resolve = (source) => {
+        const keys = key.split(".");
+        let value = source;
+        for (const k of keys) {
+          if (value && typeof value === "object" && k in value) {
+            value = value[k];
+          } else {
+            return undefined;
+          }
+        }
+        return typeof value === "string" ? value : undefined;
+      };
 
-  const value = useMemo(() => ({
-    locale,
-    changeLanguage,
-    t,
-    messages
-  }), [locale, changeLanguage, t, messages]);
+      // Some locales intentionally lag behind English. Resolve missing locale
+      // entries from English so users never see translation identifiers.
+      const missingKeyLabel = key
+        .split(".")
+        .at(-1)
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const value =
+        resolve(messages) ??
+        resolve(englishMessages) ??
+        (missingKeyLabel
+          ? missingKeyLabel.charAt(0).toUpperCase() + missingKeyLabel.slice(1)
+          : key);
+
+      if (Object.keys(params).length === 0) {
+        return value;
+      }
+
+      return value.replace(/\{(\w+)\}/g, (match, paramKey) => {
+        return params[paramKey] !== undefined ? params[paramKey] : match;
+      });
+    },
+    [messages]
+  );
+
+  const value = useMemo(
+    () => ({
+      locale,
+      changeLanguage,
+      t,
+      messages,
+    }),
+    [locale, changeLanguage, t, messages]
+  );
 
   return (
     <LanguageContext.Provider value={value}>

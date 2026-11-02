@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { mapFcmPayloadToNotification } from "@/firebase/fcmPayload";
-import { setupForegroundFcmListener } from "@/firebase/notification";
+import { onForegroundPush } from "@/firebase/notification";
 import { useIncomingNotification } from "@/hooks/notifications/useIncomingNotification";
 import { useAppSelector } from "@/store/hooks";
 
@@ -29,7 +29,7 @@ export default function FcmForegroundBridge() {
 
     listenerReadyRef.current = true;
 
-    setupForegroundFcmListener((payload) => {
+    onForegroundPush((payload) => {
       const incoming = mapFcmPayloadToNotification(payload);
       handleIncomingNotification(incoming);
     }).catch((error) => {

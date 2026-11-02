@@ -179,6 +179,16 @@
     "loadingPreferences": "Aapki preferences load ho rahi hain...",
     "pushPermissionDenied": "Browser ne push notifications block kar diye hain. Site settings se allow karein, phir dubara push ON karein.",
     "pushPermissionDefault": "Background notifications ke liye push channel ON karein — browser permission maangega.",
+    "pushIssueTitle": "Push notifications blocked hain",
+    "pushIssueAction": "Blocked — fix dekhne ke liye click karein",
+    "pushIssueSolutionTitle": "Ise kaise fix karein",
+    "pushIssueStep1Title": "Site permissions kholein",
+    "pushIssueStep1": "Browser address bar ke paas site controls ya lock icon par click karke Site settings kholein.",
+    "pushIssueStep2Title": "Notifications allow karein",
+    "pushIssueStep2": "Permissions mein Notifications dhoondhein aur Block se Allow select karein.",
+    "pushIssueStep3Title": "Refresh karke retry karein",
+    "pushIssueStep3": "Page refresh karein, Notification Settings par wapas aayein aur Push Notifications ON karein.",
+    "pushIssueNote": "Browser menu thoda alag ho sakta hai. Zarurat par Settings → Privacy and security → Site settings → Notifications kholein.",
     "pushNotSupported": "Is browser mein push notifications supported nahi hain.",
     "pushEnabledSuccess": "Push notifications enable ho gaye",
     "pushDisabledSuccess": "Push notifications disable ho gaye",
@@ -222,6 +232,9 @@
   "currentStore": "Current Store",
   "createNewStore": "Create New Store",
   "addAnotherStoreToAccount": "Add another store to your account",
+  "upgradeToAddStore": "Upgrade to Add Store",
+  "storePlanLimitReached": "Your plan allows {limit} store(s). Upgrade to add more.",
+  "storePlanLimitReachedGeneric": "Store limit reached on your current plan. Upgrade to add more.",
   "storeName": "Store Name",
   "enterStoreName": "Enter store name",
   "phoneNumber": "Phone Number",
@@ -260,15 +273,15 @@
     "sports": "Sports & Fitness",
     "other": "Other"
   },
-  "publicCatalog": "Public Catalog",
-  "catalogId": "Catalog ID",
-  "enterCatalogId": "Enter Catalog ID",
-  "catalogIdDescription": "Set a unique Catalog ID to generate your public QR catalog link. Customers can use this link to browse your products and place orders.",
+  "publicCatalog": "Digital Shop",
+  "catalogId": "Digital Shop ID",
+  "enterCatalogId": "Enter Digital Shop ID",
+  "catalogIdDescription": "Set a unique Digital Shop ID to generate your digital shop link. Customers can use this link to browse your products and place orders.",
   "catalogIdPlaceholder": "e.g. my-awesome-store",
   "catalogIdHint": "This will be used in your public URL: dragbizz.com/c/your-id",
-  "yourPublicCatalogLink": "Your Public Catalog Link:",
+  "yourPublicCatalogLink": "Your Digital Shop Link:",
   "linkCopied": "Link copied to clipboard!",
-  "generateCatalogId": "Generate Catalog Link",
+  "generateCatalogId": "Generate Digital Shop Link",
   "regenerateLink": "Regenerate Link",
   "languages": {
     "english": "English",
@@ -304,7 +317,123 @@
     "upiQrCode": "UPI QR Code",
     "scanToPay": "UPI se pay karne ke liye scan karein",
     "qrDownloaded": "QR code successfully download ho gaya",
-    "qrDownloadFailed": "QR code download karne mein fail"
+    "qrDownloadFailed": "QR code download karne mein fail",
+    "setAsDefault": "Default UPI set karein",
+    "defaultBadge": "Default"
+  },
+  "paymentSubTabs": {
+    "subTabUpi": "UPI",
+    "subTabGateway": "Payment Gateway"
+  },
+  "paymentGateway": {
+    "manageGateways": "Payment Gateways Manage Karein",
+    "manageDescription": "Online payments ke liye Razorpay, Paytm ya Cashfree connect karein",
+    "gatewayCount": "{{count}} gateway(s) configured",
+    "addGateway": "Gateway Add Karein",
+    "editGateway": "Gateway Edit Karein",
+    "gatewayType": "Gateway Type",
+    "gatewayTypeRequired": "Gateway type required hai",
+    "labelOptional": "Label (Optional)",
+    "labelPlaceholder": "Main, Backup...",
+    "mode": "Mode",
+    "modeTest": "Test",
+    "modeLive": "Live",
+    "assignToStores": "Stores ko assign karein",
+    "selectStores": "Stores select karein",
+    "storeIdsRequired": "Kam se kam ek store required hai",
+    "setAsDefault": "Default gateway set karein",
+    "defaultBadge": "Default",
+    "noGateways": "Abhi tak koi payment gateway add nahi hua",
+    "addFirstGatewayDescription": "Online payments ke liye apna pehla gateway add karein",
+    "addAnotherGateway": "Ek aur gateway add karein",
+    "accessibleByStores": "Stores ke liye accessible",
+    "credentialsConfigured": "Credentials configured",
+    "secretsConfigured": "{{count}} secret(s) configured",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Payment Gateway Delete Karein",
+    "confirmDelete": "Kya aap is payment gateway ko delete karna chahte hain?",
+    "addedSuccess": "Payment gateway successfully add ho gaya",
+    "updatedSuccess": "Payment gateway successfully update ho gaya",
+    "deletedSuccess": "Payment gateway successfully delete ho gaya",
+    "noPermission": "Aapke paas payment gateways dekhne ki permission nahi hai",
+    "optional": "Optional",
+    "fieldRequired": "Yeh field required hai",
+    "leaveBlankToKeep": "Existing rakhne ke liye blank chhod dein",
+    "enterSecret": "Secret enter karein",
+    "enterValue": "Value enter karein",
+    "webhookSetupTitle": "Webhook setup",
+    "webhookSetupDescription": "DragBizz aapka webhook secret generate karta hai. URL aur secret ko apne payment gateway dashboard me copy karein.",
+    "webhookUrl": "Webhook URL",
+    "webhookSecretDragbizz": "Webhook secret (DragBizz dwara generated)",
+    "webhookSecretConfigured": "Webhook secret DragBizz dwara configured hai.",
+    "webhookSecretAutoGenerateHint": "Save karne ke baad DragBizz dwara webhook secret automatically generate ho jayega.",
+    "webhookSetupInstructions": "Apna payment gateway dashboard kholein, webhook create karein, yeh URL aur secret paste karein, fir save karein.",
+    "webhookSetupInstructionsExisting": "Apne payment gateway dashboard me yeh webhook URL use karein.",
+    "webhookSetupDone": "Done",
+    "webhookSetupPrompt": "Integration complete karne ke liye apne payment gateway dashboard me webhook URL aur secret copy karein.",
+    "instructionsTitle": "Dashboard Setup Instructions",
+    "copyValue": "Copy",
+    "recommendedEvents": "Recommended Webhook Events",
+    "webhookSecretAutoGenerateNote": "Save karne par DragBizz dwara Webhook Secret automatically generate ho jayega.",
+    "webhookSignatureManagedNote": "Yeh gateway aapke merchant credentials ke saath API signature / hash dwara payments securely verify karta hai.",
+    "webhookInstructions": {
+      "RAZORPAY": "Apne Razorpay Dashboard > Settings > Webhooks me 'Add New Webhook' click karein, yeh URL paste karein aur recommended events select karein.",
+      "CASHFREE": "Cashfree Merchant Dashboard > Developers > Webhooks me yeh Webhook URL add karein instant status updates paane ke liye.",
+      "PHONEPE": "PhonePe Business Dashboard > Developer Settings me is endpoint ko S2S Callback / Webhook URL ke roop me configure karein.",
+      "PAYTM": "Paytm Developer Dashboard > API Keys & Webhooks me ise server-to-server notification URL set karein.",
+      "PAYU": "PayU Dashboard > Manage Webhooks / IPN Notification URL me yeh URL set karein.",
+      "EASEBUZZ": "Easebuzz Dashboard > Developer Settings > Webhooks me real-time updates ke liye yeh URL paste karein.",
+      "STRIPE": "Stripe Dashboard > Developers > Webhooks me 'Add endpoint' click karein, yeh URL paste karein aur events select karein."
+    },
+    "types": {
+      "RAZORPAY": "Razorpay",
+      "PAYTM": "Paytm",
+      "CASHFREE": "Cashfree",
+      "PHONEPE": "PhonePe",
+      "PAYU": "PayU",
+      "EASEBUZZ": "Easebuzz",
+      "STRIPE": "Stripe"
+    },
+    "fields": {
+      "RAZORPAY": {
+        "keyId": "Key ID",
+        "keySecret": "Key Secret",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PAYTM": {
+        "merchantId": "Merchant ID",
+        "merchantKey": "Merchant Key",
+        "appId": "App ID"
+      },
+      "CASHFREE": {
+        "appId": "App ID",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PHONEPE": {
+        "merchantId": "Merchant ID",
+        "saltKey": "Salt Key",
+        "saltIndex": "Salt Index",
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "PAYU": {
+        "merchantKey": "Merchant Key",
+        "merchantSalt": "Merchant Salt",
+        "merchantId": "Merchant ID"
+      },
+      "EASEBUZZ": {
+        "merchantKey": "Merchant Key",
+        "salt": "Salt",
+        "merchantEmail": "Merchant Email"
+      },
+      "STRIPE": {
+        "publishableKey": "Publishable Key",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      }
+    }
   },
   "digitalSignatures": "Digital Signatures",
   "signatureDescription": "Invoice aur documents ke liye apne digital signatures manage karein.",
@@ -314,5 +443,6 @@
   "createSignaturePrompt": "Apne invoices aur documents par use karne ke liye digital signature banayein.",
   "createSignature": "Signature Banayein",
   "deleteSignature": "Signature Delete karein",
-  "signatureAddedTitle": "Signature Add ho gaya"
+  "signatureAddedTitle": "Signature Add ho gaya",
+  "generalInformation": "General Information"
 }

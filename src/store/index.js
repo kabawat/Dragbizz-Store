@@ -14,6 +14,7 @@ import profileSlice from "./slices/profileSlice";
 import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
 import salesOrdersSlice from "./slices/salesOrdersSlice";
 import storeUpiSlice from "./slices/storeUpiSlice";
+import storePaymentGatewaySlice from "./slices/storePaymentGatewaySlice";
 import suppliersSlice from "./slices/supplier/supplierSlice";
 import supplierAnalyticsSlice from "./slices/supplier/analyticsSlice";
 import signaturesSlice from "./slices/signaturesSlice";
@@ -21,14 +22,13 @@ import themeSlice from "./slices/themeSlice";
 import suggestionsSlice from "./slices/suggestionsSlice";
 import notificationsSlice from "./slices/notificationsSlice";
 import uiSlice from "./slices/uiSlice";
-import inventorySlice from "./slices/inventory/inventorySlice";
-
 import notificationSettingsSlice from "./slices/notificationSettingsSlice";
 
 export const store = configureStore({
   reducer: {
     profile: profileSlice,
     storeUpi: storeUpiSlice,
+    storePaymentGateway: storePaymentGatewaySlice,
     notifications: notificationsSlice,
     notificationSettings: notificationSettingsSlice,
     products: productsSlice,
@@ -50,7 +50,6 @@ export const store = configureStore({
     theme: themeSlice,
     suggestions: suggestionsSlice,
     ui: uiSlice,
-    inventory: inventorySlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

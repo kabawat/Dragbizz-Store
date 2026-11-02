@@ -23,5 +23,18 @@
   "b2bCount": "B2B Invoices",
   "b2cCount": "B2C Invoices",
   "b2bPurchases": "B2B Purchases (ITC)",
-  "b2cPurchases": "B2C Purchases"
+  "b2cPurchases": "B2C Purchases",
+  "totalItc": "કુલ દાવો કરેલ ITC",
+  "netGst": "ચોખ્ખી GST સ્થિતિ",
+  "taxableValueInward": "કરપાત્ર મૂલ્ય",
+  "cgstInward": "CGST ",
+  "sgstInward": "SGST ",
+  "igstInward": "IGST ",
+  "utgstInward": "UTGST ",
+  "cess": "Cess",
+  "netTaxable": "ચોખ્ખો કરપાત્ર તફાવત",
+  "itcEligible": "ITC પાત્ર",
+  "nonItcPurchase": "બિન-ITC ખરીદી",
+  "compliance": "પાલન",
+  "totalOutputTax": "કુલ આઉટપુટ ટેક્સ"
 }

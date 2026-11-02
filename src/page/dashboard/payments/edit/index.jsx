@@ -1,4 +1,5 @@
 "use client";
+import { PageSkeleton } from "@dragorbit/ui/app";
 import {
   ArrowLeft,
   CheckCircle,
@@ -253,9 +254,7 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
 
   if (status.fetching) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <PageSkeleton />
     );
   }
 

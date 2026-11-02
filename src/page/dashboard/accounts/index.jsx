@@ -1,4 +1,7 @@
 "use client";
+
+import { DataTable } from "@dragorbit/ui/table";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 import {
   AlertTriangle,
   Building2,
@@ -14,28 +17,32 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { Badge, Button, Card, Input, Modal, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getAccountStats, getAccounts } from "@/store/slices/accountsSlice";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 const Accounts = () => {
-  useDashboardHeader("Supplier Accounts", "Manage supplier accounts and credit limits");
+  useDashboardHeader(
+    "Supplier Accounts",
+    "Manage supplier accounts and credit limits"
+  );
   const router = useRouter();
   const dispatch = useAppDispatch();
   const {
     accounts,
     stats,
-    isLoading,
+    isLoading: requestLoading,
+    hasLoaded,
     error,
     currentFilter,
     viewMode,
     pagination,
   } = useAppSelector((state) => state.accounts);
-  const { selectedStore } = useAppSelector((state) => state.profile);
-
+  const isLoading = requestLoading || (!hasLoaded && !error);
+  const { storeId, ready: storeReady } = useSelectedStoreId();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [riskFilter, setRiskFilter] = useState("all");
@@ -46,23 +53,45 @@ const Accounts = () => {
 
   // Fetch accounts and stats on component mount
   useEffect(() => {
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getAccounts({
-          store: selectedStore.id,
+          store: storeId,
           limit: 20,
           page: 1,
         })
       );
-      dispatch(getAccountStats(selectedStore.id));
+      dispatch(getAccountStats(storeId));
     }
-  }, [dispatch, selectedStore]);
+  }, [dispatch, storeReady, storeId]);
 
   // Handle search
-  const handleSearch = (value) => {
+  const handleSearch = (e) => {
+    const value = typeof e === "string" ? e : e?.target?.value ?? "";
     setSearchTerm(value);
-    // Implement search logic here
   };
+
+  const filteredAccounts = useMemo(() => {
+    return (accounts || []).filter((account) => {
+      const supplierName = account.supplier?.name?.toLowerCase() || "";
+      const matchesSearch =
+        !searchTerm || supplierName.includes(searchTerm.toLowerCase().trim());
+      const matchesStatus =
+        statusFilter === "all" ||
+        String(account.status).toLowerCase() === statusFilter.toLowerCase();
+      const matchesRisk =
+        riskFilter === "all" ||
+        String(account.riskLevel).toLowerCase() === riskFilter.toLowerCase();
+      let matchesDebt = true;
+      if (debtFilter !== "all" && account.creditLimit > 0) {
+        const util = (account.creditUsed / account.creditLimit) * 100;
+        if (debtFilter === "low") matchesDebt = util <= 50;
+        else if (debtFilter === "medium") matchesDebt = util > 50 && util <= 80;
+        else if (debtFilter === "high") matchesDebt = util > 80;
+      }
+      return matchesSearch && matchesStatus && matchesRisk && matchesDebt;
+    });
+  }, [accounts, searchTerm, statusFilter, riskFilter, debtFilter]);
 
   // Handle filter changes
   const handleFilterChange = (filterType, value) => {
@@ -92,10 +121,13 @@ const Accounts = () => {
 
   // Handle select all
   const handleSelectAll = () => {
-    if (selectedAccounts.length === accounts.length) {
+    if (
+      selectedAccounts.length === filteredAccounts.length &&
+      filteredAccounts.length > 0
+    ) {
       setSelectedAccounts([]);
     } else {
-      setSelectedAccounts(accounts.map((account) => account.id));
+      setSelectedAccounts(filteredAccounts.map((account) => account.id));
     }
   };
 
@@ -126,7 +158,6 @@ const Accounts = () => {
       PENDING: Clock,
       INACTIVE: Clock,
     };
-
     return {
       variant: config.variant,
       icon: iconMap[statusUpper] || Clock,
@@ -138,26 +169,46 @@ const Accounts = () => {
   const getRiskBadge = (riskLevel) => {
     switch (riskLevel) {
       case "low":
-        return { variant: "success", text: "Low Risk" };
+        return {
+          variant: "success",
+          text: "Low Risk",
+        };
       case "medium":
-        return { variant: "warning", text: "Medium Risk" };
+        return {
+          variant: "warning",
+          text: "Medium Risk",
+        };
       case "high":
-        return { variant: "danger", text: "High Risk" };
+        return {
+          variant: "danger",
+          text: "High Risk",
+        };
       default:
-        return { variant: "secondary", text: "Unknown" };
+        return {
+          variant: "secondary",
+          text: "Unknown",
+        };
     }
   };
 
   // Get debt status badge
   const getDebtBadge = (debtAmount, creditLimit) => {
     const utilization = (debtAmount / creditLimit) * 100;
-
     if (utilization <= 50) {
-      return { variant: "success", text: "Low Debt" };
+      return {
+        variant: "success",
+        text: "Low Debt",
+      };
     } else if (utilization <= 80) {
-      return { variant: "warning", text: "Medium Debt" };
+      return {
+        variant: "warning",
+        text: "Medium Debt",
+      };
     } else {
-      return { variant: "danger", text: "High Debt" };
+      return {
+        variant: "danger",
+        text: "High Debt",
+      };
     }
   };
 
@@ -183,7 +234,6 @@ const Accounts = () => {
     if (limit === 0) return 0;
     return (used / limit) * 100;
   };
-
   return (
     <div className="p-6">
       <div className="max-w-8xl mx-auto w-full">
@@ -259,11 +309,26 @@ const Accounts = () => {
                 value={statusFilter}
                 onChange={(value) => handleFilterChange("status", value)}
                 options={[
-                  { value: "all", label: "All Status" },
-                  { value: "active", label: "Active" },
-                  { value: "suspended", label: "Suspended" },
-                  { value: "pending", label: "Pending" },
-                  { value: "inactive", label: "Inactive" },
+                  {
+                    value: "all",
+                    label: "All Status",
+                  },
+                  {
+                    value: "active",
+                    label: "Active",
+                  },
+                  {
+                    value: "suspended",
+                    label: "Suspended",
+                  },
+                  {
+                    value: "pending",
+                    label: "Pending",
+                  },
+                  {
+                    value: "inactive",
+                    label: "Inactive",
+                  },
                 ]}
               />
 
@@ -271,10 +336,22 @@ const Accounts = () => {
                 value={riskFilter}
                 onChange={(value) => handleFilterChange("risk", value)}
                 options={[
-                  { value: "all", label: "All Risk Levels" },
-                  { value: "low", label: "Low Risk" },
-                  { value: "medium", label: "Medium Risk" },
-                  { value: "high", label: "High Risk" },
+                  {
+                    value: "all",
+                    label: "All Risk Levels",
+                  },
+                  {
+                    value: "low",
+                    label: "Low Risk",
+                  },
+                  {
+                    value: "medium",
+                    label: "Medium Risk",
+                  },
+                  {
+                    value: "high",
+                    label: "High Risk",
+                  },
                 ]}
               />
 
@@ -282,10 +359,22 @@ const Accounts = () => {
                 value={debtFilter}
                 onChange={(value) => handleFilterChange("debt", value)}
                 options={[
-                  { value: "all", label: "All Debt Levels" },
-                  { value: "low", label: "Low Debt" },
-                  { value: "medium", label: "Medium Debt" },
-                  { value: "high", label: "High Debt" },
+                  {
+                    value: "all",
+                    label: "All Debt Levels",
+                  },
+                  {
+                    value: "low",
+                    label: "Low Debt",
+                  },
+                  {
+                    value: "medium",
+                    label: "Medium Debt",
+                  },
+                  {
+                    value: "high",
+                    label: "High Debt",
+                  },
                 ]}
               />
             </div>
@@ -312,188 +401,191 @@ const Accounts = () => {
           </div>
         </Card>
 
-        {/* Accounts Table */}
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left p-4">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedAccounts.length === accounts.length &&
-                        accounts.length > 0
-                      }
-                      onChange={handleSelectAll}
-                      className="rounded border-gray-300"
-                    />
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Supplier
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Status
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Credit Limit
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Used Credit
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Available Credit
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Risk Level
-                  </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {accounts.map((account) => {
-                  const statusBadge = getStatusBadge(account.status);
-                  const riskBadge = getRiskBadge(account.riskLevel);
-                  const _debtBadge = getDebtBadge(
-                    account.creditUsed,
-                    account.creditLimit
-                  );
-                  const StatusIcon = statusBadge.icon;
-                  const creditUtilization = calculateCreditUtilization(
-                    account.creditUsed,
-                    account.creditLimit
-                  );
-                  const availableCredit =
-                    account.creditLimit - account.creditUsed;
-
-                  return (
-                    <tr
-                      key={account.id}
-                      className="border-b border-gray-100 hover:bg-gray-50"
-                    >
-                      <td className="p-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedAccounts.includes(account.id)}
-                          onChange={() => handleAccountSelect(account.id)}
-                          className="rounded border-gray-300"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center">
-                          <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                          <span className="text-gray-900">
-                            {account.supplier?.name || "N/A"}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge
-                          variant={statusBadge.variant}
-                          className="flex items-center gap-1"
-                        >
-                          <StatusIcon className="w-3 h-3" />
-                          {statusBadge.text}
-                        </Badge>
-                      </td>
-                      <td className="p-4 font-medium text-gray-900">
-                        {formatCurrency(account.creditLimit)}
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center">
-                          <span className="font-medium text-gray-900 mr-2">
-                            {formatCurrency(account.creditUsed)}
-                          </span>
-                          <span className="text-sm text-gray-600">
-                            ({creditUtilization.toFixed(1)}%)
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`font-medium ${availableCredit > 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                            }`}
-                        >
-                          {formatCurrency(availableCredit)}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant={riskBadge.variant}>
-                          {riskBadge.text}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            leftIcon={Eye}
-                            onClick={() =>
-                              router.push(`/dashboard/accounts/${account.id}`)
-                            }
+        {/* Accounts Table / Empty State / Loading */}
+        <Card className="overflow-hidden">
+          {isLoading ? (
+            <TableSkeleton compact rows={2} />
+          ) : filteredAccounts.length > 0 ? (
+            <div className="overflow-x-auto">
+              <DataTable className="min-w-0" caption="Accounts">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left p-4">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedAccounts.length === filteredAccounts.length &&
+                          filteredAccounts.length > 0
+                        }
+                        onChange={handleSelectAll}
+                        className="rounded border-gray-300"
+                      />
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Supplier
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Status
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Credit Limit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Used Credit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Available Credit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Risk Level
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAccounts.map((account) => {
+                    const statusBadge = getStatusBadge(account.status);
+                    const riskBadge = getRiskBadge(account.riskLevel);
+                    const _debtBadge = getDebtBadge(
+                      account.creditUsed,
+                      account.creditLimit
+                    );
+                    const StatusIcon = statusBadge.icon;
+                    const creditUtilization = calculateCreditUtilization(
+                      account.creditUsed,
+                      account.creditLimit
+                    );
+                    const availableCredit =
+                      account.creditLimit - account.creditUsed;
+                    return (
+                      <tr
+                        key={account.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
+                        <td className="p-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedAccounts.includes(account.id)}
+                            onChange={() => handleAccountSelect(account.id)}
+                            className="rounded border-gray-300"
+                          />
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center">
+                            <Building2 className="w-4 h-4 text-gray-400 mr-2" />
+                            <span className="text-gray-900">
+                              {account.supplier?.name || "N/A"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <Badge
+                            variant={statusBadge.variant}
+                            className="flex items-center gap-1"
                           >
-                            View
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            leftIcon={Edit}
-                            onClick={() =>
-                              router.push(
-                                `/dashboard/accounts/${account.id}/edit`
-                              )
-                            }
+                            <StatusIcon className="w-3 h-3" />
+                            {statusBadge.text}
+                          </Badge>
+                        </td>
+                        <td className="p-4 font-medium text-gray-900">
+                          {formatCurrency(account.creditLimit)}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center">
+                            <span className="font-medium text-gray-900 mr-2">
+                              {formatCurrency(account.creditUsed)}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              ({creditUtilization.toFixed(1)}%)
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={`font-medium ${availableCredit > 0 ? "text-green-600" : "text-red-600"}`}
                           >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            leftIcon={Trash2}
-                            onClick={() => handleDeleteAccount(account)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Empty State */}
-          {accounts.length === 0 && !isLoading && (
-            <div className="text-center py-12">
-              <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No accounts found
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Get started by creating your first supplier account.
-              </p>
-              <Button
-                variant="primary"
-                leftIcon={Plus}
-                onClick={() => router.push("/dashboard/accounts/create")}
-              >
-                Create Account
-              </Button>
+                            {formatCurrency(availableCredit)}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <Badge variant={riskBadge.variant}>
+                            {riskBadge.text}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              leftIcon={Eye}
+                              onClick={() =>
+                                router.push(`/dashboard/accounts/${account.id}`)
+                              }
+                            >
+                              View
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              leftIcon={Edit}
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/accounts/${account.id}/edit`
+                                )
+                              }
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              leftIcon={Trash2}
+                              onClick={() => handleDeleteAccount(account)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </DataTable>
             </div>
-          )}
-
-          {/* Loading State */}
-          {isLoading && (
-            <div className="text-center py-12">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading accounts...</p>
-            </div>
+          ) : (
+            <EmptyState
+              fullHeight
+              icon={Building2}
+              title={
+                accounts.length === 0
+                  ? "No accounts found"
+                  : "No matching accounts"
+              }
+              description={
+                accounts.length === 0
+                  ? "Get started by creating your first supplier account."
+                  : "No supplier accounts match your filters. Try adjusting your search or filters."
+              }
+              actionButton={
+                accounts.length === 0
+                  ? {
+                      label: "Create Account",
+                      onClick: () => router.push("/dashboard/accounts/create"),
+                    }
+                  : {
+                      label: "Clear Filters",
+                      onClick: () => {
+                        setSearchTerm("");
+                        setStatusFilter("all");
+                        setRiskFilter("all");
+                        setDebtFilter("all");
+                      },
+                    }
+              }
+            />
           )}
         </Card>
 
@@ -506,8 +598,8 @@ const Accounts = () => {
         >
           <div className="space-y-4">
             <p className="text-gray-600">
-              Are you sure you want to delete this account? This action cannot be
-              undone.
+              Are you sure you want to delete this account? This action cannot
+              be undone.
             </p>
             {accountToDelete && (
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -520,7 +612,10 @@ const Accounts = () => {
               </div>
             )}
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 Cancel
               </Button>
               <Button variant="danger" onClick={confirmDelete}>
@@ -533,5 +628,4 @@ const Accounts = () => {
     </div>
   );
 };
-
 export default Accounts;

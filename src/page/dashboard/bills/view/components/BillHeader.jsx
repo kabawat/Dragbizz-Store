@@ -11,7 +11,7 @@ const BillHeader = ({ billData, formatDate }) => {
             <CheckCircle2 className="w-6 h-6 text-[rgb(var(--color-primary))]" />
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[rgb(var(--color-text-tertiary))]">
+            <p className="text-[0.625rem] uppercase tracking-[0.3em] font-bold text-[rgb(var(--color-text-tertiary))]">
               Supplier Bill
             </p>
             <h1 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">

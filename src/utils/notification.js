@@ -8,7 +8,7 @@ import {
   Package,
 } from "lucide-react";
 
-/** Notification routing + icons by type (socket + FCM). */
+// Notification routing and icons by type
 export const getNotificationConfig = (type, data) => {
   const configs = {
     SALE_ORDER_CUSTOMER: {
@@ -24,11 +24,19 @@ export const getNotificationConfig = (type, data) => {
       icon: <ShoppingCart className="w-5 h-5 text-green-500" />,
     },
     STOCK_ALERT: {
-      url: "/dashboard/inventory",
+      url: "/dashboard/products",
       icon: <AlertTriangle className="w-5 h-5 text-amber-500" />,
     },
     PAYMENT: {
-      url: "/dashboard/payments",
+      url: data?.customer
+        ? `/dashboard/customers/${data.customer}?tab=khata`
+        : "/dashboard/payments",
+      icon: <CreditCard className="w-5 h-5 text-emerald-500" />,
+    },
+    PAYMENT_RECEIVED: {
+      url: data?.customer
+        ? `/dashboard/customers/${data.customer}?tab=khata`
+        : "/dashboard/payments",
       icon: <CreditCard className="w-5 h-5 text-emerald-500" />,
     },
     SYSTEM: {
@@ -36,8 +44,20 @@ export const getNotificationConfig = (type, data) => {
       icon: <Info className="w-5 h-5 text-sky-500" />,
     },
     INVENTORY: {
-      url: "/dashboard/inventory",
+      url: "/dashboard/products",
       icon: <Package className="w-5 h-5 text-amber-500" />,
+    },
+    LOW_STOCK: {
+      url: "/dashboard/products",
+      icon: <AlertTriangle className="w-5 h-5 text-amber-500" />,
+    },
+    OUT_OF_STOCK: {
+      url: "/dashboard/products",
+      icon: <AlertTriangle className="w-5 h-5 text-rose-500" />,
+    },
+    DAILY_BRIEF: {
+      url: "/dashboard",
+      icon: <Info className="w-5 h-5 text-indigo-500" />,
     },
   };
 

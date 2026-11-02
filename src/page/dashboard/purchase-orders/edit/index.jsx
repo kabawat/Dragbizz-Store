@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import { PageSkeleton } from "@dragorbit/ui/app";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -210,17 +211,7 @@ const EditPurchaseOrder = ({ poId }) => {
 
   if (fetching) {
     return (
-      <div className="flex w-full h-screen relative overflow-hidden">
-        <div className="min-h-screen w-full flex flex-col">
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto w-full text-center">
-              <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <h2 className="text-base font-semibold">{t("common.loadingStoreData")}</h2>
-              <p>{t("common.pleaseWaitWhileWeFetch", { item: t("purchaseOrders.title") })}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageSkeleton />
     );
   }
 

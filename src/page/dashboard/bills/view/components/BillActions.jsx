@@ -30,7 +30,7 @@ const BillActions = ({
           {onEditBill && (
             <Button
               variant="outline"
-              className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
+              className="flex-1 h-8 font-bold text-[0.625rem] uppercase px-2"
               onClick={onEditBill}
               leftIcon={Edit}
               size="sm"
@@ -42,7 +42,7 @@ const BillActions = ({
           {onDeleteBill && (
             <Button
               variant="outline"
-              className="flex-1 h-8 text-red-600 border-red-600/10 hover:bg-red-600/5 font-bold text-[10px] uppercase px-2"
+              className="flex-1 h-8 text-red-600 border-red-600/10 hover:bg-red-600/5 font-bold text-[0.625rem] uppercase px-2"
               onClick={onDeleteBill}
               leftIcon={Trash2}
               size="sm"
@@ -54,7 +54,7 @@ const BillActions = ({
           {onDownloadPDF && (
             <Button
               variant="primary"
-              className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
+              className="flex-1 h-8 font-bold text-[0.625rem] uppercase px-2"
               onClick={() => onDownloadPDF?.(billData)}
               leftIcon={Download}
               size="sm"
@@ -69,7 +69,7 @@ const BillActions = ({
           <div className="py-4 space-y-4">
             <div className="space-y-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--color-text-tertiary))] mb-1">Total Outstanding</p>
+                <p className="text-[0.625rem] font-bold uppercase tracking-wider text-[rgb(var(--color-text-tertiary))] mb-1">Total Outstanding</p>
                 <h2 className="text-2xl font-black text-[rgb(var(--color-text-primary))] tracking-tighter">
                   {formatCurrency(billData.dueAmount)}
                 </h2>
@@ -77,11 +77,11 @@ const BillActions = ({
 
               <div className="pt-4 border-t border-[rgb(var(--color-border-primary))]/20 grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase text-[rgb(var(--color-text-tertiary))] mb-0.5">Bill Total</p>
+                  <p className="text-[0.625rem] font-bold uppercase text-[rgb(var(--color-text-tertiary))] mb-0.5">Bill Total</p>
                   <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(billData.totalAmount)}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase text-[rgb(var(--color-text-tertiary))] mb-0.5">Tax (ITC)</p>
+                  <p className="text-[0.625rem] font-bold uppercase text-[rgb(var(--color-text-tertiary))] mb-0.5">Tax (ITC)</p>
                   <p className="text-sm font-bold text-[rgb(var(--color-primary))]">{formatCurrency(billData.gstAmount)}</p>
                 </div>
               </div>
@@ -91,11 +91,11 @@ const BillActions = ({
 
         <div className="p-5 pt-0 space-y-3">
           <div className="pt-3 border-t border-[rgb(var(--color-border-primary))]/30 space-y-1.5">
-            <div className="flex justify-between text-[10px] text-[rgb(var(--color-text-tertiary))]">
+            <div className="flex justify-between text-[0.625rem] text-[rgb(var(--color-text-tertiary))]">
               <span className="font-bold uppercase">Created</span>
               <span className="font-medium">{formatDate(billData.createdAt)}</span>
             </div>
-            <div className="flex justify-between text-[10px] text-[rgb(var(--color-text-tertiary))]">
+            <div className="flex justify-between text-[0.625rem] text-[rgb(var(--color-text-tertiary))]">
               <span className="font-bold uppercase">Updated</span>
               <span className="font-medium">{formatDateTime(billData.updatedAt)}</span>
             </div>
@@ -108,7 +108,7 @@ const BillActions = ({
         <div className="p-2 bg-orange-500/10 rounded-lg shrink-0">
           <Edit className="w-4 h-4 text-orange-600" />
         </div>
-        <p className="text-[10px] leading-relaxed text-orange-800 dark:text-orange-200 font-medium">
+        <p className="text-[0.625rem] leading-relaxed text-orange-800 dark:text-orange-200 font-medium">
           Audit Logs: This document is digitally signed and any changes made will be recorded in the system audit trail.
         </p>
       </div>

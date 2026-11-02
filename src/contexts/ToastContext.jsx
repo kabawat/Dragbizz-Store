@@ -1,61 +1,45 @@
 "use client";
-import { createContext, useCallback, useContext, useState } from "react";
+import { ToastProvider as SharedToastProvider } from "@dragorbit/ui/app";
+import { useCallback } from "react";
 
-const ToastContext = createContext();
+export { useGlobalToast } from "@dragorbit/ui/app";
 
-let toastIdCounter = 0;
+import { useAppSelector } from "@/store/hooks";
+import {
+  consumePendingStoreIdToastSuppress,
+  shouldSuppressStoreIdToast,
+} from "@/utils/bootstrapStoreGuard";
+import { isValidStoreId, pickStoreId } from "@/utils/store.util";
 
-export const ToastProvider = ({ children }) => {
-  const [toasts, setToasts] = useState([]);
+const STORE_ID_ERROR = /invalid or missing store id/i;
 
-  const showToast = useCallback(
-    (message, type = "error", duration = 5000, position = "bottom-center") => {
-      const id = ++toastIdCounter;
-      const newToast = { id, message, type, duration, position };
-
-      setToasts((prev) => [...prev, newToast]);
-
-      // Auto remove after duration
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((toast) => toast.id !== id));
-      }, duration);
-
-      return id;
-    },
-    []
+export function ToastProvider({ children }) {
+  const { isInitialized, isLoading, selectedStore, stores } = useAppSelector(
+    (state) => state.profile
   );
+  const storeBootstrapReady =
+    isInitialized &&
+    !isLoading &&
+    isValidStoreId(pickStoreId(selectedStore)) &&
+    Array.isArray(stores) &&
+    stores.length > 0;
 
-  const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
-
-  const showError = useCallback(
-    (message, duration = 5000) => {
-      return showToast(message, "error", duration, "bottom-center");
+  const shouldShowError = useCallback(
+    (message) => {
+      if (
+        STORE_ID_ERROR.test(String(message || "")) &&
+        shouldSuppressStoreIdToast({ storeBootstrapReady })
+      ) {
+        consumePendingStoreIdToastSuppress();
+        return false;
+      }
+      return true;
     },
-    [showToast]
+    [storeBootstrapReady]
   );
-
-  const showSuccess = useCallback(
-    (message, duration = 3000) => {
-      return showToast(message, "success", duration, "top-right");
-    },
-    [showToast]
-  );
-
   return (
-    <ToastContext.Provider
-      value={{ toasts, showToast, showError, showSuccess, removeToast }}
-    >
+    <SharedToastProvider shouldShowError={shouldShowError}>
       {children}
-    </ToastContext.Provider>
+    </SharedToastProvider>
   );
-};
-
-export const useGlobalToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error("useGlobalToast must be used within a ToastProvider");
-  }
-  return context;
-};
+}

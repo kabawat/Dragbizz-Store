@@ -1,27 +1,64 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { StoreSettingsView } from "@dragorbit/features/settings";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FEATURES } from "@/constants/features";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
+import { useSubscriptionAccess } from "@/hooks/permissions/useSubscriptionAccess";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
+import {
+  canUseFeatureQuota,
+  getFeatureFromSubscription,
+} from "@/utils/subscriptionCapability.util";
 import StoreAddDrawer from "./StoreAddDrawer";
 import StoreDeleteModal from "./StoreDeleteModal";
 import StoreEditDrawer from "./StoreEditDrawer";
 import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
-import { CatalogQRModal } from "@/components/common";
-import useApiResponse from "@/hooks/useApiResponse";
 
 const StoreSettings = () => {
   const dispatch = useAppDispatch();
+  const { selectedStore, agency } = useAppSelector((state) => state.profile);
   const {
-    selectedStore,
-    agency,
-  } = useAppSelector((state) => state.profile);
-  const { execute: fetchStoresApi, data, loading: isLoading } = useApiResponse();
+    subscription,
+    showUpgradeModal,
+    isLoading: subscriptionLoading,
+  } = useSubscription();
+  const { isStaff } = useSubscriptionAccess();
+  const {
+    execute: fetchStoresApi,
+    data,
+    loading: isLoading,
+  } = useApiResponse();
   const stores = data || [];
 
   const { showError, showSuccess } = useGlobalToast();
+
+  const storeFeature = useMemo(
+    () => getFeatureFromSubscription(subscription, FEATURES.STORE),
+    [subscription],
+  );
+
+  const canAddStore = useMemo(() => {
+    // Avoid flashing upgrade UI while subscription is still loading
+    if (subscriptionLoading && !subscription) return true;
+    return canUseFeatureQuota(storeFeature, {
+      quantity: 1,
+      fallbackUsage: stores?.length || 0,
+    });
+  }, [subscriptionLoading, subscription, storeFeature, stores?.length]);
+
+  const storeLimit = useMemo(() => {
+    if (!storeFeature) return null;
+    if (storeFeature.usageType === "UNLIMITED" || storeFeature.maxLimit === null) {
+      return null;
+    }
+    return Math.max(0, Number(storeFeature.maxLimit) || 0);
+  }, [storeFeature]);
 
   // Drawer/Modal state
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
@@ -29,8 +66,6 @@ const StoreSettings = () => {
   const [editingStore, setEditingStore] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState(null);
-  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
-  const [activeStore, setActiveStore] = useState(null);
 
   // Refs to prevent duplicate API calls
   const hasFetchedRef = useRef(false);
@@ -43,11 +78,12 @@ const StoreSettings = () => {
     }
     isFetchingRef.current = true;
 
-    fetchStoresApi(storeService.getStores(), { showToast: false })
-      .finally(() => {
+    fetchStoresApi(storeService.getStores(), { showToast: false }).finally(
+      () => {
         isFetchingRef.current = false;
         hasFetchedRef.current = true;
-      });
+      },
+    );
   }, [fetchStoresApi]);
 
   // Fetch stores on component mount (only once)
@@ -55,12 +91,23 @@ const StoreSettings = () => {
     fetchStores();
   }, [fetchStores]);
 
-  // Handle add store - open drawer
+  // Handle add store — respect plan store quota before opening drawer
   const handleAddStore = () => {
     if (!agency || !agency.agencyId) {
       showError("Agency not found. Please create an agency first.");
       return;
     }
+
+    if (!canAddStore) {
+      const limitText =
+        storeLimit != null ? ` of ${storeLimit}` : "";
+      const message = isStaff
+        ? `Your plan allows${limitText} store${storeLimit === 1 ? "" : "s"}. Contact your store admin to upgrade.`
+        : `Your plan allows${limitText} store${storeLimit === 1 ? "" : "s"}. Upgrade to add another store.`;
+      showUpgradeModal(message, isStaff ? "INFO" : "UPGRADE");
+      return;
+    }
+
     setIsAddDrawerOpen(true);
   };
 
@@ -77,19 +124,13 @@ const StoreSettings = () => {
     // Frontend guard: don't allow deleting the only store
     if (stores?.length <= 1) {
       showError(
-        "You must have at least one active store. The last store cannot be deleted."
+        "You must have at least one active store. The last store cannot be deleted.",
       );
       return;
     }
 
     setStoreToDelete(store);
     setIsDeleteModalOpen(true);
-  };
-
-  // Handle show catalog QR
-  const handleShowCatalog = (store) => {
-    setActiveStore(store);
-    setIsCatalogModalOpen(true);
   };
 
   // Handle success callbacks
@@ -116,63 +157,38 @@ const StoreSettings = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <StoreHeader
-        storesCount={stores?.length}
-        isLoading={isLoading}
-        onAddStore={handleAddStore}
-      />
-
-      <StoreList
-        stores={stores}
-        isLoading={isLoading}
-        selectedStore={selectedStore}
-        onAddStore={handleAddStore}
-        onEditStore={handleEditStore}
-        onDeleteStore={handleDeleteStore}
-        onShowCatalog={handleShowCatalog}
-      />
-
-      <StoreAddDrawer
-        isOpen={isAddDrawerOpen}
-        onClose={() => setIsAddDrawerOpen(false)}
-        onSuccess={handleAddSuccess}
-        onError={showError}
-      />
-
-      <StoreEditDrawer
-        isOpen={isEditDrawerOpen}
-        editingStore={editingStore}
-        onClose={() => {
-          setIsEditDrawerOpen(false);
-          setEditingStore(null);
-        }}
-        onSuccess={handleEditSuccess}
-        onError={showError}
-        showSuccess={showSuccess}
-      />
-
-      <StoreDeleteModal
-        isOpen={isDeleteModalOpen}
-        storeToDelete={storeToDelete}
-        stores={stores}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setStoreToDelete(null);
-        }}
-        onSuccess={handleDeleteSuccess}
-        onError={showError}
-      />
-
-      <CatalogQRModal
-        isOpen={isCatalogModalOpen}
-        onClose={() => {
-          setIsCatalogModalOpen(false);
-          setActiveStore(null);
-        }}
-        store={activeStore}
-      />
-    </div>
+    <StoreSettingsView
+      model={{
+        StoreHeader,
+        stores,
+        isLoading,
+        handleAddStore,
+        canAddStore,
+        storeLimit,
+        StoreList,
+        selectedStore,
+        handleEditStore,
+        handleDeleteStore,
+        StoreAddDrawer,
+        isAddDrawerOpen,
+        setIsAddDrawerOpen,
+        handleAddSuccess,
+        showError,
+        StoreEditDrawer,
+        isEditDrawerOpen,
+        editingStore,
+        setIsEditDrawerOpen,
+        setEditingStore,
+        handleEditSuccess,
+        showSuccess,
+        StoreDeleteModal,
+        isDeleteModalOpen,
+        storeToDelete,
+        setIsDeleteModalOpen,
+        setStoreToDelete,
+        handleDeleteSuccess,
+      }}
+    />
   );
 };
 

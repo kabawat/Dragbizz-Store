@@ -2,7 +2,7 @@
     "faqs": {
         "createInvoice": {
             "q": "Main naya invoice kaise banau?",
-            "a": "Invoices page par jayein aur 'Add Invoice' par click karein ya kahin se bhi Shift+N shortcut use karein. Client aur items ki details bharein, phir save karein."
+            "a": "Invoices page par jayein aur 'Add Invoice' par click karein ya kahin se bhi Alt+N shortcut use karein. Client aur items ki details bharein, phir save karein."
         },
         "multipleStores": {
             "q": "Kya main multiple stores manage kar sakta hoon?",
@@ -14,7 +14,7 @@
         },
         "exportData": {
             "q": "Main apna data export kaise karu?",
-            "a": "Zyadatar list pages par 'Download' button ya Ctrl+D shortcut hota hai. Aap apne requirements ke hisaab se data ko PDF, Excel ya CSV format mein export kar sakte hain."
+            "a": "Zyadatar list pages par 'Download' button ya Alt+Shift+D shortcut hota hai. Aap apne requirements ke hisaab se data ko PDF, Excel ya CSV format mein export kar sakte hain."
         },
         "lowStock": {
             "q": "Low stock kaise track karein?",

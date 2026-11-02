@@ -3,13 +3,15 @@ import { analyticsService } from "@/service/retailer";
 import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
 
+import { DEFAULT_PRODUCT_TOTALS, normalizeProductAnalytics } from "@/utils/analytics/productAnalytics.util";
+
 const initialState = {
   revenue: { summary: {}, today: {}, change: {} },
   invoice: {},
   expense: {},
   bill: {},
   stock: {},
-  product: {},
+  product: { totals: { ...DEFAULT_PRODUCT_TOTALS } },
   customer: {},
   supplier: {},
 
@@ -151,7 +153,9 @@ const analyticsSlice = createSlice({
         .addCase(thunk.fulfilled, (state, action) => {
           state[loadingKey] = false;
           state.error = null;
-          state[dataKey] = action.payload.data;
+          state[dataKey] = dataKey === "product"
+            ? normalizeProductAnalytics(action.payload.data)
+            : action.payload.data;
         })
         .addCase(thunk.rejected, (state, action) => {
           state[loadingKey] = false;

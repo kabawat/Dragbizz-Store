@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
-import { isLocalhost, getMainDomain } from "@/utils/helper/domain";
+import { isLocalhost, getMainDomain, redirectToMainDomain } from "@dragorbit/core/domain";
 
 // Constants
 const INACTIVITY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
@@ -50,7 +50,7 @@ export function useInactivityLogout() {
         domain: isLocalhost() ? undefined : `.${getMainDomain()}`,
       });
 
-      window.location.href = "/login";
+      redirectToMainDomain("/login");
     }
   }, [dispatch, updateLastActivity]);
 

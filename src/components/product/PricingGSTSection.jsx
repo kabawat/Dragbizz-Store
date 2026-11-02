@@ -1,434 +1,219 @@
 "use client";
-import { Calculator, Hash, Info, Package, Percent } from "lucide-react";
-import { CURRENCY_OPTIONS, GST_RATE_OPTIONS, UOM_OPTIONS } from "@/data";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { Input, Select, Toggle } from "../ui";
-import { useAppSelector } from "@/store/hooks";
-import { useEffect, useMemo } from "react";
 
-const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
+import { Barcode, Hash, IndianRupee, Info, Package, Sparkles } from "lucide-react";
+import { useMemo } from "react";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { Input } from "../ui";
+
+const PricingGSTSection = ({
+  formData,
+  onChange,
+  errors = {},
+  hasVariants = false,
+}) => {
   const { t } = useTranslation();
-  const { selectedStore } = useAppSelector((state) => state.profile);
-  const hasStoreGst = !!selectedStore?.gst;
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
   };
 
-  // Memoize GST amount based on include/exclude option
-  const gstAmount = useMemo(() => {
-    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const gstRate = parseFloat(formData.gstInfo?.gstRate) || 0;
-    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
+  const handleAutoGenerateSku = () => {
+    const namePart = (formData.name || "PRD")
+      .trim()
+      .substring(0, 4)
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const sku = `${namePart || "PRD"}-${randomSuffix}`;
+    handleFieldChange("sku", sku);
+  };
 
-    if (isGstIncluded) {
-      return (sellingPrice * gstRate) / (100 + gstRate);
-    } else {
-      return (sellingPrice * gstRate) / 100;
-    }
-  }, [formData.sellingPrice, formData.gstInfo?.gstRate, formData.gstInfo?.isGstIncluded]);
-
-  // Memoize base price (price without GST)
-  const basePrice = useMemo(() => {
-    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
-
-    if (isGstIncluded) {
-      return sellingPrice - gstAmount;
-    } else {
-      return sellingPrice;
-    }
-  }, [formData.sellingPrice, formData.gstInfo?.isGstIncluded, gstAmount]);
-
-  // Memoize total price (selling price + GST if excluded)
-  const totalPrice = useMemo(() => {
-    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
-
-    if (isGstIncluded) {
-      return sellingPrice;
-    } else {
-      return sellingPrice + gstAmount;
-    }
-  }, [formData.sellingPrice, formData.gstInfo?.isGstIncluded, gstAmount]);
-
-  // Memoize savings
   const savings = useMemo(() => {
     const mrp = parseFloat(formData.mrp) || 0;
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    if (mrp > sellingPrice) {
+    if (mrp > sellingPrice && sellingPrice > 0) {
       return {
-        amount: mrp - sellingPrice,
-        percentage: Math.round(((mrp - sellingPrice) / mrp) * 100)
+        amount: (mrp - sellingPrice).toFixed(2),
+        percentage: Math.round(((mrp - sellingPrice) / mrp) * 100),
       };
     }
     return { amount: 0, percentage: 0 };
   }, [formData.mrp, formData.sellingPrice]);
 
   return (
-    <>
-      {/* Pricing Information */}
-      <div className="mb-8">
-        {/* Price Input Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* MRP */}
-          <div>
-            <Input
-              type="number"
-              label={t("products.mrp")}
-              placeholder={t("products.enterAmount")}
-              value={formData.mrp || ""}
-              onChange={(value) => handleFieldChange("mrp", value)}
-              error={errors.mrp}
-              errorMessage={errors.mrp}
-              required
-              leftIcon={() => (
-                <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-md">
-                  ₹
-                </span>
-              )}
-              min={0}
-              step={0.01}
-              precision={2}
-              helperText={t("products.mrpHelperText")}
-              className="transition-all duration-200 group-hover:shadow-sm"
-            />
-          </div>
-
-          {/* Selling Price */}
-          <div>
-            <Input
-              type="number"
-              label={t("products.sellingPrice")}
-              placeholder={t("products.enterAmount")}
-              value={formData.sellingPrice || ""}
-              onChange={(value) => handleFieldChange("sellingPrice", value)}
-              error={errors.sellingPrice}
-              errorMessage={errors.sellingPrice}
-              required
-              leftIcon={() => (
-                <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-md">
-                  ₹
-                </span>
-              )}
-              min={0}
-              step={0.01}
-              precision={2}
-              helperText={t("products.sellingPriceHelperText")}
-              className="transition-all duration-200 group-hover:shadow-sm"
-            />
-          </div>
-        </div>
-
-        {/* Currency and UOM */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Select
-            label={t("products.currency")}
-            options={CURRENCY_OPTIONS}
-            value={formData.currency || "INR"}
-            onChange={(value) => handleFieldChange("currency", value)}
-            error={errors.currency}
-            errorMessage={errors.currency}
-            required
-            disabled
-            searchable
-            placeholder={t("products.selectCurrency")}
-          />
-          <Select
-            label={t("products.unitOfMeasure")}
-            options={UOM_OPTIONS}
-            value={formData.uom || "PCS"}
-            onChange={(value) => handleFieldChange("uom", value)}
-            error={errors.uom}
-            errorMessage={errors.uom}
-            required
-            leftIcon={Package}
-            searchable
-            placeholder={t("products.selectUnitOfMeasure")}
-          />
-        </div>
-
-        {/* Price Summary */}
-        <div className="mt-6 p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-lg">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
-              <span className="text-[rgb(var(--color-primary))] font-bold text-xl mr-2">
-                ₹
-              </span>
-              {t("products.priceSummary")}
-            </h4>
-            <div className="text-xs text-[rgb(var(--color-text-tertiary))] bg-[rgb(var(--color-bg-primary))] px-2 py-1 rounded-full">
-              {t("products.livePreview")}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Left Column - Prices */}
-            <div className="space-y-3">
-              {formData.mrp ? (
-                <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                  <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                    {t("products.mrp")}:
-                  </span>
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                    ₹{parseFloat(formData.mrp).toFixed(2)}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] opacity-50">
-                  <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">
-                    {t("products.mrp")}:
-                  </span>
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">
-                    ₹0.00
-                  </span>
-                </div>
-              )}
-
-              {formData.sellingPrice ? (
-                <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]">
-                  <span className="text-sm font-medium text-white">
-                    {t("products.sellingPrice")}:
-                  </span>
-                  <span className="text-sm font-bold text-white">
-                    ₹{parseFloat(formData.sellingPrice).toFixed(2)}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] opacity-50">
-                  <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">
-                    {t("products.sellingPrice")}:
-                  </span>
-                  <span className="text-sm font-bold text-[rgb(var(--color-text-tertiary))]">
-                    ₹0.00
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Right Column - Savings */}
-            <div className="space-y-3">
-              {savings.amount > 0 ? (
-                <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
-                  <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                    {t("products.youSave")}:
-                  </span>
-                  <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
-                    ₹{savings.amount.toFixed(2)}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
-                  <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">
-                    {t("products.youSave")}:
-                  </span>
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">
-                    ₹0.00
-                  </span>
-                </div>
-              )}
-
-              {savings.percentage > 0 ? (
-                <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
-                  <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                    {t("products.discount")}:
-                  </span>
-                  <span className="text-sm font-bold text-green-600">
-                    {savings.percentage}%
-                  </span>
-                </div>
-              ) : (
-                <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
-                  <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">
-                    {t("products.discount")}:
-                  </span>
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">
-                    0%
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* GST Information */}
-      <div>
-        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-          <Calculator className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
-          {t("products.gstInformation")}
-        </h3>
-
-        {/* GST Fields - Always show, but some parts conditional */}
-        <>
-          <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-4 flex items-start gap-2">
-            <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+    <div className="space-y-3.5">
+      {hasVariants && (
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 dark:text-blue-300">
+            <Info className="w-4 h-4 shrink-0" />
             <span>
-              CGST/SGST vs IGST is calculated automatically when you bill, based on your store state and the customer&apos;s state.
+              {t(
+                "products.variantsPricingNotice",
+                "Variants mode active: Product title is common. Enter specific variant details (Variant Name, MRP, Price, Stock, SKU) below."
+              )}
             </span>
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <Select
-                label={t("products.gstRate")}
-                options={GST_RATE_OPTIONS}
-                value={formData.gstInfo?.gstRate || ""}
-                onChange={(value) =>
-                  handleFieldChange("gstInfo.gstRate", value)
-                }
-                error={errors.gstRate}
-                errorMessage={errors.gstRate}
-                required={hasStoreGst}
-                leftIcon={Calculator}
-                searchable
-                placeholder={t("products.selectGstRate")}
-              />
-            </div>
-
-            <div>
-              <Input
-                label={t("products.hsnCode")}
-                placeholder={t("products.enterHsnCode")}
-                value={formData.gstInfo?.hsnCode || ""}
-                onChange={(value) =>
-                  handleFieldChange("gstInfo.hsnCode", value)
-                }
-                error={errors.hsnCode}
-                errorMessage={errors.hsnCode}
-                required={hasStoreGst}
-                leftIcon={Hash}
-                maxLength={8}
-              />
-            </div>
           </div>
 
-          {/* GST Include/Exclude Option */}
-          <div className="mb-6">
-            {hasStoreGst ? (
-              <>
-                <div className="flex flex-col space-y-2">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="gstIncluded"
-                      value="excluded"
-                      checked={formData.gstInfo?.isGstIncluded === false}
-                      onChange={() =>
-                        handleFieldChange("gstInfo.isGstIncluded", false)
-                      }
-                      className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                    />
-                    <span className="ml-3 text-sm text-[rgb(var(--color-text-primary))]">
-                      <span className="font-medium">
-                        {t("products.gstExcluded") || "GST Excluded"}
-                      </span>
-                      <span className="text-[rgb(var(--color-text-secondary))] ml-1">
-                        - {t("products.gstExcludedDescription") || "Base Price + GST"}
-                      </span>
-                    </span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="gstIncluded"
-                      value="included"
-                      checked={formData.gstInfo?.isGstIncluded === true}
-                      onChange={() =>
-                        handleFieldChange("gstInfo.isGstIncluded", true)
-                      }
-                      className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                    />
-                    <span className="ml-3 text-sm text-[rgb(var(--color-text-primary))]">
-                      <span className="font-medium">
-                        {t("products.gstIncluded") || "GST Included"}
-                      </span>
-                      <span className="text-[rgb(var(--color-text-secondary))] ml-1">
-                        - {t("products.gstIncludedDescription") || "Selling Price includes GST"}
-                      </span>
-                    </span>
-                  </label>
-                </div>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">
-                  {t("products.gstPricingMethodHelperText")}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] flex items-start gap-2">
-                <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span>
-                  <span className="font-semibold">Note: </span>
-                  {t("products.noGstInfoMessage") ||
-                    "Since your store doesn't have a GST number, this information is collected for future reference only."}
-                </span>
-              </p>
+          <div>
+            <Input
+              label={t(
+                "products.variantDisplayName",
+                "Variant Name (वेरिएंट का नाम)"
+              )}
+              placeholder={
+                formData.name
+                  ? `${formData.name} - Variant 1`
+                  : t(
+                      "products.enterVariantDisplayName",
+                      "Enter variant name (e.g. Red, 64GB, Size M)"
+                    )
+              }
+              value={formData.displayName || ""}
+              onChange={(val) => handleFieldChange("displayName", val)}
+              error={errors.displayName}
+              errorMessage={errors.displayName}
+              leftIcon={Package}
+              helperText={t(
+                "products.variantDisplayNameHelp",
+                "Specific name for this variant. Product title remains common across all variants."
+              )}
+              className="text-sm font-medium"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Row 1: MRP & Selling Price */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <div>
+          <Input
+            type="number"
+            label={t("products.mrp", "MRP (Maximum Retail Price)")}
+            placeholder={t("products.enterAmount", "0.00")}
+            value={formData.mrp || ""}
+            onChange={(val) => handleFieldChange("mrp", val)}
+            error={errors.mrp}
+            errorMessage={errors.mrp}
+            required
+            leftIcon={IndianRupee}
+            min={0}
+            step={0.01}
+          />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">
+              {t("products.sellingPrice", "Selling Price")}{" "}
+              <span className="text-rose-500">*</span>
+            </span>
+            {savings.percentage > 0 && (
+              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                {savings.percentage}% OFF (Save ₹{savings.amount})
+              </span>
             )}
           </div>
-
-          {/* GST Summary */}
-          <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-lg">
-            <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-              <Calculator className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
-              {t("products.gstSummary")}
-            </h4>
-
-            {/* Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
-                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
-                  {t("products.gstRate")}
-                </span>
-                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                  {(parseFloat(formData.gstInfo?.gstRate) || 0).toFixed(2)}%
-                </span>
-              </div>
-
-              {/* GST Status */}
-              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
-                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
-                  {t("products.gstStatus")}
-                </span>
-                <span className={`font-semibold ${formData.gstInfo?.isGstIncluded ? "text-green-600" : "text-blue-600"}`}>
-                  {formData.gstInfo?.isGstIncluded
-                    ? t("products.included")
-                    : t("products.excluded")}
-                </span>
-              </div>
-
-              {/* HSN Code - Conditional */}
-              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
-                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
-                  {t("products.hsnCode")}
-                </span>
-                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                  {formData.gstInfo?.hsnCode ? formData.gstInfo.hsnCode : "-"}
-                </span>
-              </div>
-            </div>
-
-            {/* Totals Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex justify-between items-center py-2 px-4 rounded-lg bg-[rgb(var(--color-primary)/0.8)] text-white">
-                <span className="text-sm font-medium opacity-90">
-                  {t("products.gstAmount")}
-                </span>
-                <span className="text-lg font-bold">
-                  ₹{gstAmount.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2 px-4 rounded-lg bg-green-500 text-white">
-                <span className="text-sm font-medium opacity-90">
-                  {t("products.totalPrice")}
-                </span>
-                <span className="text-lg font-bold">
-                  ₹{totalPrice.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </>
+          <Input
+            type="number"
+            placeholder={t("products.enterAmount", "0.00")}
+            value={formData.sellingPrice || ""}
+            onChange={(val) => handleFieldChange("sellingPrice", val)}
+            error={errors.sellingPrice}
+            errorMessage={errors.sellingPrice}
+            required
+            leftIcon={IndianRupee}
+            min={0}
+            step={0.01}
+          />
+        </div>
       </div>
-    </>
+
+      {/* Row 2: SKU & Barcode */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">
+              {t("products.sku", "SKU (Item Code)")}
+            </span>
+            <button
+              type="button"
+              onClick={handleAutoGenerateSku}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-[rgb(var(--color-primary))] hover:underline cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>{t("products.autoSku", "Auto SKU")}</span>
+            </button>
+          </div>
+          <Input
+            placeholder={t("products.enterSku", "e.g. PRD-1001")}
+            value={formData.sku || ""}
+            onChange={(val) =>
+              handleFieldChange("sku", (val || "").toUpperCase())
+            }
+            error={errors.sku}
+            errorMessage={errors.sku}
+            leftIcon={Hash}
+          />
+        </div>
+
+        <div>
+          <span className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+            {t("products.barcode", "Barcode / UPC / EAN")}
+          </span>
+          <Input
+            placeholder={t("products.enterBarcode", "Scan or enter barcode")}
+            value={formData.barcode || ""}
+            onChange={(val) => handleFieldChange("barcode", val)}
+            error={errors.barcode}
+            errorMessage={errors.barcode}
+            leftIcon={Barcode}
+          />
+        </div>
+      </div>
+
+      {/* Row 3: Initial Stock & Conditional Purchase Price (Only when stock is added) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <div>
+          <Input
+            type="number"
+            label={t("products.openingStock", "Initial Stock (Quantity)")}
+            placeholder="0"
+            value={
+              formData.stock !== undefined && formData.stock !== null
+                ? formData.stock
+                : ""
+            }
+            onChange={(val) => handleFieldChange("stock", val)}
+            error={errors.stock}
+            errorMessage={errors.stock}
+            leftIcon={Package}
+            min={0}
+          />
+        </div>
+
+        {formData.stock !== undefined &&
+          formData.stock !== "" &&
+          Number(formData.stock) > 0 && (
+            <div>
+              <Input
+                type="number"
+                label={t("products.purchasePrice", "Purchase / Cost Price")}
+                placeholder={t("products.enterAmount", "0.00")}
+                value={formData.basePrice || formData.purchasePrice || ""}
+                onChange={(val) => {
+                  handleFieldChange("basePrice", val);
+                  handleFieldChange("purchasePrice", val);
+                }}
+                error={errors.purchasePrice || errors.basePrice}
+                errorMessage={errors.purchasePrice || errors.basePrice}
+                leftIcon={IndianRupee}
+                min={0}
+                step={0.01}
+              />
+            </div>
+          )}
+      </div>
+    </div>
   );
 };
 

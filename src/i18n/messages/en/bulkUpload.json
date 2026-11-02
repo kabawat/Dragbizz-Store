@@ -1,0 +1,5 @@
+{
+  "templateFetchError": "Failed to resolve template structure.",
+  "templateDownloaded": "Template downloaded successfully!",
+  "downloadError": "Error generating template file."
+}

@@ -1,26 +1,32 @@
 "use client";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { PageSkeleton } from "@dragorbit/ui/app";
+import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-// Import components
-import {
-  ProductAddSuccessModal,
-  ProductForm,
-  ProductInfoModal,
-} from "@/components/product";
+import { ProductForm, ProductInfoModal } from "@/components/product";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useApiResponse } from "@/hooks/useApiResponse";
-import { productService } from "@/service";
+import { productService, variantService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import {
+  mergeVariantIntoProduct,
+  normalizeProductRecord,
+  pickDefaultVariant,
+  splitProductAndVariantPayload,
+  toProductForm,
+} from "@/utils/productUtils";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("products.editProduct"), t("products.editProductDescription"));
+  useDashboardHeader(
+    t("products.editProduct"),
+    t("products.editProductDescription")
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -33,7 +39,6 @@ const UpdateProductPage = ({ productId }) => {
     }
   }, [can, permissionsLoading, router]);
 
-  // Separate hooks: one for fetching, one for saving
   const { execute: executeFetch, loading: initialLoading } = useApiResponse();
   const {
     execute: executeSave,
@@ -44,30 +49,32 @@ const UpdateProductPage = ({ productId }) => {
 
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [productNotFound, setProductNotFound] = useState(false);
+  const [defaultVariantId, setDefaultVariantId] = useState(null);
 
-  // Initial form data
   const getInitialFormData = () => ({
     store: storeId,
     name: "",
-    brand: "",
+    brandId: "",
     category: "",
+    sku: "",
+    barcode: "",
     basePrice: "",
     mrp: "",
     sellingPrice: "",
     discount: "",
     currency: "",
     uom: "",
+    productType: "GOODS",
     images: [],
     status: "",
-
     showInCatalog: true,
     featured: false,
     bestSeller: false,
     newArrival: false,
     stockQuantity: 0,
+    defaultVariantId: null,
     gstInfo: {
       gstRate: "",
-      gstCategory: "TAXABLE",
       hsnCode: "",
       isGstIncluded: true,
     },
@@ -82,7 +89,6 @@ const UpdateProductPage = ({ productId }) => {
 
   const [formData, setFormData] = useState(getInitialFormData());
 
-  // Fetch product data on component mount
   useEffect(() => {
     const fetchProductData = async () => {
       const result = await executeFetch(
@@ -90,62 +96,44 @@ const UpdateProductPage = ({ productId }) => {
         { showToast: false }
       );
 
-      if (result?.success) {
-        const product = result.data;
-
-        // Transform API data to form data structure based on the actual response format
-        const transformedData = {
-          store: storeId,
-          name: product?.name || "",
-          brand: product?.brand || "",
-          category: product?.category?._id || product?.category?.id || (typeof product?.category === "string" ? product?.category : "") || "",
-          barcode: product?.barcode || "",
-          sku: product?.sku || "",
-          // Pricing data - directly from API response
-          basePrice: product?.basePrice || "",
-          mrp: product?.mrp || "",
-          sellingPrice: product?.sellingPrice || "",
-          discount: product?.discount || "",
-          currency: product?.currency || "",
-          uom: product?.uom || "",
-          images: Array.isArray(product?.images) ? product.images : (product?.image ? [product.image] : []),
-          // Status and catalog
-          status: product?.status || "",
-
-          showInCatalog: product?.showInCatalog !== false,
-          featured: product?.featured || false,
-          bestSeller: product?.bestSeller || false,
-          newArrival: product?.newArrival || false,
-          stockQuantity: product?.stockQuantity || 0,
-          // GST info from nested gstInfo object
-          gstInfo: {
-            isGstIncluded: product?.gstInfo?.isGstIncluded !== undefined ? product?.gstInfo?.isGstIncluded : (product?.gstInfo?.isGstApplicable || false),
-            gstRate: product?.gstInfo?.gstRate || "",
-            gstCategory: product?.gstInfo?.gstCategory || "TAXABLE",
-            hsnCode: product?.gstInfo?.hsnCode || "",
-          },
-          // Content data from nested content object
-          content: {
-            shortDescription: product?.content?.shortDescription || "",
-            longDescription: product?.content?.longDescription || "",
-            tags: product?.content?.tags || [],
-            specifications: product?.content?.specifications || [],
-            features: product?.features || [],
-          },
-        };
-
-        setFormData(transformedData);
-      } else {
+      if (!result?.success) {
         setProductNotFound(true);
+        return;
       }
+
+      let product = result.data;
+      if (Array.isArray(product)) product = product[0];
+      if (product?.data && !product.name) product = product.data;
+
+      let variants = Array.isArray(product?.variants) ? product.variants : [];
+      if (variants.length === 0) {
+        const variantsResult = await executeFetch(
+          variantService.getVariants({
+            store: storeId,
+            product: productId,
+            limit: 50,
+          }),
+          { showToast: false }
+        );
+        const variantsRaw = variantsResult?.data;
+        variants = Array.isArray(variantsRaw)
+          ? variantsRaw
+          : Array.isArray(variantsRaw?.data)
+            ? variantsRaw.data
+            : [];
+      }
+
+      const defaultVariant = pickDefaultVariant(variants);
+      const merged = mergeVariantIntoProduct(product, defaultVariant);
+      setDefaultVariantId(defaultVariant?.id ?? defaultVariant?._id ?? null);
+      setFormData(toProductForm(normalizeProductRecord(merged), storeId));
     };
 
     if (productId && storeId) {
       fetchProductData();
     }
-  }, [productId, storeId, executeFetch, t]);
+  }, [productId, storeId, executeFetch]);
 
-  // Update store ID when selectedStore changes
   useEffect(() => {
     if (selectedStore?.storeId) {
       setFormData((prevData) => ({
@@ -155,7 +143,6 @@ const UpdateProductPage = ({ productId }) => {
     }
   }, [selectedStore]);
 
-  // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
     if (typeof fieldName !== "string") return;
 
@@ -169,7 +156,8 @@ const UpdateProductPage = ({ productId }) => {
 
     setFormData((prevData) => {
       const newData = { ...prevData };
-      const getNewValue = (current) => typeof value === 'function' ? value(current) : value;
+      const getNewValue = (current) =>
+        typeof value === "function" ? value(current) : value;
 
       if (fieldName.includes(".")) {
         const [parent, child] = fieldName.split(".");
@@ -185,83 +173,47 @@ const UpdateProductPage = ({ productId }) => {
     });
   };
 
-  // Handle save and update
   const handleSaveAndUpdate = async () => {
     setFieldErrors({});
 
-    const mrp = parseFloat(formData.mrp) || 0;
-    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    let discountPercentage = "0";
-
-    if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
-      discountPercentage = String(
-        Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100
-      );
-    }
-
-    const sanitizedImages = (formData.images || [])
-      .map(img => {
-        if (typeof img === "string") return img;
-        if (img instanceof File) return img.uploadedUrl;
-        if (img && typeof img === "object" && img.url) return img.url;
-        return null;
-      })
-      .filter(Boolean);
-
-    const updateData = {
+    const { productPayload, variantPayload } = splitProductAndVariantPayload({
       ...formData,
-      images: sanitizedImages,
-      pricing: {
-        basePrice: formData.basePrice,
-        mrp: formData.mrp,
-        sellingPrice: formData.sellingPrice,
-        discount: discountPercentage,
-        currency: formData.currency,
-        uom: formData.uom,
-      },
-    };
+      store: storeId,
+    });
 
     const result = await executeSave(
-      productService.updateProduct(productId, updateData, storeId),
+      productService.updateProduct(productId, productPayload, storeId),
       { message: t("products.updateSuccess") }
     );
 
-    if (result?.success) {
-      router.push("/dashboard/products");
+    if (!result?.success) return;
+
+    if (defaultVariantId) {
+      await executeSave(
+        variantService.updateVariant(defaultVariantId, variantPayload, storeId),
+        { showToast: false }
+      );
+    } else {
+      await executeSave(
+        variantService.createVariant({
+          ...variantPayload,
+          product: productId,
+        }),
+        { showToast: false }
+      );
     }
+
+    router.push("/dashboard/products");
   };
 
-  // Handle cancel
   const handleCancel = () => {
     router.push("/dashboard/products");
   };
 
-  // Loading state
   if (initialLoading || permissionsLoading) {
-    return (
-      <div className="p-6">
-        <div className="max-w-8xl mx-auto">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-            <div className="flex items-center justify-center">
-              <div className="text-center">
-                <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
-                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                  Loading Product...
-                </h2>
-                <p className="text-[rgb(var(--color-text-secondary))]">
-                  {t("common.pleaseWaitWhileWeFetch", {
-                    item: t("common.product"),
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
-  // Product not found state
   if (productNotFound) {
     return (
       <div className="p-6">
@@ -341,7 +293,6 @@ const UpdateProductPage = ({ productId }) => {
         </div>
       </div>
 
-      {/* Info Modal */}
       <ProductInfoModal
         isOpen={showInfoModal}
         onClose={() => setShowInfoModal(false)}

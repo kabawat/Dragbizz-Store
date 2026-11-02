@@ -14,6 +14,7 @@ export function buildCustomerListParams({
   return {
     store: storeId,
     limit,
+    includeAccount: true,
     isFreshLoad,
     ...(nextCursor ? { nextCursor } : {}),
     ...(search?.trim() ? { search: search.trim() } : {}),

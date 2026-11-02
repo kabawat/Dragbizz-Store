@@ -1,7 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { Package, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { AddActionButton, Card, Input, Select } from "@/components/ui";
+import variantService from "@/service/retailer/variant.service";
 
 const ItemsSection = ({
   t,
@@ -13,7 +15,52 @@ const ItemsSection = ({
   setErrors,
 }) => {
   const [tempProduct, setTempProduct] = useState("");
+  const [tempVariant, setTempVariant] = useState("");
+  const [variants, setVariants] = useState([]);
+  const [variantsLoading, setVariantsLoading] = useState(false);
   const [tempQuantity, setTempQuantity] = useState(1);
+
+  useEffect(() => {
+    if (!tempProduct) {
+      setVariants([]);
+      setTempVariant("");
+      return;
+    }
+    const selected = products.find((p) => (p.id || p._id) === tempProduct);
+    if (selected?.variants?.length) {
+      setVariants(selected.variants);
+      const def = selected.variants.find((v) => v.isDefault) || selected.variants[0];
+      setTempVariant(def?.id || def?._id || "");
+      return;
+    }
+
+    let isMounted = true;
+    setVariantsLoading(true);
+    variantService.getVariants({ product: tempProduct })
+      .then((res) => {
+        if (!isMounted) return;
+        const vars = res?.data?.data || res?.data || [];
+        const list = Array.isArray(vars) ? vars : [];
+        setVariants(list);
+        if (list.length > 0) {
+          const def = list.find((v) => v.isDefault) || list[0];
+          setTempVariant(def?.id || def?._id || "");
+        } else {
+          setTempVariant("");
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setVariants([]);
+          setTempVariant("");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setVariantsLoading(false);
+      });
+
+    return () => { isMounted = false; };
+  }, [tempProduct, products]);
 
   const addItem = () => {
     if (!tempProduct) {
@@ -35,9 +82,12 @@ const ItemsSection = ({
     const productName = selected
       ? selected.name || selected.productName || ""
       : "";
+    const selectedVariant = variants.find((v) => (v.id || v._id) === tempVariant);
+    const variantName = selectedVariant ? (selectedVariant.displayName || selectedVariant.name || "") : "";
+
     setFormData((prev) => {
       const existingIndex = prev.products.findIndex(
-        (item) => item.product === tempProduct
+        (item) => item.product === tempProduct && (tempVariant ? item.variant === tempVariant : !item.variant)
       );
       if (existingIndex !== -1) {
         const updated = [...prev.products];
@@ -47,6 +97,7 @@ const ItemsSection = ({
         updated[existingIndex] = {
           ...existing,
           productName: existing.productName || productName,
+          variantName: existing.variantName || variantName,
           quantity: newQty,
         };
         return { ...prev, products: updated };
@@ -57,13 +108,17 @@ const ItemsSection = ({
           ...prev.products,
           {
             product: tempProduct,
+            variant: tempVariant || null,
             productName,
+            variantName,
             quantity: parseInt(tempQuantity, 10),
           },
         ],
       };
     });
     setTempProduct("");
+    setTempVariant("");
+    setVariants([]);
     setTempQuantity(1);
     setErrors((prev) => ({ ...prev, add_product: "", add_quantity: "" }));
   };
@@ -98,7 +153,7 @@ const ItemsSection = ({
             Add New Item
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            <div className="md:col-span-7">
+            <div className={variants.length > 0 ? "md:col-span-5" : "md:col-span-7"}>
               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                 {t("purchaseOrders.product")} *
               </label>
@@ -128,7 +183,26 @@ const ItemsSection = ({
               />
             </div>
 
-            <div className="md:col-span-3">
+            {variants.length > 0 && (
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                  {t("variants.variant", { defaultValue: "Variant" })}
+                </label>
+                <Select
+                  value={tempVariant}
+                  onChange={(value) => setTempVariant(value)}
+                  options={variants.map((v) => ({
+                    value: v.id || v._id,
+                    label: `${v.displayName || v.name || "Default"} ${v.sku ? `(${v.sku})` : ""}`,
+                  }))}
+                  disabled={variantsLoading}
+                  size="sm"
+                  placeholder={t("variants.selectVariant", { defaultValue: "Select variant" })}
+                />
+              </div>
+            )}
+
+            <div className={variants.length > 0 ? "md:col-span-2" : "md:col-span-3"}>
               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                 {t("purchaseOrders.quantity")} *
               </label>
@@ -185,6 +259,11 @@ const ItemsSection = ({
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
                           {item.productName || t("purchaseOrders.selectedProduct")}
+                          {item.variantName ? (
+                            <span className="ml-2 text-xs font-normal text-[rgb(var(--color-primary))]">
+                              ({item.variantName})
+                            </span>
+                          ) : null}
                         </span>
                       </div>
                       <div className="flex-shrink-0">
@@ -199,14 +278,14 @@ const ItemsSection = ({
                         </span>
                       </div>
                     </div>
-                    <button
+                    <SharedTooltip content={"Remove item"}><button aria-label={"Remove item"}
                       type="button"
                       onClick={() => removeItem(index)}
                       className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                      title="Remove item"
+
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </button></SharedTooltip>
                   </div>
                 </div>
               ))}

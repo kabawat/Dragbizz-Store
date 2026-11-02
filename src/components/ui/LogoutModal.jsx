@@ -1,120 +1,131 @@
 "use client";
-import { AlertTriangle, X } from "lucide-react";
-import { createPortal } from "react-dom";
+
+import { Button, Modal, Tooltip as SharedTooltip } from "@dragorbit/ui";
+import { AlertTriangle } from "lucide-react";
+import Image from "next/image";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppSelector } from "@/store/hooks";
 
-export default function LogoutModal({ onClose, onConfirm, isLoggingOut }) {
+export default function LogoutModal({
+  isOpen = true,
+  onClose,
+  onConfirm,
+  isLoggingOut = false,
+}) {
   const { t } = useTranslation();
-  const modalContent = (
-    <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-      style={{
-        zIndex: 2147483647, // Maximum z-index value
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        backdropFilter: "blur(4px)",
+
+  const profileState = useAppSelector((state) => state?.profile) || {};
+  const { user, authProfile } = profileState;
+
+  const userName =
+    authProfile?.firstName && authProfile?.lastName
+      ? `${authProfile.firstName} ${authProfile.lastName}`
+      : authProfile?.firstName ||
+        authProfile?.email ||
+        user?.name ||
+        user?.email ||
+        null;
+
+  const userEmail = authProfile?.email || user?.email || null;
+  const userAvatar = user?.profile || authProfile?.profile || null;
+  const userRole = authProfile?.role || user?.role || null;
+
+  const formattedRole = userRole
+    ? userRole
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
+    : null;
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        if (!isLoggingOut) onClose?.();
       }}
-      onClick={(e) => {
-        // Only close if clicking the backdrop, not the modal content
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
+      closeOnOverlayClick={!isLoggingOut}
+      closeOnEscape={!isLoggingOut}
+      title={t("header.signOut", "Sign Out")}
+      className="w-full max-w-md"
+      footer={
+        <>
+          <Button variant="secondary" disabled={isLoggingOut} onClick={onClose}>
+            {t("common.cancel", "Cancel")}
+          </Button>
+          <Button variant="danger" loading={isLoggingOut} onClick={onConfirm}>
+            {isLoggingOut
+              ? t("header.signingOut", "Signing Out...")
+              : t("header.signOut", "Sign Out")}
+          </Button>
+        </>
+      }
     >
-      <div
-        className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-2xl max-w-md w-full"
-        style={{
-          zIndex: 2147483647, // Maximum z-index value
-          position: "relative",
-          backgroundColor: "rgb(var(--color-bg-primary))",
-          border: "1px solid rgb(var(--color-border-primary))",
-          borderRadius: "12px",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-          maxWidth: "28rem",
-          width: "100%",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[rgb(var(--color-border-primary))]">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-[rgb(var(--color-warning))]/20 rounded-full flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-[rgb(var(--color-warning))]" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                {t("header.signOut")}
-              </h3>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                {t("modals.deleteConfirm")}
-              </p>
-            </div>
+      <div className="p-6 space-y-4">
+        {/* Main Alert Info */}
+        <div className="flex items-start gap-3.5">
+          <div className="w-10 h-10 rounded-full bg-[rgb(var(--color-warning))]/15 flex items-center justify-center shrink-0">
+            <AlertTriangle
+              className="h-5 w-5 text-[rgb(var(--color-warning))]"
+              aria-hidden
+            />
           </div>
-          <button
-            onClick={onClose}
-            disabled={isLoggingOut}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isLoggingOut
-                ? 'bg-[rgb(var(--color-bg-secondary))] opacity-50 cursor-not-allowed'
-                : 'bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] cursor-pointer'
-              }`}
-          >
-            <X className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <div className="mb-6">
-            <p className="text-[rgb(var(--color-text-primary))] mb-2">
-              {t("modals.deleteConfirm")}
-            </p>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-              {t("modals.deleteConfirmMessage")}
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-3">
-            <button
-              onClick={onClose}
-              disabled={isLoggingOut}
-              className={`flex-1 px-4 py-2.5 bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] rounded-lg font-medium transition-colors ${isLoggingOut
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-[rgb(var(--color-bg-tertiary))] cursor-pointer'
-                }`}
-            >
-              {t("common.cancel")}
-            </button>
-            <button
-              onClick={onConfirm}
-              disabled={isLoggingOut}
-              className={`flex-1 px-4 py-2.5 bg-[rgb(var(--color-danger))] text-white rounded-lg font-medium transition-colors flex items-center justify-center ${isLoggingOut
-                  ? 'opacity-70 cursor-not-allowed'
-                  : 'hover:bg-[rgb(var(--color-danger))]/90 cursor-pointer'
-                }`}
-            >
-              {isLoggingOut ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  {t("header.signOut") || "Signing out..."}
-                </>
-              ) : (
-                t("header.signOut")
+          <div className="space-y-1 pt-0.5">
+            <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+              {t("header.signOutPrompt", "Are you sure you want to sign out?")}
+            </h4>
+            <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
+              {t(
+                "header.signOutDescription",
+                "You will need to log back in to access your store and dashboard."
               )}
-            </button>
+            </p>
           </div>
         </div>
-      </div>
-    </div>
-  );
 
-  // Render modal using portal to ensure it's on top of everything
-  return createPortal(modalContent, document.body);
+        {/* User Account Card */}
+        {userName && (
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))]">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] flex items-center justify-center overflow-hidden shrink-0 border border-[rgb(var(--color-border-primary))]/40">
+              {userAvatar ? (
+                <Image
+                  src={userAvatar}
+                  alt={userName}
+                  width={36}
+                  height={36}
+                  unoptimized
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xs font-semibold text-white uppercase">
+                  {userName.charAt(0)}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-semibold text-[rgb(var(--color-text-primary))] truncate">
+                  {userName}
+                </p>
+                <SharedTooltip content={"Active session"}><span
+                  className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
+
+                /></SharedTooltip>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] text-[rgb(var(--color-text-tertiary))] truncate">
+                {userEmail && <span className="truncate">{userEmail}</span>}
+                {formattedRole && (
+                  <>
+                    <span>•</span>
+                    <span className="text-[rgb(var(--color-text-secondary))] font-medium truncate">
+                      {formattedRole}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
 }

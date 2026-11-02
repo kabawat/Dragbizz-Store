@@ -202,10 +202,10 @@ const SupplierAccountDetails = ({ account }) => {
                   <Clock className="w-4 h-4 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Payment Terms
                   </p>
-                  <p className="text-[13px] font-[600] text-[rgb(var(--color-text-primary))]">
+                  <p className="text-[0.8125rem] font-[600] text-[rgb(var(--color-text-primary))]">
                     {account.paymentTerms?.replace("_", " ") || t("common.na")}
                   </p>
                 </div>
@@ -218,10 +218,10 @@ const SupplierAccountDetails = ({ account }) => {
                   <BarChart3 className="w-4 h-4 text-indigo-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Credit Utilized
                   </p>
-                  <p className="text-[13px] font-[600] text-[rgb(var(--color-text-primary))]">
+                  <p className="text-[0.8125rem] font-[600] text-[rgb(var(--color-text-primary))]">
                     ₹{account.creditUtilized?.toLocaleString("en-IN") || "0"}
                   </p>
                 </div>
@@ -238,10 +238,10 @@ const SupplierAccountDetails = ({ account }) => {
                     }`} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Risk Level
                   </p>
-                  <p className={`text-[13px] font-[600] ${account.riskLevel === "LOW" ? "text-emerald-600 dark:text-emerald-400" :
+                  <p className={`text-[0.8125rem] font-[600] ${account.riskLevel === "LOW" ? "text-emerald-600 dark:text-emerald-400" :
                     account.riskLevel === "MEDIUM" ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
                     }`}>
                     {account.riskLevel}
@@ -256,10 +256,10 @@ const SupplierAccountDetails = ({ account }) => {
                   <CalendarDays className="w-4 h-4 text-purple-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Last Payment
                   </p>
-                  <p className="text-[13px] font-[600] text-[rgb(var(--color-text-primary))]">
+                  <p className="text-[0.8125rem] font-[600] text-[rgb(var(--color-text-primary))]">
                     {moment(account.lastPaymentDate).format("DD MMM YYYY")}
                   </p>
                 </div>
@@ -272,10 +272,10 @@ const SupplierAccountDetails = ({ account }) => {
                   <Layers className="w-4 h-4 text-amber-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Avg Payment Cycle
                   </p>
-                  <p className="text-[13px] font-[600] text-[rgb(var(--color-text-primary))]">
+                  <p className="text-[0.8125rem] font-[600] text-[rgb(var(--color-text-primary))]">
                     {account.averagePaymentDays} Days
                   </p>
                 </div>
@@ -288,10 +288,10 @@ const SupplierAccountDetails = ({ account }) => {
                   <BadgeAlert className="w-4 h-4 text-cyan-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Total Txns
                   </p>
-                  <p className="text-[13px] font-[600] text-[rgb(var(--color-text-primary))]">
+                  <p className="text-[0.8125rem] font-[600] text-[rgb(var(--color-text-primary))]">
                     {account.totalTransactions}
                   </p>
                 </div>
@@ -304,10 +304,10 @@ const SupplierAccountDetails = ({ account }) => {
                   <CircleDollarSign className="w-4 h-4 text-emerald-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Paid Bills
                   </p>
-                  <p className="text-[13px] font-[600] text-emerald-600">
+                  <p className="text-[0.8125rem] font-[600] text-emerald-600">
                     {account.paidBills}
                   </p>
                 </div>
@@ -320,10 +320,10 @@ const SupplierAccountDetails = ({ account }) => {
                   <TrendingDown className="w-4 h-4 text-orange-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
+                  <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-0.5">
                     Pending Bills
                   </p>
-                  <p className="text-[13px] font-[600] text-orange-600">
+                  <p className="text-[0.8125rem] font-[600] text-orange-600">
                     {account.pendingBills}
                   </p>
                 </div>

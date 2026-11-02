@@ -4,6 +4,7 @@ import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
 
 const initialState = {
+  hasLoaded: false,
   payments: [],
 
   pagination: {
@@ -95,6 +96,7 @@ const paymentsSlice = createSlice({
         state.error = null;
       })
       .addCase(getPayments.fulfilled, (state, action) => {
+        state.hasLoaded = true;
         const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
         if (isFreshLoad) {
           state.isLoading = false;
@@ -131,6 +133,7 @@ const paymentsSlice = createSlice({
         };
       })
       .addCase(getPayments.rejected, (state, action) => {
+        state.hasLoaded = true;
         const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
         if (isFreshLoad) {
           state.isLoading = false;

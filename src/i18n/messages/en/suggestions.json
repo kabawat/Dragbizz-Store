@@ -47,7 +47,7 @@
     "shortcuts": {
         "ui": {
             "masterWorkflow": "Master the Workflow",
-            "workflowDescription": "DragBizz Pro supports deep keyboard integration. Every shortcut is designed to keep your hands on the keyboard and your business moving faster. Start with Shift+N for new entries or Alt+H to go home.",
+            "workflowDescription": "DragBizz Pro supports deep keyboard integration. Every shortcut is designed to keep your hands on the keyboard and your business moving faster. Use Alt+N for a new entry on supported pages. Shortcuts apply to the current page and available actions.",
             "proTip": "Pro tip: Use these shortcuts to work up to 2x faster."
         }
     },

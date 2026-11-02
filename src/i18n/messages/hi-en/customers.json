@@ -13,6 +13,8 @@
   "customerName": "Customer Name",
   "customerPhone": "Phone Number",
   "customerEmail": "Email Address",
+  "note": "Note",
+  "enterNote": "Is customer ke baare me note add karo (optional)",
   "customerAddress": "Address",
   "customer": "Customer",
   "phone": "Phone",
@@ -47,6 +49,7 @@
   "addCompanyDetails": "Company details add karo",
   "companyInformation": "Company Information",
   "addresses": "Addresses",
+  "noAddressDetails": "Koi address details available nahi hain",
   "addBillingShipping": "Billing aur shipping addresses add karo",
   "locationDetected": "📍 Location detect ho gaya: {city}, {state} - Addresses auto-fill ho jayengi",
   "addBillingAddress": "Billing Address add karo",
@@ -87,7 +90,8 @@
     "IN_STORE": "In-Store",
     "WHATSAPP": "WhatsApp",
     "PHONE": "Phone",
-    "QR_CATALOG": "QR Catalog"
+    "QR_CATALOG": "QR Catalog",
+    "VOICE_AI": "Voice AI"
   },
   "download": "Download",
   "export": "Export Customers",
@@ -177,5 +181,16 @@
   "partialSuccess": "Bulk upload partially successful",
   "bulkUploadSuccess": "Bulk upload successfully complete ho gaya",
   "rowData": "Data",
-  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!"
+  "emptyDescription": "You don't have any customers yet. Add your first customer to start tracking their orders and preferences!",
+  "importOpeningBalance": "Opening Balance Import",
+  "importMenu": "Import",
+  "openingBalanceImportTitle": "Opening Balance Import Karo",
+  "openingBalanceImportDesc": "Existing customers ke liye udhari upload karo. Phone number se match hoga.",
+  "openingBalanceInstruction1": "Customer pehle se exist karna chahiye — phone se match.",
+  "openingBalanceInstruction2": "Required columns: phone, openingDue.",
+  "openingBalanceResults": "Import Results",
+  "importedCount": "Imported",
+  "openingBalanceImportSuccess": "Opening balance import complete ho gaya",
+  "openingBalancePartialSuccess": "Import partially successful",
+  "downloadErrorsCsv": "Errors CSV download karo"
 }

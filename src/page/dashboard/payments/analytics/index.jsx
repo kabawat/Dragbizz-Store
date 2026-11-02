@@ -19,12 +19,13 @@ import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { Button, Card, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getPayments } from "@/store/slices/paymentsSlice";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
 const PaymentAnalytics = () => {
   useDashboardHeader("Payment Analytics", "View detailed payment analytics and insights");
   const dispatch = useAppDispatch();
   const { stats, isLoading, error } = useAppSelector((state) => state.payments);
-  const { selectedStore } = useAppSelector((state) => state.profile);
+  const { storeId, ready: storeReady } = useSelectedStoreId();
 
   const [timeRange, setTimeRange] = useState("month");
   const [supplierFilter, setSupplierFilter] = useState("all");
@@ -33,19 +34,19 @@ const PaymentAnalytics = () => {
 
   // Fetch payment data on component mount
   useEffect(() => {
-    if (selectedStore?.id) {
-      dispatch(getPayments({ store: selectedStore.id }));
+    if (storeReady && storeId) {
+      dispatch(getPayments({ store: storeId }));
     }
-  }, [dispatch, selectedStore]);
+  }, [dispatch, storeReady, storeId]);
 
   // Handle time range change
   const handleTimeRangeChange = (value) => {
     setTimeRange(value);
     // Fetch analytics data
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           timeRange: value,
           supplier: supplierFilter,
           method: methodFilter,
@@ -58,10 +59,10 @@ const PaymentAnalytics = () => {
   const handleSupplierFilterChange = (value) => {
     setSupplierFilter(value);
     // Refetch analytics data
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           timeRange,
           supplier: value,
           method: methodFilter,
@@ -74,10 +75,10 @@ const PaymentAnalytics = () => {
   const handleMethodFilterChange = (value) => {
     setMethodFilter(value);
     // Refetch analytics data
-    if (selectedStore?.id) {
+    if (storeReady && storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           timeRange,
           supplier: supplierFilter,
           method: value,

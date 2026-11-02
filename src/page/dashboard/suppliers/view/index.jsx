@@ -1,26 +1,28 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { useAppSelector } from "@/store/hooks";
-import { supplierService } from "@/service";
-import useApiResponse from "@/hooks/useApiResponse";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-
+import { useCallback, useEffect, useRef, useState } from "react";
+import { EditSupplierDrawer } from "@/components/supplier";
 import SupplierViewHeader from "@/components/supplier/view/SupplierViewHeader";
-import SupplierViewLayout from "./SupplierViewLayout";
 import SupplierDetailsTemplate from "@/components/templates/supplier/SupplierDetailsTemplate";
-import { useSupplierDetailsPrint } from "./hooks/useSupplierDetailsPrint";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
+import { supplierService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
 import ErrorState from "./components/ErrorState";
 import LoadingState from "./components/LoadingState";
-import { EditSupplierDrawer } from "@/components/supplier";
+import { useSupplierDetailsPrint } from "./hooks/useSupplierDetailsPrint";
+import SupplierViewLayout from "./SupplierViewLayout";
 
 const ViewSupplierPage = ({ supplierId }) => {
   const { t } = useTranslation();
 
-  useDashboardHeader(t("suppliers.viewSupplier"), t("suppliers.viewSupplierDescription"));
+  useDashboardHeader(
+    t("suppliers.viewSupplier"),
+    t("suppliers.viewSupplierDescription")
+  );
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -28,17 +30,16 @@ const ViewSupplierPage = ({ supplierId }) => {
   const { can } = useModulePermissions("supplier");
   const canEdit = can("edit");
 
-  const [error, setError] = useState(null);
-  const [supplierData, setSupplierData] = useState(null);
+  const {
+    execute: executeFetch,
+    data: supplierData,
+    loading: fetching,
+    error,
+  } = useApiResponse();
   const [showEditDrawer, setShowEditDrawer] = useState(false);
-  const hasFetched = useRef(false);
+  const fetchedSupplierRef = useRef(null);
 
-  const { execute: executeFetch, loading: fetching } = useApiResponse();
-
-  const { handleDownloadPDF } = useSupplierDetailsPrint(
-    fetching,
-    supplierData
-  );
+  const { handleDownloadPDF } = useSupplierDetailsPrint(fetching, supplierData);
 
   useCommonHotkeys({
     onEdit: canEdit ? () => setShowEditDrawer(true) : undefined,
@@ -47,35 +48,27 @@ const ViewSupplierPage = ({ supplierId }) => {
     onPrint: () => handleDownloadPDF(),
   });
 
+  const fetchSupplierData = useCallback(() => {
+    if (!supplierId || !storeId) return;
+    executeFetch(
+      supplierService.getSuppliers({ id: supplierId, store: storeId }),
+      { showToast: false }
+    );
+  }, [supplierId, storeId, executeFetch]);
+
   useEffect(() => {
-    const fetchSupplierData = async () => {
-      if (!supplierId || !storeId || hasFetched.current) return;
-      hasFetched.current = true;
+    if (supplierId && storeId && fetchedSupplierRef.current !== supplierId) {
+      fetchedSupplierRef.current = supplierId;
+      fetchSupplierData();
+    }
+  }, [supplierId, storeId, fetchSupplierData]);
 
-      const result = await executeFetch(
-        supplierService.getSuppliers({ id: supplierId, store: storeId }),
-        { showToast: false }
-      );
-
-      if (result?.success && result?.data) {
-        setSupplierData(result.data);
-      } else {
-        setError(
-          result?.message ||
-          t("errors.failedToFetchData", { item: t("common.supplier") })
-        );
-      }
-    };
-
+  const handleEditSuccess = () => {
+    setShowEditDrawer(false);
     fetchSupplierData();
-  }, [supplierId, storeId, t, executeFetch]);
-
-  const handleEditSuccess = (updatedData) => {
-    setSupplierData(updatedData);
   };
 
-  if (fetching && !supplierData) return <LoadingState />;
-
+  if (fetching || (!supplierData && !error)) return <LoadingState />;
 
   return (
     <div className="overflow-hidden">
@@ -116,7 +109,7 @@ const ViewSupplierPage = ({ supplierId }) => {
         onSuccess={handleEditSuccess}
       />
     </div>
-  )
+  );
 };
 
 export default ViewSupplierPage;

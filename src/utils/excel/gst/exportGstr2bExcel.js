@@ -1,31 +1,34 @@
-import ExcelJS from "exceljs";
-import createB2BASheet from "./sheets/B2BASheet";
-import createB2BSheet from "./sheets/B2BSheet";
-import createB2BCDNRSheet from "./sheets/B2BCDNRSheet";
-import createISDSheet from "./sheets/ISDSheet";
-import createISDASheet from "./sheets/ISDASheet";
-import createIMPGSheet from "./sheets/IMPGSheet";
-import createIMPGSEZSheet from "./sheets/IMPGSEZSheet";
-import createB2BITCReversalSheet from "./sheets/B2BITCReversalSheet";
 import createB2BAITCRSheet from "./sheets/B2BAITCReversal";
-import createB2BRejectedSheet from "./sheets/B2BRejected.js";
 import createB2BARejectedSheet from "./sheets/B2BARejected.js";
-import createB2BCDNRRejectedSheet from "./sheets/B2BCDNRRejectedSheet.js";
-import createB2BCDNRARejectedSheet from "./sheets/B2BCDNRARejected.js";
-import createECORejectedSheet from "./sheets/ECORejected.js";
-import createECOARejectedSheet from "./sheets/ECOARejectedSheet.js";
-import createISDRejectedSheet from "./sheets/ISDRejectedSheet.js";
-import createISDARejectedSheet from "./sheets/ISDARejectedSheet.js";
-import createECOSheet from "./sheets/ECOSheet.js";
-import createECOASheet from "./sheets/ECOASheet.js";
+import createB2BASheet from "./sheets/B2BASheet";
 import createB2BCDNRASheet from "./sheets/B2BCDNRA.js";
-import createITCReversalSheet from "./sheets/ITCReversalSheet.js";
-import createITCRejectdSheet from "./sheets/ITCRejected.js";
-import createITCNotAvailableSheet from "./sheets/ITCNotAvailableSheet.js";
+import createB2BCDNRARejectedSheet from "./sheets/B2BCDNRARejected.js";
+import createB2BCDNRRejectedSheet from "./sheets/B2BCDNRRejectedSheet.js";
+import createB2BCDNRSheet from "./sheets/B2BCDNRSheet";
+import createB2BITCReversalSheet from "./sheets/B2BITCReversalSheet";
+import createB2BRejectedSheet from "./sheets/B2BRejected.js";
+import createB2BSheet from "./sheets/B2BSheet";
+import createECOARejectedSheet from "./sheets/ECOARejectedSheet.js";
+import createECOASheet from "./sheets/ECOASheet.js";
+import createECORejectedSheet from "./sheets/ECORejected.js";
+import createECOSheet from "./sheets/ECOSheet.js";
+import createIMPGSEZSheet from "./sheets/IMPGSEZSheet";
+import createIMPGSheet from "./sheets/IMPGSheet";
+import createISDARejectedSheet from "./sheets/ISDARejectedSheet.js";
+import createISDASheet from "./sheets/ISDASheet";
+import createISDRejectedSheet from "./sheets/ISDRejectedSheet.js";
+import createISDSheet from "./sheets/ISDSheet";
 import createITCAvailableSheet from "./sheets/ITCAvailable.js";
+import createITCNotAvailableSheet from "./sheets/ITCNotAvailableSheet.js";
+import createITCRejectdSheet from "./sheets/ITCRejected.js";
+import createITCReversalSheet from "./sheets/ITCReversalSheet.js";
 import createReadSheet from "./sheets/ReadMe.js";
 
-const exportGstr2bExcel = async (data, filename = "GSTR-2B_Professional.xlsx") => {
+const exportGstr2bExcel = async (
+  data,
+  filename = "GSTR-2B_Professional.xlsx"
+) => {
+  const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
 
   // Metadata for ReadMe sheet
@@ -68,7 +71,7 @@ const exportGstr2bExcel = async (data, filename = "GSTR-2B_Professional.xlsx") =
   const buffer = await workbook.xlsx.writeBuffer();
 
   const blob = new Blob([buffer], {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
 
   const link = document.createElement("a");

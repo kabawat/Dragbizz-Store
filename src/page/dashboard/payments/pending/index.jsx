@@ -1,4 +1,7 @@
 "use client";
+
+import { DataTable } from "@dragorbit/ui/table";
+import { EmptyState, TableSkeleton } from "@dragorbit/ui";
 import {
   AlertTriangle,
   Building2,
@@ -17,14 +20,22 @@ import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { Badge, Button, Card, Input, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getPayments } from "@/store/slices/paymentsSlice";
-
 const PendingPayments = () => {
-  useDashboardHeader("Pending Payments", "View and manage pending supplier payments");
+  useDashboardHeader(
+    "Pending Payments",
+    "View and manage pending supplier payments"
+  );
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { pendingPayments, stats, isLoading, error } = useAppSelector((state) => state.payments);
+  const {
+    payments: pendingPayments,
+    stats,
+    isLoading: requestLoading,
+    hasLoaded,
+    error,
+  } = useAppSelector((state) => state.payments);
+  const isLoading = requestLoading || (!hasLoaded && !error);
   const { selectedStore } = useAppSelector((state) => state.profile);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [supplierFilter, setSupplierFilter] = useState("all");
   const [methodFilter, setMethodFilter] = useState("all");
@@ -96,15 +107,30 @@ const PendingPayments = () => {
   // Get urgency badge
   const getUrgencyBadge = (paymentDate) => {
     const days = getDaysSincePayment(paymentDate);
-
     if (days <= 1) {
-      return { variant: "success", text: "Recent", icon: CheckCircle };
+      return {
+        variant: "success",
+        text: "Recent",
+        icon: CheckCircle,
+      };
     } else if (days <= 3) {
-      return { variant: "info", text: "This Week", icon: Clock };
+      return {
+        variant: "info",
+        text: "This Week",
+        icon: Clock,
+      };
     } else if (days <= 7) {
-      return { variant: "warning", text: "Overdue", icon: AlertTriangle };
+      return {
+        variant: "warning",
+        text: "Overdue",
+        icon: AlertTriangle,
+      };
     } else {
-      return { variant: "danger", text: "Long Overdue", icon: XCircle };
+      return {
+        variant: "danger",
+        text: "Long Overdue",
+        icon: XCircle,
+      };
     }
   };
 
@@ -112,17 +138,35 @@ const PendingPayments = () => {
   const getPaymentMethodBadge = (method) => {
     switch (method) {
       case "cash":
-        return { variant: "success", text: "Cash" };
+        return {
+          variant: "success",
+          text: "Cash",
+        };
       case "bank_transfer":
-        return { variant: "info", text: "Bank Transfer" };
+        return {
+          variant: "info",
+          text: "Bank Transfer",
+        };
       case "cheque":
-        return { variant: "warning", text: "Cheque" };
+        return {
+          variant: "warning",
+          text: "Cheque",
+        };
       case "upi":
-        return { variant: "primary", text: "UPI" };
+        return {
+          variant: "primary",
+          text: "UPI",
+        };
       case "card":
-        return { variant: "secondary", text: "Card" };
+        return {
+          variant: "secondary",
+          text: "Card",
+        };
       default:
-        return { variant: "secondary", text: "Unknown" };
+        return {
+          variant: "secondary",
+          text: "Unknown",
+        };
     }
   };
 
@@ -135,7 +179,6 @@ const PendingPayments = () => {
   const handleRejectPayment = (_payment) => {
     // Implement reject payment logic
   };
-
   return (
     <div className="p-6">
       {/* Stats Cards */}
@@ -197,9 +240,18 @@ const PendingPayments = () => {
               value={supplierFilter}
               onChange={(value) => handleFilterChange("supplier", value)}
               options={[
-                { value: "all", label: "All Suppliers" },
-                { value: "supplier1", label: "Supplier 1" },
-                { value: "supplier2", label: "Supplier 2" },
+                {
+                  value: "all",
+                  label: "All Suppliers",
+                },
+                {
+                  value: "supplier1",
+                  label: "Supplier 1",
+                },
+                {
+                  value: "supplier2",
+                  label: "Supplier 2",
+                },
               ]}
             />
 
@@ -207,12 +259,30 @@ const PendingPayments = () => {
               value={methodFilter}
               onChange={(value) => handleFilterChange("method", value)}
               options={[
-                { value: "all", label: "All Methods" },
-                { value: "cash", label: "Cash" },
-                { value: "bank_transfer", label: "Bank Transfer" },
-                { value: "cheque", label: "Cheque" },
-                { value: "upi", label: "UPI" },
-                { value: "card", label: "Card" },
+                {
+                  value: "all",
+                  label: "All Methods",
+                },
+                {
+                  value: "cash",
+                  label: "Cash",
+                },
+                {
+                  value: "bank_transfer",
+                  label: "Bank Transfer",
+                },
+                {
+                  value: "cheque",
+                  label: "Cheque",
+                },
+                {
+                  value: "upi",
+                  label: "UPI",
+                },
+                {
+                  value: "card",
+                  label: "Card",
+                },
               ]}
             />
 
@@ -220,10 +290,22 @@ const PendingPayments = () => {
               value={dateRange}
               onChange={(value) => handleFilterChange("date", value)}
               options={[
-                { value: "all", label: "All Time" },
-                { value: "today", label: "Today" },
-                { value: "week", label: "This Week" },
-                { value: "month", label: "This Month" },
+                {
+                  value: "all",
+                  label: "All Time",
+                },
+                {
+                  value: "today",
+                  label: "Today",
+                },
+                {
+                  value: "week",
+                  label: "This Week",
+                },
+                {
+                  value: "month",
+                  label: "This Month",
+                },
               ]}
             />
           </div>
@@ -233,7 +315,7 @@ const PendingPayments = () => {
       {/* Pending Payments Table */}
       <Card>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <DataTable className="min-w-0" caption="Pending payments">
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left p-4 font-medium text-gray-900">
@@ -269,10 +351,7 @@ const PendingPayments = () => {
                   payment.paymentMethod
                 );
                 const UrgencyIcon = urgencyBadge.icon;
-                const daysPending = getDaysSincePayment(
-                  payment.paymentDate
-                );
-
+                const daysPending = getDaysSincePayment(payment.paymentDate);
                 return (
                   <tr
                     key={payment.id}
@@ -304,14 +383,7 @@ const PendingPayments = () => {
                     </td>
                     <td className="p-4">
                       <span
-                        className={`font-medium ${daysPending <= 1
-                          ? "text-green-600"
-                          : daysPending <= 3
-                            ? "text-blue-600"
-                            : daysPending <= 7
-                              ? "text-yellow-600"
-                              : "text-red-600"
-                          }`}
+                        className={`font-medium ${daysPending <= 1 ? "text-green-600" : daysPending <= 3 ? "text-blue-600" : daysPending <= 7 ? "text-yellow-600" : "text-red-600"}`}
                       >
                         {daysPending === 0
                           ? "Today"
@@ -375,38 +447,27 @@ const PendingPayments = () => {
                 );
               })}
             </tbody>
-          </table>
+          </DataTable>
         </div>
 
         {/* Empty State */}
         {pendingPayments.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No pending payments
-            </h3>
-            <p className="text-gray-600 mb-4">
-              All payments are processed!
-            </p>
-            <Button
-              variant="primary"
-              onClick={() => router.push("/dashboard/payments/create")}
-            >
-              Create New Payment
-            </Button>
-          </div>
+          <EmptyState
+            fullHeight
+            icon={Clock}
+            title="No pending payments"
+            description="All payments are processed!"
+            actionButton={{
+              label: "Create New Payment",
+              onClick: () => router.push("/dashboard/payments/create"),
+            }}
+          />
         )}
 
         {/* Loading State */}
-        {isLoading && (
-          <div className="text-center py-12">
-            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading pending payments...</p>
-          </div>
-        )}
+        {isLoading && <TableSkeleton compact rows={2} />}
       </Card>
     </div>
   );
 };
-
 export default PendingPayments;

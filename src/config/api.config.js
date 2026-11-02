@@ -16,32 +16,46 @@ const API_CONFIG = {
   RETAILER: {
     INVENTORY: "/retailer/inventory",
     CUSTOMER: "/retailer/customer",
+    CUSTOMER_ACCOUNT: "/retailer/customer-account",
+    CUSTOMER_ACCOUNT_PAYMENTS: "/retailer/customer-account/payments",
+    CUSTOMER_ACCOUNT_COLLECT_LINK: "/retailer/customer-account/payments/collect-link",
+    CUSTOMER_ACCOUNT_TRANSACTIONS: "/retailer/customer-account/transactions",
     SUPPLIER: "/retailer/supplier",
     CATEGORY: "/retailer/category",
+    BRAND: "/retailer/brand",
     PRODUCT: "/retailer/product",
+    VARIANT: "/retailer/variant",
     ACCOUNT: "/retailer/account",
     PROFILE: "/retailer/profile",
     AGENCY: "/retailer/agencies",
     STORE: "/retailer/store",
+    CATALOG: "/retailer/catalog",
     STOCK: "/retailer/stock",
 
     PURCHASE_ORDER: "/retailer/purchase-order",
     PAYMENT: "/retailer/supplier-account/payments",
     BILL: "/retailer/supplier-account/bills",
     INVOICE: "/retailer/invoices",
+    INVOICE_PAYMENT_LINK: "/retailer/invoices/:id/payment-link",
+    PAYMENTS: "/retailer/payments",
     EXPENSE: "/retailer/expense",
+    CASHBOOK: "/retailer/cashbook",
     DASHBOARD: "/retailer/dashboard",
     ANALYTICS: "/retailer/analytics",
     GST: "/retailer/gst",
     GST_VERIFY: "/retailer/gst/verify",
+    INTEGRATIONS: "/retailer/integrations",
     PUBLIC_CATALOG: "/retailer/public/products",
+    PUBLIC_VARIANTS: "/retailer/public/variants",
     PUBLIC_CATEGORIES: "/retailer/public/categories",
     PUBLIC_TEMPLATES: "/retailer/public/templates",
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
     STAFF: "/retailer/staff",
+    PACKAGES: "/retailer/packages",
     SUBSCRIPTION: "/retailer/subscription",
+    SETTING: "/retailer/setting",
   },
 
   UTILITY: {
@@ -49,15 +63,30 @@ const API_CONFIG = {
     SOCKET: "/utility/socket.io",
     UPLOAD_URL: "/utility/v1/storage/upload-url",
     DELETE_URL: "/utility/v1/storage/file",
-    FCM_SAVE_TOKEN: "/utility/v1/fcm/save-token",
+    FCM_REGISTER_DEVICE: "/utility/v1/fcm/device",
     FCM_DELETE_TOKEN: "/utility/v1/fcm/token",
     FCM_SEND: "/utility/v1/fcm/send",
   },
 
-  // Subscription Service Endpoints
-  SUBSCRIPTION: {
-    SUBSCRIPTIONS: "/plans/subscription",
-    USAGE: "/plans/usage",
+  // AI / Voice orchestration (nginx → dragbizz-ai :4004)
+  AI: {
+    BASE_URL: "/brain",
+    CHAT: "/brain/api/v1/chat",
+    CHAT_STREAM: "/brain/api/v1/chat/stream",
+    CONFIRM: "/brain/api/v1/chat/confirm",
+    SESSIONS: "/brain/api/v1/chat/sessions",
+    SESSION_BY_ID: "/brain/api/v1/chat/sessions/:sessionId",
+    NOTIFICATIONS: "/brain/api/v1/notifications",
+    NOTIFICATION_READ: "/brain/api/v1/notifications/:id/read",
+    HEALTH: "/brain/api/v1/health",
+    READY: "/brain/api/v1/ready",
+    CHAT_TIMEOUT_MS: 45_000,
+  },
+
+  // Finance owns package checkout and payment verification.
+  FINANCE: {
+    CREATE_PACKAGE_PAYMENT: "/payment/create-order",
+    VERIFY_PACKAGE_PAYMENT: "/payment/verify",
   },
 
   // External Services

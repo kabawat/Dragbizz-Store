@@ -12,6 +12,7 @@
   "suppliers": "Suppliers",
   "storesSummary": "Stores Summary",
   "quickActions": "Quick Actions",
+  "cashbookToday": "Cashbook Today",
   "addCustomer": "Add Customer",
   "addProduct": "Add Product",
   "newInvoice": "New Invoice",
@@ -30,11 +31,14 @@
   "failedToFetch": "Failed to fetch {label}",
   "unableToLoad": "Unable to load {label}",
   "revenueAnalytics": "Revenue Analytics",
+  "dailySales": "Daily Sales",
   "salesAnalytics": "Sales Analytics",
   "productAnalytics": "Product Analytics",
   "customerAnalytics": "Customer Analytics",
   "stockAnalytics": "Stock Analytics",
   "supplierAnalytics": "Supplier Analytics",
   "billAnalytics": "Bill Analytics",
-  "expenseAnalytics": "Expense Analytics"
+  "expenseAnalytics": "Expense Analytics",
+  "businessOverview": "Business Overview",
+  "viewCashbook": "View Book"
 }

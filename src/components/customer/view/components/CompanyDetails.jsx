@@ -1,60 +1,72 @@
 "use client";
-import { Building2, FileText } from "lucide-react";
+
+import { useState } from "react";
+import { Building2, Check, Copy, FileText } from "lucide-react";
 
 const CompanyDetails = ({ companyDetails }) => {
-  if (
-    !companyDetails ||
-    (!companyDetails.companyName && !companyDetails.gstin)
-  ) {
+  const [copiedGstin, setCopiedGstin] = useState(false);
+
+  if (!companyDetails || (!companyDetails.companyName && !companyDetails.gstin)) {
     return null;
   }
 
+  const handleCopyGstin = () => {
+    if (!companyDetails.gstin || typeof window === "undefined" || !navigator?.clipboard) return;
+    navigator.clipboard.writeText(companyDetails.gstin);
+    setCopiedGstin(true);
+    setTimeout(() => setCopiedGstin(false), 2000);
+  };
+
   return (
-    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
-          <Building2 className="w-6 h-6 text-green-500" />
+    <div className="bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] p-5 sm:p-6 shadow-xs space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+          <Building2 className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-            Company Details
+          <h2 className="text-base sm:text-lg font-bold text-[rgb(var(--color-text-primary))]">
+            Company & Business Details
           </h2>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-            Business information
+          <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
+            Organization name and tax identification
           </p>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {companyDetails.companyName && (
-          <div className="flex items-start space-x-4 pb-4 border-b border-[rgb(var(--color-border-primary))]/30">
-            <div className="flex-shrink-0 w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-green-500" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                Company Name
-              </p>
-              <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                {companyDetails.companyName}
-              </p>
-            </div>
+          <div className="p-4 rounded-xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/30">
+            <p className="text-[11px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider mb-1">
+              Company Name
+            </p>
+            <p className="text-base font-bold text-[rgb(var(--color-text-primary))] break-words">
+              {companyDetails.companyName}
+            </p>
           </div>
         )}
 
         {companyDetails.gstin && (
-          <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0 w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-orange-500" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                GSTIN
+          <div className="p-4 rounded-xl border border-[rgb(var(--color-border-primary))]/60 bg-[rgb(var(--color-bg-secondary))]/30 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider mb-1">
+                GSTIN / Tax ID
               </p>
-              <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
+              <p className="text-base font-bold font-mono text-[rgb(var(--color-text-primary))] truncate">
                 {companyDetails.gstin}
               </p>
             </div>
+            <button
+              type="button"
+              onClick={handleCopyGstin}
+              className="p-2 rounded-lg text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors shrink-0"
+              title="Copy GSTIN"
+            >
+              {copiedGstin ? (
+                <Check className="w-4 h-4 text-emerald-500" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </button>
           </div>
         )}
       </div>

@@ -1,107 +1,60 @@
 "use client";
-
+import { bootstrapSession, hasSessionHint } from "@dragorbit/core/auth";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
-import { authService } from "@/service";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  getAuthProfile,
-  getRetailerDetails,
-  getStaffProfileDetails,
-  setInitialized,
-} from "@/store/slices/profileSlice";
+  readWorkspacePreview,
+  saveWorkspacePreview,
+  clearWorkspaceCache,
+} from "@/utils/workspaceCache";
+import { useEffect, useLayoutEffect } from "react";
+import { useStore } from "react-redux";
 import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
+import { useAppSelector } from "@/store/hooks";
+import * as profileActions from "@/store/slices/profileSlice";
 
-
-export default function GlobalProfileLoader() {
+export default function GlobalProfileLoader({ initialSessionHint = false }) {
+  const store = useStore();
   const pathname = usePathname();
-  const dispatch = useAppDispatch();
-  const { authProfile, staffProfile, user, agency, stores, isLoading, error } = useAppSelector(
-    (state) => state.profile
-  );
-
-  const hasRefreshedRef = useRef(false);
-  const refreshSucceededRef = useRef(false);
-  const hasFetchedAuthRef = useRef(false);
-  const hasFetchedRetailerRef = useRef(false);
-  const hasFetchedStaffRef = useRef(false);
-
-  useEffect(() => {
-    const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
-
-    // If no session cookie, we know we're not logged in.
-    if (!hasSessionCookie) {
-      dispatch(setInitialized(true));
-      return;
+  const profile = useAppSelector((state) => state.profile);
+  const authProfile = profile.authProfile;
+  // Restore navigation before the first client paint; authorization remains unverified.
+  useLayoutEffect(() => {
+    const sessionHint = initialSessionHint || hasSessionHint(document.cookie);
+    if (!sessionHint) clearWorkspaceCache();
+    if (
+      sessionHint &&
+      pathname?.startsWith("/dashboard") &&
+      !store.getState().profile.authProfile
+    ) {
+      const preview = readWorkspacePreview();
+      if (preview) store.dispatch(profileActions.restoreShellPreview(preview));
     }
-
-    const load = async () => {
-      try {
-        if (!hasRefreshedRef.current) {
-          hasRefreshedRef.current = true;
-          try {
-            const refreshResult = await authService.refreshToken();
-            if (refreshResult?.success === true && refreshResult.data !== null) {
-              refreshSucceededRef.current = true;
-            }
-          } catch (_) { }
-        }
-
-        // If first refresh API failed, do not call the profile APIs
-        if (!refreshSucceededRef.current) {
-          dispatch(setInitialized(true));
-          return;
-        }
-
-        const promises = [];
-        if (!hasFetchedAuthRef.current) {
-          hasFetchedAuthRef.current = true;
-          promises.push(dispatch(getAuthProfile()));
-        }
-
-        // If we have a session but haven't fetched retailer details, do it in parallel
-        if (!hasFetchedRetailerRef.current && !user && !agency) {
-          hasFetchedRetailerRef.current = true;
-          promises.push(dispatch(getRetailerDetails()));
-        }
-
-        if (promises.length > 0) {
-          await Promise.allSettled(promises);
-        }
-      } catch (_) { }
+  }, [store, initialSessionHint, pathname]);
+  // Bootstrap once per server session hint; later route changes reuse the live store.
+  useEffect(() => {
+    const expire = () => {
+      store.dispatch(profileActions.clearAuth());
+      store.dispatch(profileActions.setInitialized(true));
     };
-
-    load();
-  }, [pathname, dispatch]);
-
-  // Retailer profile: after we have authProfile
+    window.addEventListener("dragbizz:session-expired", expire);
+    const sessionHint = initialSessionHint || hasSessionHint(document.cookie);
+    bootstrapSession(store, profileActions, {
+      sessionHint,
+      force: store.getState().profile.shellRestored === true,
+    });
+    return () => window.removeEventListener("dragbizz:session-expired", expire);
+  }, [store, initialSessionHint]);
   useEffect(() => {
-    if (!authProfile || !authProfile.agencyId) return;
-
-    const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
-
-    const hasRetailerData = !!user || !!agency || (stores && stores.length > 0);
-    if (hasRetailerData || hasFetchedRetailerRef.current) return;
-
-    hasFetchedRetailerRef.current = true;
-    dispatch(getRetailerDetails());
-  }, [pathname, authProfile, user, agency, stores, dispatch]);
-
-  // Staff profile: after we have authProfile and role is "store_staff"
-  useEffect(() => {
-    if (!authProfile || authProfile.role !== 'store_staff') return;
-
-    if (staffProfile || hasFetchedStaffRef.current) return;
-
-    hasFetchedStaffRef.current = true;
-    dispatch(getStaffProfileDetails());
-  }, [authProfile, staffProfile, dispatch]);
-
-  const shouldShowModal = !!authProfile && authProfile.ispwds === false;
-
+    saveWorkspacePreview(profile);
+  }, [profile]);
+  const isDashboardRoute = Boolean(
+    pathname === "/dashboard" || pathname?.startsWith("/dashboard/")
+  );
   return (
-    <>
-      <ForcePasswordModal isOpen={shouldShowModal} />
-    </>
+    <ForcePasswordModal
+      isOpen={Boolean(
+        isDashboardRoute && authProfile && authProfile.ispwds === false
+      )}
+    />
   );
 }

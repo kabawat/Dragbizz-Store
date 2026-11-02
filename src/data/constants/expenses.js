@@ -1,15 +1,39 @@
-// Expense Categories
+// Expense Categories — kirana-first defaults at top, legacy categories retained
 export const EXPENSE_CATEGORIES = [
-  // Office & Business
+  {
+    value: "rent",
+    label: "Rent (Kiraya)",
+    subCategories: ["Shop Rent", "Godown Rent", "Electricity", "Water"],
+  },
+  {
+    value: "daily-expenses",
+    label: "Tea & Snacks (Chai)",
+    subCategories: ["Chai", "Snacks", "Meals"],
+  },
+  {
+    value: "transport",
+    label: "Transport (Dhulai)",
+    subCategories: ["Fuel", "Delivery", "Loading"],
+  },
+  {
+    value: "shop-supplies",
+    label: "Shop Supplies",
+    subCategories: ["Bags", "Labels", "Packaging"],
+  },
+  {
+    value: "staff-wages",
+    label: "Staff Wages",
+    subCategories: ["Daily Wage", "Helper", "Bonus"],
+  },
+  {
+    value: "utilities",
+    label: "Electricity & Water",
+    subCategories: ["Electricity", "Water", "Gas"],
+  },
   {
     value: "office-supplies",
     label: "Office Supplies",
     subCategories: ["Stationery", "Equipment", "Software"],
-  },
-  {
-    value: "rent",
-    label: "Rent & Utilities",
-    subCategories: ["Office Rent", "Electricity", "Water", "Internet"],
   },
   {
     value: "travel",
@@ -120,15 +144,82 @@ export const EXPENSE_GST_RATES = [
 ];
 
 // Default values
-export const DEFAULT_EXPENSE_CATEGORY = "office-supplies";
+export const DEFAULT_EXPENSE_CATEGORY = "rent";
 export const DEFAULT_PAYMENT_METHOD = "CASH";
 export const DEFAULT_EXPENSE_STATUS = "PAID";
 export const DEFAULT_GST_RATE = 18;
 
-// Helper functions
 export const getCategoryLabel = (categoryValue) => {
-  const category = EXPENSE_CATEGORIES.find((c) => c.value === categoryValue);
-  return category ? category.label : "Office Supplies";
+  if (!categoryValue) return "Rent (Kiraya)";
+  const raw = String(categoryValue).trim();
+  const normalized = raw.toLowerCase();
+
+  // 1. Direct match on category value
+  let category = EXPENSE_CATEGORIES.find(
+    (c) => c.value.toLowerCase() === normalized
+  );
+  if (category) return category.label;
+
+  // 2. Match on label
+  category = EXPENSE_CATEGORIES.find(
+    (c) =>
+      c.label.toLowerCase() === normalized ||
+      c.label.toLowerCase().includes(normalized)
+  );
+  if (category) return category.label;
+
+  // 3. Match on subcategories
+  for (const c of EXPENSE_CATEGORIES) {
+    if (
+      Array.isArray(c.subCategories) &&
+      c.subCategories.some(
+        (sub) =>
+          sub.toLowerCase() === normalized ||
+          normalized.includes(sub.toLowerCase())
+      )
+    ) {
+      return c.label;
+    }
+  }
+
+  // 4. Keyword fuzzy detection
+  if (
+    normalized.includes("chai") ||
+    normalized.includes("tea") ||
+    normalized.includes("snack") ||
+    normalized.includes("food") ||
+    normalized.includes("nashta")
+  ) {
+    return "Tea & Snacks (Chai)";
+  }
+  if (normalized.includes("rent") || normalized.includes("kiraya")) {
+    return "Rent (Kiraya)";
+  }
+  if (
+    normalized.includes("transport") ||
+    normalized.includes("dhulai") ||
+    normalized.includes("delivery") ||
+    normalized.includes("fuel")
+  ) {
+    return "Transport (Dhulai)";
+  }
+  if (
+    normalized.includes("wage") ||
+    normalized.includes("salary") ||
+    normalized.includes("pagar")
+  ) {
+    return "Staff Wages";
+  }
+  if (
+    normalized.includes("elect") ||
+    normalized.includes("bijli") ||
+    normalized.includes("water") ||
+    normalized.includes("pani")
+  ) {
+    return "Electricity & Water";
+  }
+
+  return raw || "Miscellaneous";
 };
 
 export const getSubCategoryOptions = (categoryValue) => {

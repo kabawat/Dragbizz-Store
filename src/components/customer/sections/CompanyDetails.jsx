@@ -1,6 +1,7 @@
 "use client";
-import { Building2, FileText, Plus, Trash2, CheckCircle, ShieldCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
+import { Building2, CheckCircle, FileText, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button, Input } from "@/components/ui";
 
 const CompanyDetails = ({
@@ -131,7 +132,7 @@ const CompanyDetails = ({
                             size="sm"
                             rightElement={
                                 formData.companyDetails?.gstin?.length >= 15 && (
-                                    <button
+                                    <SharedTooltip content={isGstVerified ? "Verified" : "Verify GST"}><button
                                         type="button"
                                         onMouseDown={(event) => event.preventDefault()}
                                         onClick={() => handleVerifyGst(formData.companyDetails?.gstin)}
@@ -140,7 +141,7 @@ const CompanyDetails = ({
                                             ? "bg-green-500 text-white shadow-sm"
                                             : "bg-[rgb(var(--color-primary))] text-white hover:brightness-110"
                                             }`}
-                                        title={isGstVerified ? "Verified" : "Verify GST"}
+
                                     >
                                         {isVerifyingGst ? (
                                             <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -149,7 +150,7 @@ const CompanyDetails = ({
                                         ) : (
                                             <ShieldCheck className="w-3.5 h-3.5" />
                                         )}
-                                    </button>
+                                    </button></SharedTooltip>
                                 )
                             }
                         />

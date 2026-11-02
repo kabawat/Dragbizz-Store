@@ -1,59 +1,48 @@
+// Route / menu mapping aligned with subscription PACKAGE_MODULES (short keys)
 export const FEATURE_ROUTES = {
-  // Store Management
-  store_management: {
-    routes: ["/dashboard/settings", "/onboarding/store"],
+  store: {
+    routes: ["/dashboard/settings", "/setup"],
     menuItems: ["Settings"],
     subMenuItems: ["Store Settings"],
   },
 
-  // Product & Stock Management
-  product_management: {
+  product: {
     routes: [
       "/dashboard/products",
       "/dashboard/products/add",
       "/dashboard/products/edit",
       "/dashboard/products/view",
+      "/dashboard/categories",
+      "/dashboard/brands",
+      "/dashboard/variants",
+      "/dashboard/variants/add",
+      "/dashboard/variants/edit",
+      "/dashboard/variants/view",
     ],
-    menuItems: ["Product & Stock"],
-    subMenuItems: ["Products", "Stocks", "Low Stock Alerts"],
-  },
-  stock_management: {
-    routes: [
-      "/dashboard/stock",
-      "/dashboard/stock/alerts",
-      "/dashboard/stock/add",
-      "/dashboard/stock/edit",
-      "/dashboard/stock/view",
-    ],
-    menuItems: ["Product & Stock"],
-    subMenuItems: ["Stocks", "Low Stock Alerts"],
-  },
-  inventory_management: {
-    routes: [
-      "/dashboard/inventory",
-      "/dashboard/inventory/add",
-      "/dashboard/inventory/edit",
-      "/dashboard/inventory/view",
-      "/dashboard/stock",
-    ],
-    menuItems: ["Product & Stock"],
-    subMenuItems: ["Inventory", "Stocks"],
+    menuItems: ["Product Catalog"],
+    subMenuItems: ["Category", "Brand", "Products", "Variant"],
   },
 
-  // Invoice Management
-  invoice_management: {
+  invoice: {
     routes: [
       "/dashboard/invoices",
       "/dashboard/invoices/add",
       "/dashboard/invoices/edit",
       "/dashboard/invoices/view",
+      "/dashboard/pos",
+      "/dashboard/customer-payment",
     ],
-    menuItems: ["Invoices"],
-    subMenuItems: ["All Invoices", "Add New Invoice", "View Invoice"],
+    menuItems: ["Invoices", "POS"],
+    subMenuItems: ["All Invoices", "Add New Invoice", "View Invoice", "POS"],
   },
 
-  // Expense Management
-  expense_management: {
+  sales_order: {
+    routes: ["/dashboard/sales-order"],
+    menuItems: ["Sales Orders"],
+    subMenuItems: ["Sales Orders"],
+  },
+
+  expense: {
     routes: [
       "/dashboard/expenses",
       "/dashboard/expenses/reports",
@@ -64,8 +53,13 @@ export const FEATURE_ROUTES = {
     subMenuItems: ["All Expenses", "Add New Expense", "Expense Reports"],
   },
 
-  // Customer Management
-  customer_management: {
+  cashbook: {
+    routes: ["/dashboard/cashbook"],
+    menuItems: ["Cashbook"],
+    subMenuItems: ["Cashbook"],
+  },
+
+  customer: {
     routes: [
       "/dashboard/customers",
       "/dashboard/customers/add",
@@ -77,70 +71,89 @@ export const FEATURE_ROUTES = {
     subMenuItems: ["All Customers", "Add New Customer", "Inactive Customers"],
   },
 
-  // Purchase Management
-  purchase_management: {
+  purchase_order: {
     routes: [
       "/dashboard/purchase",
       "/dashboard/purchase-orders",
       "/dashboard/purchase-orders/create",
       "/dashboard/purchase-orders/edit",
       "/dashboard/purchase-orders/view",
-      "/dashboard/suppliers",
     ],
     menuItems: ["Purchase"],
-    subMenuItems: ["Suppliers", "Purchase Orders"],
+    subMenuItems: ["Purchase Orders"],
   },
 
-  // Bill Management
-  bill_management: {
+  billing: {
     routes: [
       "/dashboard/bills",
       "/dashboard/bills/create",
-    ],
-    menuItems: ["Purchase"],
-    subMenuItems: ["Bills"],
-  },
-
-  // Payment Management
-  payment_management: {
-    routes: [
       "/dashboard/payments",
       "/dashboard/payments/create",
       "/dashboard/payments/pending",
       "/dashboard/payments/reports",
     ],
     menuItems: ["Purchase"],
-    subMenuItems: ["Payments"],
+    subMenuItems: ["Bills", "Payments"],
   },
 
-  // Supplier Management
-  supplier_management: {
+  supplier: {
     routes: [
       "/dashboard/suppliers",
       "/dashboard/suppliers/edit",
       "/dashboard/suppliers/view",
+      "/dashboard/accounts",
+      "/dashboard/accounts/create",
     ],
     menuItems: ["Purchase"],
-    subMenuItems: ["Suppliers"],
+    subMenuItems: ["Suppliers", "Supplier Accounts"],
+  },
+
+  reports: {
+    routes: ["/dashboard/reports", "/dashboard/analytics"],
+    menuItems: ["Analytics", "Reports"],
+    subMenuItems: [],
+  },
+
+  integrations: {
+    routes: ["/dashboard/integrations"],
+    menuItems: ["Integrations"],
+    subMenuItems: ["Tally", "Payment Gateway"],
+  },
+
+  utilities: {
+    routes: [
+      "/dashboard/utilities",
+      "/dashboard/utilities/invoice-number",
+      "/dashboard/utilities/signatures",
+    ],
+    menuItems: ["Utilities"],
+    subMenuItems: ["Invoice Number Format", "Digital Signatures"],
+  },
+
+  staff: {
+    routes: ["/dashboard/management/staff"],
+    menuItems: ["Management"],
+    subMenuItems: ["Staff"],
   },
 };
 
-// Feature names that should match feature.name in database
 export const FEATURE_NAMES = {
-  STORE_MANAGEMENT: "Store Management",
-  PRODUCT_MANAGEMENT: "Product Management",
-  INVENTORY_MANAGEMENT: "Inventory Management",
-  STOCK_MANAGEMENT: "Stock Management",
-  INVOICE_MANAGEMENT: "Invoice Management",
-  EXPENSE_MANAGEMENT: "Expense Management",
-  CUSTOMER_MANAGEMENT: "Customer Management",
-  PURCHASE_MANAGEMENT: "Purchase Management",
-  BILL_MANAGEMENT: "Bill Management",
-  PAYMENT_MANAGEMENT: "Payment Management",
-  SUPPLIER_MANAGEMENT: "Supplier Management",
+  STORE: "Store Management",
+  PRODUCT: "Product Catalog",
+  INVENTORY: "Inventory Management",
+  INVOICE: "Invoicing",
+  EXPENSE: "Expense Tracking",
+  CUSTOMER: "Customer Tracking",
+  PURCHASE_ORDER: "Purchase Orders",
+  BILLING: "Billing",
+  SUPPLIER: "Supplier Management",
+  CASHBOOK: "Cashbook",
+  SALES_ORDER: "Sales Orders",
+  REPORTS: "Reports & Analytics",
+  STAFF: "Staff Accounts",
+  INTEGRATIONS: "Integrations",
 };
 
-// Helper function to check if a route requires a feature
 export const getRequiredFeatureForRoute = (route) => {
   for (const [featureKey, featureData] of Object.entries(FEATURE_ROUTES)) {
     if (featureData.routes.some((r) => route.startsWith(r))) {
@@ -150,7 +163,6 @@ export const getRequiredFeatureForRoute = (route) => {
   return null;
 };
 
-// Helper function to check if a menu item requires a feature
 export const getRequiredFeatureForMenuItem = (menuItemName) => {
   for (const [featureKey, featureData] of Object.entries(FEATURE_ROUTES)) {
     if (featureData.menuItems.includes(menuItemName)) {

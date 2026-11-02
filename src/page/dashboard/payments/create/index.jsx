@@ -1,4 +1,5 @@
 "use client";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import {
   ArrowLeft,
   Building2,
@@ -13,16 +14,16 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button, Card, Input, Select, Textarea } from "@/components/ui";
-import { useApiResponse } from "@/hooks/useApiResponse";
-import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import {
   billService,
   paymentService,
   supplierService,
 } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
-import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const CreatePayment = () => {
   const { t } = useTranslation();
@@ -426,12 +427,12 @@ const CreatePayment = () => {
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
       {/* Sidebar */}
-      
+
 
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        
+
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -593,17 +594,17 @@ const CreatePayment = () => {
                             <CreditCard className="w-5 h-5 mr-2" />
                             {t("payments.paymentMethods")}
                           </h3>
-                          <button
+                          <SharedTooltip content={t("payments.addPaymentMethod")}><button aria-label={t("payments.addPaymentMethod")}
                             type="button"
                             onClick={addPaymentMethod}
                             className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-500/10 dark:hover:bg-green-500/20 rounded-lg transition-colors duration-200"
-                            title={t("payments.addPaymentMethod")}
+
                           >
                             <Plus className="w-4 h-4" />
                             <span className="text-sm font-medium">
                               {t("payments.addPaymentMethod")}
                             </span>
-                          </button>
+                          </button></SharedTooltip>
                         </div>
 
                         {/* Total Amount Display */}
@@ -632,14 +633,14 @@ const CreatePayment = () => {
                                   })}
                                 </h4>
                                 {formData.paymentMethods.length > 1 && (
-                                  <button
+                                  <SharedTooltip content={t("payments.removePayment")}><button aria-label={t("payments.removePayment")}
                                     type="button"
                                     onClick={() => removePaymentMethod(index)}
                                     className="p-2 cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg transition-colors duration-200"
-                                    title={t("payments.removePayment")}
+
                                   >
                                     <Trash2 className="w-4 h-4" />
-                                  </button>
+                                  </button></SharedTooltip>
                                 )}
                               </div>
 

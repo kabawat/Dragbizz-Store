@@ -65,6 +65,11 @@ export function useBarcodeScanner({ onScan, enabled = true }) {
     const handleKeyDown = (e) => {
       if (!enabledRef.current) return;
 
+      if (document.activeElement?.closest?.('[data-ignore-barcode-scanner="true"]')) {
+        resetScanState(refs);
+        return;
+      }
+
       if (e.key === "Enter") {
         const code = bufferRef.current.trim();
         const isScan =

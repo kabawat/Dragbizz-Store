@@ -143,5 +143,9 @@
   "uploading": "Uploading...",
   "upload": "Upload File",
   "done": "Done",
-  "uploadAnother": "Upload Another"
+  "uploadAnother": "Upload Another",
+  "updateSuccess": "Supplier updated successfully.",
+  "suppliers": "Suppliers",
+  "viewSupplierDescription": "Supplier information and details.",
+  "editSupplierDescription": "Update supplier details."
 }

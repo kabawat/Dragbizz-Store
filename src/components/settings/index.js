@@ -1,9 +1,12 @@
 export { default as AppearanceSettings } from "./AppearanceSettings";
 export { default as AccountSettings } from "./account";
 export { default as ManageUpiSettings } from "./ManageUpiSettings";
+export { default as ManagePaymentSettings } from "./ManagePaymentSettings";
 export { default as NotificationsSettings } from "./NotificationsSettings";
 export { default as ProfileSettings } from "./profile";
 export { default as SecuritySettings } from "./SecuritySettings";
 export { default as StoreSettings } from "./store";
 export { default as SignatureSettings } from "./SignatureSettings";
 export { default as LanguageSettings } from "./LanguageSettings";
+export { default as IntegrationsSettings } from "./integrations";
+export { default as InvoiceNumberSettings } from "./invoiceNumber";

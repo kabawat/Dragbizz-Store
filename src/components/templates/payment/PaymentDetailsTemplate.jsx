@@ -115,8 +115,8 @@ const PaymentDetailsTemplate = ({ paymentData, selectedStore }) => {
             <div className="text-[#444444]">
               <span className="font-medium text-[#333333]">
                 Supplier Name
-              </span>{" "}
-              -{" "}
+              </span>
+              -
               <span className="font-semibold">
                 {paymentData.supplier.name || "N/A"}
               </span>
@@ -125,7 +125,7 @@ const PaymentDetailsTemplate = ({ paymentData, selectedStore }) => {
               <div className="text-[#444444]">
                 <span className="font-medium text-[#333333]">
                   Phone Number
-                </span>{" "}
+                </span>
                 - <span>{paymentData.supplier.phone}</span>
               </div>
             )}
@@ -133,7 +133,7 @@ const PaymentDetailsTemplate = ({ paymentData, selectedStore }) => {
               <div className="text-[#444444] break-all">
                 <span className="font-medium text-[#333333]">
                   Email Address
-                </span>{" "}
+                </span>
                 - <span>{paymentData.supplier.email}</span>
               </div>
             )}

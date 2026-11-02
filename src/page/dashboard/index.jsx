@@ -1,311 +1,191 @@
 "use client";
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
-import {
-  IndianRupee,
-  Package,
-  Receipt,
-  Users,
-  Warehouse,
-  TrendingUp,
-  AlertTriangle,
-  LayoutDashboard
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { agencyService } from "@/service/retailer";
-import useApiResponse from "@/hooks/useApiResponse";
-import { useAppSelector } from "@/store/hooks";
-import logger from "@/utils/logger";
+import { createDashboardRoutes, DashboardScreen } from "@dragorbit/features/dashboard";
+import { agencyService, invoiceService } from "@/service/retailer";
+import { ProactiveRetailIntelligence } from "@/components/dashboard/ProactiveRetailIntelligence";
+import { StoreDashboardOverview } from "@/components/dashboard/StoreDashboardOverview";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-
-// Extracted Dashboard Components
-import {
-  SortableSection,
-  SortableMetricCard,
-  SortableAnalyticsCard
-} from "@/components/dashboard/SortableComponents";
-import { QuickActions } from "@/components/dashboard/QuickActions";
-import { StoresSummaryTable } from "@/components/dashboard/StoresSummaryTable";
-import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
+import { useDashboardLayout } from "@/hooks/ui/useDashboardLayout";
+import { StoreSalesTrend } from "@/components/dashboard/StoreSalesTrend";
+import { cashbookService } from "@/service/retailer/cashbook.service";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppSelector } from "@/store/hooks";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { ROLES } from "@/hooks/permissions/useModulePermissions";
+import useSelectedStoreId from "@/hooks/store/useSelectedStoreId";
 
-const formatPercentChange = (value) => {
-  const numericValue = Number(value);
-  const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
-  return `${safeValue >= 0 ? "+" : ""}${safeValue.toFixed(1)}%`;
+const istDateKey = (date) => {
+  const values = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .formatToParts(date)
+      .filter((part) => part.type !== "literal")
+      .map(({ type, value }) => [type, value])
+  );
+  return `${values.year}-${values.month}-${values.day}`;
 };
 
+const buildSalesTrend = (invoices, days) => {
+  const endDate = istDateKey(new Date());
+  const endDay = new Date(`${endDate}T00:00:00.000Z`);
+  const salesDays = Array.from({ length: days }, (_, index) => {
+    const date = new Date(endDay);
+    date.setUTCDate(date.getUTCDate() - (days - 1 - index));
+    const dateLabel = new Intl.DateTimeFormat("en-IN", {
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    }).format(date);
+    return {
+      date: date.toISOString().slice(0, 10),
+      dateLabel,
+      label:
+        days === 7
+          ? new Intl.DateTimeFormat("en-IN", {
+            weekday: "short",
+            timeZone: "UTC",
+          }).format(date)
+          : dateLabel,
+      revenue: 0,
+      sales: 0,
+    };
+  });
+  const salesByDate = new Map(salesDays.map((day) => [day.date, day]));
+
+  for (const invoice of invoices) {
+    const createdAt = new Date(invoice.createdAt);
+    if (!Number.isFinite(createdAt.getTime())) continue;
+    const day = salesByDate.get(istDateKey(createdAt));
+    if (!day) continue;
+    day.revenue += Number(invoice.totalAmount) || 0;
+    day.sales += 1;
+  }
+
+  return salesDays;
+};
+
+const wait = (milliseconds) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+const routes = createDashboardRoutes("/dashboard");
 export default function Dashboard() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedStore: storeFromRedux, authProfile, staffProfile } = useAppSelector(
-    (state) => state.profile
-  );
-
+  const { authProfile, staffProfile } = useAppSelector(state => state.profile);
+  const { storeId, ready } = useSelectedStoreId();
   const isStaff = authProfile?.role === ROLES.STAFF;
-
-  // Set Header title and description
   useDashboardHeader(
     isStaff ? "Operations Overview" : t("dashboard.title"),
-    isStaff ? "Access your quick tools and assigned modules" : t("dashboard.description")
+    isStaff
+      ? "Access your quick tools and assigned modules"
+      : t("dashboard.description")
   );
-
-  const { execute, loading } = useApiResponse();
-  const [metrics, setMetrics] = useState([
-    { id: "revenue", title: t("dashboard.totalRevenue"), value: "₹0", change: "0%", changeType: "up", icon: IndianRupee, iconColor: "bg-green-500" },
-    { id: "profit", title: t("dashboard.totalProfit"), value: "₹0", change: "0%", changeType: "up", icon: TrendingUp, iconColor: "bg-emerald-500" },
-    { id: "customers", title: t("dashboard.totalCustomers"), value: "0", change: "0%", changeType: "up", icon: Users, iconColor: "bg-blue-500" },
-    { id: "products", title: t("dashboard.totalProducts"), value: "0", change: "0%", changeType: "up", icon: Package, iconColor: "bg-purple-500" },
-    { id: "stockValue", title: t("dashboard.stockValue"), value: "₹0", change: "0%", changeType: "up", icon: Warehouse, iconColor: "bg-indigo-500" },
-    { id: "outOfStock", title: t("dashboard.outOfStock"), value: "0", change: "0%", changeType: "down", icon: AlertTriangle, iconColor: "bg-red-500" },
-    { id: "payables", title: t("dashboard.totalPayables"), value: "₹0", change: "0%", changeType: "down", icon: Receipt, iconColor: "bg-orange-500" },
-  ]);
-
-  const [sections, setSections] = useState([
-    { id: "storesSummary", visible: true },
-    { id: "quickActions", visible: true },
-  ]);
-
-  const [storesData, setStoresData] = useState([]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
-  const loadDashboardMetrics = useCallback(async (storeId) => {
-    const result = await execute(
-      agencyService.getSummary(),
-      { showToast: false }
-    );
-
-    if (result?.success && result?.data) {
-      const summaryData = result.data;
-      setStoresData(summaryData);
-
-      // Calculate totals across all stores
-      const totals = summaryData.reduce((acc, store) => ({
-        revenue: acc.revenue + (store.revenue || 0),
-        profit: acc.profit + (store.profit || 0),
-        customers: acc.customers + (store.customers || 0),
-        products: acc.products + (store.products || 0),
-        stockValue: acc.stockValue + (store.stockValue || 0),
-        outOfStock: acc.outOfStock + (store.outOfStock || 0),
-        payables: acc.payables + (store.payables || 0),
-      }), {
-        revenue: 0, profit: 0, customers: 0, products: 0, stockValue: 0, outOfStock: 0, payables: 0
-      });
-
-      const updatedMetrics = [
-        {
-          id: "revenue",
-          title: t("dashboard.totalRevenue"),
-          value: `₹${totals.revenue.toLocaleString("en-IN")}`,
-          change: "0%",
-          changeType: "up",
-          icon: IndianRupee,
-          iconColor: "bg-green-500",
-        },
-        {
-          id: "profit",
-          title: t("dashboard.totalProfit"),
-          value: `₹${totals.profit.toLocaleString("en-IN")}`,
-          change: "0%",
-          changeType: "up",
-          icon: TrendingUp,
-          iconColor: "bg-emerald-500",
-        },
-        {
-          id: "customers",
-          title: t("dashboard.totalCustomers"),
-          value: totals.customers.toLocaleString("en-IN"),
-          change: "0%",
-          changeType: "up",
-          icon: Users,
-          iconColor: "bg-blue-500",
-        },
-        {
-          id: "products",
-          title: t("dashboard.totalProducts"),
-          value: totals.products.toLocaleString("en-IN"),
-          change: "0%",
-          changeType: "up",
-          icon: Package,
-          iconColor: "bg-purple-500",
-        },
-        {
-          id: "stockValue",
-          title: t("dashboard.stockValue"),
-          value: `₹${totals.stockValue.toLocaleString("en-IN")}`,
-          change: "0%",
-          changeType: "up",
-          icon: Warehouse,
-          iconColor: "bg-indigo-500",
-        },
-        {
-          id: "outOfStock",
-          title: t("dashboard.outOfStock"),
-          value: totals.outOfStock.toLocaleString("en-IN"),
-          change: "0%",
-          changeType: "down",
-          icon: AlertTriangle,
-          iconColor: "bg-red-500",
-        },
-        {
-          id: "payables",
-          title: t("dashboard.totalPayables"),
-          value: `₹${totals.payables.toLocaleString("en-IN")}`,
-          change: "0%",
-          changeType: "down",
-          icon: Receipt,
-          iconColor: "bg-orange-500",
-        },
-      ];
-      setMetrics(prev => {
-        const metricsMap = new Map(updatedMetrics.map(m => [m.id, m]));
-        return prev.map(m => metricsMap.get(m.id) || m);
-      });
-    }
-  }, [t, execute]);
-
-  useEffect(() => {
-    const storeId = storeFromRedux?._id || storeFromRedux?.id || storeFromRedux?.storeId;
-    if (!storeId) return;
-    loadDashboardMetrics(storeId);
-  }, [storeFromRedux?._id, storeFromRedux?.id, storeFromRedux?.storeId, loadDashboardMetrics]);
-
-  // Load saved layout
-  useEffect(() => {
-    const savedMetrics = localStorage.getItem("dashboard-metrics-order");
-    const savedSections = localStorage.getItem("dashboard-sections-order");
-
-    if (savedMetrics) {
+  const repository = useMemo(() => {
+    const executeDashboardRead = async (createRequest) => {
       try {
-        const savedOrder = JSON.parse(savedMetrics);
-        setMetrics(prev => {
-          const reordered = savedOrder.map(id => prev.find(m => m.id === id)).filter(Boolean);
-          return reordered.length === prev.length ? reordered : prev;
-        });
-      } catch (e) { logger.error(e); }
-    }
+        const response = await createRequest();
+        const data = response?.data?.data ?? response?.data ?? response;
+        return { success: true, data };
+      } catch (error) {
+        const status = error?.response?.status;
+        const retryable =
+          error?.code === "ERR_NETWORK" ||
+          error?.code === "ECONNABORTED" ||
+          [408, 502, 503, 504].includes(Number(status));
 
-    if (savedSections) {
-      try {
-        const savedOrder = JSON.parse(savedSections);
-        setSections(prev => {
-          const reordered = savedOrder.map(id => prev.find(s => s.id === id)).filter(Boolean);
-          const defaultIds = ["storesSummary", "quickActions"];
-          const missing = defaultIds.filter(id => !reordered.find(s => s.id === id));
-          missing.forEach(id => {
-            const def = prev.find(s => s.id === id);
-            if (def) reordered.push(def);
-          });
-          return reordered;
-        });
-      } catch (e) { logger.error(e); }
-    }
+        if (retryable) {
+          await wait(350);
+          try {
+            const retryRes = await createRequest();
+            const data = retryRes?.data?.data ?? retryRes?.data ?? retryRes;
+            return { success: true, data };
+          } catch (retryErr) {
+            return {
+              success: false,
+              message:
+                retryErr?.response?.data?.message ||
+                retryErr?.message ||
+                "Request failed",
+            };
+          }
+        }
+
+        return {
+          success: false,
+          message:
+            error?.response?.data?.message ||
+            error?.message ||
+            "Request failed",
+        };
+      }
+    };
+
+    return {
+      async getSummary() {
+        const result = await executeDashboardRead(() =>
+          agencyService.getSummary()
+        );
+        if (!result?.success)
+          throw new Error(result?.message || "Unable to load dashboard data.");
+        return result.data;
+      },
+      async getCashbook({ storeId }) {
+        const result = await executeDashboardRead(() =>
+          cashbookService.getAnalytics({ store: storeId })
+        );
+        return result?.data ?? null;
+      },
+      async getSalesTrend({ storeId, days = 7 }) {
+        const endDate = istDateKey(new Date());
+        const start = new Date(`${endDate}T00:00:00.000Z`);
+        start.setUTCDate(start.getUTCDate() - (days - 1));
+        const startDate = start.toISOString().slice(0, 10);
+        const result = await executeDashboardRead(() =>
+          invoiceService.getInvoices({
+            store: storeId,
+            invoiceStatus: "RELEASED",
+            startDate,
+            endDate,
+            downloadAll: true,
+            fields: "date,totalAmount",
+            includeItems: false,
+          })
+        );
+        if (!result?.success || !Array.isArray(result.data)) {
+          throw new Error(result?.message || "Sales trend is unavailable.");
+        }
+        return buildSalesTrend(result.data, days);
+      },
+    };
   }, []);
 
-  const handleMetricsDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setMetrics((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        const newItems = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem("dashboard-metrics-order", JSON.stringify(newItems.map(m => m.id)));
-        return newItems;
-      });
-    }
-  };
-
-  const handleSectionsDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setSections((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        const newItems = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem("dashboard-sections-order", JSON.stringify(newItems.map(s => s.id)));
-        return newItems;
-      });
-    }
-  };
-
-  const renderSection = (section) => {
-    switch (section.id) {
-      case "quickActions":
-        return <QuickActions t={t} onActionClick={(path) => router.push(path)} />;
-      case "storesSummary":
-        return <SortableAnalyticsCard id={section.id} title={t("dashboard.storesSummary")} icon={LayoutDashboard} iconColor="bg-slate-700" isVisible={section.visible}><StoresSummaryTable data={storesData} loading={loading} /></SortableAnalyticsCard>;
-      default:
-        return null;
-    }
-  };
-
+  const userId = authProfile?._id;
+  const scope = userId && storeId ? `${userId}:${storeId}` : null;
+  const stats = useDashboardLayout(scope, "stats");
+  const actions = useDashboardLayout(scope, "actions", { columns: 2 });
   return (
-    <div className="p-6">
-      {isStaff ? (
-        <StaffDashboard
-          permissions={staffProfile?.permissions || []}
-          t={t}
-        />
-      ) : (
-        <>
-          {/* Metrics Section */}
-          <div className="mb-8">
-            {loading && metrics.length === 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg animate-pulse" />)}
-              </div>
-            ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMetricsDragEnd}>
-                <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {metrics.map(m => <SortableMetricCard key={m.id} {...m} />)}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            )}
-          </div>
-
-          {/* Draggable Layout Grid */}
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>
-            <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {sections.map(section => (
-                  <div
-                    key={section.id}
-                    className={`w-full ${section.id === "storesSummary" ? "lg:col-span-3" : "lg:col-span-1"}`}
-                  >
-                    {section.id === "quickActions" ? (
-                      <SortableSection id={section.id} isVisible={section.visible}>
-                        {renderSection(section)}
-                      </SortableSection>
-                    ) : (
-                      renderSection(section)
-                    )}
-                  </div>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </>
-      )}
-    </div>
+    <DashboardScreen
+      t={t}
+      repository={repository}
+      storeId={storeId}
+      ready={ready}
+      isStaff={isStaff}
+      permissions={staffProfile?.permissions || []}
+      routes={routes}
+      onNavigate={(path) => router.push(path)}
+      scope={scope}
+      statsLayout={stats.layout}
+      actionsLayout={actions.layout}
+      onSaveStats={stats.save}
+      onSaveActions={actions.save}
+      layoutVariant={isStaff ? "overview" : "store"}
+      storeOverview={StoreDashboardOverview}
+      intelligencePanel={isStaff ? undefined : ProactiveRetailIntelligence}
+      salesTrendPanel={isStaff ? undefined : StoreSalesTrend}
+    />
   );
 }

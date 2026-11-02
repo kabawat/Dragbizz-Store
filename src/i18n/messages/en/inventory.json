@@ -69,5 +69,16 @@
   "summary": "Summary",
   "stockAdditionSummary": "Stock Addition Summary",
   "units": "units",
-  "perUnit": "per unit"
+  "perUnit": "per unit",
+  "deleteSuccess": "Stock deleted successfully.",
+  "outOfStock": "Out of stock",
+  "lowStock": "Low stock",
+  "quantityMustBeGreaterThanZero": "Quantity must be greater than 0.",
+  "purchasePriceMustBeGreaterThanZero": "Purchase price must be greater than 0.",
+  "addStockForProduct": "Add inventory for {name}.",
+  "cancel": "Cancel",
+  "editStock": "Edit stock",
+  "editStockDescription": "Update stock details.",
+  "lowStockAlertsCount": "{count} low stock alerts",
+  "noLowStockAlerts": "No low stock alerts"
 }

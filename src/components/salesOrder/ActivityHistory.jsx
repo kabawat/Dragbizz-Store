@@ -40,17 +40,17 @@ const ActivityHistory = ({ order }) => {
                                         {getDisplayStatus(activity.status)}
                                     </p>
                                     {activity.location && (
-                                        <span className="text-[10px] bg-[rgb(var(--color-bg-secondary))] px-2 py-0.5 rounded text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-wider border border-[rgb(var(--color-border-primary)/0.5)]">
+                                        <span className="text-[0.625rem] bg-[rgb(var(--color-bg-secondary))] px-2 py-0.5 rounded text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-wider border border-[rgb(var(--color-border-primary)/0.5)]">
                                             {activity.location}
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-[11px] text-[rgb(var(--color-text-tertiary))] leading-relaxed font-medium">
+                                <p className="text-[0.6875rem] text-[rgb(var(--color-text-tertiary))] leading-relaxed font-medium">
                                     {activity.message}
                                 </p>
                                 <div className="flex items-center gap-1.5 mt-1">
                                     <Clock className="w-3 h-3 text-[rgb(var(--color-text-tertiary))] opacity-60" />
-                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-tight">
+                                    <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-tight">
                                         {moment(activity.timestamp).format("MMM DD, YYYY • h:mm A")}
                                     </p>
                                 </div>
@@ -62,10 +62,10 @@ const ActivityHistory = ({ order }) => {
                         <div className="absolute left-[-4.5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[rgb(var(--color-primary))] ring-4 ring-[rgb(var(--color-bg-primary))]"></div>
                         <div className="space-y-1">
                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] transition-colors">Order Placed</p>
-                            <p className="text-[11px] text-[rgb(var(--color-text-tertiary))] leading-relaxed font-medium">The order was created successfully.</p>
+                            <p className="text-[0.6875rem] text-[rgb(var(--color-text-tertiary))] leading-relaxed font-medium">The order was created successfully.</p>
                             <div className="flex items-center gap-1.5 mt-1">
                                 <Clock className="w-3 h-3 text-[rgb(var(--color-text-tertiary))] opacity-60" />
-                                <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-tight">
+                                <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-tight">
                                     {moment(order.createdAt).format("MMM DD, YYYY • h:mm A")}
                                 </p>
                             </div>

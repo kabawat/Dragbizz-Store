@@ -1,13 +1,49 @@
 "use client";
-import { Package, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Package } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import Button from "./Button";
 import Input from "./Input";
 import Select from "./Select";
-import { inventoryService, supplierService } from "@/service/retailer";
+import SideDrawer from "./SideDrawer";
+import { stockService, supplierService, variantService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
+
+const resolveProductContext = (item, type) => {
+  if (type === "inventory") {
+    const product = item?.product;
+    const variant = item?.variant;
+    return {
+      productId: product?.id || product?._id || item?.productId,
+      variantId: variant?.id || variant?._id || item?.variantId || null,
+      name: product?.name || "Unknown Product",
+      variantName: variant?.displayName || "",
+      sku: variant?.sku || product?.sku || "-",
+      variants: Array.isArray(product?.variants) ? product.variants : [],
+      stock:
+        item?.stockSummary?.totalQuantity ??
+        item?.totalQuantity ??
+        item?.availableQuantity ??
+        item?.stock ??
+        product?.stock ??
+        0,
+    };
+  }
+
+  const variants = Array.isArray(item?.variants) ? item.variants : [];
+  const defaultVariant = variants.find((v) => v.isDefault) || variants[0];
+  return {
+    productId: item?.id || item?._id,
+    variantId: item?.variantId || defaultVariant?.id || defaultVariant?._id || null,
+    name: item?.name || "Unknown Product",
+    variantName: defaultVariant?.displayName || "",
+    sku: item?.sku || defaultVariant?.sku || "-",
+    variants,
+    stock: item?.stock ?? item?.totalQuantity ?? 0,
+  };
+};
 
 const StockInDrawer = ({
   isOpen,
@@ -16,51 +52,79 @@ const StockInDrawer = ({
   onSuccess,
   type = "product",
 }) => {
+  const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { showError } = useGlobalToast();
+  const [loadedVariants, setLoadedVariants] = useState([]);
   const [formData, setFormData] = useState({
+    variantId: "",
     quantity: "",
     purchasePrice: "",
     supplier: "",
   });
   const [errors, setErrors] = useState({});
-  const { execute, loading: isLoading } = useApiResponse();
-  const { execute: fetchSuppliersApi, loading: suppliersLoading } = useApiResponse();
-  const [suppliers, setSuppliers] = useState([]);
 
-  const { showError } = useGlobalToast();
+  const { execute: executeFetchSuppliers, data: suppliers, loading: suppliersLoading } =
+    useApiResponse();
+  const { execute: executeSubmit, loading: isLoading } = useApiResponse();
 
-  const fetchSuppliers = useCallback(async () => {
-    const storeId = selectedStore?.storeId;
-    if (!storeId) return;
+  const productContext = useMemo(
+    () => resolveProductContext(item, type),
+    [item, type]
+  );
 
-    const result = await fetchSuppliersApi(
-      supplierService.getSuppliers({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      }),
-      { showToast: false }
-    );
-
-    if (result?.success) {
-      setSuppliers(result.data?.data || result.data || []);
-    }
-  }, [selectedStore, fetchSuppliersApi]);
-
-  // Reset form when drawer opens/closes
   useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        quantity: "",
-        purchasePrice: "",
-        supplier: "",
-      });
-      setErrors({});
-      if (true) {
-        fetchSuppliers();
+    if (!isOpen) return;
+
+    const initialVariants = productContext.variants || [];
+    setLoadedVariants(initialVariants);
+
+    setFormData({
+      variantId: productContext.variantId || (initialVariants[0]?.id || initialVariants[0]?._id || ""),
+      quantity: "",
+      purchasePrice: "",
+      supplier: "",
+    });
+    setErrors({});
+
+    const storeId = selectedStore?.storeId;
+    if (storeId) {
+      executeFetchSuppliers(
+        supplierService.getSuppliers({
+          limit: 100,
+          lightweight: true,
+          store: storeId,
+        }),
+        { showToast: false }
+      );
+
+      // Fetch variants if not provided in item
+      if (productContext.productId && initialVariants.length === 0) {
+        variantService
+          .getVariants({ store: storeId, product: productContext.productId, limit: 100 })
+          .then((res) => {
+            const raw = res?.data?.data || res?.data || [];
+            const list = Array.isArray(raw) ? raw : [];
+            if (list.length > 0) {
+              setLoadedVariants(list);
+              const def = list.find((v) => v.isDefault) || list[0];
+              const defId = def?.id || def?._id || "";
+              setFormData((prev) => ({
+                ...prev,
+                variantId: prev.variantId || defId,
+              }));
+            }
+          })
+          .catch(() => {});
       }
     }
-  }, [isOpen]);
+  }, [isOpen, selectedStore?.storeId, executeFetchSuppliers, productContext.variantId, productContext.productId]);
+
+  const selectedVariant = useMemo(() => {
+    const vId = formData.variantId || productContext.variantId;
+    if (!vId) return null;
+    return loadedVariants.find((v) => String(v.id || v._id) === String(vId)) || null;
+  }, [formData.variantId, productContext.variantId, loadedVariants]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -68,7 +132,6 @@ const StockInDrawer = ({
       [field]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -81,11 +144,15 @@ const StockInDrawer = ({
     const newErrors = {};
 
     if (!formData.quantity || formData.quantity <= 0) {
-      newErrors.quantity = "Quantity must be greater than 0";
+      newErrors.quantity = t("inventory.quantityMustBeGreaterThanZero", {
+        defaultValue: "Quantity must be greater than 0",
+      });
     }
 
     if (!formData.purchasePrice || formData.purchasePrice <= 0) {
-      newErrors.purchasePrice = "Purchase price must be greater than 0";
+      newErrors.purchasePrice = t("inventory.purchasePriceMustBeGreaterThanZero", {
+        defaultValue: "Purchase price must be greater than 0",
+      });
     }
 
     setErrors(newErrors);
@@ -100,32 +167,35 @@ const StockInDrawer = ({
     }
 
     const storeId = selectedStore?.storeId;
-
     if (!storeId) {
-      showError("Store not selected");
+      showError(t("common.storeNotSelected", { defaultValue: "Store not selected" }));
       return;
     }
 
-    // Determine product ID based on type
-    const productId = type === "product" ? item?.id : item?.product?.id;
+    if (!productContext.productId) {
+      showError(t("products.productNotFound", { defaultValue: "Product not found" }));
+      return;
+    }
 
+    const targetVariantId = formData.variantId || productContext.variantId || (loadedVariants[0]?.id || loadedVariants[0]?._id) || undefined;
     const apiPayload = {
-      productId: productId,
+      productId: productContext.productId,
+      ...(targetVariantId ? { variantId: targetVariantId } : {}),
       store: storeId,
       batchData: {
         quantity: parseInt(formData.quantity, 10),
         purchasePrice: parseFloat(formData.purchasePrice),
-        supplier: formData.supplier,
+        supplier: formData.supplier || undefined,
       },
     };
 
-    const response = await execute(inventoryService.addInventory(apiPayload), {
-      message: "Stock added successfully!",
+    const result = await executeSubmit(stockService.addStock(apiPayload), {
+      message: t("products.stockAddedSuccessfully"),
     });
 
-    if (response?.success) {
+    if (result?.success) {
       onClose();
-      onSuccess?.("Stock added successfully!");
+      onSuccess?.(t("products.stockAddedSuccessfully"));
     }
   };
 
@@ -133,188 +203,173 @@ const StockInDrawer = ({
     handleInputChange("supplier", value);
   };
 
-  // Format suppliers for Select component
-  const formattedSuppliers = suppliers.map((supplier) => ({
-    value: supplier.id || supplier._id,
-    label: supplier.name || supplier.companyName || "Unknown Supplier",
-  }));
-
-  // Get product information based on type
-  const getProductInfo = () => {
-    if (type === "product") {
-      return {
-        name: item?.name || "Unknown Product",
-        brand: item?.brand || "Unknown Brand",
-        currentStock: item?.stock || 0,
-      };
-    } else {
-      return {
-        name: item?.product?.name || "Unknown Product",
-        brand: item?.product?.brand || "Unknown Brand",
-        currentStock: item?.stockSummary?.totalQuantity || 0,
-      };
-    }
-  };
-
-  const productInfo = getProductInfo();
-
-  if (!isOpen) return null;
+  const formattedSuppliers = (Array.isArray(suppliers) ? suppliers : []).map(
+    (supplier) => ({
+      value: supplier.id || supplier._id,
+      label: supplier.name || supplier.companyName || "Unknown Supplier",
+    })
+  );
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-end z-[9999]">
-      <div className="w-full max-w-2xl h-full bg-[rgb(var(--color-bg-primary))] shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col">
-        {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-[rgb(var(--color-border-primary))]">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-[rgb(var(--color-success))]/10 rounded-lg flex items-center justify-center">
-              <Package className="w-5 h-5 text-[rgb(var(--color-success))]" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                Add Stock
-              </h2>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                {productInfo.name}
-              </p>
+    <SideDrawer
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t("inventory.stockIn")}
+      description={t("inventory.addStockForProduct", {
+        defaultValue: "Add inventory for {{name}}",
+        name: productContext.name,
+      })}
+      icon={Package}
+      width="w-full max-w-[42rem]"
+      closeOnOutsideClick={false}
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+              </div>
+              <div>
+                <h3 className="font-medium text-[rgb(var(--color-text-primary))]">
+                  {productContext.name}
+                </h3>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                  {(selectedVariant?.displayName || productContext.variantName) ? `${selectedVariant?.displayName || productContext.variantName} | ` : ""}SKU: {selectedVariant?.sku || productContext.sku} | {t("inventory.currentStock")}:
+                  {selectedVariant?.stock ?? productContext.stock}
+                </p>
+              </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
-          </button>
-        </div>
 
-        {/* Form */}
-        <div className="flex-1 overflow-y-auto p-6 min-h-0">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Product Info */}
-            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4">
-              <h3 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Product Information
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">
-                    Name:
-                  </span>
-                  <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                    {productInfo.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">
-                    Brand:
-                  </span>
-                  <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                    {productInfo.brand}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">
-                    Current Stock:
-                  </span>
-                  <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                    {productInfo.currentStock} units
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quantity and Purchase Price - Side by Side */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Quantity */}
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Quantity <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  type="number"
-                  value={formData.quantity}
-                  onChange={(value) => handleInputChange("quantity", value)}
-                  placeholder="Enter quantity"
-                  error={errors.quantity}
-                />
-              </div>
-
-              {/* Purchase Price */}
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Purchase Price (per unit){" "}
-                  <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={formData.purchasePrice}
-                  onChange={(value) =>
-                    handleInputChange("purchasePrice", value)
-                  }
-                  placeholder="Enter purchase price per unit"
-                  error={errors.purchasePrice}
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Supplier
-              </label>
+          {loadedVariants && loadedVariants.length > 1 && (
+            <div>
               <Select
-                value={formData.supplier}
-                onChange={handleSupplierChange}
-                options={formattedSuppliers}
-                placeholder="Select supplier (optional)"
-                error={errors.supplier}
-                loading={suppliersLoading}
-                disabled={suppliersLoading}
-                helperText="Optional: Choose the supplier for this stock"
+                label={t("variants.variant", { defaultValue: "Select Variant" })}
+                placeholder={t("variants.selectVariant", { defaultValue: "Select variant" })}
+                value={formData.variantId || productContext.variantId || ""}
+                onChange={(value) => handleInputChange("variantId", value)}
+                options={loadedVariants.map((v) => ({
+                  value: v.id || v._id,
+                  label: `${v.displayName || v.sku || "Variant"}${v.stock !== undefined ? ` (Stock: ${v.stock})` : ""}${v.sellingPrice ? ` - ₹${v.sellingPrice}` : ""}`,
+                }))}
               />
             </div>
+          )}
 
-            {/* Total Calculation */}
-            {formData.quantity && formData.purchasePrice && (
-              <div className="bg-[rgb(var(--color-success))]/10 border border-[rgb(var(--color-success))]/30 rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-[rgb(var(--color-success))]">
-                    Total Value:
-                  </span>
-                  <span className="text-lg font-bold text-[rgb(var(--color-success))]">
-                    ₹
-                    {(
-                      parseInt(formData.quantity, 10) *
-                      parseFloat(formData.purchasePrice)
-                    ).toLocaleString()}
-                  </span>
-                </div>
-                <div className="text-xs text-[rgb(var(--color-success))]/80 mt-1">
-                  {formData.quantity} units × ₹{formData.purchasePrice} per unit
-                </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                {t("inventory.quantity")} *
+              </label>
+              <Input
+                type="number"
+                value={formData.quantity}
+                onChange={(value) => handleInputChange("quantity", value)}
+                placeholder={t("inventory.enterQuantity")}
+                error={errors.quantity}
+              />
+              {errors.quantity && (
+                <p className="text-sm text-red-500 mt-1">{errors.quantity}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                {t("inventory.purchasePricePerUnit")} *
+              </label>
+              <Input
+                type="number"
+                step="0.01"
+                value={formData.purchasePrice}
+                onChange={(value) => handleInputChange("purchasePrice", value)}
+                placeholder={t("inventory.enterPurchasePricePerUnit")}
+                error={errors.purchasePrice}
+              />
+              {errors.purchasePrice && (
+                <p className="text-sm text-red-500 mt-1">{errors.purchasePrice}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="relative">
+            <Select
+              label={t("inventory.supplierOptional")}
+              placeholder={t("inventory.searchAndSelectSupplierOptional")}
+              value={formData.supplier || ""}
+              onChange={handleSupplierChange}
+              error={errors.supplier}
+              errorMessage={errors.supplier}
+              searchable={true}
+              options={formattedSuppliers}
+              loading={suppliersLoading}
+              disabled={suppliersLoading}
+              helperText={t("inventory.optionalTypeToSearchSuppliers")}
+            />
+          </div>
+
+          <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
+            <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-3">
+              {t("inventory.stockAdditionSummary")}
+            </h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-[rgb(var(--color-text-secondary))]">
+                  {t("inventory.quantity")}:
+                </span>
+                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                  {formData.quantity || 0} units
+                </span>
               </div>
-            )}
-          </form>
+              <div className="flex justify-between">
+                <span className="text-[rgb(var(--color-text-secondary))]">
+                  {t("inventory.purchasePrice")}:
+                </span>
+                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                  ₹{formData.purchasePrice || "0.00"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[rgb(var(--color-text-secondary))]">
+                  {t("inventory.totalValue")}:
+                </span>
+                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                  ₹
+                  {(
+                    (parseFloat(formData.quantity) || 0) *
+                    (parseFloat(formData.purchasePrice) || 0)
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[rgb(var(--color-text-secondary))]">
+                  {t("inventory.newStock")}:
+                </span>
+                <span className="text-green-500 font-medium">
+                  {productContext.stock + (parseInt(formData.quantity, 10) || 0)} units
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex-shrink-0 p-4 border-t border-[rgb(var(--color-border-primary))]">
-          <div className="flex space-x-3">
-            <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
-              {isLoading ? "Adding Stock..." : "Add Stock"}
-            </Button>
+        <div className="flex-shrink-0 p-4 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
+          <div className="flex gap-3">
             <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
+              type="submit"
+              variant="primary"
+              loading={isLoading}
+              leftIcon={Package}
             >
-              Cancel
+              {t("inventory.addStock")}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+              {t("common.cancel")}
             </Button>
           </div>
         </div>
-      </div>
-
-    </div>
+      </form>
+    </SideDrawer>
   );
 };
 

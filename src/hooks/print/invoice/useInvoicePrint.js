@@ -1,62 +1,87 @@
-import { useEffect } from "react";
+import { printInvoice, saveInvoicePDF } from "@dragorbit/features/invoices";
+import { useCallback, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 
-export const useInvoicePrint = (fetching, invoiceData, skipAutoPrint = false) => {
+export const useInvoicePrint = (
+  _fetching,
+  _invoiceData,
+  _skipAutoPrint = false,
+  options = {}
+) => {
   const { showError } = useGlobalToast();
+  const [isDownloading, setIsDownloading] = useState(false);
 
+  const handlePrint = useCallback(
+    (printOptions = {}) => {
+      try {
+        const target =
+          printOptions?.targetElement ||
+          document.getElementById("invoice-container") ||
+          document.getElementById("invoice-area");
 
-  const handlePrint = () => {
-    try {
-      window.print();
-    } catch (_e) {
-      showError("Printing failed.");
-    }
-  };
+        const inv = printOptions?.invoiceData || _invoiceData;
+        const invNo = inv?.invoiceNumber || inv?.number || inv?.invoiceNo;
 
-  const handleDownloadPDF = async (invoiceData, invoiceId) => {
-    const invoice = document.getElementById("invoice-container");
-    if (!invoice) {
-      showError("Invoice not found!");
-      return;
-    }
+        printInvoice({
+          targetElement: target,
+          isThermal: Boolean(options?.isThermal || printOptions?.isThermal),
+          paperSize: options?.paperSize || printOptions?.paperSize || "A4",
+          title: invNo ? `Invoice #${invNo}` : "Invoice",
+        });
+      } catch (_e) {
+        try {
+          window.print();
+        } catch {
+          showError("Printing failed.");
+        }
+      }
+    },
+    [_invoiceData, options, showError]
+  );
 
-    try {
-      const { default: html2canvas } = await import("html2canvas");
-      const { default: jsPDF } = await import("jspdf");
+  const handleDownloadPDF = useCallback(
+    async (invoiceData, invoiceId, downloadOptions = {}) => {
+      const data = invoiceData || _invoiceData;
+      if (!data) {
+        showError("Invoice not found!");
+        return;
+      }
 
-      // 210mm = ~794px at 96 DPI, 297mm = ~1123px
-      const a4WidthPx = 794;
-      const canvas = await html2canvas(invoice, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: a4WidthPx,
-        // padding: 10,
-        height: invoice.scrollHeight,
-        windowWidth: a4WidthPx,
-        windowHeight: invoice.scrollHeight,
-      });
+      setIsDownloading(true);
+      try {
+        const templateKey =
+          downloadOptions?.selectedTemplate ||
+          downloadOptions?.templateKey ||
+          options?.selectedTemplate ||
+          options?.templateKey ||
+          "modern";
 
-      const imgData = canvas.toDataURL("image/png", 1.0);
-      const pdf = new jsPDF("p", "mm", "a4");
+        const selectedStore =
+          downloadOptions?.selectedStore || options?.selectedStore || null;
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        const signatures =
+          downloadOptions?.signatures || options?.signatures || [];
 
-      // Add padding: 10mm on all sides
-      const padding = 5; // 10mm padding
-      const contentWidth = pdfWidth - (padding * 2);
-      const contentHeight = (canvas.height * contentWidth) / canvas.width;
+        const paperSize =
+          downloadOptions?.paperSize || options?.paperSize || "A4";
 
-      pdf.addImage(imgData, "PNG", padding, padding, contentWidth, contentHeight);
-      pdf.save(`invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
-    } catch (_error) {
+        await saveInvoicePDF({
+          invoiceData: data,
+          templateKey,
+          selectedStore,
+          signatures,
+          paperSize,
+          fileName: `invoice-${data?.invoiceNumber || invoiceId || "document"}.pdf`,
+        });
+      } catch (error) {
+        console.error("PDF download failed:", error);
+        showError("Failed to download PDF. Please try again.");
+      } finally {
+        setIsDownloading(false);
+      }
+    },
+    [_invoiceData, options, showError]
+  );
 
-      showError("Failed to download PDF. Please try again.");
-    }
-  };
-
-  return { handlePrint, handleDownloadPDF };
+  return { handlePrint, handleDownloadPDF, isDownloading };
 };

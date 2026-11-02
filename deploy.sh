@@ -14,7 +14,7 @@ echo "🏗️ Building the project..."
 yarn build
 
 echo "🔄 Restarting application with PM2..."
-pm2 restart all || pm2 start npm --name "dragbizz-store-fe" -- start
+pm2 restart all || pm2 start npm --name "Dragbizz-Store" -- start
 
 echo "💾 Saving PM2 state..."
 pm2 save

@@ -8,6 +8,16 @@ const ErrorState = ({ error }) => {
   const router = useRouter();
   const { t } = useTranslation();
 
+  const errorMessage =
+    typeof error === "string" &&
+    error.trim() &&
+    error !== "Request failed" &&
+    error !== "Customer not found"
+      ? error
+      : t("common.doesntExistOrRemoved", {
+          item: t("common.customer"),
+        });
+
   return (
     <div className="w-full">
       <div className="bg-[rgb(var(--color-bg-primary))] p-8">
@@ -20,9 +30,7 @@ const ErrorState = ({ error }) => {
               {t("modals.notFound", { item: t("common.customer") })}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-              {t("common.doesntExistOrRemoved", {
-                item: t("common.customer"),
-              })}
+              {errorMessage}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button

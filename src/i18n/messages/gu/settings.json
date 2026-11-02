@@ -179,6 +179,16 @@
     "loadingPreferences": "તમારી પસંદગીઓ લોડ થઈ રહી છે...",
     "pushPermissionDenied": "બ્રાઉઝરમાં પુશ સૂચનાઓ બ્લૉક છે. સાઇટ સેટિંગ્સમાં મંજૂરી આપો, પછી પુશ ચાલુ કરો.",
     "pushPermissionDefault": "બેકગ્રાઉન્ડ સૂચનાઓ માટે પુશ ચેનલ ચાલુ કરો — બ્રાઉઝર પરવાનગી માંગશે.",
+    "pushIssueTitle": "પુશ સૂચનાઓ બ્લૉક છે",
+    "pushIssueAction": "બ્લૉક છે — ઉકેલ જુઓ",
+    "pushIssueSolutionTitle": "તેને કેવી રીતે ઠીક કરવું",
+    "pushIssueStep1Title": "સાઇટ પરવાનગીઓ ખોલો",
+    "pushIssueStep1": "બ્રાઉઝર એડ્રેસ બાર પાસેના સાઇટ કંટ્રોલ અથવા લોક આઇકન પર ક્લિક કરીને Site settings ખોલો.",
+    "pushIssueStep2Title": "સૂચનાઓને મંજૂરી આપો",
+    "pushIssueStep2": "Permissions માં Notifications શોધીને Block ને બદલે Allow પસંદ કરો.",
+    "pushIssueStep3Title": "રિફ્રેશ કરીને ફરી પ્રયાસ કરો",
+    "pushIssueStep3": "પેજ રિફ્રેશ કરો, Notification Settings પર પાછા જાઓ અને પુશ સૂચનાઓ ચાલુ કરો.",
+    "pushIssueNote": "બ્રાઉઝર મેનુ થોડું અલગ હોઈ શકે છે. જરૂર પડે તો Settings → Privacy and security → Site settings → Notifications ખોલો.",
     "pushNotSupported": "આ બ્રાઉઝરમાં પુશ સૂચનાઓ સપોર્ટેડ નથી.",
     "pushEnabledSuccess": "પુશ સૂચનાઓ સક્ષમ થઈ",
     "pushDisabledSuccess": "પુશ સૂચનાઓ અક્ષમ થઈ",
@@ -222,6 +232,9 @@
   "currentStore": "વર્તમાન સ્ટોર",
   "createNewStore": "નવો સ્ટોર બનાવો",
   "addAnotherStoreToAccount": "તમારા એકાઉન્ટમાં બીજો સ્ટોર ઉમેરો",
+  "upgradeToAddStore": "સ્ટોર ઉમેરવા માટે અપગ્રેડ કરો",
+  "storePlanLimitReached": "તમારા પ્લાનમાં {limit} સ્ટોરની મંજૂરી છે. વધુ ઉમેરવા માટે અપગ્રેડ કરો.",
+  "storePlanLimitReachedGeneric": "વર્તમાન પ્લાન પર સ્ટોર મર્યાદા પૂરી થઈ ગઈ છે. વધુ ઉમેરવા માટે અપગ્રેડ કરો.",
   "storeName": "સ્ટોરનું નામ",
   "enterStoreName": "સ્ટોરનું નામ દાખલ કરો",
   "phoneNumber": "ફોન નંબર",
@@ -260,15 +273,15 @@
     "sports": "રમતગમત અને ફિટનેસ",
     "other": "અન્ય"
   },
-  "publicCatalog": "જાહેર કેટેલોગ",
-  "catalogId": "કેટેલોગ ID",
-  "enterCatalogId": "કેટેલોગ ID દાખલ કરો",
-  "catalogIdDescription": "તમારી સાર્વજનિક QR કેટેલોગ લિંક જનરેટ કરવા માટે એક અનન્ય કેટેલોગ ID સેટ કરો. ગ્રાહકો આ લિંકનો ઉપયોગ તમારા ઉત્પાદનો બ્રાઉઝ કરવા અને ઓર્ડર આપવા માટે કરી શકે છે.",
+  "publicCatalog": "ડિજિટલ શોપ",
+  "catalogId": "ડિજિટલ શોપ ID",
+  "enterCatalogId": "ડિજિટલ શોપ ID દાખલ કરો",
+  "catalogIdDescription": "તમારી ડિજિટલ શોપ લિંક જનરેટ કરવા માટે એક અનન્ય ID સેટ કરો. ગ્રાહકો આ લિંકનો ઉપયોગ તમારા ઉત્પાદનો બ્રાઉઝ કરવા અને ઓર્ડર આપવા માટે કરી શકે છે.",
   "catalogIdPlaceholder": "જેમ કે: my-awesome-store",
   "catalogIdHint": "આનો ઉપયોગ તમારી સાર્વજનિક URL માં થશે: dragbizz.com/c/your-id",
-  "yourPublicCatalogLink": "તમારી સાર્વજનિક કેટેલોગ લિંક:",
+  "yourPublicCatalogLink": "તમારી ડિજિટલ શોપ લિંક:",
   "linkCopied": "લિંક ક્લિપબોર્ડ પર કોપી થઈ!",
-  "generateCatalogId": "કેટેલોગ લિંક જનરેટ કરો",
+  "generateCatalogId": "ડિજિટલ શોપ લિંક જનરેટ કરો",
   "regenerateLink": "લિંક ફરીથી જનરેટ કરો",
   "languages": {
     "english": "English",
@@ -304,7 +317,123 @@
     "upiQrCode": "UPI QR કોડ",
     "scanToPay": "UPI દ્વારા ચુકવણી માટે સ્કેન કરો",
     "qrDownloaded": "QR કોડ સફળતાપૂર્વક ડાઉનલોડ થયો",
-    "qrDownloadFailed": "QR કોડ ડાઉનલોડ કરવામાં નિષ્ફળ"
+    "qrDownloadFailed": "QR કોડ ડાઉનલોડ કરવામાં નિષ્ફળ",
+    "setAsDefault": "ડિફૉલ્ટ UPI તરીકે સેટ કરો",
+    "defaultBadge": "ડિફૉલ્ટ"
+  },
+  "paymentSubTabs": {
+    "subTabUpi": "UPI",
+    "subTabGateway": "પેમેન્ટ ગેટવે"
+  },
+  "paymentGateway": {
+    "manageGateways": "પેમેન્ટ ગેટવે મેનેજ કરો",
+    "manageDescription": "ઓનલાઇન પેમેન્ટ સ્વીકારવા માટે Razorpay, Paytm અથવા Cashfree કનેક્ટ કરો",
+    "gatewayCount": "{{count}} ગેટવે કોન્ફિગર",
+    "addGateway": "ગેટવે ઉમેરો",
+    "editGateway": "ગેટવે સંપાદિત કરો",
+    "gatewayType": "ગેટવે પ્રકાર",
+    "gatewayTypeRequired": "ગેટવે પ્રકાર જરૂરી છે",
+    "labelOptional": "લેબલ (વૈકલ્પિક)",
+    "labelPlaceholder": "મુખ્ય, બેકઅપ...",
+    "mode": "મોડ",
+    "modeTest": "ટેસ્ટ",
+    "modeLive": "લાઇવ",
+    "assignToStores": "સ્ટોરને સોંપો",
+    "selectStores": "સ્ટોર પસંદ કરો",
+    "storeIdsRequired": "ઓછામાં ઓછું એક સ્ટોર જરૂરી છે",
+    "setAsDefault": "ડિફૉલ્ટ ગેટવે તરીકે સેટ કરો",
+    "defaultBadge": "ડિફૉલ્ટ",
+    "noGateways": "હજી સુધી કોઈ પેમેન્ટ ગેટવે ઉમેરાયું નથી",
+    "addFirstGatewayDescription": "ઓનલાઇન પેમેન્ટ સ્વીકારવા માટે તમારું પહેલું ગેટવે ઉમેરો",
+    "addAnotherGateway": "બીજું ગેટવે ઉમેરો",
+    "accessibleByStores": "સ્ટોર દ્વારા ઉપલબ્ધ",
+    "credentialsConfigured": "ક્રેડેન્શિયલ કોન્ફિગર",
+    "secretsConfigured": "{{count}} સિક્રેટ કોન્ફિગર",
+    "edit": "સંપાદિત કરો",
+    "delete": "કાઢી નાખો",
+    "deleteTitle": "પેમેન્ટ ગેટવે કાઢી નાખો",
+    "confirmDelete": "શું તમે ખરેખર આ પેમેન્ટ ગેટવે કાઢી નાખવા માંગો છો?",
+    "addedSuccess": "પેમેન્ટ ગેટવે સફળતાપૂર્વક ઉમેરાયું",
+    "updatedSuccess": "પેમેન્ટ ગેટવે સફળતાપૂર્વક અપડેટ થયું",
+    "deletedSuccess": "પેમેન્ટ ગેટવે સફળતાપૂર્વક કાઢી નાખ્યું",
+    "noPermission": "તમારી પાસે પેમેન્ટ ગેટવે જોવાની પરમિશન નથી",
+    "optional": "વૈકલ્પિક",
+    "fieldRequired": "આ ફીલ્ડ જરૂરી છે",
+    "leaveBlankToKeep": "હાલનું રાખવા માટે ખાલી છોડો",
+    "enterSecret": "સિક્રેટ દાખલ કરો",
+    "enterValue": "મૂલ્ય દાખલ કરો",
+    "webhookSetupTitle": "વેબહૂક સેટઅપ",
+    "webhookSetupDescription": "DragBizz તમારા વેબહૂક સિક્રેટને જનરેટ કરે છે. તમારા પેમેન્ટ ગેટવે ડેશબોર્ડમાં URL અને સિક્રેટ કૉપિ કરો.",
+    "webhookUrl": "વેબહૂક URL",
+    "webhookSecretDragbizz": "વેબહૂક સિક્રેટ (DragBizz દ્વારા જનરેટ)",
+    "webhookSecretConfigured": "વેબહૂક સિક્રેટ DragBizz દ્વારા કન્ફિગર કરવામાં આવ્યું છે.",
+    "webhookSecretAutoGenerateHint": "સેવ કર્યા પછી DragBizz દ્વારા વેબહૂક સિક્રેટ આપમેળે જનરેટ થશે.",
+    "webhookSetupInstructions": "તમારા પેમેન્ટ ગેટવે ડેશબોર્ડને ખોલો, વેબહૂક બનાવો, આ URL અને સિક્રેટ પેસ્ટ કરો, પછી સેવ કરો.",
+    "webhookSetupInstructionsExisting": "તમારા પેમેન્ટ ગેટવે ડેશબોર્ડમાં આ વેબહૂક URL નો ઉપયોગ કરો.",
+    "webhookSetupDone": "પૂર્ણ",
+    "webhookSetupPrompt": "ઇન્ટિગ્રેશન પૂર્ણ કરવા માટે તમારા પેમેન્ટ ગેટવે ડેશબોર્ડમાં વેબહૂક URL અને સિક્રેટ કૉપિ કરો.",
+    "instructionsTitle": "ડેશબોર્ડ સેટઅપ સૂચનાઓ",
+    "copyValue": "કૉપિ",
+    "recommendedEvents": "ભલામણ કરેલ વેબહૂક ઇવેન્ટ્સ",
+    "webhookSecretAutoGenerateNote": "સેવ કરવા પર DragBizz દ્વારા વેબહૂક સિક્રેટ આપમેળે જનરેટ થશે.",
+    "webhookSignatureManagedNote": "આ ગેટવે તમારા મર્ચન્ટ ઓળખપત્રો સાથે API હસ્તાક્ષર / હેશ દ્વારા સુરક્ષિત રીતે ચુકવણીઓ ચકાસે છે.",
+    "webhookInstructions": {
+      "RAZORPAY": "Razorpay ડેશબોર્ડ > Settings > Webhooks માં 'Add New Webhook' પર ક્લિક કરો, આ URL પેસ્ટ કરો અને ભલામણ કરેલ ઇવેન્ટ્સ પસંદ કરો.",
+      "CASHFREE": "Cashfree મર્ચન્ટ ડેશબોર્ડ > Developers > Webhooks માં રિયલ-ટાઇમ અપડેટ્સ મેળવવા માટે આ Webhook URL ઉમેરો.",
+      "PHONEPE": "PhonePe Business ડેશબોર્ડ > Developer Settings માં આ એન્ડપોઇન્ટને S2S Callback / Webhook URL તરીકે સેટ કરો.",
+      "PAYTM": "Paytm ડેવલપર ડેશબોર્ડ > API Keys & Webhooks માં તેને સર્વર-ટુ-સર્વર નોટિફિકેશન URL તરીકે સેટ કરો.",
+      "PAYU": "PayU ડેશબોર્ડ > Manage Webhooks / IPN Notification URL માં આ URL સેટ કરો.",
+      "EASEBUZZ": "Easebuzz ડેશબોર્ડ > Developer Settings > Webhooks માં આ URL પેસ્ટ કરો.",
+      "STRIPE": "Stripe ડેશબોર્ડ > Developers > Webhooks માં 'Add endpoint' પર ક્લિક કરો, આ URL પેસ્ટ કરો અને ઇવેન્ટ્સ પસંદ કરો."
+    },
+    "types": {
+      "RAZORPAY": "Razorpay",
+      "PAYTM": "Paytm",
+      "CASHFREE": "Cashfree",
+      "PHONEPE": "PhonePe",
+      "PAYU": "PayU",
+      "EASEBUZZ": "Easebuzz",
+      "STRIPE": "Stripe"
+    },
+    "fields": {
+      "RAZORPAY": {
+        "keyId": "Key ID",
+        "keySecret": "Key Secret",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PAYTM": {
+        "merchantId": "Merchant ID",
+        "merchantKey": "Merchant Key",
+        "appId": "App ID"
+      },
+      "CASHFREE": {
+        "appId": "App ID",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      },
+      "PHONEPE": {
+        "merchantId": "Merchant ID",
+        "saltKey": "Salt Key",
+        "saltIndex": "Salt Index",
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "PAYU": {
+        "merchantKey": "Merchant Key",
+        "merchantSalt": "Merchant Salt",
+        "merchantId": "Merchant ID"
+      },
+      "EASEBUZZ": {
+        "merchantKey": "Merchant Key",
+        "salt": "Salt",
+        "merchantEmail": "Merchant Email"
+      },
+      "STRIPE": {
+        "publishableKey": "Publishable Key",
+        "secretKey": "Secret Key",
+        "webhookSecret": "Webhook Secret"
+      }
+    }
   },
   "digitalSignatures": "ડિજિટલ સહી",
   "signatureDescription": "ચલણ અને દસ્તાવેજો માટે તમારી ડિજિટલ સહીઓ મેનેજ કરો.",
@@ -314,5 +443,6 @@
   "createSignaturePrompt": "તમારા ચલણ અને દસ્તાવેજો પર ઉપયોગ કરવા માટે ડિજિટલ સહી બનાવો.",
   "createSignature": "સહી બનાવો",
   "deleteSignature": "સહી કાઢી નાખો",
-  "signatureAddedTitle": "સહી ઉમેરવામાં આવી"
+  "signatureAddedTitle": "સહી ઉમેરવામાં આવી",
+  "generalInformation": "સામાન્ય માહિતી"
 }

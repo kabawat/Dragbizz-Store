@@ -1,5 +1,10 @@
+import {
+  INDIAN_MOBILE_REGEX,
+  validatePhone as validatePhoneCore,
+} from "@/utils/phone.util";
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[+]?[\d\s\-()]{10,}$/;
+const PHONE_REGEX = INDIAN_MOBILE_REGEX;
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
@@ -21,39 +26,8 @@ export const validateEmail = (email, required = false) => {
   return { isValid: true, error: null };
 };
 
-export const validatePhone = (phone, required = false) => {
-  if (!phone || !phone.trim()) {
-    return {
-      isValid: !required,
-      error: required ? "Phone number is required" : null,
-    };
-  }
-
-  const cleanPhone = phone.replace(/\D/g, "");
-
-  if (!PHONE_REGEX.test(phone)) {
-    return {
-      isValid: false,
-      error: "Please enter a valid phone number",
-    };
-  }
-
-  if (cleanPhone.length < 10) {
-    return {
-      isValid: false,
-      error: "Phone number must be at least 10 digits",
-    };
-  }
-
-  if (cleanPhone.length > 15) {
-    return {
-      isValid: false,
-      error: "Phone number is too long",
-    };
-  }
-
-  return { isValid: true, error: null };
-};
+export const validatePhone = (phone, required = false, t) =>
+  validatePhoneCore(phone, required, t);
 
 export const validateContact = (contact, contactType, required = false) => {
   if (!contact || !contact.trim()) {
@@ -213,3 +187,10 @@ export const VALIDATION_REGEX = {
   GST: GST_REGEX,
   PAN: PAN_REGEX,
 };
+
+export {
+  PHONE_MAX_DIGITS,
+  sanitizePhoneInput,
+  validatePhoneOrEmailContact,
+  getPhoneInputProps,
+} from "@/utils/phone.util";

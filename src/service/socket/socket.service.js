@@ -1,6 +1,6 @@
 // src/service/socket/socket.service.js
 import { io } from "socket.io-client";
-import { API_CONFIG, SECRET } from "@/config";
+import { API_CONFIG } from "@/config";
 
 class SocketService {
     constructor() {

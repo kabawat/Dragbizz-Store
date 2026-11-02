@@ -163,5 +163,29 @@
   "selected": "selected",
   "gst": "GST",
   "scrollToLoadMore": "और लोड करने के लिए स्क्रॉल करें",
-  "additionalInformation": "अतिरिक्त जानकारी"
+  "additionalInformation": "अतिरिक्त जानकारी",
+  "updated": "अपडेट किया गया",
+  "downloadSample": "सैंपल डाउनलोड करें",
+  "bulkUpload": {
+    "templateFetchError": "टेम्प्लेट संरचना हल करने में विफल।",
+    "templateDownloaded": "{format} टेम्प्लेट सफलतापूर्वक डाउनलोड हो गया!",
+    "downloadError": "टेम्प्लेट फ़ाइल बनाने में त्रुटि।"
+  },
+  "dateRange": {
+    "placeholder": "तारीख रेंज",
+    "today": "आज",
+    "yesterday": "कल",
+    "last7Days": "पिछले 7 दिन",
+    "last30Days": "पिछले 30 दिन",
+    "last3Months": "पिछले 3 महीने",
+    "last6Months": "पिछले 6 महीने",
+    "custom": "कस्टम तारीख रेंज",
+    "from": "शुरू",
+    "to": "अंत",
+    "apply": "लागू करें",
+    "cancel": "रद्द करें",
+    "selectRange": "तारीख रेंज चुनें"
+  },
+  "saving": "सहेजा जा रहा है…",
+  "icon": "आइकन"
 }

@@ -62,7 +62,7 @@ const SignaturePreview = ({
                         </div>
                     )}
 
-                    <p className="absolute top-3 left-4 text-[9px] uppercase tracking-[0.15em] text-[rgb(var(--color-text-tertiary))] font-black flex items-center gap-1.5">
+                    <p className="absolute top-3 left-4 text-[0.5625rem] uppercase tracking-[0.15em] text-[rgb(var(--color-text-tertiary))] font-black flex items-center gap-1.5">
                         <span className={`w-1.5 h-1.5 rounded-full ${hasSignatureContent ? "bg-[rgb(var(--color-success))] shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-[rgb(var(--color-warning))] animate-pulse"
                             }`}></span>
                         {t("invoice.signaturePreview")}
@@ -93,7 +93,7 @@ const SignaturePreview = ({
                         )}
                         {activeTab === "identity" && isVerified && (
                             <div className="text-center bg-[rgb(var(--color-primary))]/5 px-6 py-3 rounded-xl border border-[rgb(var(--color-primary))]/10 scale-110">
-                                <p className="font-serif text-[10px] italic text-[rgb(var(--color-primary))] mb-1 font-bold uppercase tracking-tighter">
+                                <p className="font-serif text-[0.625rem] italic text-[rgb(var(--color-primary))] mb-1 font-bold uppercase tracking-tighter">
                                     {t("invoice.digitallyVerified")}
                                 </p>
                                 <p className="font-black text-xl tracking-widest uppercase">{idNumber}</p>
@@ -104,25 +104,25 @@ const SignaturePreview = ({
                         {(!typedName && activeTab === "type") && (
                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                 <TypeIcon className="w-8 h-8 stroke-1" />
-                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.typeYourName")}</span>
+                                <span className="text-[0.625rem] uppercase font-bold tracking-widest">{t("invoice.typeYourName")}</span>
                             </div>
                         )}
                         {(!drawnSignature && activeTab === "draw") && (
                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                 <PenTool className="w-8 h-8 stroke-1" />
-                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.drawOnLeft")}</span>
+                                <span className="text-[0.625rem] uppercase font-bold tracking-widest">{t("invoice.drawOnLeft")}</span>
                             </div>
                         )}
                         {(!uploadedFiles.length && activeTab === "upload") && (
                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                 <UploadIcon className="w-8 h-8 stroke-1" />
-                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.uploadYourFile")}</span>
+                                <span className="text-[0.625rem] uppercase font-bold tracking-widest">{t("invoice.uploadYourFile")}</span>
                             </div>
                         )}
                         {(!isVerified && activeTab === "identity") && (
                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                 <Fingerprint className="w-8 h-8 stroke-1" />
-                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.verifyIDFirst")}</span>
+                                <span className="text-[0.625rem] uppercase font-bold tracking-widest">{t("invoice.verifyIDFirst")}</span>
                             </div>
                         )}
 
@@ -130,9 +130,9 @@ const SignaturePreview = ({
                         {hasSignatureContent && (
                             <div className="absolute -right-2 -bottom-2 w-28 h-28 border-3 border-blue-600/60 rounded-full flex items-center justify-center -rotate-12 pointer-events-none select-none z-[100] transition-all duration-500 mix-blend-multiply dark:mix-blend-normal transform scale-[1.1] origin-bottom-right">
                                 <div className="border-2 border-blue-600/60 rounded-full w-[94%] h-[94%] flex flex-col items-center justify-center text-center p-2 bg-blue-50/20 backdrop-blur-[0.2px]">
-                                    <span className="text-[9px] font-black text-blue-700 uppercase leading-none mb-1 tracking-widest">{t("invoice.authentic")}</span>
-                                    <span className="text-[11px] font-black text-blue-800 uppercase leading-none border-y-2 border-blue-600/60 py-1.5 mb-1 w-full">{t("invoice.verifiedBy")}</span>
-                                    <span className="text-[14px] font-black text-blue-800 uppercase leading-none tracking-tighter">DragBizz</span>
+                                    <span className="text-[0.5625rem] font-black text-blue-700 uppercase leading-none mb-1 tracking-widest">{t("invoice.authentic")}</span>
+                                    <span className="text-[0.6875rem] font-black text-blue-800 uppercase leading-none border-y-2 border-blue-600/60 py-1.5 mb-1 w-full">{t("invoice.verifiedBy")}</span>
+                                    <span className="text-[0.875rem] font-black text-blue-800 uppercase leading-none tracking-tighter">DragBizz</span>
                                 </div>
                             </div>
                         )}
@@ -149,7 +149,7 @@ const SignaturePreview = ({
                     {t("invoice.confirmSign")}
                 </Button>
 
-                <div className="mt-4 flex items-center gap-2 justify-center text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold tracking-widest">
+                <div className="mt-4 flex items-center gap-2 justify-center text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase font-bold tracking-widest">
                     <div className="h-px bg-[rgb(var(--color-border-primary))] flex-1"></div>
                     <span>{t("invoice.securedByDSC")}</span>
                     <div className="h-px bg-[rgb(var(--color-border-primary))] flex-1"></div>
@@ -161,7 +161,7 @@ const SignaturePreview = ({
                     <AlertCircle className="w-3 h-3" />
                     Documents are non-editable after signing
                 </p>
-                <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase">
+                <p className="text-[0.625rem] text-[rgb(var(--color-text-tertiary))] uppercase">
                     Audit Trail: IP {isMounted ? `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.XXX.XXX` : "XXX.XXX.XXX.XXX"} recorded
                 </p>
             </div>

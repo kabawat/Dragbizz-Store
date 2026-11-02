@@ -1,42 +1,11 @@
-import { authAxios, unauthAxios, uploadAxios } from "@/service/config/axiosConfig";
-import { attachQueryParams } from "@/utils/queryParams";
-
-export class BaseService {
+import { HttpService } from "@dragorbit/core/api";
+import {
+  authAxios,
+  unauthAxios,
+  uploadAxios,
+} from "@/service/config/axiosConfig";
+export class BaseService extends HttpService {
   constructor() {
-    this.authAxios = authAxios;
-    this.unauthAxios = unauthAxios;
-    this.uploadAxios = uploadAxios;
-  }
-
-  buildUrl(endpoint, params = {}) {
-    return attachQueryParams(endpoint, params);
-  }
-
-  // Auth methods
-  async get(url, params = {}) {
-    return this.authAxios.get(this.buildUrl(url, params));
-  }
-
-  async post(url, data = {}, params = {}) {
-    return this.authAxios.post(this.buildUrl(url, params), data);
-  }
-
-  async put(url, data = {}, params = {}) {
-    return this.authAxios.put(this.buildUrl(url, params), data);
-  }
-
-  async patch(url, data = {}, params = {}) {
-    return this.authAxios.patch(this.buildUrl(url, params), data);
-  }
-
-  async delete(url, params = {}) {
-    return this.authAxios.delete(this.buildUrl(url, params));
-  }
-
-  // Helper
-  buildResourceUrl(resourceEndpoint, resourceId, storeId = null) {
-    let url = resourceId ? `${resourceEndpoint}/${resourceId}` : resourceEndpoint;
-    return storeId ? this.buildUrl(url, { store: storeId }) : url;
+    super({ authAxios, unauthAxios, uploadAxios });
   }
 }
-

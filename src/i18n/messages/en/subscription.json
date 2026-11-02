@@ -2,6 +2,13 @@
     "title": "Subscription Management",
     "description": "Configure and manage your active business plan",
     "trialPlan": "Trial Plan",
+    "khataFree": {
+        "title": "Khata Free",
+        "description": "Unlimited khata, reminders, and cashbook. Up to 30 invoices per day.",
+        "upgradeToPremium": "Upgrade to Premium ERP",
+        "dailyInvoiceLimit": "30 invoices per day",
+        "unlimitedReminders": "Unlimited payment reminders"
+    },
     "activePlanTitle": "Active Plan",
     "nextBillingLabel": "Next billing:",
     "planRateLabel": "Plan Rate",

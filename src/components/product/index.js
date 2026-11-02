@@ -17,3 +17,4 @@ export { default as ProductGrid } from "./ProductGrid";
 export { default as ProductInfoModal } from "./ProductInfoModal";
 export { default as ProductTable } from "./ProductTable";
 export { default as StatusSection } from "./StatusSection";
+export { default as VariantsSection } from "./VariantsSection";

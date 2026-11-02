@@ -264,7 +264,7 @@ export const StatusBadge = ({
 
   return (
     <span
-      className={`invoice-status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${className}`}
+      className={`invoice-status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.625rem] font-medium border ${className}`}
       style={config.style}
     >
       {Icon && <Icon className="w-3 h-3 mr-1" />}
@@ -279,7 +279,7 @@ export const renderStatusBadge = (status, type = "general", icon = null) => {
 
   return (
     <span
-      className="invoice-status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium border"
+      className="invoice-status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.625rem] font-medium border"
       style={config.style}
     >
       {IconComponent && <IconComponent className="w-3 h-3 mr-1" />}

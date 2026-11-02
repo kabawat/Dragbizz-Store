@@ -16,8 +16,6 @@ import BasicInfoCard from "@/components/purchaseOrders/create/BasicInfoCard";
 import ItemsSection from "@/components/purchaseOrders/create/ItemsSection";
 import AddressCard from "@/components/purchaseOrders/create/AddressCard";
 import POActions from "@/components/purchaseOrders/create/POActions";
-import Sidebar from "@/components/dashboard/sidebar";
-import Header from "@/components/dashboard/header";
 
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
@@ -178,6 +176,7 @@ const CreatePurchaseOrder = () => {
       supplier: formData.supplier,
       products: formData.products.map((item) => ({
         product: item.product,
+        variant: item.variant || undefined,
         quantity: parseInt(item.quantity, 10),
       })),
       payment: formData.payment,
@@ -263,8 +262,7 @@ const CreatePurchaseOrder = () => {
                       t={t}
                       formData={formData}
                       setFormData={setFormData}
-                      products={products}
-                      productsLoading={productsLoading}
+                      storeId={selectedStore?.storeId}
                       errors={errors}
                       setErrors={setErrors}
                     />

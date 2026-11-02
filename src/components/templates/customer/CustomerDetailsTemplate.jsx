@@ -42,6 +42,12 @@ const CustomerDetailsTemplate = ({ customerData, selectedStore }) => {
                   <td className={styles.label}>Email Address:</td>
                   <td>{customerData?.email || "N/A"}</td>
                 </tr>
+                {customerData?.note && (
+                  <tr>
+                    <td className={styles.label}>Note:</td>
+                    <td>{customerData.note}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

@@ -19,7 +19,7 @@ const CustomerAndAddress = ({ order }) => {
                         </div>
                         <div>
                             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{t("salesOrder.customerShippingInfo")}</h2>
-                            <p className="text-[11px] text-[rgb(var(--color-text-secondary))] font-medium uppercase tracking-wider">{t("salesOrder.manageWorkflow")}</p>
+                            <p className="text-[0.6875rem] text-[rgb(var(--color-text-secondary))] font-medium uppercase tracking-wider">{t("salesOrder.manageWorkflow")}</p>
                         </div>
                     </div>
                 </div>
@@ -34,7 +34,7 @@ const CustomerAndAddress = ({ order }) => {
 
                         <div className="space-y-4">
                             <div className="group">
-                                <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-1 group-hover:text-[rgb(var(--color-primary))] transition-colors">{t("salesOrder.customerName")}</p>
+                                <p className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest mb-1 group-hover:text-[rgb(var(--color-primary))] transition-colors">{t("salesOrder.customerName")}</p>
                                 <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{customer?.name || t("common.na")}</p>
                             </div>
 
@@ -42,14 +42,14 @@ const CustomerAndAddress = ({ order }) => {
                                 <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-[rgb(var(--color-border-primary)/0.2)]">
                                     <div className="flex items-center gap-2 mb-1">
                                         <Phone className="w-3 h-3 text-[rgb(var(--color-text-tertiary))]" />
-                                        <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">{t("common.phone")}</p>
+                                        <p className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">{t("common.phone")}</p>
                                     </div>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{customer?.phone || address?.phone || t("common.na")}</p>
                                 </div>
                                 <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-[rgb(var(--color-border-primary)/0.2)]">
                                     <div className="flex items-center gap-2 mb-1">
                                         <Mail className="w-3 h-3 text-[rgb(var(--color-text-tertiary))]" />
-                                        <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">{t("common.email")}</p>
+                                        <p className="text-[0.5625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">{t("common.email")}</p>
                                     </div>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] break-all">{customer?.email || t("common.na")}</p>
                                 </div>
@@ -68,9 +68,9 @@ const CustomerAndAddress = ({ order }) => {
                                     </span>
                                 </div>
                                 <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/[0.05] to-[rgb(var(--color-primary))]/[0.1] rounded-xl border border-[rgb(var(--color-primary))]/30 min-h-[120px] flex flex-col justify-center items-center text-center">
-                                    <p className="text-[10px] uppercase font-bold tracking-widest text-[rgb(var(--color-text-secondary))] mb-2">Dining At</p>
+                                    <p className="text-[0.625rem] uppercase font-bold tracking-widest text-[rgb(var(--color-text-secondary))] mb-2">Dining At</p>
                                     <p className="text-2xl font-black text-[rgb(var(--color-primary))]">{order.inStoreLocation || "Store Hub"}</p>
-                                    <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20">
+                                    <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.625rem] font-bold uppercase tracking-wide bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20">
                                         Self Ordered In Store
                                     </span>
                                 </div>
@@ -94,7 +94,7 @@ const CustomerAndAddress = ({ order }) => {
                                     </div>
                                     {address?.phone && (
                                         <div className="mt-3 pt-3 border-t border-[rgb(var(--color-border-primary)/0.5)] flex items-center gap-2">
-                                            <span className="text-[10px] font-bold text-[rgb(var(--color-primary))]/60 uppercase tracking-wider">{t("salesOrder.contactAtSite")}:</span>
+                                            <span className="text-[0.625rem] font-bold text-[rgb(var(--color-primary))]/60 uppercase tracking-wider">{t("salesOrder.contactAtSite")}:</span>
                                             <span className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{address.phone}</span>
                                         </div>
                                     )}

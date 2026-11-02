@@ -1,17 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import { BillsScreen } from "@dragorbit/features/bills";
 import { useRouter } from "next/navigation";
-import { FileText, Plus } from "lucide-react";
-import { EmptyState, PageLoader } from "@/components/ui";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setViewMode } from "@/store/slices/billsSlice";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import BillListContent from "@/components/bills/list/BillListContent";
+import BillListHeader from "@/components/bills/list/BillListHeader";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
-
-import BillListHeader from "@/components/bills/list/BillListHeader";
-import BillListContent from "@/components/bills/list/BillListContent";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setViewMode } from "@/store/slices/billsSlice";
 
 const Bills = () => {
   const { t } = useTranslation();
@@ -20,45 +18,76 @@ const Bills = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [searchValue, setSearchValue] = useState("");
-  const { bills, isLoading, error } = useAppSelector((state) => state.bills);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const {
+    bills,
+    isLoading: requestLoading,
+    hasLoaded,
+    error,
+  } = useAppSelector((state) => state.bills);
+  const isLoading = requestLoading || (!hasLoaded && !error);
 
-  const { can, create: canCreate, loading: permissionsLoading } = useModulePermissions("billing");
+  const { create: canCreate, loading: permissionsLoading } =
+    useModulePermissions("billing");
+
   useEffect(() => {
-    const savedViewMode = localStorage.getItem("bills-view-mode");
-    if (savedViewMode === "table" || savedViewMode === "card") {
-      dispatch(setViewMode(savedViewMode));
+    try {
+      const savedViewMode = localStorage.getItem("bills-view-mode");
+      if (savedViewMode === "table" || savedViewMode === "card") {
+        dispatch(setViewMode(savedViewMode));
+      }
+    } catch {
+      // Storage unavailable
     }
   }, [dispatch]);
 
+  const handleBack = useCallback(() => {
+    router.push("/dashboard");
+  }, [router]);
+
+  const handleCreate = useCallback(() => {
+    router.push("/dashboard/bills/create");
+  }, [router]);
+
   useCommonHotkeys({
-    onBack: () => router.push("/dashboard"),
-    onNew: canCreate ? () => router.push("/dashboard/bills/create") : undefined,
+    onBack: handleBack,
+    onNew: canCreate ? handleCreate : undefined,
   });
 
-  return (
-    <div className="overflow-hidden">
-      <div className="max-w-8xl mx-auto">
-        <BillListHeader searchValue={searchValue} setSearchValue={setSearchValue} />
-        <div className="px-5">
-          {(isLoading || permissionsLoading) && bills.length === 0 && !error && (<PageLoader />)}
-          {!(isLoading || permissionsLoading) && bills.length === 0 && !error && (
-            <EmptyState
-              className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]"
-              icon={FileText}
-              title={t("bills.noBills")}
-              description={searchValue ? t("bills.noResultsDescription") : t("bills.emptyDescription")}
-              actionButton={!searchValue && canCreate ? {
-                label: t("bills.createBill"),
-                onClick: () => router.push("/dashboard/bills/create"),
-                icon: Plus
-              } : null}
-            />
-          )}
-          {bills.length > 0 && <BillListContent />}
-        </div>
-      </div>
-    </div>
+  const model = useMemo(
+    () => ({
+      BillListHeader,
+      searchValue,
+      setSearchValue,
+      startDate,
+      setStartDate,
+      endDate,
+      setEndDate,
+      isLoading,
+      permissionsLoading,
+      bills,
+      error,
+      t,
+      canCreate,
+      BillListContent,
+      onCreate: handleCreate,
+    }),
+    [
+      searchValue,
+      startDate,
+      endDate,
+      isLoading,
+      permissionsLoading,
+      bills,
+      error,
+      t,
+      canCreate,
+      handleCreate,
+    ]
   );
+
+  return <BillsScreen model={model} />;
 };
 
-export default Bills;
+export default memo(Bills);

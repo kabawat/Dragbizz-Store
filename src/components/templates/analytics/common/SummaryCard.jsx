@@ -1,4 +1,6 @@
 "use client";
+import { SummaryCardView } from "@dragorbit/features/analytics";
+
 import styles from "./analyticsReport.module.scss";
 
 const SummaryCard = ({ title, value, change, changeType }) => {
@@ -10,13 +12,9 @@ const SummaryCard = ({ title, value, change, changeType }) => {
         : "";
 
   return (
-    <div className={styles.summaryCard}>
-      <h3>{title}</h3>
-      <div className={styles.value}>{value}</div>
-      {change && (
-        <div className={`${styles.change} ${changeClassName}`}>{change}</div>
-      )}
-    </div>
+    <SummaryCardView
+      model={{ styles, title, value, change, changeClassName }}
+    />
   );
 };
 

@@ -8,6 +8,7 @@ export const CUSTOMER_SOURCES = [
   "WHATSAPP",
   "PHONE",
   "QR_CATALOG",
+  "VOICE_AI",
 ];
 
 export function getCustomerSourceLabel(source, t) {

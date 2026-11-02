@@ -33,11 +33,13 @@ messaging.onBackgroundMessage((payload) => {
   const badge = payload.notification?.badge || payload.data?.badge;
   const data = buildNotificationData(payload);
 
-  self.registration.showNotification(title, {
+  return self.registration.showNotification(title, {
     body,
     icon,
     badge,
     data,
+  }).catch((error) => {
+    console.error("[FCM] background showNotification failed", error);
   });
 });
 

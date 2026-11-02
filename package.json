@@ -1,5 +1,5 @@
 {
-  "name": "dragbizz-store-fe",
+  "name": "Dragbizz-Store",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -21,6 +21,9 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@dragorbit/core": "link:../dragorbit/core",
+    "@dragorbit/features": "link:../dragorbit/features",
+    "@dragorbit/ui": "link:../dragorbit/ui",
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
     "canvas-confetti": "^1.9.3",
@@ -33,7 +36,7 @@
     "jspdf": "^3.0.3",
     "lucide-react": "^0.544.0",
     "moment": "^2.30.1",
-    "next": "^16.0.10",
+    "next": "16.4.3",
     "next-intl": "^4.7.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.3",
@@ -46,6 +49,11 @@
     "sass": "^1.96.0",
     "socket.io-client": "^4.8.3",
     "xlsx": "^0.18.5"
+  },
+  "resolutions": {
+    "@dragorbit/core": "link:../dragorbit/core",
+    "@dragorbit/ui": "link:../dragorbit/ui",
+    "@dragorbit/features": "link:../dragorbit/features"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

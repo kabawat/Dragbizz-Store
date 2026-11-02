@@ -1,4 +1,6 @@
 "use client";
+import { CustomerFormPresentation } from "@dragorbit/features/customers";
+
 import { useCallback } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import BasicInfo from "./sections/BasicInfo";
@@ -13,34 +15,26 @@ const CustomerForm = ({
 }) => {
   const { t } = useTranslation();
 
-  const handleInputChange = useCallback((fieldName, value) => {
-    onChange(fieldName, value);
-  }, [onChange]);
+  const handleInputChange = useCallback(
+    (fieldName, value) => {
+      onChange(fieldName, value);
+    },
+    [onChange],
+  );
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <BasicInfo
-        formData={formData}
-        onChange={handleInputChange}
-        fieldErrors={fieldErrors}
-        t={t}
-      />
-
-      <CompanyDetails
-        formData={formData}
-        onChange={handleInputChange}
-        fieldErrors={fieldErrors}
-        gstVerification={gstVerification}
-        t={t}
-      />
-
-      <AddressSection
-        formData={formData}
-        onChange={handleInputChange}
-        fieldErrors={fieldErrors}
-        t={t}
-      />
-    </div>
+    <CustomerFormPresentation
+      model={{
+        BasicInfo,
+        formData,
+        handleInputChange,
+        fieldErrors,
+        t,
+        CompanyDetails,
+        gstVerification,
+        AddressSection,
+      }}
+    />
   );
 };
 

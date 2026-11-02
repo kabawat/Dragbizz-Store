@@ -29,5 +29,12 @@
   "taxableValueInward": "Taxable Value",
   "cgstInward": "CGST",
   "sgstInward": "SGST",
-  "igstInward": "IGST"
+  "igstInward": "IGST",
+  "utgstInward": "UTGST ",
+  "cess": "Cess",
+  "netTaxable": "Net Taxable Difference",
+  "itcEligible": "ITC Eligible",
+  "nonItcPurchase": "Non-ITC Purchase",
+  "compliance": "Compliance",
+  "totalOutputTax": "Total Output Tax"
 }

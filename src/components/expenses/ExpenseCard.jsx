@@ -1,9 +1,10 @@
 "use client";
+import { Tooltip as SharedTooltip } from "@dragorbit/ui";
 import { Building, Calendar, CreditCard, Edit, Eye, FileText, IndianRupee, Trash2, } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { getCategoryLabel, getPaymentMethodIcon, getPaymentMethodLabel, getStatusLabel, } from "@/data/constants/expenses";
-import { useState, useRef, useEffect } from "react";
-import { renderStatusBadge } from "@/utils/statusBadge";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { renderStatusBadge } from "@/utils/statusBadge";
 import { IconButton } from "../ui";
 
 const ExpenseCard = ({
@@ -127,9 +128,9 @@ const ExpenseCard = ({
       <div className="p-4 space-y-4">
         {/* Title & Vendor */}
         <div>
-          <h3 className="font-bold text-lg text-[rgb(var(--color-text-primary))] line-clamp-1 mb-0.5" title={title}>
+          <SharedTooltip content={title}><h3 className="font-bold text-lg text-[rgb(var(--color-text-primary))] line-clamp-1 mb-0.5" >
             {title}
-          </h3>
+          </h3></SharedTooltip>
           <p className="text-sm font-medium text-[rgb(var(--color-text-secondary))] flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5 opacity-70" />
             <span className="truncate">{vendor?.name || (typeof vendor === "string" ? vendor : "") || "No Vendor"}</span>
@@ -180,7 +181,7 @@ const ExpenseCard = ({
           </div>
           {gst && gst.amount > 0 && (
             <div className="flex justify-end mt-0.5">
-              <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">
+              <span className="text-[0.625rem] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">
                 Incl. GST ({gst.percentage}%): ₹{formatCurrency(gst.amount)}
               </span>
             </div>

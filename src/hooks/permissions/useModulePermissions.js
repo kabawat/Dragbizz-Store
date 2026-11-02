@@ -43,7 +43,7 @@ export const useModulePermissions = (moduleKey) => {
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
 
   return useMemo(() => {
-    const isInitialLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile) || subscriptionLoading;
+    const isInitialLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile) || (subscriptionLoading && !subscription);
 
     // Deny if unauth or profile still loading
     if (!isAuthenticated || !authProfile) {
