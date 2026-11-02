@@ -6,7 +6,7 @@ export default function BrandLogo() {
     <div className={styles.logo}>
       <Image
         className={styles.light}
-        src="/DragBizz-Logos/Dragbizz-black.svg"
+        src="/DragBizz-Logos/logo-01.png"
         alt="DragBizz"
         width={156}
         height={40}
@@ -14,7 +14,7 @@ export default function BrandLogo() {
       />
       <Image
         className={styles.dark}
-        src="/DragBizz-Logos/Dragbizz-white.svg"
+        src="/DragBizz-Logos/logo-02.png"
         alt="DragBizz"
         width={156}
         height={40}
