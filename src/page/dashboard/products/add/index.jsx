@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  buildUnifiedProductPayload,
+  getInitialProductFormData,
+  validateProductForm,
+  validateVariants,
+} from "@dragorbit/features/products";
 import { ArrowLeft, Layers, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,7 +18,6 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { buildUnifiedProductPayload } from "@/utils/productUtils";
 
 const AddProductPage = () => {
   const { t } = useTranslation();
@@ -44,34 +49,9 @@ const AddProductPage = () => {
     clearAll: clearFieldErrors,
   } = useApiResponse();
 
-  const getInitialFormData = () => ({
-    store: storeId,
-    name: "",
-    brandId: "",
-    category: "",
-    sku: "",
-    barcode: "",
-    images: [],
-    basePrice: "",
-    mrp: "",
-    sellingPrice: "",
-    currency: "INR",
-    uom: "PCS",
-    productType: "GOODS",
-    gstInfo: {
-      hsnCode: "",
-      isGstIncluded: true,
-    },
-    content: {
-      shortDescription: "",
-      tags: [],
-      features: [],
-      specifications: [],
-    },
-    showInCatalog: true,
-  });
-
-  const [formData, setFormData] = useState(getInitialFormData());
+  const [formData, setFormData] = useState(() =>
+    getInitialProductFormData(storeId)
+  );
   const [hasVariants, setHasVariants] = useState(false);
   const [variants, setVariants] = useState([]);
 
@@ -129,49 +109,22 @@ const AddProductPage = () => {
   const handleSaveAndPublish = async () => {
     clearFieldErrors();
 
-    // Basic Validation
-    const errors = {};
-    if (!formData.name?.trim()) {
-      errors.name = t("products.nameRequired", "Product name is required");
-    }
-    if (!formData.category) {
-      errors.category = t("products.categoryRequired", "Category is required");
-    }
-    if (!formData.mrp) {
-      errors.mrp = t("products.mrpRequired", "MRP is required");
-    }
-    if (!formData.sellingPrice) {
-      errors.sellingPrice = t(
-        "products.sellingPriceRequired",
-        "Selling price is required"
-      );
-    } else if (parseFloat(formData.sellingPrice) > parseFloat(formData.mrp)) {
-      errors.sellingPrice = t(
-        "products.sellingPriceExceedsMrp",
-        "Selling price cannot exceed MRP"
-      );
+    // Centralized Product Form Validation
+    const validation = validateProductForm(formData, storeId);
+    if (!validation.isValid) {
+      setFieldErrors(validation.fields);
+      return;
     }
 
     // Validate Variants if enabled
     if (hasVariants && variants.length > 0) {
-      for (let i = 0; i < variants.length; i++) {
-        const v = variants[i];
-        const vMrp = parseFloat(v.mrp) || parseFloat(formData.mrp) || 0;
-        const vSp =
-          parseFloat(v.sellingPrice) || parseFloat(formData.sellingPrice) || 0;
-        if (vSp > vMrp && vMrp > 0) {
-          errors.variants = t(
-            "products.variantPriceError",
-            `Variant #${i + 2} selling price cannot exceed MRP`
-          );
-          break;
-        }
+      const variantValidation = validateVariants(variants, formData);
+      if (!variantValidation.isValid) {
+        setFieldErrors({
+          variants: t("products.variantPriceError", variantValidation.error),
+        });
+        return;
       }
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      return;
     }
 
     const payload = buildUnifiedProductPayload({
@@ -190,7 +143,7 @@ const AddProductPage = () => {
     if (!result?.success) return;
 
     setTimeout(() => {
-      setFormData(getInitialFormData());
+      setFormData(getInitialProductFormData(storeId));
       setVariants([]);
       setHasVariants(false);
       clearFieldErrors();
