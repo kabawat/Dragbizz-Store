@@ -1,7 +1,7 @@
 "use client";
 
 import { InvoicePrintModal } from "@dragorbit/features/invoices";
-import { ArrowLeft, FileQuestion } from "lucide-react";
+import { ArrowLeft, FileQuestion, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -17,7 +17,7 @@ import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDate, formatDateTime } from "@/utils/dateFormatter";
-import { UpdatePaymentStatusModal } from "../components";
+import { DeleteInvoiceModal, UpdatePaymentStatusModal } from "../components";
 import InvoiceActions from "../components/view/InvoiceActions";
 import InvoiceCustomerInfo from "../components/view/InvoiceCustomerInfo";
 import InvoiceHeader from "../components/view/InvoiceHeader";
@@ -52,6 +52,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const canRead = can("read");
   const canEdit = can("edit");
   const canCreate = can("create");
+  const canDelete = can("delete");
 
   useEffect(() => {
     if (!permissionLoading && !canRead) {
@@ -63,9 +64,14 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState(null);
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const hasFetched = useRef(false);
   const hasAutoPrinted = useRef(false);
+
+  const handleDelete = useCallback(() => {
+    setShowDeleteModal(true);
+  }, []);
 
   const isMiniTemplate = selectedTemplate?.startsWith("thermal");
 
@@ -291,8 +297,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
             />
           ) : (
             <div className="h-full flex flex-col">
-              {/* Back Link */}
-              <div className="mb-4 sm:mb-6 shrink-0 no-print">
+              {/* Back Link & Create New Invoice */}
+              <div className="mb-4 sm:mb-6 shrink-0 no-print flex items-center justify-between gap-4">
                 <Link
                   href={isPos ? "/dashboard/pos" : "/dashboard/invoices"}
                   className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
@@ -306,6 +312,20 @@ const ViewInvoicePage = ({ invoiceId }) => {
                       })}
                   </span>
                 </Link>
+
+                {canCreate && (
+                  <button
+                    type="button"
+                    onClick={handleCreateNewInvoice}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/10 transition-colors cursor-pointer"
+                    title={t("invoice.createNewInvoice", { defaultValue: "Create New Invoice" })}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>
+                      {t("invoice.createNewInvoice", { defaultValue: "Create New Invoice" })}
+                    </span>
+                  </button>
+                )}
               </div>
 
               {/* Offscreen Printable Template (used by html2canvas for PDF and window.print) */}
@@ -373,10 +393,10 @@ const ViewInvoicePage = ({ invoiceId }) => {
                         ? handleRelease
                         : undefined
                     }
-                    onPrintAndSave={canRead ? handlePrintAndSave : undefined}
-                    onCreateNewInvoice={
-                      canCreate ? handleCreateNewInvoice : undefined
+                    onDeleteInvoice={
+                      canDelete && isDraft ? handleDelete : undefined
                     }
+                    onPrintAndSave={canRead ? handlePrintAndSave : undefined}
                     onPrintInvoice={canRead ? handlePrintAndSave : undefined}
                     onDownloadPDF={
                       canRead ? handleDownloadPDFAction : undefined
@@ -402,6 +422,15 @@ const ViewInvoicePage = ({ invoiceId }) => {
           onClose={handleClosePaymentStatusModal}
           onSuccess={handlePaymentStatusSuccess}
           invoice={invoiceData}
+        />
+      )}
+
+      {showDeleteModal && (
+        <DeleteInvoiceModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          invoiceId={invoiceId}
+          invoiceNumber={invoiceData?.invoiceNumber}
         />
       )}
 

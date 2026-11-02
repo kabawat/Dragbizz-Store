@@ -12,6 +12,7 @@ const InvoiceActions = ({
   storeId,
   onEditInvoice,
   onReleaseInvoice,
+  onDeleteInvoice,
   onPrintInvoice,
   onDownloadPDF,
   onPrintAndSave,
@@ -57,6 +58,7 @@ const InvoiceActions = ({
       invoiceData={invoiceData}
       onEditInvoice={onEditInvoice}
       onReleaseInvoice={onReleaseInvoice}
+      onDeleteInvoice={onDeleteInvoice}
       onPrintInvoice={onPrintInvoice}
       onDownloadPDF={onDownloadPDF}
       onPrintAndSave={onPrintAndSave}

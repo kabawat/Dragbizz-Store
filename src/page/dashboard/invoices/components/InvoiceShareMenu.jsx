@@ -19,6 +19,7 @@ function InvoiceShareMenu({
   buttonClassName = "h-9 px-3 rounded-lg",
   dropdownClassName = "",
   align = "left",
+  direction = "down",
 }) {
   const { showSuccess, showError } = useGlobalToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -96,6 +97,7 @@ function InvoiceShareMenu({
         handleEmail,
         handleCopyLink,
         align,
+        direction,
       }}
     />
   );
