@@ -29,4 +29,5 @@ export { default as brandService } from "./brand.service";
 export { default as stockService } from "./stock.service";
 export { default as storeService } from "./store.service";
 export { default as billService } from "./bill.service";
+export { default as billingService } from "./billing.service";
 export { default as gstService } from "./gst.service";

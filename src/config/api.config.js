@@ -117,9 +117,11 @@ const API_CONFIG = {
   },
 
   // Payment & Finance
-  FINANCE: withPrefix("/payment", {
-    CREATE_PACKAGE_PAYMENT: "/create-order",
-    VERIFY_PACKAGE_PAYMENT: "/verify",
+  FINANCE: withPrefix("/finance", {
+    CREATE_PACKAGE_PAYMENT: "/subscription/create-order",
+    VERIFY_PACKAGE_PAYMENT: "/subscription/verify",
+    INVOICES: "/billing/invoices",
+    INVOICE_DOWNLOAD: "/billing/invoices/:invoiceId/download",
   }),
 };
 
