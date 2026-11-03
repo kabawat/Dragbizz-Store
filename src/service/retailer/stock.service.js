@@ -7,7 +7,10 @@ class StockService {
   }
 
   async addStock(stockData) {
-    return authAxios.post(API_CONFIG?.CORE?.STOCK, stockData);
+    const store = stockData?.store;
+    return authAxios.post(API_CONFIG?.CORE?.STOCK, stockData, {
+      params: store ? { store } : {},
+    });
   }
 }
 

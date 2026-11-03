@@ -1,12 +1,19 @@
 "use client";
 
-import { AlertTriangle, ArrowLeft, Edit, Trash2, X } from "lucide-react";
+import { VariantDeleteDialog } from "@dragorbit/features/variants";
+import {
+  AlertTriangle,
+  ArrowDownToLine,
+  ArrowLeft,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Button, PageLoader } from "@/components/ui";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button, PageLoader, StockInDrawer } from "@/components/ui";
 import { VariantForm } from "@/components/variant";
-import { VariantDeleteDialog } from "@dragorbit/features/variants";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -31,11 +38,13 @@ const ViewVariantPage = ({ variantId }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
   const { can, loading: permissionsLoading } = useModulePermissions("product");
+  const { showSuccess } = useGlobalToast();
   const hasFetched = useRef(false);
   const [formData, setFormData] = useState(() =>
     getInitialVariantFormData(storeId)
   );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showStockInDrawer, setShowStockInDrawer] = useState(false);
 
   const {
     execute: executeFetch,
@@ -50,36 +59,39 @@ const ViewVariantPage = ({ variantId }) => {
     }
   }, [can, permissionsLoading, router]);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!variantId || !storeId || hasFetched.current) return;
-      hasFetched.current = true;
-      const result = await executeFetch(
-        variantService.getVariants({ store: storeId, id: variantId }),
-        { showToast: false }
-      );
-      if (result?.success) {
-        const record = unwrapVariantRecord(result.data);
-        if (record) {
-          const normalized = normalizeVariantRecord(record);
-          try {
-            const imagesRes = await productService.getProductImages({
-              entityId: variantId,
-              entityType: "Variant",
-              store: storeId,
-            });
-            const imagesPayload =
-              imagesRes?.data?.data ?? imagesRes?.data ?? imagesRes;
-            normalized.images = mapImageRecords(imagesPayload);
-          } catch {
-            normalized.images = [];
-          }
-          setFormData(normalized);
+  const loadVariantData = useCallback(async () => {
+    if (!variantId || !storeId) return;
+    const result = await executeFetch(
+      variantService.getVariants({ store: storeId, id: variantId }),
+      { showToast: false }
+    );
+    if (result?.success) {
+      const record = unwrapVariantRecord(result.data);
+      if (record) {
+        const normalized = normalizeVariantRecord(record);
+        try {
+          const imagesRes = await productService.getProductImages({
+            entityId: variantId,
+            entityType: "Variant",
+            store: storeId,
+          });
+          const imagesPayload =
+            imagesRes?.data?.data ?? imagesRes?.data ?? imagesRes;
+          normalized.images = mapImageRecords(imagesPayload);
+        } catch {
+          normalized.images = [];
         }
+        setFormData(normalized);
       }
-    };
-    load();
+    }
   }, [variantId, storeId, executeFetch]);
+
+  useEffect(() => {
+    if (!hasFetched.current && variantId && storeId) {
+      hasFetched.current = true;
+      loadVariantData();
+    }
+  }, [variantId, storeId, loadVariantData]);
 
   const handleConfirmDelete = async (options = {}) => {
     const result = await executeDelete(
@@ -169,6 +181,16 @@ const ViewVariantPage = ({ variantId }) => {
             {can("edit") && (
               <Button
                 variant="outline"
+                leftIcon={ArrowDownToLine}
+                onClick={() => setShowStockInDrawer(true)}
+                className="text-emerald-600 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+              >
+                {t("products.stockIn", "Stock In") || "Stock In"}
+              </Button>
+            )}
+            {can("edit") && (
+              <Button
+                variant="outline"
                 leftIcon={Edit}
                 onClick={() =>
                   router.push(`/dashboard/variants/edit/${variantId}`)
@@ -210,6 +232,21 @@ const ViewVariantPage = ({ variantId }) => {
             variantToDelete: formData,
             isDeleting,
             handleConfirmDelete,
+          }}
+        />
+      )}
+
+      {showStockInDrawer && (
+        <StockInDrawer
+          isOpen={showStockInDrawer}
+          onClose={() => setShowStockInDrawer(false)}
+          item={formData}
+          product={formData}
+          type="variant"
+          onSuccess={(msg) => {
+            showSuccess(msg);
+            setShowStockInDrawer(false);
+            loadVariantData();
           }}
         />
       )}

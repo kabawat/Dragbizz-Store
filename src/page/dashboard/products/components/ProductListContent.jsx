@@ -118,9 +118,18 @@ const ProductListContent = ({
 
   // Stock In
   const handleStockIn = useCallback(
-    (productId) => {
-      const product = transformedProducts.find((p) => p.id === productId);
-      setProductForStockIn(product);
+    (productOrId) => {
+      const targetId =
+        typeof productOrId === "object" && productOrId !== null
+          ? (productOrId.id ?? productOrId._id)
+          : productOrId;
+
+      const product =
+        typeof productOrId === "object" && productOrId !== null
+          ? productOrId
+          : transformedProducts.find((p) => (p.id ?? p._id) === targetId);
+
+      setProductForStockIn(product || (targetId ? { id: targetId } : null));
       setShowStockInDrawer(true);
     },
     [transformedProducts]
@@ -130,8 +139,21 @@ const ProductListContent = ({
     setProductForStockIn(null);
   }, []);
   const handleStockInSuccess = useCallback(
-    (message) => showSuccess(message),
-    [showSuccess]
+    (message) => {
+      showSuccess(message);
+      if (storeId) {
+        dispatch(
+          getProducts({
+            store: storeId,
+            limit: pagination?.limit || 20,
+            isFreshLoad: true,
+            includeVariants: false,
+            lightweight: "true",
+          })
+        );
+      }
+    },
+    [showSuccess, dispatch, storeId, pagination?.limit]
   );
 
   // Delete handlers
