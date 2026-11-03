@@ -4,6 +4,40 @@ export const CATALOG_STATUSES = [
   { value: "SUSPENDED", label: "Suspended" },
 ];
 
+export const CATALOG_TEMPLATES = [
+  { value: "classic", label: "Classic" },
+  { value: "sidebar", label: "Sidebar" },
+  { value: "aurora", label: "Aurora" },
+  { value: "studio", label: "Studio" },
+];
+
+export const CATALOG_TEMPLATE_DETAILS = {
+  classic: {
+    label: "Classic",
+    badge: "Grid Layout",
+    description:
+      "Header navigation with categorized product grids and modern cards",
+  },
+  sidebar: {
+    label: "Sidebar",
+    badge: "Sidebar Navigation",
+    description:
+      "Storefront with sticky category sidebar for rapid vertical browsing",
+  },
+  aurora: {
+    label: "Aurora",
+    badge: "Visual Showcase",
+    description:
+      "Vibrant visual layout designed for brand showcases and hero imagery",
+  },
+  studio: {
+    label: "Studio",
+    badge: "Minimalist",
+    description:
+      "Minimalist boutique aesthetic focusing on typography and product imagery",
+  },
+};
+
 const SUBDOMAIN_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const RESERVED_SUBDOMAINS = new Set([
   "www",
@@ -48,6 +82,7 @@ export function catalogFormValues(catalog) {
     subdomain: catalog?.subdomain ?? "",
     stores: catalog?.stores ?? [],
     defaultStore: catalog?.defaultStore ?? "",
+    templateId: catalog?.templateId ?? "classic",
     status: catalog?.status ?? "ACTIVE",
   };
 }
@@ -59,6 +94,7 @@ export function buildCatalogPayload(form, availableStoreIds) {
     subdomain: form.subdomain.trim().toLowerCase(),
     stores: [...new Set(form.stores)],
     defaultStore: form.defaultStore || null,
+    templateId: form.templateId || "classic",
     status: form.status,
   };
   if (!payload.name || payload.name.length > 200)
@@ -71,6 +107,8 @@ export function buildCatalogPayload(form, availableStoreIds) {
     fields.defaultStore = "Select a default Store from the linked Stores.";
   if (!CATALOG_STATUSES.some((option) => option.value === payload.status))
     fields.status = "Choose a valid status.";
+  if (!CATALOG_TEMPLATES.some((option) => option.value === payload.templateId))
+    fields.templateId = "Choose a valid catalog template.";
   return { payload, fields };
 }
 

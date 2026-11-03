@@ -2,16 +2,28 @@
 
 import { getCatalogUrl } from "@dragorbit/core/domain";
 import {
+  Calendar,
+  Check,
+  Clock,
   Copy,
   ExternalLink,
   Globe,
-  Pencil,
+  LayoutTemplate,
   Plus,
+  Save,
   Store,
-  Trash2,
 } from "lucide-react";
-import { Badge, Button, EmptyState, SideDrawer } from "@/components/ui";
-import { CATALOG_STATUSES } from "@/utils/catalog.util";
+import { useState } from "react";
+import { Badge, Button, EmptyState, Select, SideDrawer } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
+import catalogService from "@/service/retailer/catalog.service";
+import {
+  CATALOG_STATUSES,
+  CATALOG_TEMPLATE_DETAILS,
+  CATALOG_TEMPLATES,
+} from "@/utils/catalog.util";
+import { copyToClipboard } from "@/utils/clipboard";
 import { formatDateTime } from "@/utils/dateFormatter";
 import { pickStoreId } from "@/utils/store.util";
 
@@ -20,153 +32,296 @@ export default function CatalogDetailsDrawer({
   stores,
   onClose,
   onEdit,
-  onDelete,
-  onCopyLink,
+  onUpdated,
 }) {
-  const storeNames = new Map(
-    stores.map((store) => [pickStoreId(store), store.storeName || store.name])
-  );
+  const [templateId, setTemplateId] = useState(catalog.templateId || "classic");
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
+  const { execute, loading } = useApiResponse();
+  const { showSuccess } = useGlobalToast();
+
+  const storeMap = new Map(stores.map((store) => [pickStoreId(store), store]));
   const shopUrl = getCatalogUrl(catalog.subdomain);
   const status =
     CATALOG_STATUSES.find((option) => option.value === catalog.status)?.label ||
     catalog.status;
+
+  const currentTemplateDetails =
+    CATALOG_TEMPLATE_DETAILS[templateId] ||
+    CATALOG_TEMPLATE_DETAILS[catalog.templateId || "classic"];
+
+  const handleCopyUrl = async () => {
+    const copied = await copyToClipboard(shopUrl);
+    if (copied) {
+      setCopiedUrl(true);
+      setTimeout(() => setCopiedUrl(false), 2000);
+    }
+  };
+
+  const handleCopyId = async () => {
+    const copied = await copyToClipboard(catalog.catalogId);
+    if (copied) {
+      setCopiedId(true);
+      setTimeout(() => setCopiedId(false), 2000);
+    }
+  };
+
+  const handleSaveTemplate = async () => {
+    const result = await execute(
+      catalogService.updateCatalog(catalog.id, { templateId })
+    );
+    if (result.success) {
+      showSuccess("Storefront template updated successfully");
+      onUpdated?.(result.data);
+    }
+  };
+
   return (
     <SideDrawer
       isOpen
       onClose={onClose}
-      title="Digital shop details"
+      title="Digital Shop Details"
       icon={Store}
-      position="center"
+      position="right"
       width="w-full sm:w-[560px]"
-      autoHeight
       closeOnEscape
-      draggable={false}
-      resizable={false}
       footer={
-        <div className="flex w-full flex-wrap items-center justify-between gap-3">
+        <div className="flex w-full items-center justify-start">
           <Button
-            variant="ghost"
-            className="!text-red-500 hover:!bg-red-500/10"
-            leftIcon={Trash2}
-            onClick={() => onDelete(catalog)}
+            variant="outline"
+            className="cursor-pointer"
+            onClick={onClose}
           >
-            Delete shop
+            Close
           </Button>
-          <div className="flex flex-1 justify-end gap-2">
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
-            <Button leftIcon={Pencil} onClick={() => onEdit(catalog)}>
-              Edit shop
-            </Button>
-          </div>
         </div>
       }
     >
       <div className="space-y-5 p-4 sm:p-6 text-[rgb(var(--color-text-primary))]">
-        <div className="flex items-start gap-3">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+        {/* Shop Identity Header */}
+        <div className="flex items-start gap-3.5 pb-1">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
             <Store className="h-6 w-6" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <h2 className="break-words text-xl font-semibold leading-tight">
-              {catalog.name}
-            </h2>
-            <p className="mt-1 break-all text-sm text-[rgb(var(--color-text-secondary))]">
-              {catalog.subdomain}
-            </p>
           </div>
-          <Badge
-            variant={
-              catalog.status === "ACTIVE"
-                ? "success"
-                : catalog.status === "SUSPENDED"
-                  ? "danger"
-                  : "secondary"
-            }
-            size="sm"
-          >
-            {status}
-          </Badge>
-        </div>
-        <section
-          className="space-y-3 rounded-xl border border-[rgb(var(--color-primary))]/15 bg-[rgb(var(--color-primary))]/5 p-4"
-          aria-label="Shop link"
-        >
-          <div className="flex items-start gap-2.5">
-            <Globe className="mt-0.5 h-4 w-4 shrink-0 text-[rgb(var(--color-primary))]" />
-            <div className="min-w-0">
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                Shop address
-              </p>
-              <p className="mt-1 break-all text-sm font-medium">{shopUrl}</p>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="break-words text-xl font-bold text-[rgb(var(--color-text-primary))] leading-tight">
+                {catalog.name}
+              </h2>
+              <Badge
+                variant={
+                  catalog.status === "ACTIVE"
+                    ? "success"
+                    : catalog.status === "SUSPENDED"
+                      ? "danger"
+                      : "secondary"
+                }
+                size="sm"
+              >
+                {status}
+              </Badge>
+            </div>
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-[rgb(var(--color-text-secondary))]">
+              <span className="font-medium text-[rgb(var(--color-text-tertiary))]">
+                Shop ID:
+              </span>
+              <span className="font-mono font-medium text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-secondary))] px-2 py-0.5 rounded border border-[rgb(var(--color-border-primary))]">
+                {catalog.catalogId}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyId}
+                title={copiedId ? "Copied Shop ID!" : "Copy Shop ID"}
+                aria-label="Copy Shop ID"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-primary))] hover:border-[rgb(var(--color-primary))]/40 transition-colors cursor-pointer"
+              >
+                {copiedId ? (
+                  <Check className="h-3 w-3 text-emerald-500" />
+                ) : (
+                  <Copy className="h-3 w-3" />
+                )}
+              </button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              leftIcon={Copy}
-              onClick={() => onCopyLink(catalog)}
+        </div>
+
+        {/* Storefront Link Banner */}
+        <section
+          className="rounded-xl border border-[rgb(var(--color-primary))]/20 bg-[rgb(var(--color-primary))]/5 p-3.5"
+          aria-label="Shop storefront link"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                <Globe className="h-4 w-4" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] leading-none">
+                  Shop Address
+                </p>
+                <a
+                  href={shopUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={shopUrl}
+                  className="mt-1 inline-flex items-center gap-1.5 max-w-full font-mono text-sm font-semibold text-[rgb(var(--color-primary))] hover:underline transition-opacity group min-w-0 cursor-pointer"
+                >
+                  <span className="truncate">{shopUrl}</span>
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
+                </a>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCopyUrl}
+              title={copiedUrl ? "Copied to clipboard!" : "Copy link"}
+              aria-label={copiedUrl ? "Copied to clipboard" : "Copy shop link"}
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all active:scale-95 cursor-pointer ${
+                copiedUrl
+                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  : "border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/40 hover:bg-[rgb(var(--color-primary))]/10 hover:text-[rgb(var(--color-primary))]"
+              }`}
             >
-              Copy link
-            </Button>
-            <Button
-              leftIcon={ExternalLink}
-              onClick={() =>
-                window.open(shopUrl, "_blank", "noopener,noreferrer")
-              }
-            >
-              Open digital shop
-            </Button>
+              {copiedUrl ? (
+                <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </button>
           </div>
         </section>
-        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="min-w-0">
-            <dt className="text-xs text-[rgb(var(--color-text-secondary))]">
-              Shop ID
-            </dt>
-            <dd className="mt-1 break-all font-mono text-sm font-medium">
-              {catalog.catalogId}
-            </dd>
-          </div>
-          <div className="min-w-0">
-            <dt className="text-xs text-[rgb(var(--color-text-secondary))]">
-              Default Store
-            </dt>
-            <dd className="mt-1 break-words text-sm font-medium">
-              {catalog.defaultStore
-                ? storeNames.get(catalog.defaultStore) || "Unavailable Store"
-                : "Not selected"}
-            </dd>
-          </div>
-        </dl>
-        <section className="space-y-3 border-t border-[rgb(var(--color-border-primary))] pt-5">
+
+        {/* Storefront Template Section */}
+        <section
+          className="space-y-3 border-t border-[rgb(var(--color-border-primary))] pt-4"
+          aria-label="Storefront template"
+        >
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Linked Stores</h3>
+            <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+              Storefront Template
+            </h3>
+            {currentTemplateDetails?.badge && (
+              <Badge size="xs" variant="primary">
+                {currentTemplateDetails.badge}
+              </Badge>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/40 p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                  <LayoutTemplate className="h-4 w-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] leading-none">
+                    Active Layout
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                    {currentTemplateDetails?.label || templateId}
+                  </p>
+                </div>
+              </div>
+              <div className="w-40 shrink-0">
+                <Select
+                  value={templateId}
+                  options={CATALOG_TEMPLATES}
+                  onChange={setTemplateId}
+                  disabled={loading}
+                  size="sm"
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed pt-2 border-t border-[rgb(var(--color-border-primary))]/50">
+              {currentTemplateDetails?.description ||
+                "Storefront layout for your digital catalog."}
+            </p>
+
+            {templateId !== (catalog.templateId || "classic") && (
+              <div className="flex justify-end pt-1">
+                <Button
+                  size="sm"
+                  leftIcon={Save}
+                  loading={loading}
+                  className="cursor-pointer"
+                  onClick={handleSaveTemplate}
+                >
+                  Save layout
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Linked Stores Section */}
+        <section className="space-y-3 border-t border-[rgb(var(--color-border-primary))] pt-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                Linked Stores
+              </h3>
+              <p className="mt-0.5 text-xs text-[rgb(var(--color-text-secondary))]">
+                Agency Stores available in this Digital Shop.
+              </p>
+            </div>
             <Badge size="xs" variant="secondary">
               {catalog.stores.length}
             </Badge>
           </div>
+
           {catalog.stores.length ? (
             <ul className="space-y-2">
-              {catalog.stores.map((id) => (
-                <li
-                  key={id}
-                  className="flex items-center gap-3 rounded-lg border border-[rgb(var(--color-border-primary))] p-3"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[rgb(var(--color-bg-secondary))]">
-                    <Store className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
-                  </span>
-                  <span className="min-w-0 flex-1 break-words text-sm font-medium">
-                    {storeNames.get(id) || `Unavailable Store (${id})`}
-                  </span>
-                  {catalog.defaultStore === id && (
-                    <Badge variant="primary" size="xs">
-                      Default
-                    </Badge>
-                  )}
-                </li>
-              ))}
+              {catalog.stores.map((id) => {
+                const store = storeMap.get(id);
+                const name =
+                  store?.storeName ||
+                  store?.name ||
+                  `Unavailable Store (${id})`;
+                const location = [store?.address?.city, store?.address?.state]
+                  .filter(Boolean)
+                  .join(", ");
+                const isDefault = catalog.defaultStore === id;
+
+                return (
+                  <li
+                    key={id}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/30 p-3 hover:bg-[rgb(var(--color-bg-secondary))]/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
+                        <Store className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                          {name}
+                        </p>
+                        {location ? (
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] truncate">
+                            {location}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                            {isDefault
+                              ? "Primary store for orders"
+                              : "Linked store location"}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {isDefault ? (
+                      <Badge variant="primary" size="xs">
+                        Default Store
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" size="xs">
+                        Linked
+                      </Badge>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <EmptyState
@@ -183,21 +338,37 @@ export default function CatalogDetailsDrawer({
             />
           )}
         </section>
-        <dl className="grid grid-cols-1 gap-3 border-t border-[rgb(var(--color-border-primary))] pt-4 sm:grid-cols-2">
-          {[
-            ["Created", catalog.createdAt],
-            ["Last updated", catalog.updatedAt],
-          ].map(([label, date]) => (
-            <div key={label}>
-              <dt className="text-xs text-[rgb(var(--color-text-tertiary))]">
-                {label}
-              </dt>
-              <dd className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
-                {formatDateTime(date)}
-              </dd>
+
+        {/* Audit Timestamps */}
+        <div className="rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/30 p-3 grid grid-cols-2 gap-3 text-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-tertiary))]">
+              <Calendar className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0">
+              <span className="block text-[10px] uppercase font-semibold text-[rgb(var(--color-text-tertiary))] tracking-wider">
+                Created
+              </span>
+              <span className="text-[rgb(var(--color-text-secondary))] font-medium truncate block text-xs">
+                {formatDateTime(catalog.createdAt)}
+              </span>
             </div>
-          ))}
-        </dl>
+          </div>
+
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-tertiary))]">
+              <Clock className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0">
+              <span className="block text-[10px] uppercase font-semibold text-[rgb(var(--color-text-tertiary))] tracking-wider">
+                Last Updated
+              </span>
+              <span className="text-[rgb(var(--color-text-secondary))] font-medium truncate block text-xs">
+                {formatDateTime(catalog.updatedAt)}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </SideDrawer>
   );
