@@ -1,7 +1,7 @@
 "use client";
 import { ManagementShortcutsView } from "@dragorbit/features/management";
 
-import { Activity, CreditCard, Users } from "lucide-react";
+import { Activity, CreditCard, Store, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,13 +10,21 @@ const ManagementShortcuts = () => {
 
   const managementLinks = [
     {
-      name: "Staff Management",
+      name: "Staff Roster",
       desc: "Manage roles & permissions",
       href: "/dashboard/management/staff",
       icon: Users,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
       key: "F",
+    },
+    {
+      name: "Store Registry",
+      desc: "Manage stores & branches",
+      href: "/dashboard/management/stores",
+      icon: Store,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
     },
     {
       name: "Subscription",

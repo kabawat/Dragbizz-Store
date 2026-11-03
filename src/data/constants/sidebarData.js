@@ -277,7 +277,20 @@ export const getManagementSubMenuItems = (t) => [
     module: "online_store",
   },
   {
-    name: t("sidebar.staff") || "Staff",
+    name:
+      t(
+        "sidebar.storeRegistry",
+        t("sidebar.storeManagement", "Store Registry")
+      ) || "Store Registry",
+    icon: Store,
+    href: "/dashboard/management/stores",
+  },
+  {
+    name:
+      t(
+        "sidebar.staffRoster",
+        t("sidebar.staffManagement", t("sidebar.staff", "Staff Roster"))
+      ) || "Staff Roster",
     icon: UserCog,
     href: "/dashboard/management/staff",
     shortcut: "f",
@@ -397,7 +410,8 @@ export const getNavigationItems = (
     key: "analytics",
   },
   {
-    name: t("sidebar.management") || "Management",
+    name:
+      t("sidebar.storeAndStaff") || t("sidebar.management") || "Store & Staff",
     icon: Shield,
     href: "/dashboard/management/staff",
     hasSubMenu: true,

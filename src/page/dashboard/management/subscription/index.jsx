@@ -16,7 +16,9 @@ const SubscriptionManagementPage = () => {
 
   const planName = isKhataFree
     ? t("subscription.khataFree.title")
-    : subscription?.packageId?.name || t("subscription.trialPlan");
+    : subscription?.packageId?.name ||
+      subscription?.planType ||
+      (subscription?.amount ? "Premium Plan" : t("subscription.trialPlan"));
 
   const onUpgrade = () => {
     redirectToMainDomain("/pricing");
