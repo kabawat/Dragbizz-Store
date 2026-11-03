@@ -13,7 +13,6 @@ const API_CONFIG = {
   BASE: {
     URL: process.env.NEXT_PUBLIC_API_URL || "",
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
-    VERSION: process.env.NEXT_PUBLIC_API_VERSION || "v1",
   },
 
   // Authentication
@@ -122,28 +121,6 @@ const API_CONFIG = {
     CREATE_PACKAGE_PAYMENT: "/create-order",
     VERIFY_PACKAGE_PAYMENT: "/verify",
   }),
-
-  // External Services
-  EXTERNAL: {
-    GOOGLE_MAPS: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API || "",
-    STRIPE: process.env.NEXT_PUBLIC_STRIPE_API || "",
-    PAYPAL: process.env.NEXT_PUBLIC_PAYPAL_API || "",
-    TWILIO: process.env.NEXT_PUBLIC_TWILIO_API || "",
-  },
-
-  // Request Settings
-  REQUEST: {
-    RETRY_ATTEMPTS: process.env.NEXT_PUBLIC_API_RETRY_ATTEMPTS || 3,
-    RETRY_DELAY: process.env.NEXT_PUBLIC_API_RETRY_DELAY || 1000,
-    CACHE_DURATION: process.env.NEXT_PUBLIC_API_CACHE_DURATION || 300000,
-  },
-
-  // Response Status Codes
-  RESPONSE: {
-    SUCCESS_CODES: [200, 201, 202],
-    ERROR_CODES: [400, 401, 403, 404, 422, 500],
-    TIMEOUT_CODE: 408,
-  },
 };
 
 API_CONFIG.RETAILER = API_CONFIG.CORE;

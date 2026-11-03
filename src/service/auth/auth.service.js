@@ -72,7 +72,7 @@ class AuthService {
   // Logout method
   async logout() {
     try {
-      const response = await authAxios.post(API_CONFIG.AUTH.LOGOUT || "/auth/logout");
+      const response = await authAxios.post(API_CONFIG.AUTH.LOGOUT);
       return handleApiSuccess(response, "Logged out successfully");
     } catch (error) {
       return handleApiErrorResponse(error, "logout");
