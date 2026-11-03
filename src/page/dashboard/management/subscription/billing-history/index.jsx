@@ -1,14 +1,14 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import moment from "moment";
 import { BillingHistoryScreen } from "@dragorbit/features/management";
+import moment from "moment";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
-import { useTranslation } from "@/hooks/ui/useTranslation";
+import ToastContainer from "@/components/ui/ToastContainer";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useToast } from "@/hooks/ui/useToast";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billingService } from "@/service/retailer";
-import ToastContainer from "@/components/ui/ToastContainer";
 
 const BillingHistoryPage = () => {
   const router = useRouter();
@@ -30,11 +30,14 @@ const BillingHistoryPage = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await billingService.getInvoices({ limit: 50 });
-      if (response?.success) {
-        setInvoices(Array.isArray(response.data) ? response.data : []);
+      const billingResponse = await billingService.getInvoices({ limit: 50 });
+      if (billingResponse?.success) {
+        setInvoices(
+          Array.isArray(billingResponse.data) ? billingResponse.data : []
+        );
       } else {
-        const msg = response?.message || "Failed to load billing history";
+        const msg =
+          billingResponse?.message || "Failed to load billing history";
         setError(msg);
       }
     } catch (err) {
@@ -130,4 +133,3 @@ const BillingHistoryPage = () => {
 };
 
 export default BillingHistoryPage;
-

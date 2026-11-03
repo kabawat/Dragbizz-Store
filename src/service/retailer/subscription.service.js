@@ -5,6 +5,10 @@ class SubscriptionService extends BaseService {
   getSubscription(params = {}) {
     return this.get(API_CONFIG?.CORE?.SUBSCRIPTION, params);
   }
+
+  getHistory(params = {}) {
+    return this.get(`${API_CONFIG?.CORE?.SUBSCRIPTION}/history`, params);
+  }
 }
 
 const subscriptionService = new SubscriptionService();

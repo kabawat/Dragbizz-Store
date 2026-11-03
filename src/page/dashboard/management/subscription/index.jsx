@@ -1,14 +1,12 @@
 "use client";
-import { SubscriptionScreen } from "@dragorbit/features/management";
-
-import moment from "moment";
-
-import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
-import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
-import { useSubscription } from "@/contexts/SubscriptionContext";
-import { useRouter } from "next/navigation";
 import { redirectToMainDomain } from "@dragorbit/core/domain";
+import { SubscriptionScreen } from "@dragorbit/features/management";
+import moment from "moment";
+import { useRouter } from "next/navigation";
+import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const SubscriptionManagementPage = () => {
   const router = useRouter();
@@ -28,6 +26,10 @@ const SubscriptionManagementPage = () => {
     router.push("/dashboard/management/subscription/billing-history");
   };
 
+  const onViewUsage = () => {
+    router.push("/dashboard/management/limits");
+  };
+
   return (
     <SubscriptionScreen
       model={{
@@ -35,6 +37,7 @@ const SubscriptionManagementPage = () => {
         subscription,
         onUpgrade,
         onViewBillingHistory,
+        onViewUsage,
         t,
         planName,
         isKhataFree,

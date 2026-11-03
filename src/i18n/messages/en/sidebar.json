@@ -42,6 +42,8 @@
   "integrations": "Integrations",
   "tally": "Tally",
   "paymentGateway": "Payment Gateway",
+  "paymentBilling": "Payment & Billing",
+  "billingHistory": "Billing History",
   "categories": "Category",
   "brands": "Brand",
   "variants": "Variant",
