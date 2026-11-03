@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button, PageLoader } from "@/components/ui";
 import { VariantForm } from "@/components/variant";
+import { VariantDeleteDialog } from "@dragorbit/features/variants";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useDashboardHeader } from "@/hooks/ui/useDashboardHeader";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -80,9 +81,9 @@ const ViewVariantPage = ({ variantId }) => {
     load();
   }, [variantId, storeId, executeFetch]);
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (options = {}) => {
     const result = await executeDelete(
-      variantService.deleteVariant(variantId, storeId),
+      variantService.deleteVariant(variantId, storeId, options),
       {
         message:
           t("products.variantDeleteSuccess") || "Variant deleted successfully",
@@ -92,6 +93,7 @@ const ViewVariantPage = ({ variantId }) => {
       setShowDeleteModal(false);
       router.push("/dashboard/variants");
     }
+    return result;
   };
 
   if (fetching || (!formData.id && !fetchError)) {
@@ -200,61 +202,16 @@ const ViewVariantPage = ({ variantId }) => {
       </div>
 
       {showDeleteModal && (
-        <div className="fixed inset-0 backdrop-blur-[2px] bg-black/10 flex items-center justify-center z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-2xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-[rgb(var(--color-border-primary))] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                    {t("products.deleteVariant") || "Delete variant"}
-                  </h2>
-                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                    {t("modals.deleteConfirmMessage") ||
-                      "This action cannot be undone"}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => !isDeleting && setShowDeleteModal(false)}
-                className="p-2 hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg"
-                disabled={isDeleting}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="px-6 py-4">
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-                {t("products.variantDeleteConfirm") ||
-                  "Are you sure you want to delete"}
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {variantDisplayLabel(formData)}
-                </span>
-                ?
-              </p>
-              <div className="flex justify-end gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDeleteModal(false)}
-                  disabled={isDeleting}
-                >
-                  {t("common.cancel")}
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={handleConfirmDelete}
-                  loading={isDeleting}
-                  leftIcon={Trash2}
-                >
-                  {t("common.delete")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <VariantDeleteDialog
+          model={{
+            t,
+            variantDisplayLabel,
+            setVariantToDelete: (val) => setShowDeleteModal(Boolean(val)),
+            variantToDelete: formData,
+            isDeleting,
+            handleConfirmDelete,
+          }}
+        />
       )}
     </div>
   );

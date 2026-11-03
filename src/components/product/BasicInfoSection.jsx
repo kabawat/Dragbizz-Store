@@ -17,6 +17,7 @@ const BasicInfoSection = ({
   brandsLoading = false,
   hasVariants = false,
   onHasVariantsChange = () => {},
+  onUploadImages,
 }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -38,6 +39,7 @@ const BasicInfoSection = ({
       currencyOptions={CURRENCY_OPTIONS}
       uomOptions={UOM_OPTIONS}
       hasStoreGst={hasStoreGst}
+      onUploadImages={onUploadImages}
       t={t}
     />
   );

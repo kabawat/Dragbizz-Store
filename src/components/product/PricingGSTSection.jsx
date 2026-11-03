@@ -8,6 +8,8 @@ const PricingGSTSection = ({
   onChange,
   errors = {},
   hasVariants = false,
+  onUploadImages,
+  onDuplicate,
 }) => {
   const { t } = useTranslation();
 
@@ -17,6 +19,8 @@ const PricingGSTSection = ({
       onChange={onChange}
       errors={errors}
       hasVariants={hasVariants}
+      onUploadImages={onUploadImages}
+      onDuplicate={onDuplicate}
       t={t}
     />
   );

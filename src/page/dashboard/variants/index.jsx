@@ -55,11 +55,11 @@ const VariantsPage = () => {
 		fetchVariants();
 	}, [fetchVariants]);
 
-	const handleConfirmDelete = async () => {
+	const handleConfirmDelete = async (options = {}) => {
 		if (!variantToDelete) return;
 		const id = variantToDelete._id || variantToDelete.id;
 		const result = await executeDelete(
-			variantService.deleteVariant(id, storeId),
+			variantService.deleteVariant(id, storeId, options),
 			{
 				message:
 					t("products.variantDeleteSuccess") || "Variant deleted successfully",
@@ -69,6 +69,7 @@ const VariantsPage = () => {
 			setVariantToDelete(null);
 			fetchVariants();
 		}
+		return result;
 	};
 
 	return (

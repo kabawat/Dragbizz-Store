@@ -16,6 +16,7 @@ export default function VariantsSection({
   onHasVariantsChange = () => {},
   baseFormData = {},
   disabled = false,
+  variant1Card = null,
 }) {
   const { t } = useTranslation();
 
@@ -48,6 +49,7 @@ export default function VariantsSection({
       onHasVariantsChange={onHasVariantsChange}
       baseFormData={baseFormData}
       disabled={disabled}
+      variant1Card={variant1Card}
       onUploadImages={handleUploadImages}
       t={t}
     />

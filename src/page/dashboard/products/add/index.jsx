@@ -6,7 +6,7 @@ import {
   validateProductForm,
   validateVariants,
 } from "@dragorbit/features/products";
-import { ArrowLeft, Layers, Package, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -169,14 +169,9 @@ const AddProductPage = () => {
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-bold text-[rgb(var(--color-text-primary))]">
-                  {t("products.addNewProduct", "Add New Product")}
-                </h1>
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                  {t("products.newProductBadge", "Draft")}
-                </span>
-              </div>
+              <h1 className="text-lg sm:text-xl font-bold text-[rgb(var(--color-text-primary))]">
+                {t("products.addNewProduct", "Add New Product")}
+              </h1>
               <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5">
                 {t(
                   "products.addNewProductSubtitle",
@@ -206,45 +201,20 @@ const AddProductPage = () => {
 
       {/* Sticky Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-[rgb(var(--color-bg-primary)/0.95)] backdrop-blur-md border-t border-[rgb(var(--color-border-primary))] px-4 sm:px-8 py-3.5 shadow-lg">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[rgb(var(--color-primary)/0.1)] text-[rgb(var(--color-primary))] flex items-center justify-center shrink-0">
-              <Package className="w-4 h-4" />
-            </div>
-            <div className="min-w-0 truncate">
-              <span className="block text-xs font-medium text-[rgb(var(--color-text-secondary))]">
-                {t("products.creatingProduct", "Creating Product:")}
-              </span>
-              <span className="block text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">
-                {formData.name?.trim() ||
-                  t("products.untitledProduct", "Untitled Product")}
-              </span>
-            </div>
-
-            {hasVariants && variants.length > 0 && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[rgb(var(--color-primary)/0.1)] text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary)/0.2)] shrink-0 ml-2">
-                <Layers className="w-3.5 h-3.5" />
-                {variants.length}{" "}
-                {variants.length === 1 ? "Variant" : "Variants"}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            <Button variant="outline" onClick={handleCancel} disabled={loading}>
-              {t("common.cancel", "Cancel")}
-            </Button>
-            <Button
-              variant="success"
-              onClick={handleSaveAndPublish}
-              disabled={loading}
-              loading={loading}
-              leftIcon={Save}
-              className="shadow-sm"
-            >
-              {t("products.saveAndPublish", "Save & Publish")}
-            </Button>
-          </div>
+        <div className="max-w-7xl mx-auto flex items-center justify-end gap-3">
+          <Button variant="outline" onClick={handleCancel} disabled={loading}>
+            {t("common.cancel", "Cancel")}
+          </Button>
+          <Button
+            variant="success"
+            onClick={handleSaveAndPublish}
+            disabled={loading}
+            loading={loading}
+            leftIcon={Save}
+            className="shadow-sm"
+          >
+            {t("products.saveAndPublish", "Save & Publish")}
+          </Button>
         </div>
       </div>
     </div>

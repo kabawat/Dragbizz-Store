@@ -406,5 +406,10 @@
   "default": "डिफ़ॉल्ट",
   "deleteVariant": "वेरिएंट हटाएँ",
   "displayName": "दिखने वाला नाम",
-  "variantDeleteConfirm": "क्या आप इस वेरिएंट को हटाना चाहते हैं?"
+  "variantDeleteConfirm": "क्या आप इस वेरिएंट को हटाना चाहते हैं?",
+  "forceDelete": "फ़ोर्स डिलीट करें",
+  "forceDeleteRequired": "डिफ़ॉल्ट वेरिएंट को हटाने के लिए पुष्टि आवश्यक है",
+  "cannotDeleteVariant": "यह वेरिएंट हटाया नहीं जा सकता",
+  "forceDeleteVariantConfirm": "इस डिफ़ॉल्ट वेरिएंट को फ़ोर्स डिलीट करें",
+  "forceDeleteVariantWarning": "मैं समझता हूँ कि यह डिफ़ॉल्ट वेरिएंट है। आगे बढ़ने पर यह स्थायी रूप से हटा दिया जाएगा।"
 }
