@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class PackageService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.PACKAGES;
+    this.endpoint = API_CONFIG?.CORE?.PACKAGES;
   }
 
   getPackages(params = {}) {

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class PaymentService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.PAYMENT;
+    this.endpoint = API_CONFIG?.CORE?.PAYMENT;
   }
 
   // Transform payment data to match API structure

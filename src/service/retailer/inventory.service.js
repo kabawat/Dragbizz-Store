@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class InventoryService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.STOCK;
+    this.endpoint = API_CONFIG?.CORE?.STOCK;
   }
 
   // Get all inventories with query parameters

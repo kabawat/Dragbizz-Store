@@ -5,12 +5,12 @@ import { API_CONFIG } from "@/config";
 class StoreService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.STORE;
+    this.endpoint = API_CONFIG?.CORE?.STORE;
   }
 
   // Uses Auth service token
   async getRetailerProfile() {
-    return this.post(API_CONFIG?.RETAILER?.PROFILE);
+    return this.post(API_CONFIG?.CORE?.PROFILE);
   }
 
   // Create store using auth service token
@@ -104,7 +104,7 @@ class StoreService extends BaseService {
 
   // Verify GST number
   async verifyGst(gstNo) {
-    return this.post(API_CONFIG?.RETAILER?.GST_VERIFY, { gstNo });
+    return this.post(API_CONFIG?.CORE?.GST_VERIFY, { gstNo });
   }
 
   async getInvoiceNumberTemplates(storeId) {

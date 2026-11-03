@@ -40,7 +40,7 @@ function applyEnrichedList(response, enriched) {
 class ProductService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.PRODUCT;
+    this.endpoint = API_CONFIG?.CORE?.PRODUCT;
   }
 
   createProduct(productData) {

@@ -4,9 +4,9 @@ import { BaseService } from "@/service/base/BaseService";
 class CustomerAccountService extends BaseService {
   constructor() {
     super();
-    this.accountEndpoint = API_CONFIG.RETAILER.CUSTOMER_ACCOUNT;
-    this.paymentsEndpoint = API_CONFIG.RETAILER.CUSTOMER_ACCOUNT_PAYMENTS;
-    this.transactionsEndpoint = API_CONFIG.RETAILER.CUSTOMER_ACCOUNT_TRANSACTIONS;
+    this.accountEndpoint = API_CONFIG?.CORE?.CUSTOMER_ACCOUNT;
+    this.paymentsEndpoint = API_CONFIG?.CORE?.CUSTOMER_ACCOUNT_PAYMENTS;
+    this.transactionsEndpoint = API_CONFIG?.CORE?.CUSTOMER_ACCOUNT_TRANSACTIONS;
   }
 
   getAccounts(params = {}) {

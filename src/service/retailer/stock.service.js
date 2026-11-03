@@ -7,7 +7,7 @@ class StockService {
   }
 
   async addStock(stockData) {
-    return authAxios.post(API_CONFIG?.RETAILER?.STOCK, stockData);
+    return authAxios.post(API_CONFIG?.CORE?.STOCK, stockData);
   }
 }
 

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class CatalogService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.CATALOG;
+    this.endpoint = API_CONFIG?.CORE?.CATALOG;
   }
 
   getCatalogs(params = {}) {

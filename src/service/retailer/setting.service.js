@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class SettingService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.SETTING || "/retailer/setting";
+    this.endpoint = API_CONFIG?.CORE?.SETTING;
   }
 
   // Cashbook Settings
@@ -55,4 +55,3 @@ class SettingService extends BaseService {
 
 export const settingService = new SettingService();
 export default settingService;
-

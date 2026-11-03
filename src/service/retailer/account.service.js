@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class AccountService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.ACCOUNT;
+    this.endpoint = API_CONFIG?.CORE?.ACCOUNT;
   }
 
   createAccount(accountData) {

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class CashbookService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.CASHBOOK;
+    this.endpoint = API_CONFIG?.CORE?.CASHBOOK;
   }
 
   reconcile(storeId, data) {
@@ -34,7 +34,7 @@ class CashbookService extends BaseService {
   }
 
   getAnalytics(params = {}) {
-    return this.get(`${API_CONFIG.RETAILER.ANALYTICS}/cashbook`, params);
+    return this.get(`${API_CONFIG?.CORE?.ANALYTICS}/cashbook`, params);
   }
 }
 

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class CustomerService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.CUSTOMER;
+    this.endpoint = API_CONFIG?.CORE?.CUSTOMER;
   }
 
   // Create a new customer

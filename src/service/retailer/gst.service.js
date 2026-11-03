@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class GstService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.GST;
+    this.endpoint = API_CONFIG?.CORE?.GST;
   }
 
   getGstSummary(storeId, params = {}) {

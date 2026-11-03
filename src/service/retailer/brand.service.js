@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class BrandService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.BRAND || "/retailer/brand";
+    this.endpoint = API_CONFIG?.CORE?.BRAND;
   }
 
   createBrand(brandData, storeId = null) {

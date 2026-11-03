@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class SignatureService extends BaseService {
     constructor() {
         super();
-        this.baseEndpoint = API_CONFIG?.RETAILER?.SIGNATURE;
+        this.baseEndpoint = API_CONFIG?.CORE?.SIGNATURE;
     }
 
     // Create a new signature

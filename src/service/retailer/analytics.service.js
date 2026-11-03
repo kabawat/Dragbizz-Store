@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class AnalyticsService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.ANALYTICS;
+    this.endpoint = API_CONFIG?.CORE?.ANALYTICS;
   }
 
   getCustomerAnalytics(params = {}) {

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class PublicTemplateService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.PUBLIC_TEMPLATES;
+    this.endpoint = API_CONFIG?.CORE?.PUBLIC_TEMPLATES;
   }
 
   getTemplate(module = null) {

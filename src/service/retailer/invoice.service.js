@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class InvoiceService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.INVOICE;
+    this.endpoint = API_CONFIG?.CORE?.INVOICE;
   }
 
   // Preview totals & GST breakup (transaction-level, no persist)

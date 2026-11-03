@@ -9,11 +9,11 @@ class SubscriptionService extends BaseService {
       fields: "_id,status,startDate,endDate,features,packageId",
     };
 
-    return this.get(`${API_CONFIG.RETAILER.SUBSCRIPTION}/active`, params);
+    return this.get(`${API_CONFIG?.CORE?.SUBSCRIPTION}/active`, params);
   }
 
   getSubscriptionHistory(params = {}) {
-    return this.get(`${API_CONFIG.RETAILER.SUBSCRIPTION}/history`, params);
+    return this.get(`${API_CONFIG?.CORE?.SUBSCRIPTION}/history`, params);
   }
 }
 

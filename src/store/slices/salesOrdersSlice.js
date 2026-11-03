@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import salesOrderService from "@/service/retailer/salesOrder.service";
 import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
-const { API_CONFIG } = require("@/config");
 
 const initialState = {
   hasLoaded: false,

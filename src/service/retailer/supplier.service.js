@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class SupplierService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.SUPPLIER;
+    this.endpoint = API_CONFIG?.CORE?.SUPPLIER;
   }
 
   // Create a new supplier

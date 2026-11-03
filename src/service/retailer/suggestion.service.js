@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class SuggestionService extends BaseService {
     constructor() {
         super();
-        this.baseEndpoint = API_CONFIG?.RETAILER?.SUGGESTION;
+        this.baseEndpoint = API_CONFIG?.CORE?.SUGGESTION;
     }
 
     // Submit a new suggestion

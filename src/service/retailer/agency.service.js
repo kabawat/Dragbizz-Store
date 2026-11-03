@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class AgencyService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.AGENCY;
+    this.endpoint = API_CONFIG?.CORE?.AGENCY;
   }
 
   getSummary() {

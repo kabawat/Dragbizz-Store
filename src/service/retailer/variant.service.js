@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class VariantService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.VARIANT || "/retailer/variant";
+    this.endpoint = API_CONFIG?.CORE?.VARIANT;
   }
 
   getVariants(params = {}) {
