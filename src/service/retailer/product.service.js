@@ -89,7 +89,7 @@ class ProductService extends BaseService {
     }
   }
 
-  deleteProduct(productId, storeId = null) {
+  deleteProduct(productId, storeId = null, options = {}) {
     const resolvedId =
       typeof productId === "object" && productId !== null
         ? (productId.id ?? productId._id ?? productId.productId)
@@ -104,7 +104,11 @@ class ProductService extends BaseService {
       resolvedId,
       resolvedStoreId
     );
-    return this.delete(url);
+    const isForce =
+      typeof options === "boolean" ? options : Boolean(options?.force);
+    const params = isForce ? { force: true } : {};
+    const config = isForce ? { data: { force: true } } : {};
+    return this.delete(url, params, config);
   }
 
   bulkUploadProducts(file, storeId) {

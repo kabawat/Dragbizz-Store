@@ -1,3 +1,21 @@
+export function stripProductNamePrefix(displayName, productName) {
+  const disp = String(displayName || "").trim();
+  const base = String(productName || "").trim();
+  if (!disp) return "";
+  if (!base) return disp;
+  if (disp.toLowerCase().startsWith(base.toLowerCase())) {
+    const remainder = disp.slice(base.length);
+    if (remainder.startsWith(" - ")) return remainder.slice(3).trim();
+    if (remainder.startsWith(" + ")) return remainder.slice(3).trim();
+    if (remainder.startsWith(" ")) return remainder.slice(1).trim();
+    if (remainder.startsWith("-") || remainder.startsWith("+")) {
+      return remainder.slice(1).trim();
+    }
+    return remainder.trim();
+  }
+  return disp;
+}
+
 function toNumber(value) {
   if (value == null || value === "") return undefined;
   const num = Number(value);
@@ -435,12 +453,15 @@ export function buildUnifiedProductPayload({
 
   if (hasVariants) {
     // 1. Primary Variant (from Section 1 Basic Info & Section 2 Pricing & Inventory)
-    // As per user requirement: displayName MUST NOT be product name, but the value from toggled variant name input box (formData.displayName)
-    const primaryDisplayName =
-      String(formData.displayName || "").trim() ||
-      (formData.name ? `${formData.name} - Variant 1` : "Variant 1");
+    // Product name is shown only at the start of the input box in the UI, NOT prepended in payload
+    const cleanedPrimaryName = stripProductNamePrefix(
+      formData.displayName,
+      formData.name ?? normalized.name
+    );
+    const primaryDisplayName = cleanedPrimaryName || "Variant 1";
 
-    const defaultImages = images.length > 0 ? images : (normalized.images ?? []);
+    const defaultImages =
+      images.length > 0 ? images : (normalized.images ?? []);
     const defaultStockQty =
       toNumber(
         formData.stockQuantity ??
@@ -500,12 +521,13 @@ export function buildUnifiedProductPayload({
           .map((o) => ({ name: o.name.trim(), value: o.value.trim() }));
 
         const autoOptionLabel = cleanOptions.map((o) => o.value).join(" / ");
-        const fallbackDisplayName = autoOptionLabel
-          ? `${formData.name || normalized.name || "Product"} - ${autoOptionLabel}`
-          : `${formData.name || normalized.name || "Product"} - Variant ${idx + 2}`;
+        const fallbackDisplayName = autoOptionLabel || `Variant ${idx + 2}`;
 
-        const vDisplayName =
-          String(v.displayName || "").trim() || fallbackDisplayName;
+        const cleanedVName = stripProductNamePrefix(
+          v.displayName,
+          formData.name ?? normalized.name
+        );
+        const vDisplayName = cleanedVName || fallbackDisplayName;
 
         const vMrp = toNumber(v.mrp) ?? 0;
         const vSellingPrice = toNumber(v.sellingPrice) ?? 0;
@@ -518,11 +540,8 @@ export function buildUnifiedProductPayload({
         const vStockQty =
           toNumber(v.stock?.stock ?? v.stock ?? v.openingStock?.quantity) ?? 0;
         const vPurchasePrice =
-          toNumber(
-            v.stock?.purchasePrice ??
-              v.purchasePrice ??
-              v.basePrice
-          ) ?? 0;
+          toNumber(v.stock?.purchasePrice ?? v.purchasePrice ?? v.basePrice) ??
+          0;
         const vSupplier =
           v.stock?.supplier ??
           v.supplierId ??
@@ -839,13 +858,16 @@ export function toProductListItem(input) {
     rawVariants.find((v) => v?.isDefault === true) || rawVariants[0];
 
   const singleSellingPrice =
-    (toNumber(record.sellingPrice) !== undefined && toNumber(record.sellingPrice) > 0
+    (toNumber(record.sellingPrice) !== undefined &&
+    toNumber(record.sellingPrice) > 0
       ? toNumber(record.sellingPrice)
       : undefined) ??
-    (toNumber(defaultVariant?.sellingPrice) !== undefined && toNumber(defaultVariant?.sellingPrice) > 0
+    (toNumber(defaultVariant?.sellingPrice) !== undefined &&
+    toNumber(defaultVariant?.sellingPrice) > 0
       ? toNumber(defaultVariant?.sellingPrice)
       : undefined) ??
-    (toNumber(defaultVariant?.price) !== undefined && toNumber(defaultVariant?.price) > 0
+    (toNumber(defaultVariant?.price) !== undefined &&
+    toNumber(defaultVariant?.price) > 0
       ? toNumber(defaultVariant?.price)
       : undefined) ??
     0;
@@ -854,7 +876,8 @@ export function toProductListItem(input) {
     (toNumber(record.mrp) !== undefined && toNumber(record.mrp) > 0
       ? toNumber(record.mrp)
       : undefined) ??
-    (toNumber(defaultVariant?.mrp) !== undefined && toNumber(defaultVariant?.mrp) > 0
+    (toNumber(defaultVariant?.mrp) !== undefined &&
+    toNumber(defaultVariant?.mrp) > 0
       ? toNumber(defaultVariant?.mrp)
       : undefined) ??
     0;
@@ -863,13 +886,16 @@ export function toProductListItem(input) {
     (toNumber(record.basePrice) !== undefined && toNumber(record.basePrice) > 0
       ? toNumber(record.basePrice)
       : undefined) ??
-    (toNumber(defaultVariant?.stock?.purchasePrice) !== undefined && toNumber(defaultVariant?.stock?.purchasePrice) > 0
+    (toNumber(defaultVariant?.stock?.purchasePrice) !== undefined &&
+    toNumber(defaultVariant?.stock?.purchasePrice) > 0
       ? toNumber(defaultVariant?.stock?.purchasePrice)
       : undefined) ??
-    (toNumber(defaultVariant?.purchasePrice) !== undefined && toNumber(defaultVariant?.purchasePrice) > 0
+    (toNumber(defaultVariant?.purchasePrice) !== undefined &&
+    toNumber(defaultVariant?.purchasePrice) > 0
       ? toNumber(defaultVariant?.purchasePrice)
       : undefined) ??
-    (toNumber(defaultVariant?.basePrice) !== undefined && toNumber(defaultVariant?.basePrice) > 0
+    (toNumber(defaultVariant?.basePrice) !== undefined &&
+    toNumber(defaultVariant?.basePrice) > 0
       ? toNumber(defaultVariant?.basePrice)
       : undefined) ??
     0;
@@ -891,14 +917,9 @@ export function toProductListItem(input) {
     category: record.category,
     subcategories: input?.subcategories ?? [],
     sellingPrice:
-      hasMultipleVariants && priceRange
-        ? priceRange.min
-        : singleSellingPrice,
+      hasMultipleVariants && priceRange ? priceRange.min : singleSellingPrice,
     purchasePrice: singleBasePrice,
-    mrp:
-      hasMultipleVariants && mrpRange
-        ? mrpRange.max
-        : singleMrp,
+    mrp: hasMultipleVariants && mrpRange ? mrpRange.max : singleMrp,
     discount: hasMultipleVariants ? 0 : (toNumber(record.discount) ?? 0),
     currency: record.currency,
     uom: record.uom || defaultVariant?.uom || "PCS",

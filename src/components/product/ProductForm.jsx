@@ -5,10 +5,9 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
-import { brandService, categoryService } from "@/service/retailer";
 
 import { utilityService } from "@/service";
-import { createEmptyVariant } from "@dragorbit/features/products";
+import { brandService, categoryService } from "@/service/retailer";
 import AdditionalDetailsSection from "./AdditionalDetailsSection";
 import BasicInfoSection from "./BasicInfoSection";
 import PricingGSTSection from "./PricingGSTSection";
@@ -202,19 +201,19 @@ const ProductForm = ({
   const handleDuplicateVariant1 = useCallback(() => {
     const duplicated = {
       id: `var_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-      displayName: (formData.displayName || formData.name || formData.productName)
-        ? `${formData.displayName || formData.name || formData.productName} (Copy)`
-        : "",
+      displayName: formData.displayName ? `${formData.displayName} (Copy)` : "",
       mrp: formData.mrp || "",
       sellingPrice: formData.sellingPrice || "",
       purchasePrice: formData.purchasePrice || formData.basePrice || "",
       sku: formData.sku ? `${formData.sku}-COPY` : "",
       barcode: "",
       stock: formData.stock !== undefined ? formData.stock : "",
-      openingStock: formData.openingStock !== undefined ? formData.openingStock : "",
+      openingStock:
+        formData.openingStock !== undefined ? formData.openingStock : "",
       status: formData.status || "ACTIVE",
       images: [
-        ...(Array.isArray(formData.variantImages) && formData.variantImages.length > 0
+        ...(Array.isArray(formData.variantImages) &&
+        formData.variantImages.length > 0
           ? formData.variantImages
           : formData.images || []),
       ],

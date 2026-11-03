@@ -7,6 +7,7 @@
   "editProduct": "ઉત્પાદન સંપાદિત કરો",
   "updateProduct": "અપડેટ કરો",
   "deleteProduct": "ઉત્પાદન કાઢી નાખો",
+  "productDeleteSuccess": "ઉત્પાદન સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું",
   "product": "ઉત્પાદન",
   "productName": "ઉત્પાદન નામ",
   "productCode": "ઉત્પાદન કોડ",
@@ -229,6 +230,13 @@
   "aboutBrands": "બ્રાન્ડ્સ વિશે",
   "aboutBrandsDescription": "બ્રાન્ડ્સ તમારા ઉત્પાદનોને નિર્માતા અથવા લેબલ મુજબ વ્યવસ્થિત કરવામાં મદદ કરે છે. આ બ્રાન્ડ તમારા બધા ભવિષ્યના ઉત્પાદનો માટે ઉપલબ્ધ હશે.",
   "addBrand": "બ્રાન્ડ ઉમેરો",
+  "editBrand": "બ્રાન્ડ સંપાદિત કરો",
+  "updateBrand": "બ્રાન્ડ અપડેટ કરો",
+  "deleteBrand": "બ્રાન્ડ કાઢી નાખો",
+  "brandDeleteConfirm": "શું તમે ખરેખર બ્રાન્ડ કાઢી નાખવા માંગો છો",
+  "brandDeleteSuccess": "બ્રાન્ડ સફળતાપૂર્વક કાઢી નાખવામાં આવી",
+  "brandUpdateSuccess": "બ્રાન્ડ સફળતાપૂર્વક અપડેટ કરવામાં આવી",
+  "brandCreateSuccess": "બ્રાન્ડ સફળતાપૂર્વક ઉમેરવામાં આવી",
   "basicInformationDescriptionDetail": "લિસ્ટિંગ માટે જરૂરી આવશ્યક ઉત્પાદન વિગતો",
   "basicInfoDetail1": "ઉત્પાદન નામ: તમારા ઉત્પાદનનું મુખ્ય શીર્ષક",
   "basicInfoDetail2": "બ્રાન્ડ: ઉત્પાદક અથવા બ્રાન્ડ નામ",
@@ -409,5 +417,10 @@
   "default": "ડિફૉલ્ટ",
   "deleteVariant": "વેરિઅન્ટ કાઢો",
   "displayName": "દર્શાવવાનું નામ",
-  "variantDeleteConfirm": "શું તમે આ વેરિઅન્ટ કાઢવા માંગો છો?"
+  "variantDeleteConfirm": "શું તમે આ વેરિઅન્ટ કાઢવા માંગો છો?",
+  "forceDelete": "ફોર્સ ડિલીટ કરો",
+  "forceDeleteRequired": "ડિલીટ કરવા માટે પુષ્ટિ જરૂરી છે",
+  "cannotDeleteProduct": "આ ઉત્પાદન કાઢી શકાતું નથી",
+  "forceDeleteProductConfirm": "આ ઉત્પાદન અને તેની ઇન્વેન્ટરીને ફોર્સ ડિલીટ કરો",
+  "forceDeleteProductWarning": "હું સમજુ છું કે આ ઉત્પાદનમાં સ્ટોક છે. આ તપાસવાથી તે કાયમ માટે કાઢી નાખવામાં આવશે અને ઇન્વેન્ટરી કાપવામાં આવશે."
 }
