@@ -86,7 +86,9 @@ const BulkTemplateDownloadButton = ({
       }
 
       const headers = fields.map((f) => f.name);
-      const exampleRow = fields.map((f) => f.example ?? "");
+      const formattedExampleRow = fields.map((f) =>
+        Array.isArray(f.example) ? f.example.join(", ") : (f.example ?? "")
+      );
       const baseFileName = fileName?.split(".")[0] || `${module}_template`;
 
       try {
@@ -95,12 +97,12 @@ const BulkTemplateDownloadButton = ({
           if (!isMounted) return;
 
           if (selectedFormat === "xlsx") {
-            const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+            const ws = XLSX.utils.aoa_to_sheet([headers, formattedExampleRow]);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, sheetName || module);
             XLSX.writeFile(wb, `${baseFileName}.xlsx`);
           } else {
-            const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+            const ws = XLSX.utils.aoa_to_sheet([headers, formattedExampleRow]);
             const csv = XLSX.utils.sheet_to_csv(ws);
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             objectUrl = URL.createObjectURL(blob);
@@ -111,7 +113,7 @@ const BulkTemplateDownloadButton = ({
           }
         } else if (selectedFormat === "json") {
           const jsonData = headers.reduce((acc, header, idx) => {
-            acc[header] = exampleRow[idx];
+            acc[header] = fields[idx]?.example ?? "";
             return acc;
           }, {});
           const blob = new Blob([JSON.stringify([jsonData], null, 2)], {
