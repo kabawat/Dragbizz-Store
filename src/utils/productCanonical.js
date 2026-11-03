@@ -629,15 +629,8 @@ export function buildUnifiedProductPayload({
     uom,
     images: images.length > 0 ? images : (normalized.images ?? []),
     gstInfo,
-    mrp,
-    sellingPrice,
-    discount,
     variants: mappedVariants,
   };
-
-  if (basePrice !== undefined) payload.basePrice = basePrice;
-  if (sku) payload.sku = sku;
-  if (barcode) payload.barcode = barcode;
 
   return payload;
 }
@@ -756,16 +749,9 @@ export function splitProductAndVariantPayload(formData = {}) {
       features: formData.content?.features ?? normalized.features ?? [],
     },
     specifications,
-    mrp,
-    sellingPrice,
-    discount,
     uom,
     variants: [variantPayload],
   };
-
-  if (basePrice !== undefined) productPayload.basePrice = basePrice;
-  if (sku) productPayload.sku = sku;
-  if (barcode) productPayload.barcode = barcode;
 
   return { productPayload, variantPayload };
 }

@@ -1,15 +1,16 @@
 "use client";
 
-import { Eye, Image as ImageIcon, IndianRupee, Package } from "lucide-react";
+import { Eye, IndianRupee, Package } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import useApiResponse from "@/hooks/useApiResponse";
 import { brandService, categoryService } from "@/service/retailer";
 
+import { utilityService } from "@/service";
+import { createEmptyVariant } from "@dragorbit/features/products";
 import AdditionalDetailsSection from "./AdditionalDetailsSection";
 import BasicInfoSection from "./BasicInfoSection";
-import MediaSection from "./MediaSection";
 import PricingGSTSection from "./PricingGSTSection";
 import SortableSection from "./SortableSection";
 import VariantsSection from "./VariantsSection";
@@ -198,13 +199,59 @@ const ProductForm = ({
     if (onChange) onChange("brandId", newBrand.value);
   };
 
+  const handleDuplicateVariant1 = useCallback(() => {
+    const duplicated = {
+      id: `var_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      displayName: (formData.displayName || formData.name || formData.productName)
+        ? `${formData.displayName || formData.name || formData.productName} (Copy)`
+        : "",
+      mrp: formData.mrp || "",
+      sellingPrice: formData.sellingPrice || "",
+      purchasePrice: formData.purchasePrice || formData.basePrice || "",
+      sku: formData.sku ? `${formData.sku}-COPY` : "",
+      barcode: "",
+      stock: formData.stock !== undefined ? formData.stock : "",
+      openingStock: formData.openingStock !== undefined ? formData.openingStock : "",
+      status: formData.status || "ACTIVE",
+      images: [
+        ...(Array.isArray(formData.variantImages) && formData.variantImages.length > 0
+          ? formData.variantImages
+          : formData.images || []),
+      ],
+      isDefault: false,
+      options: (formData.options || []).map((opt) => ({
+        ...opt,
+        id: `opt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      })),
+    };
+    onVariantsChange([...variants, duplicated]);
+  }, [formData, variants, onVariantsChange]);
+
+  const handleUploadVariantImages = useCallback(async (files) => {
+    if (!files || files.length === 0) return [];
+    const uploadedUrls = [];
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const { publicFileUrl } = await utilityService.uploadFile(
+          files[i],
+          "products"
+        );
+        if (publicFileUrl) {
+          uploadedUrls.push(publicFileUrl);
+        }
+      } catch (err) {
+        console.error("Variant image upload failed:", err);
+      }
+    }
+    return uploadedUrls;
+  }, []);
+
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* 2-Column Responsive Form Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
-        {/* Left Column (Primary Details & Pricing) */}
-        <div className="lg:col-span-7 space-y-4">
-          {/* Basic Info Section */}
+      {/* 2-Column Responsive Layout: Exactly 50% - 50% on desktop (lg+), 1 Column on mobile */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 items-start">
+        {/* Left Column (50%): Basic Info Section (Sticky on desktop) */}
+        <div className="w-full min-w-0 lg:sticky lg:top-4">
           <SortableSection
             id="basic"
             title={t("products.basicInformation", "Basic Information")}
@@ -230,80 +277,37 @@ const ProductForm = ({
               productId={productId}
               hasVariants={hasVariants}
               onHasVariantsChange={onHasVariantsChange}
-            />
-          </SortableSection>
-
-          {/* Pricing & GST Section */}
-          <SortableSection
-            id="pricing-gst"
-            title={t("products.pricingAndInventory", "Pricing & Inventory")}
-            subtitle={t(
-              "products.pricingAndInventorySubtitle",
-              "MRP, selling price, purchase price, SKU, barcode, and stock"
-            )}
-            icon={IndianRupee}
-            onInfoClick={handleInfoClick}
-            t={t}
-          >
-            <PricingGSTSection
-              formData={formData}
-              onChange={onChange}
-              errors={fieldErrors}
-              storeId={storeId}
-              productId={productId}
-              hasVariants={hasVariants}
+              onUploadImages={handleUploadVariantImages}
             />
           </SortableSection>
         </div>
 
-        {/* Right Column (Media & Catalog Info) */}
-        <div className="lg:col-span-5 space-y-4">
-          {/* Media Section */}
-          <SortableSection
-            id="media"
-            title={t("products.media", "Media & Images")}
-            subtitle={t(
-              "products.mediaSubtitle",
-              "Upload product photos and media for your catalog"
-            )}
-            icon={ImageIcon}
-            onInfoClick={handleInfoClick}
-            t={t}
-          >
-            <MediaSection
-              formData={formData}
-              onChange={onChange}
-              errors={fieldErrors}
-              storeId={storeId}
-              productId={productId}
-            />
-          </SortableSection>
-
-          {/* Catalog & Additional Details */}
-          <SortableSection
-            id="content"
-            title={t("products.catalogInformation", "Digital Catalog Details")}
-            subtitle={t(
-              "products.catalogInformationSubtitle",
-              "Online store visibility, description, and specifications"
-            )}
-            icon={Eye}
-            onInfoClick={handleInfoClick}
-            t={t}
-          >
-            <AdditionalDetailsSection
-              formData={formData}
-              onChange={onChange}
-              errors={fieldErrors}
-              storeId={storeId}
-              productId={productId}
-            />
-          </SortableSection>
-        </div>
-
-        {/* Full-Width Bottom: Variants Creator Section */}
-        {showVariants && hasVariants && (
-          <div className="lg:col-span-12 pt-2">
+        {/* Right Column (50%): Pricing & Inventory OR Variants */}
+        <div className="w-full min-w-0">
+          {!hasVariants ? (
+            /* Single Product: Pricing & Inventory Section */
+            <SortableSection
+              id="pricing-gst"
+              title={t("products.pricingAndInventory", "Pricing & Inventory")}
+              subtitle={t(
+                "products.pricingAndInventorySubtitle",
+                "MRP, selling price, purchase price, SKU, barcode, and stock"
+              )}
+              icon={IndianRupee}
+              onInfoClick={handleInfoClick}
+              t={t}
+            >
+              <PricingGSTSection
+                formData={formData}
+                onChange={onChange}
+                errors={fieldErrors}
+                storeId={storeId}
+                productId={productId}
+                hasVariants={false}
+              />
+            </SortableSection>
+          ) : (
+            /* Multi-Variant Mode: Variants List (Vertically stacked in 50% column) */
             <VariantsSection
               variants={variants}
               onChange={onVariantsChange}
@@ -311,10 +315,43 @@ const ProductForm = ({
               onHasVariantsChange={onHasVariantsChange}
               baseFormData={formData}
               errors={fieldErrors}
+              variant1Card={
+                <PricingGSTSection
+                  formData={formData}
+                  onChange={onChange}
+                  errors={fieldErrors}
+                  storeId={storeId}
+                  productId={productId}
+                  hasVariants={true}
+                  onUploadImages={handleUploadVariantImages}
+                  onDuplicate={handleDuplicateVariant1}
+                />
+              }
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* Catalog & Additional Details (Full Width) */}
+      <SortableSection
+        id="content"
+        title={t("products.catalogInformation", "Digital Catalog Details")}
+        subtitle={t(
+          "products.catalogInformationSubtitle",
+          "Online store visibility, description, and specifications"
+        )}
+        icon={Eye}
+        onInfoClick={handleInfoClick}
+        t={t}
+      >
+        <AdditionalDetailsSection
+          formData={formData}
+          onChange={onChange}
+          errors={fieldErrors}
+          storeId={storeId}
+          productId={productId}
+        />
+      </SortableSection>
 
       {/* Info Modal */}
       <ProductSectionInfoModal

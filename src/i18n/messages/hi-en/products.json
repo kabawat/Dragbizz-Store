@@ -414,6 +414,11 @@
   "deleteVariant": "Variant hatayein",
   "displayName": "Display name",
   "variantDeleteConfirm": "Kya aap is variant ko delete karna chahte hain?",
+  "forceDelete": "Force delete karein",
+  "forceDeleteRequired": "Default variant ko delete karne ke liye confirmation zaroori hai",
+  "cannotDeleteVariant": "Yeh variant delete nahi kiya ja sakta",
+  "forceDeleteVariantConfirm": "Is default variant ko force delete karein",
+  "forceDeleteVariantWarning": "Main samajhta hoon ki yeh default variant hai. Aage badhne par yeh permanently delete ho jayega.",
   "viewVariants": "Variants Dekhein",
   "viewAllVariants": "Variants Dekhein aur Manage Karein",
   "viewVariant": "Variant Dekhein"
