@@ -4,8 +4,8 @@ import { BaseService } from "@/service/base/BaseService";
 class PaymentCollectService extends BaseService {
   constructor() {
     super();
-    this.collectEndpoint = API_CONFIG.RETAILER.CUSTOMER_ACCOUNT_COLLECT_LINK;
-    this.invoiceEndpoint = API_CONFIG.RETAILER.INVOICE;
+    this.collectEndpoint = API_CONFIG?.CORE?.CUSTOMER_ACCOUNT_COLLECT_LINK;
+    this.invoiceEndpoint = API_CONFIG?.CORE?.INVOICE;
   }
 
   createCollectLink(storeId, payload) {

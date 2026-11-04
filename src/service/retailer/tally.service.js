@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class TallyService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.INTEGRATIONS;
+    this.endpoint = API_CONFIG?.CORE?.INTEGRATIONS;
   }
 
   async getTallyExport(storeId, params = {}) {

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class SalesOrderService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.SALES_ORDER;
+    this.endpoint = API_CONFIG?.CORE?.SALES_ORDER;
   }
 
   // Get Sales Orders (List/Single)

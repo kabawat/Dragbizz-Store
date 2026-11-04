@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class DashboardService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG.RETAILER.DASHBOARD;
+    this.endpoint = API_CONFIG?.CORE?.DASHBOARD;
   }
 
   // Get Dashboard Data

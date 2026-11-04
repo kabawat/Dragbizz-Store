@@ -137,6 +137,13 @@ const ProductMasterDetailLayout = (props) => {
             ...product,
             ...normalized,
             id: product.id ?? product._id ?? prodId,
+            defaultVariantId:
+              defaultVariant?.id ??
+              defaultVariant?._id ??
+              product.defaultVariantId ??
+              normalized.defaultVariantId ??
+              null,
+            defaultVariant: defaultVariant || null,
             hasMultipleVariants: false,
             sellingPrice:
               normalized.sellingPrice !== undefined &&

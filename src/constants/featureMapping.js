@@ -1,9 +1,14 @@
 // Route / menu mapping aligned with subscription PACKAGE_MODULES (short keys)
 export const FEATURE_ROUTES = {
   store: {
-    routes: ["/dashboard/settings", "/setup"],
-    menuItems: ["Settings"],
-    subMenuItems: ["Store Settings"],
+    routes: [
+      "/dashboard/management/stores",
+      "/dashboard/management/store",
+      "/dashboard/settings",
+      "/setup",
+    ],
+    menuItems: ["Management", "Settings"],
+    subMenuItems: ["Store Management", "Store Settings"],
   },
 
   product: {
@@ -132,7 +137,7 @@ export const FEATURE_ROUTES = {
 
   staff: {
     routes: ["/dashboard/management/staff"],
-    menuItems: ["Management"],
+    menuItems: ["Store & Staff"],
     subMenuItems: ["Staff"],
   },
 };

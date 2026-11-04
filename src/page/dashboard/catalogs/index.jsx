@@ -3,7 +3,7 @@
 import { getCatalogUrl } from "@dragorbit/core/domain";
 import { CatalogsScreen } from "@dragorbit/features/catalogs";
 import { SideDrawer, TableSkeleton } from "@dragorbit/ui";
-import { Trash2 } from "lucide-react";
+import { Store, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CatalogDetailsDrawer from "@/components/catalog/CatalogDetailsDrawer";
 import CatalogFormDrawer from "@/components/catalog/CatalogFormDrawer";
@@ -316,14 +316,12 @@ function CatalogsWorkspace({ stores }) {
           title={
             dialog.mode === "edit"
               ? "Edit Digital Shop"
-              : "Digital Shop details"
+              : "Digital Shop Details"
           }
-          position="center"
+          icon={Store}
+          position="right"
           width="w-full sm:w-[560px]"
-          autoHeight
           closeOnEscape
-          draggable={false}
-          resizable={false}
         >
           <div className="p-4 sm:p-6">
             {detail.loading ? (
@@ -370,8 +368,10 @@ function CatalogsWorkspace({ stores }) {
             onEdit={() =>
               setDialog((previous) => ({ ...previous, mode: "edit" }))
             }
-            onDelete={confirmDelete}
-            onCopyLink={copyLink}
+            onUpdated={(updatedCatalog) => {
+              setDetail((previous) => ({ ...previous, data: updatedCatalog }));
+              refresh();
+            }}
           />
         ))}
       <Modal

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class CategoryService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.CATEGORY;
+    this.endpoint = API_CONFIG?.CORE?.CATEGORY;
   }
 
   // Create a new category

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class ExpenseService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.EXPENSE;
+    this.endpoint = API_CONFIG?.CORE?.EXPENSE;
   }
 
   createExpense(expenseData) {

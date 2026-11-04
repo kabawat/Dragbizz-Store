@@ -12,6 +12,7 @@ import {
   getIntegrationsSubMenuItems,
   getManagementSubMenuItems,
   getNavigationItems,
+  getPaymentBillingSubMenuItems,
   getProductSubMenuItems,
   getPurchaseSubMenuItems,
   getSalesSubMenuItems,
@@ -60,6 +61,10 @@ const Sidebar = ({ onStoreChange }) => {
     () => getManagementSubMenuItems(t),
     [t]
   );
+  const paymentBillingSubMenuItems = useMemo(
+    () => getPaymentBillingSubMenuItems(t),
+    [t]
+  );
   const integrationsSubMenuItems = useMemo(
     () => getIntegrationsSubMenuItems(t),
     [t]
@@ -75,6 +80,7 @@ const Sidebar = ({ onStoreChange }) => {
         analyticsSubMenuItems,
         managementSubMenuItems,
         integrationsSubMenuItems,
+        paymentBillingSubMenuItems,
         [],
         utilitiesSubMenuItems,
         financeSubMenuItems
@@ -87,6 +93,7 @@ const Sidebar = ({ onStoreChange }) => {
       analyticsSubMenuItems,
       managementSubMenuItems,
       integrationsSubMenuItems,
+      paymentBillingSubMenuItems,
       utilitiesSubMenuItems,
       financeSubMenuItems,
     ]
@@ -184,11 +191,7 @@ const Sidebar = ({ onStoreChange }) => {
       const activeItem = navigationItems.find(
         (item) =>
           item.hasSubMenu &&
-          item.subMenuItems?.some(
-            (subItem) =>
-              pathname === subItem.href ||
-              pathname.startsWith(`${subItem.href}/`)
-          )
+          item.subMenuItems?.some((subItem) => pathname === subItem.href)
       );
       if (activeItem) {
         dispatch(expandMenu(activeItem.key));

@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class BillService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.BILL;
+    this.endpoint = API_CONFIG?.CORE?.BILL;
   }
 
   // Create a new bill

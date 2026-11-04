@@ -1,115 +1,130 @@
+const withPrefix = (prefix, endpoints) =>
+  Object.freeze(
+    Object.fromEntries(
+      Object.entries(endpoints).map(([key, path]) => [
+        key,
+        path ? `${prefix}${path.startsWith("/") ? path : `/${path}`}` : prefix,
+      ])
+    )
+  );
+
 const API_CONFIG = {
+  // Base Configuration
   BASE: {
     URL: process.env.NEXT_PUBLIC_API_URL || "",
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
-    VERSION: process.env.NEXT_PUBLIC_API_VERSION || "v1",
   },
 
-  // Authentication Endpoints
-  AUTH: {
-    BASE_URL: "/auth",
-    REFRESH: "/auth/refresh",
-    LOGOUT: "/auth/logout",
-    PROFILE: "/auth/profile",
-    NOTIFICATION_SETTINGS: "/auth/settings/notification",
-  },
-  RETAILER: {
-    INVENTORY: "/retailer/inventory",
-    CUSTOMER: "/retailer/customer",
-    CUSTOMER_ACCOUNT: "/retailer/customer-account",
-    CUSTOMER_ACCOUNT_PAYMENTS: "/retailer/customer-account/payments",
-    CUSTOMER_ACCOUNT_COLLECT_LINK: "/retailer/customer-account/payments/collect-link",
-    CUSTOMER_ACCOUNT_TRANSACTIONS: "/retailer/customer-account/transactions",
-    SUPPLIER: "/retailer/supplier",
-    CATEGORY: "/retailer/category",
-    BRAND: "/retailer/brand",
-    PRODUCT: "/retailer/product",
-    VARIANT: "/retailer/variant",
-    ACCOUNT: "/retailer/account",
-    PROFILE: "/retailer/profile",
-    AGENCY: "/retailer/agencies",
-    STORE: "/retailer/store",
-    CATALOG: "/retailer/catalog",
-    STOCK: "/retailer/stock",
+  // Authentication
+  AUTH: withPrefix("/auth", {
+    BASE_URL: "",
+    REFRESH: "/refresh",
+    LOGOUT: "/logout",
+    PROFILE: "/profile",
+    NOTIFICATION_SETTINGS: "/settings/notification",
+  }),
 
-    PURCHASE_ORDER: "/retailer/purchase-order",
-    PAYMENT: "/retailer/supplier-account/payments",
-    BILL: "/retailer/supplier-account/bills",
-    INVOICE: "/retailer/invoices",
-    INVOICE_PAYMENT_LINK: "/retailer/invoices/:id/payment-link",
-    PAYMENTS: "/retailer/payments",
-    EXPENSE: "/retailer/expense",
-    CASHBOOK: "/retailer/cashbook",
-    DASHBOARD: "/retailer/dashboard",
-    ANALYTICS: "/retailer/analytics",
-    GST: "/retailer/gst",
-    GST_VERIFY: "/retailer/gst/verify",
-    INTEGRATIONS: "/retailer/integrations",
-    PUBLIC_CATALOG: "/retailer/public/products",
-    PUBLIC_VARIANTS: "/retailer/public/variants",
-    PUBLIC_CATEGORIES: "/retailer/public/categories",
-    PUBLIC_TEMPLATES: "/retailer/public/templates",
-    SALES_ORDER: "/retailer/sales-order",
-    SIGNATURE: "/retailer/signature",
-    SUGGESTION: "/retailer/suggestion",
-    STAFF: "/retailer/staff",
-    PACKAGES: "/retailer/packages",
-    SUBSCRIPTION: "/retailer/subscription",
-    SETTING: "/retailer/setting",
-  },
+  // Core Business Endpoints
+  CORE: withPrefix("/core", {
+    // Products & Catalog
+    PRODUCT: "/product",
+    VARIANT: "/variant",
+    CATEGORY: "/category",
+    BRAND: "/brand",
+    CATALOG: "/catalog",
 
-  UTILITY: {
-    BASE_URL: "/utility",
-    SOCKET: "/utility/socket.io",
-    UPLOAD_URL: "/utility/v1/storage/upload-url",
-    DELETE_URL: "/utility/v1/storage/file",
-    FCM_REGISTER_DEVICE: "/utility/v1/fcm/device",
-    FCM_DELETE_TOKEN: "/utility/v1/fcm/token",
-    FCM_SEND: "/utility/v1/fcm/send",
-  },
+    // Inventory & Stock
+    INVENTORY: "/inventory",
+    STOCK: "/stock",
 
-  // AI / Voice orchestration (nginx → dragbizz-ai :4004)
+    // Customers & Accounts
+    CUSTOMER: "/customer",
+    CUSTOMER_ACCOUNT: "/customer-account",
+    CUSTOMER_ACCOUNT_PAYMENTS: "/customer-account/payments",
+    CUSTOMER_ACCOUNT_COLLECT_LINK: "/customer-account/payments/collect-link",
+    CUSTOMER_ACCOUNT_TRANSACTIONS: "/customer-account/transactions",
+
+    // Suppliers & Procurement
+    SUPPLIER: "/supplier",
+    ACCOUNT: "/account",
+    PURCHASE_ORDER: "/purchase-order",
+    BILL: "/supplier-account/bills",
+    PAYMENT: "/supplier-account/payments",
+
+    // Sales & Invoices
+    SALES_ORDER: "/sales-order",
+    INVOICE: "/invoices",
+    INVOICE_PAYMENT_LINK: "/invoices/:id/payment-link",
+    PAYMENTS: "/payments",
+
+    // Accounting & Expenses
+    CASHBOOK: "/cashbook",
+    EXPENSE: "/expense",
+
+    // Store & Organization
+    PROFILE: "/profile",
+    STORE: "/store",
+    AGENCY: "/agencies",
+    STAFF: "/staff",
+    SETTING: "/setting",
+    SIGNATURE: "/signature",
+    SUGGESTION: "/suggestion",
+
+    // Analytics & Compliance
+    DASHBOARD: "/dashboard",
+    ANALYTICS: "/analytics",
+    GST: "/gst",
+    GST_VERIFY: "/gst/verify",
+    INTEGRATIONS: "/integrations",
+
+    // Subscriptions
+    PACKAGES: "/packages",
+    SUBSCRIPTION: "/subscription",
+
+    // Public Catalog
+    PUBLIC_CATALOG: "/public/products",
+    PUBLIC_VARIANTS: "/public/variants",
+    PUBLIC_CATEGORIES: "/public/categories",
+    PUBLIC_TEMPLATES: "/public/templates",
+  }),
+
+  // Utility Endpoints
+  UTILITY: withPrefix("/utility", {
+    BASE_URL: "",
+    SOCKET: "/socket.io",
+    UPLOAD_URL: "/v1/storage/upload-url",
+    DELETE_URL: "/v1/storage/file",
+    FCM_REGISTER_DEVICE: "/v1/fcm/device",
+    FCM_DELETE_TOKEN: "/v1/fcm/token",
+    FCM_SEND: "/v1/fcm/send",
+  }),
+
+  // AI & Voice Orchestration
   AI: {
-    BASE_URL: "/brain",
-    CHAT: "/brain/api/v1/chat",
-    CHAT_STREAM: "/brain/api/v1/chat/stream",
-    CONFIRM: "/brain/api/v1/chat/confirm",
-    SESSIONS: "/brain/api/v1/chat/sessions",
-    SESSION_BY_ID: "/brain/api/v1/chat/sessions/:sessionId",
-    NOTIFICATIONS: "/brain/api/v1/notifications",
-    NOTIFICATION_READ: "/brain/api/v1/notifications/:id/read",
-    HEALTH: "/brain/api/v1/health",
-    READY: "/brain/api/v1/ready",
+    ...withPrefix("/brain", {
+      BASE_URL: "",
+      CHAT: "/api/v1/chat",
+      CHAT_STREAM: "/api/v1/chat/stream",
+      CONFIRM: "/api/v1/chat/confirm",
+      SESSIONS: "/api/v1/chat/sessions",
+      SESSION_BY_ID: "/api/v1/chat/sessions/:sessionId",
+      NOTIFICATIONS: "/api/v1/notifications",
+      NOTIFICATION_READ: "/api/v1/notifications/:id/read",
+      HEALTH: "/api/v1/health",
+      READY: "/api/v1/ready",
+    }),
     CHAT_TIMEOUT_MS: 45_000,
   },
 
-  // Finance owns package checkout and payment verification.
-  FINANCE: {
-    CREATE_PACKAGE_PAYMENT: "/payment/create-order",
-    VERIFY_PACKAGE_PAYMENT: "/payment/verify",
-  },
-
-  // External Services
-  EXTERNAL: {
-    GOOGLE_MAPS: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API || "",
-    STRIPE: process.env.NEXT_PUBLIC_STRIPE_API || "",
-    PAYPAL: process.env.NEXT_PUBLIC_PAYPAL_API || "",
-    TWILIO: process.env.NEXT_PUBLIC_TWILIO_API || "",
-  },
-
-  // Request Configuration
-  REQUEST: {
-    RETRY_ATTEMPTS: process.env.NEXT_PUBLIC_API_RETRY_ATTEMPTS || 3,
-    RETRY_DELAY: process.env.NEXT_PUBLIC_API_RETRY_DELAY || 1000,
-    CACHE_DURATION: process.env.NEXT_PUBLIC_API_CACHE_DURATION || 300000, // 5 minutes
-  },
-
-  // Response Configuration
-  RESPONSE: {
-    SUCCESS_CODES: [200, 201, 202],
-    ERROR_CODES: [400, 401, 403, 404, 422, 500],
-    TIMEOUT_CODE: 408,
-  },
+  // Payment & Finance
+  FINANCE: withPrefix("/finance", {
+    CREATE_PACKAGE_PAYMENT: "/subscription/create-order",
+    VERIFY_PACKAGE_PAYMENT: "/subscription/verify",
+    INVOICES: "/billing/invoices",
+    INVOICE_DOWNLOAD: "/billing/invoices/:invoiceId/download",
+  }),
 };
+
+API_CONFIG.RETAILER = API_CONFIG.CORE;
 
 export default API_CONFIG;

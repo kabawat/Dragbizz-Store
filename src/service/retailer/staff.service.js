@@ -5,7 +5,7 @@ import { API_CONFIG } from "@/config";
 class StaffService extends BaseService {
     constructor() {
         super();
-        this.endpoint = API_CONFIG.RETAILER.STAFF;
+        this.endpoint = API_CONFIG?.CORE?.STAFF;
     }
 
     // Get all staff (ACTIVE + PENDING) for the agency

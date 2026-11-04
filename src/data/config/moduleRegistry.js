@@ -55,6 +55,8 @@ export const ROUTE_MODULE_MAP = {
     "/dashboard/utilities/invoice-number": MODULE_KEYS.STORE,
     "/dashboard/utilities/signatures": MODULE_KEYS.STORE,
     "/dashboard/utilities": MODULE_KEYS.STORE,
+    "/dashboard/management/stores": MODULE_KEYS.STORE,
+    "/dashboard/management/store": MODULE_KEYS.STORE,
     "/dashboard/management/staff": MODULE_KEYS.STAFF,
     "/dashboard/management/catalogs": MODULE_KEYS.ONLINE_STORE,
 };

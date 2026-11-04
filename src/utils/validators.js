@@ -132,7 +132,7 @@ export const validatePassword = (password, required = false, minLength = 6) => {
   return { isValid: true, error: null };
 };
 
-export const validateOTP = (otp, length = 5, required = false) => {
+export const validateOTP = (otp, length = 6, required = false) => {
   if (!otp || !otp.trim()) {
     return {
       isValid: !required,

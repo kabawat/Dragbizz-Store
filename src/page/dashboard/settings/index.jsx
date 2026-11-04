@@ -8,7 +8,6 @@ import {
   Palette,
   Settings as SettingsIcon,
   Shield,
-  Store,
   User,
   PenTool,
   Languages,
@@ -21,7 +20,6 @@ import {
   NotificationsSettings,
   ProfileSettings,
   SecuritySettings,
-  StoreSettings,
   SignatureSettings,
   LanguageSettings,
   InvoiceNumberSettings,
@@ -39,6 +37,7 @@ const LEGACY_TAB_REDIRECTS = {
   payment: "/dashboard/integrations/payment",
   invoiceNumber: "/dashboard/utilities/invoice-number",
   signature: "/dashboard/utilities/signatures",
+  store: "/dashboard/management/stores",
 };
 
 const SettingsPage = () => {
@@ -48,7 +47,7 @@ const SettingsPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { user, selectedStore, authProfile } = useAppSelector(
+  const { user, authProfile } = useAppSelector(
     (state) => state.profile,
   );
   const { toggleVariant } = useTheme();
@@ -61,7 +60,6 @@ const SettingsPage = () => {
     { id: "language", label: t("settings.language"), icon: Languages },
     { id: "profile", label: t("settings.profile"), icon: User },
     { id: "account", label: t("settings.account"), icon: SettingsIcon },
-    { id: "store", label: t("settings.store"), icon: Store },
     { id: "cashbook", label: t("cashbook.title"), icon: Wallet },
     { id: "security", label: t("settings.security"), icon: Shield },
     {
@@ -136,9 +134,6 @@ const SettingsPage = () => {
           {activeTab === "profile" && <ProfileSettings user={user} />}
           {activeTab === "account" && <AccountSettings />}
           {activeTab === "cashbook" && <CashbookSettings />}
-          {activeTab === "store" && (
-            <StoreSettings selectedStore={selectedStore} />
-          )}
           {activeTab === "signature" && <SignatureSettings />}
           {activeTab === "invoiceNumber" && <InvoiceNumberSettings />}
           {activeTab === "security" && <SecuritySettings />}

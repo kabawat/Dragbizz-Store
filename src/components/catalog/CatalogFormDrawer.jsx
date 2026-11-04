@@ -17,6 +17,8 @@ import catalogService from "@/service/retailer/catalog.service";
 import {
   buildCatalogPayload,
   CATALOG_STATUSES,
+  CATALOG_TEMPLATE_DETAILS,
+  CATALOG_TEMPLATES,
   catalogFormValues,
   updateCatalogStores,
   validateCatalogSubdomain,
@@ -95,32 +97,35 @@ export default function CatalogFormDrawer({
   return (
     <SideDrawer
       isOpen
-      title={catalog ? "Edit digital shop" : "Create digital shop"}
+      title={catalog ? "Edit Digital Shop" : "Create Digital Shop"}
       icon={Store}
-      position="center"
+      position="right"
       width="w-full sm:w-[560px]"
-      autoHeight
-      draggable={false}
-      resizable={false}
       onClose={close}
       closeOnOutsideClick={false}
       closeOnEscape={!loading}
       footer={
-        <>
-          <Button variant="outline" onClick={close} disabled={loading}>
-            Cancel
-          </Button>
+        <div className="flex w-full items-center justify-start gap-2">
           <Button
             type="submit"
             form="catalog-form"
+            className="cursor-pointer"
             title="Save (Ctrl/Cmd+S or Ctrl/Cmd+Enter)"
             aria-keyshortcuts="Control+s Control+Enter Meta+s Meta+Enter"
             leftIcon={Save}
             loading={loading}
           >
-            {catalog ? "Save changes" : "Create digital shop"}
+            {catalog ? "Save Changes" : "Create Digital Shop"}
           </Button>
-        </>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={close}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+        </div>
       }
     >
       <form
@@ -137,7 +142,8 @@ export default function CatalogFormDrawer({
             {message}
           </Alert>
         )}
-        <fieldset disabled={loading} className="min-w-0 space-y-5">
+        <fieldset disabled={loading} className="min-w-0 space-y-6">
+          {/* Section 1: Shop Details */}
           <section className="space-y-4" aria-label="Shop details">
             <Input
               label="Shop name"
@@ -147,7 +153,9 @@ export default function CatalogFormDrawer({
               onChange={(value) => change("name", value)}
               error={!!errors.name}
               errorMessage={errors.name}
+              placeholder="e.g. My Digital Store"
             />
+
             <div className="space-y-2">
               <Input
                 label="Subdomain"
@@ -159,22 +167,39 @@ export default function CatalogFormDrawer({
                 error={!!(errors.subdomain || subdomainError)}
                 errorMessage={errors.subdomain || subdomainError}
                 helperText="Lowercase letters, numbers and hyphens. Each shop needs a unique address."
+                placeholder="e.g. my-shop"
               />
               {form.subdomain.trim() && !subdomainError && (
-                <div className="flex items-start gap-3 rounded-xl border border-[rgb(var(--color-primary))]/15 bg-[rgb(var(--color-primary))]/5 p-3">
+                <div className="flex items-start gap-3 rounded-xl border border-[rgb(var(--color-primary))]/20 bg-[rgb(var(--color-primary))]/5 p-3">
                   <Globe className="mt-0.5 h-4 w-4 shrink-0 text-[rgb(var(--color-primary))]" />
-                  <div className="min-w-0">
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">
                       Shop address
                     </p>
-                    <p className="mt-1 break-all text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                    <p className="mt-0.5 break-all text-sm font-semibold text-[rgb(var(--color-text-primary))] font-mono">
                       {getCatalogUrl(form.subdomain.trim().toLowerCase())}
                     </p>
                   </div>
                 </div>
               )}
             </div>
+
+            <Select
+              label="Storefront template"
+              value={form.templateId}
+              options={CATALOG_TEMPLATES}
+              onChange={(value) => change("templateId", value)}
+              disabled={loading}
+              error={!!errors.templateId}
+              errorMessage={errors.templateId}
+              helperText={
+                CATALOG_TEMPLATE_DETAILS[form.templateId]?.description ||
+                "Choose the storefront layout customers will see."
+              }
+            />
           </section>
+
+          {/* Section 2: Stores & Availability */}
           <section
             className="space-y-4 border-t border-[rgb(var(--color-border-primary))] pt-5"
             aria-label="Store access"
@@ -184,71 +209,76 @@ export default function CatalogFormDrawer({
                 <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                   Stores & availability
                 </h3>
-                <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
+                <p className="mt-0.5 text-xs text-[rgb(var(--color-text-secondary))]">
                   Choose which Stores belong to this shop.
                 </p>
               </div>
-              <span className="shrink-0 rounded-full bg-[rgb(var(--color-bg-secondary))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-text-secondary))]">
+              <span className="shrink-0 rounded-full bg-[rgb(var(--color-bg-secondary))] px-2.5 py-0.5 text-xs font-medium text-[rgb(var(--color-text-secondary))] border border-[rgb(var(--color-border-primary))]">
                 {form.stores.length} selected
               </span>
             </div>
-            <MultiSelect
-              label="Linked Stores"
-              options={options}
-              value={form.stores}
-              onChange={(values) => {
-                setForm((previous) => updateCatalogStores(previous, values));
-                setErrors((previous) => ({
-                  ...previous,
-                  stores: undefined,
-                  defaultStore: undefined,
-                }));
-              }}
-              disabled={loading}
-              error={!!errors.stores}
-              errorMessage={errors.stores}
-              helperText={
-                stores.length
-                  ? undefined
-                  : "No Stores available in your Agency yet."
-              }
-              placeholder="Select Stores"
-            />
-            {unavailableStores.length > 0 && (
-              <Alert variant="warning">
-                Some linked Stores are no longer available. Remove them from the
-                selection before saving.
-              </Alert>
-            )}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Select
-                label="Default Store"
-                value={form.defaultStore}
-                onChange={(value) => change("defaultStore", value)}
-                options={[
-                  { value: "", label: "No default Store" },
-                  ...storeOptions.filter((option) =>
-                    form.stores.includes(option.value)
-                  ),
-                ]}
-                disabled={loading || !form.stores.length}
-                error={!!errors.defaultStore}
-                errorMessage={errors.defaultStore}
-                helperText={
-                  form.stores.length
-                    ? "Used as the shop’s default location."
-                    : "Link a Store to choose a default."
-                }
-              />
-              <Select
-                label="Status"
-                value={form.status}
-                options={CATALOG_STATUSES}
-                onChange={(value) => change("status", value)}
+
+            <div className="space-y-4">
+              <MultiSelect
+                label="Linked Stores"
+                options={options}
+                value={form.stores}
+                onChange={(values) => {
+                  setForm((previous) => updateCatalogStores(previous, values));
+                  setErrors((previous) => ({
+                    ...previous,
+                    stores: undefined,
+                    defaultStore: undefined,
+                  }));
+                }}
                 disabled={loading}
-                error={!!errors.status}
-                errorMessage={errors.status}
+                error={!!errors.stores}
+                errorMessage={errors.stores}
+                helperText={
+                  stores.length
+                    ? undefined
+                    : "No Stores available in your Agency yet."
+                }
+                placeholder="Select Stores"
               />
+
+              {unavailableStores.length > 0 && (
+                <Alert variant="warning">
+                  Some linked Stores are no longer available. Remove them from
+                  the selection before saving.
+                </Alert>
+              )}
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Select
+                  label="Default Store"
+                  value={form.defaultStore}
+                  onChange={(value) => change("defaultStore", value)}
+                  options={[
+                    { value: "", label: "No default Store" },
+                    ...storeOptions.filter((option) =>
+                      form.stores.includes(option.value)
+                    ),
+                  ]}
+                  disabled={loading || !form.stores.length}
+                  error={!!errors.defaultStore}
+                  errorMessage={errors.defaultStore}
+                  helperText={
+                    form.stores.length
+                      ? "Used as the shop’s default location."
+                      : "Link a Store to choose a default."
+                  }
+                />
+                <Select
+                  label="Status"
+                  value={form.status}
+                  options={CATALOG_STATUSES}
+                  onChange={(value) => change("status", value)}
+                  disabled={loading}
+                  error={!!errors.status}
+                  errorMessage={errors.status}
+                />
+              </div>
             </div>
           </section>
         </fieldset>

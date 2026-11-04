@@ -23,35 +23,44 @@ const ProductDeleteConfirmModal = ({
   const isOpen = Boolean(productToDelete);
   const { execute, loading: isDeleting } = useApiResponse();
 
-  const handleConfirm = useCallback(async () => {
-    if (!productToDelete) return;
+  const handleConfirm = useCallback(
+    async (options = {}) => {
+      if (!productToDelete) return;
 
-    const targetId =
-      typeof productToDelete.id === "object" && productToDelete.id !== null
-        ? (productToDelete.id.id ?? productToDelete.id._id)
-        : (productToDelete.id ?? productToDelete._id);
+      const targetId =
+        typeof productToDelete.id === "object" && productToDelete.id !== null
+          ? (productToDelete.id.id ?? productToDelete.id._id)
+          : (productToDelete.id ?? productToDelete._id);
 
-    if (!targetId || typeof targetId !== "string") {
-      console.error(
-        "Invalid targetId for product deletion:",
-        targetId,
-        productToDelete
+      if (!targetId || typeof targetId !== "string") {
+        console.error(
+          "Invalid targetId for product deletion:",
+          targetId,
+          productToDelete
+        );
+        return;
+      }
+
+      const result = await execute(
+        productService.deleteProduct(targetId, storeId, options),
+        {
+          message:
+            t("products.productDeleteSuccess") ||
+            "Product deleted successfully",
+        }
       );
-      return;
-    }
 
-    const result = await execute(
-      productService.deleteProduct(targetId, storeId),
-      { showToast: false }
-    );
+      if (result?.success) {
+        // Update state locally
+        dispatch(removeProduct(targetId));
+        onSuccess?.(productToDelete.name);
+        onClose?.();
+      }
 
-    if (result?.success) {
-      // Update state locally
-      dispatch(removeProduct(targetId));
-      onSuccess?.(productToDelete.name);
-      onClose?.();
-    }
-  }, [productToDelete, storeId, dispatch, onClose, onSuccess, execute]);
+      return result;
+    },
+    [productToDelete, storeId, dispatch, onClose, onSuccess, execute, t]
+  );
 
   const handleClose = useCallback(() => {
     if (isDeleting) return;

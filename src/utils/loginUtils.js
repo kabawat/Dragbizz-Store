@@ -38,7 +38,7 @@ export const validateForm = (formData, contactType, loginMethod, t) => {
         passwordValidation.error || t("auth.passwordRequired");
     }
   } else if (loginMethod === "otp") {
-    const otpValidation = validateOTP(formData.otp, 5, true);
+    const otpValidation = validateOTP(formData.otp, 6, true);
     if (!otpValidation.isValid) {
       newErrors.otp = otpValidation.error || t("auth.otpRequired");
     }

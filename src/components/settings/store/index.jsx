@@ -17,7 +17,6 @@ import {
 import StoreAddDrawer from "./StoreAddDrawer";
 import StoreDeleteModal from "./StoreDeleteModal";
 import StoreEditDrawer from "./StoreEditDrawer";
-import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
 
 const StoreSettings = () => {
@@ -159,7 +158,7 @@ const StoreSettings = () => {
   return (
     <StoreSettingsView
       model={{
-        StoreHeader,
+        StoreHeader: null,
         stores,
         isLoading,
         handleAddStore,

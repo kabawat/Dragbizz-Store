@@ -4,13 +4,12 @@ import { BaseService } from "@/service/base/BaseService";
 class PurchaseOrderService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.PURCHASE_ORDER;
+    this.endpoint = API_CONFIG?.CORE?.PURCHASE_ORDER;
   }
 
   // Create a new purchase order
   createPurchaseOrder(poData) {
     const payload = { ...poData };
-    // Strip undefined properties
     Object.keys(payload).forEach((key) => {
       if (payload[key] === undefined) {
         delete payload[key];

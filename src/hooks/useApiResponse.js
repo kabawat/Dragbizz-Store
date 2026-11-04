@@ -27,12 +27,16 @@ export const useApiResponse = () => {
   const handleApiSuccess = useCallback(
     (response, options = {}) => {
       const result = handleSuccess(response);
-      const { message: customMsg = null, showToast = true } = options;
+      const {
+        message: customMsg = null,
+        showToast = true,
+        showSuccessToast = true,
+      } = options;
 
       setData(result.data);
       setError(null);
 
-      if (showToast) {
+      if (showToast && showSuccessToast) {
         toastSuccess(customMsg || result.message);
       }
 
@@ -44,7 +48,7 @@ export const useApiResponse = () => {
   const handleApiError = useCallback(
     (error, options = {}) => {
       const result = handleError(error);
-      const { showToast = true } = options;
+      const { showToast = true, showErrorToast = true } = options;
 
       if (!options.keepPreviousDataOnError) setData(null);
       setError(result.message || "Request failed");
@@ -81,7 +85,7 @@ export const useApiResponse = () => {
           !isInitialized ||
           isLoading);
 
-      if (showToast && !shouldSuppressBootstrapStoreError) {
+      if (showToast && showErrorToast && !shouldSuppressBootstrapStoreError) {
         showError(result.message);
       }
 

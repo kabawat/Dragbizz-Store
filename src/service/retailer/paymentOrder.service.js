@@ -4,7 +4,7 @@ import { BaseService } from "@/service/base/BaseService";
 class PaymentOrderService extends BaseService {
   constructor() {
     super();
-    this.endpoint = API_CONFIG?.RETAILER?.PAYMENTS;
+    this.endpoint = API_CONFIG?.CORE?.PAYMENTS;
   }
 
   createCheckout(storeId, invoiceId, gatewayType = "RAZORPAY") {

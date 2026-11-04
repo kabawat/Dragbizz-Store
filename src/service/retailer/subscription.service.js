@@ -3,7 +3,11 @@ import { BaseService } from "@/service/base/BaseService";
 
 class SubscriptionService extends BaseService {
   getSubscription(params = {}) {
-    return this.get(API_CONFIG?.RETAILER?.SUBSCRIPTION, params);
+    return this.get(API_CONFIG?.CORE?.SUBSCRIPTION, params);
+  }
+
+  getHistory(params = {}) {
+    return this.get(`${API_CONFIG?.CORE?.SUBSCRIPTION}/history`, params);
   }
 }
 
