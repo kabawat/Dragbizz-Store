@@ -89,6 +89,7 @@ const ProductListContent = ({
             getProducts({
               store: storeIdRef.current,
               nextCursor: paginationRef.current.nextCursor,
+              limit: 20,
               isFreshLoad: false,
               includeVariants: false,
               lightweight: "true",
@@ -145,7 +146,7 @@ const ProductListContent = ({
         dispatch(
           getProducts({
             store: storeId,
-            limit: pagination?.limit || 20,
+            limit: 20,
             isFreshLoad: true,
             includeVariants: false,
             lightweight: "true",
@@ -153,7 +154,7 @@ const ProductListContent = ({
         );
       }
     },
-    [showSuccess, dispatch, storeId, pagination?.limit]
+    [showSuccess, dispatch, storeId]
   );
 
   // Delete handlers

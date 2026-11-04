@@ -26,8 +26,8 @@ class VariantService extends BaseService {
       typeof options === "boolean"
         ? { force: options }
         : options?.force !== undefined
-        ? { force: Boolean(options.force) }
-        : null;
+          ? { force: Boolean(options.force) }
+          : null;
     const config = body ? { data: body } : {};
     return this.delete(url, {}, config);
   }

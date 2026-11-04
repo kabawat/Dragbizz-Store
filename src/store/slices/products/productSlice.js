@@ -1,119 +1,139 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { productService } from "@/service/retailer";
-import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
+import { handleSuccess } from "@/utils/responseHandler/success";
 import { isValidStoreId } from "@/utils/store.util";
 
 const initialState = {
   hasLoaded: false,
-    products: [],
-    pagination: {
-        hasNextPage: false,
-        nextCursor: null,
-        limit: 20,
-        total: 0,
-    },
-    isLoading: false,
-    isFetchingMore: false,
-    error: null,
-    viewMode: "split", // 'split' | 'table' | 'card'
+  products: [],
+  lastListParams: null,
+  pagination: {
+    hasNextPage: false,
+    nextCursor: null,
+    limit: 20,
+    total: 0,
+  },
+  isLoading: false,
+  isFetchingMore: false,
+  error: null,
+  viewMode: "split", // 'split' | 'table' | 'card'
 };
 
 export const getProducts = createAsyncThunk(
-    "products/getProducts",
-    async (params = {}, { rejectWithValue }) => {
-        try {
-            const response = await productService.getProducts(params);
-            return handleSuccess(response);
-        } catch (error) {
-            const result = handleError(error);
-            return rejectWithValue(result.message);
-        }
-    },
-    {
-        condition: (params, { getState }) => {
-            if (!isValidStoreId(String(params?.store ?? ""))) {
-                return false;
-            }
-            const { isLoading, isFetchingMore } = getState().products;
-            if (params?.isFreshLoad && isLoading) return false;
-            if (!params?.isFreshLoad && isFetchingMore) return false;
-            return true;
-        },
+  "products/getProducts",
+  async (params = {}, { getState, rejectWithValue }) => {
+    try {
+      const isFreshLoad = params?.isFreshLoad !== false;
+      const { lastListParams } = getState().products;
+      const baseParams = isFreshLoad ? {} : lastListParams || {};
+      const requestParams = {
+        ...baseParams,
+        ...params,
+        limit: 20,
+      };
+      const response = await productService.getProducts(requestParams);
+      return handleSuccess(response);
+    } catch (error) {
+      const result = handleError(error);
+      return rejectWithValue(result.message);
     }
+  },
+  {
+    condition: (params, { getState }) => {
+      if (!isValidStoreId(String(params?.store ?? ""))) {
+        return false;
+      }
+      const { isLoading, isFetchingMore } = getState().products;
+      if (params?.isFreshLoad && isLoading) return false;
+      if (!params?.isFreshLoad && isFetchingMore) return false;
+      return true;
+    },
+  }
 );
 
 const productsSlice = createSlice({
-    name: "products",
-    initialState,
-    reducers: {
-        setViewMode: (state, action) => {
-            state.viewMode = action.payload;
-        },
-
-        removeProduct: (state, action) => {
-            const productId = action.payload;
-            state.products = state.products.filter((p) => (p.id || p._id) !== productId);
-            if (state.pagination.total > 0) state.pagination.total -= 1;
-        },
-
-        addMoreProducts: (state, action) => {
-            const existingIds = new Set(state.products.map((p) => p.id || p._id));
-            const newProducts = action.payload.filter((p) => !existingIds.has(p.id || p._id));
-            state.products = [...state.products, ...newProducts];
-        },
+  name: "products",
+  initialState,
+  reducers: {
+    setViewMode: (state, action) => {
+      state.viewMode = action.payload;
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(getProducts.pending, (state, action) => {
-                const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
-                if (isFreshLoad) state.isLoading = true;
-                else state.isFetchingMore = true;
-                state.error = null;
-            })
-            .addCase(getProducts.fulfilled, (state, action) => {
-        state.hasLoaded = true;
-                const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
-                if (isFreshLoad) state.isLoading = false;
-                else state.isFetchingMore = false;
-                state.error = null;
 
-                const { data, pagination } = action.payload;
-                const raw = Array.isArray(data) ? data : (data?.data ?? data ?? []);
-                const normalize = (p) => ({ ...p, id: p.id || p._id });
-
-                if (isFreshLoad) {
-                    state.products = raw.map(normalize);
-                } else {
-                    const existingIds = new Set(state.products.map((p) => p.id));
-                    const incoming = raw.map(normalize).filter((p) => !existingIds.has(p.id));
-                    state.products = [...state.products, ...incoming];
-                }
-
-                const pg = pagination || data?.meta?.pagination;
-                if (pg) {
-                    state.pagination = {
-                        hasNextPage: pg.hasNextPage || false,
-                        nextCursor: pg.nextCursor || null,
-                        limit: pg.limit || 20,
-                        total: pg.total ?? (isFreshLoad ? raw.length : state.pagination.total + raw.length),
-                    };
-                }
-            })
-            .addCase(getProducts.rejected, (state, action) => {
-        state.hasLoaded = true;
-                const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
-                if (isFreshLoad) state.isLoading = false;
-                else state.isFetchingMore = false;
-                state.error = action.payload?.message || "Failed to fetch products";
-            });
+    removeProduct: (state, action) => {
+      const productId = action.payload;
+      state.products = state.products.filter(
+        (p) => (p.id || p._id) !== productId
+      );
+      if (state.pagination.total > 0) state.pagination.total -= 1;
     },
+
+    addMoreProducts: (state, action) => {
+      const existingIds = new Set(state.products.map((p) => p.id || p._id));
+      const newProducts = action.payload.filter(
+        (p) => !existingIds.has(p.id || p._id)
+      );
+      state.products = [...state.products, ...newProducts];
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getProducts.pending, (state, action) => {
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
+        if (isFreshLoad) state.isLoading = true;
+        else state.isFetchingMore = true;
+        state.error = null;
+      })
+      .addCase(getProducts.fulfilled, (state, action) => {
+        state.hasLoaded = true;
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
+        if (isFreshLoad) state.isLoading = false;
+        else state.isFetchingMore = false;
+        state.error = null;
+
+        const { data, pagination } = action.payload;
+        const raw = Array.isArray(data) ? data : (data?.data ?? data ?? []);
+        const normalize = (p) => ({ ...p, id: p.id || p._id });
+
+        if (isFreshLoad) {
+          const {
+            nextCursor: _nc,
+            cursor: _c,
+            ...restParams
+          } = action.meta?.arg || {};
+          state.lastListParams = restParams;
+          state.products = raw.map(normalize);
+        } else {
+          const existingIds = new Set(state.products.map((p) => p.id));
+          const incoming = raw
+            .map(normalize)
+            .filter((p) => !existingIds.has(p.id));
+          state.products = [...state.products, ...incoming];
+        }
+
+        const pg = pagination || data?.meta?.pagination;
+        if (pg) {
+          state.pagination = {
+            hasNextPage: pg.hasNextPage || false,
+            nextCursor: pg.nextCursor || null,
+            limit: 20,
+            total:
+              pg.total ??
+              (isFreshLoad ? raw.length : state.pagination.total + raw.length),
+          };
+        }
+      })
+      .addCase(getProducts.rejected, (state, action) => {
+        state.hasLoaded = true;
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? true;
+        if (isFreshLoad) state.isLoading = false;
+        else state.isFetchingMore = false;
+        state.error = action.payload?.message || "Failed to fetch products";
+      });
+  },
 });
 
-export const {
-    setViewMode,
-    removeProduct,
-    addMoreProducts,
-} = productsSlice.actions;
+export const { setViewMode, removeProduct, addMoreProducts } =
+  productsSlice.actions;
 
 export default productsSlice.reducer;

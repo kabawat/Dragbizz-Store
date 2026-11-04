@@ -37,7 +37,7 @@ const VariantsPage = () => {
     if (!storeId) return;
     setError(null);
     const result = await execute(
-      variantService.getVariants({ store: storeId, limit: 200 }),
+      variantService.getVariants({ store: storeId, isDefault: false, limit: 20 }),
       { showToast: false }
     );
     if (!result || result.success === false || result.status === false) {
